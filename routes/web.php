@@ -54,7 +54,7 @@ Route::get('/dashboard', function () {
     $votantes = Informacion_votantes::select('id_eventos', 'nombre', 'tipo')->get();
 
     return Inertia::render('Dashboard', [
-        'eventos' => Eventos::whereNot('nombre', '!=', 'Admin')
+        'eventos' => Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
                 $query->where('id_user', Auth::id());
             }])

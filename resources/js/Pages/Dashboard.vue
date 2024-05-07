@@ -110,6 +110,7 @@ const props = defineProps({
     votantes: Object,
 })
 
+console.log(props);
 
 
 onMounted(() => {
