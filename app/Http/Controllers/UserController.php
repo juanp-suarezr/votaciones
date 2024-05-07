@@ -67,7 +67,8 @@ class UserController extends Controller
             'eventos' => 'required',
             'identificacion' => 'required|string|max:20|unique:'.Informacion_votantes::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'roles_user' => 'required'
+            'roles_user' => 'required',
+            'candidato' => 'required',
         ]);
 
         $user = User::create([
@@ -83,6 +84,7 @@ class UserController extends Controller
             'identificacion' => $request->identificacion,
             'tipo' => $request->tipo,
             'id_eventos' => $request->eventos,
+            'candidato' => $request->candidato,
         ]);
 
         // Asocia la información del usuario
@@ -115,7 +117,8 @@ class UserController extends Controller
             'tipo' => 'required|string|max:60',
             'identificacion' => ['required', 'string', 'max:20', Rule::unique('votantes')->ignore($infoUser)],
             'estado' => ['required'],
-            'roles_user' => 'required'
+            'roles_user' => 'required',
+            'candidato' => '',
         ]);
 
 
@@ -126,6 +129,7 @@ class UserController extends Controller
         $infoUser->identificacion = $request->identificacion;
         $infoUser->tipo = $request->tipo;
         $infoUser->id_eventos = $request->eventos;
+        $infoUser->candidato = $request->candidato;
         $infoUser->save();
 
         $user->syncRoles($request->input('roles_user'));

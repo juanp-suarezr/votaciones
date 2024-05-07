@@ -44,7 +44,8 @@
                             <option v-for="vot in tipos" :value="vot.nombre" :key="vot.id">{{ vot.nombre }}
                             </option>
                         </select>
-                        <p v-else class="text-xs text-gray-600">No hay tipos de usuarios registrados, registrar uno nuevo <a :href="route('tipos.index')">Aquí</a></p>
+                        <p v-else class="text-xs text-gray-600">No hay tipos de usuarios registrados, registrar uno
+                            nuevo <a :href="route('tipos.index')">Aquí</a></p>
                         <InputError class="mt-2" :message="form.errors.tipo" />
                     </div>
                     <!-- evento -->
@@ -56,7 +57,8 @@
                             <option v-for="ev in eventos" :value="ev.id" :key="ev.id">{{ ev.nombre }}
                             </option>
                         </select>
-                        <p v-else class="text-xs text-gray-600">No hay eventos registrados, registrar uno nuevo <a :href="route('eventos.index')">Aquí</a></p>
+                        <p v-else class="text-xs text-gray-600">No hay eventos registrados, registrar uno nuevo <a
+                                :href="route('eventos.index')">Aquí</a></p>
                         <InputError class="mt-2" :message="form.errors.eventos" />
                     </div>
                     <!-- email -->
@@ -93,8 +95,18 @@
                         </div>
                         <InputError class="mt-2" :message="form.errors.roles_user" />
                     </div>
-                    <div>
-                        <div class="mt-4 flex flex-col items-end">
+                    <!-- select empresa - campista -->
+                    <div class="col-span-2 w-full">
+                        <div class="card flex z-10 gap-4 mt-4">
+                            <div class="card flex justify-content-center">
+                                <SelectButton v-model="tipo_user" :options="options_user" aria-labelledby="basic" />
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-span-2 w-full">
+                        <div class="mt-4 flex flex-col items-center">
                             <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                                 Registrar Usuario
                             </PrimaryButton>
@@ -118,8 +130,9 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import MultiSelect from 'primevue/multiselect';
-import { inject } from 'vue';
+import { inject, ref, watch } from 'vue';
 import SecondaryLink from '@/Components/SecondaryLink.vue';
+import SelectButton from 'primevue/selectbutton';
 
 const swal = inject('$swal');
 
@@ -137,6 +150,10 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+//checked para empresas o campistas
+const tipo_user = ref('Usuario');
+const options_user = ref(['Candidato', 'Usuario']);
+
 
 const form = useForm({
     name: '',
@@ -148,6 +165,18 @@ const form = useForm({
     terms: false,
     roles_user: '',
     eventos: 0,
+    candidato: 0,
+
+});
+
+watch(tipo_user, (value) => {
+
+if (value == 'Candidato') {
+    form.candidato = 1;
+    
+} else {
+    form.candidato = 0;
+}
 
 });
 
