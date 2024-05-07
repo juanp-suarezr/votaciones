@@ -19,13 +19,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public const HOME = '/dashboard';
 
-    public static $REGISTRO;
-
-    public static function inicializarRegistroURL($identificacion) {
-        
-        return self::$REGISTRO = '/registrados?search=' . $identificacion . '&origin=validation';
-    }
-
+    
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      */

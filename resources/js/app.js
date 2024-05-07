@@ -16,7 +16,7 @@ import 'vue-toast-notification/dist/theme-default.css';
 const appName = 'VotaYa';
 
 createInertiaApp({
-    title: (title) => `${title} - VotaYa`,
+    title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })
