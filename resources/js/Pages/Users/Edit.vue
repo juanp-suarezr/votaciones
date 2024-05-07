@@ -34,7 +34,7 @@ defineProps({
 
     <AuthenticatedLayout>
         <div class="py-2">
-            <div class="overflow-hidden shadow-sm sm:rounded-lg space-y-6 w-2/4">
+            <div class="overflow-hidden shadow-sm sm:rounded-lg space-y-6 md:w-2/4 w-full">
                 <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg">
                     <UpdateProfileInformationForm :user="usuario" :roles="roles" :userRoles="userRole" :tipos="tipos" :eventos="eventos" class="max-w-xl" />
                 </div>
