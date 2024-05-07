@@ -188,9 +188,9 @@ const setChartData = () => {
             {
                 label: 'Votos',
                 data:
-                    [
-                        showVotosXtipo()
-                    ],
+                    
+                        showVotosXtipo(),
+                    
                 backgroundColor: ['rgba(59, 130, 246, 1)'],
             }
         ]

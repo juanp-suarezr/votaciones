@@ -289,10 +289,7 @@ const setChartData = () => {
         datasets: [
             {
                 label: 'Votos',
-                data:
-                    [
-                        votosArray.join(', ').split(',').map(label => label.trim())
-                    ],
+                data: votosArray.join(', ').split(',').map(label => label.trim()),
                 backgroundColor: [documentStyle.getPropertyValue('--gray-500')],
             }
         ]
