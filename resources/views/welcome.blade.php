@@ -3,8 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="keywords" content="Votaciones, Alcaldia pereira, pereira, alcaldia, publico, Pereira, alcaldia de pereira, web, app">
+        <meta name="description" content="Sitio diseñado para uso interno de la alcaldía de Pereira y las diferentes dependencias que requieran realizar votaciones virtuales">
+        <meta name="author" content="M.Sc.&#169; Alcaldía de Pereirs">
 
-        <title>Laravel</title>
+        <title>VotaYa</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
