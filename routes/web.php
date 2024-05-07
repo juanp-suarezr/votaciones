@@ -48,6 +48,7 @@ Route::get('/home', function () {
 
 Route::get('/dashboard', function () {
 
+    
     $eventos_admin = Eventos::where('estado', 'Activo')
         ->with('votos')
         ->get();

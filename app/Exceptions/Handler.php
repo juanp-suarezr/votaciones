@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler
 
 
         if ($exception instanceof AuthenticationException) {
-            return response()->json(['error' => 'No autenticado'], Response::HTTP_UNAUTHORIZED);
+            return redirect()->route('login');
         }
 
         if ($exception instanceof NotFoundHttpException) {
