@@ -116,7 +116,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 
-    Route::get('/registrado/exportar', [RegistroController::class, 'excel'])->name('registrados.excel');
 });
 
 Route::group(['middleware' => ['auth']], function () {
