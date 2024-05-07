@@ -214,7 +214,7 @@ const props = defineProps({
 
 });
 
-console.log(props.filters);
+
 
 const registrados = ref(props.registro.data);
 
@@ -224,12 +224,12 @@ if (props.validation) {
 
     // Agregar el último registro al nuevo array
     nuevosRegistros.push(props.registro);
-    console.log(nuevosRegistros);
+    
     registrados.value = nuevosRegistros;
 
 }
 
-console.log(registrados.value);
+
 
 // pass filters in search
 let search = ref(props.filters.search);
@@ -282,12 +282,8 @@ const isToday = (fecha) => {
     const formattedToday = formatDate(today);
 
     // Comparar solo el año, mes y día
-    console.log(formattedDate === formattedToday);
+    
     return formattedDate === formattedToday;
 }
 
-
-watch(search, (value) => {
-    console.log("Valor de búsqueda actualizado:", value)
-});
 </script>

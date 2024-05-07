@@ -69,7 +69,6 @@ const form = useForm({
 
 });
 
-console.log(props.candidatos);
 
 //funtion para avatar letter
 const getInitials = function (name) {

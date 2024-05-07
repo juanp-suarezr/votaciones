@@ -86,7 +86,7 @@ const nivel_estudios = ref([
 
 
 const submit = () => {
-    console.log(user.value.id);
+    
     form.patch(route('registrados.update', { id: user.value.id }), {
         onSuccess: () => swal({
             title: "Registro Actualizado",

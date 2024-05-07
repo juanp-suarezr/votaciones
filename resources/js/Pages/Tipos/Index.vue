@@ -141,7 +141,7 @@ const closeModal = () => {
 };
 //MODAL EDIT or CREATE
 const Actualizar = (id) => {
-    console.log(props.tipos.find(item => item.id == id));
+    
     form.nombre = props.tipos.find(item => item.id == id) ? props.tipos.find(item => item.id == id).nombre : '';
     visible.value = true;
     tipo_id.value = id;

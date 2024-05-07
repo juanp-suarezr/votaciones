@@ -21,7 +21,7 @@ class EventosController extends Controller
             'Eventos/Index',
 
             [
-                'eventos' => Eventos::paginate(5),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->paginate(5),
             ]
         );
     }

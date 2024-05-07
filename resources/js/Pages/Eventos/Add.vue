@@ -13,9 +13,9 @@
                     Nuevo Evento
                 </h3>
                 <div class="text-right">
-                    <SecondaryButton :href="route('eventos.index')">
+                    <SecondaryLink :href="route('eventos.index')">
                         Regresar
-                    </SecondaryButton>
+                    </SecondaryLink>
                 </div>
 
             </div>
@@ -113,6 +113,7 @@ import { inject, ref, computed, watch } from 'vue';
 import { PhotoIcon } from "@heroicons/vue/24/solid";
 import Textarea from 'primevue/textarea';
 import Calendar from 'primevue/calendar';
+import SecondaryLink from '@/Components/SecondaryLink.vue';
 
 
 
@@ -186,7 +187,6 @@ const submit = () => {
     form.fecha_inicio = formatearFecha(new Date(form.fecha_inicio));
     form.fecha_fin = formatearFecha(new Date(form.fecha_fin));
     form.tipos = form.tipos.join("|");
-    console.log(form.tipos);
 
     form.post(route('eventos.store'), {
         onSuccess: function () {

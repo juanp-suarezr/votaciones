@@ -31,7 +31,7 @@ class AnalisisController extends Controller
             'Analisis/Index',
             [
 
-                'eventos' => Eventos::where('estado', '!=', 'Pendiente')
+                'eventos' => Eventos::where('estado', '!=', 'Pendiente')->whereNot('nombre', 'Admin')
                     ->with('votos')
                     ->get(),
                 'candidatos' => Informacion_votantes::where('candidato', 1)

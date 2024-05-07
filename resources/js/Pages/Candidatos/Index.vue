@@ -113,9 +113,18 @@
         <!-- modal actu o create -->
         <Modal :show="visible" @close="closeModal">
             <div class="p-6">
-                <h2 class="text-xl font-semibold">
-                    Añadir/Actualizar Imagen del candidato
-                </h2>
+                <div class="flex justify-between gap-4 mb-2">
+                    <h2 class="text-xl font-semibold">
+                        Añadir/Actualizar Imagen del candidato
+                    </h2>
+                    <div class="items-end justify-end flex mt-0">
+                        <button type="button" @click="closeModal"
+                            class="bg-blue-800 text-white px-4 p-2 rounded-full shadow-xl hover:scale-125" v-show="!isChange">
+                            X
+                        </button>
+                    </div>
+                </div>
+
                 <div class="border-2 border-gray-300 rounded-md p-2">
                     <div class="" v-show="isChange">
                         <input type="file" class="mt-1 !border-0" accept="image/*"
@@ -247,7 +256,6 @@ watch(isChange, () => {
 const onAdvancedUpload = (ev) => {
 
     form.imagen = ev;
-    console.log(form);
 
     if (!form.imagen) return;
 

@@ -148,7 +148,6 @@ const props = defineProps({
 
 })
 
-console.log(props);
 
 
 //VARS PARA CHART   
@@ -181,8 +180,7 @@ const showGraphics = tipo => {
         let res2 = item.tipo == tipos.value;
         return res && res2
     });
-    console.log(candidatosXtipo.value);
-
+    
 
 }
 
@@ -236,14 +234,7 @@ const getInitials = function (name) {
 watch(evento_selected, (value) => {
 
 
-
-
-
-
-    console.log(candidatosXtipo);
-
     tipos.value = props.eventos.length ? props.eventos.find(item => item.id == value).tipos.split('|')[0] : 'NA';
-    console.log(tipos.value);
     showGraphics(tipos.value);
 
 
@@ -367,12 +358,6 @@ const setChartData1 = () => {
     let votos = eventoSelect.votos.filter(item => item.tipo == tipos.value).length;
 
     resultadosArray.push(votantes - votos, votos)
-
-    console.log(resultadosArray);
-
-
-
-
 
     return {
 

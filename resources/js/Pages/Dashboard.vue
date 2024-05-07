@@ -44,7 +44,7 @@
                     <select id="evento_selected" name="evento_selected" v-model="evento_selected"
                         @change="handleEnterKey"
                         class="block w-full p-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
-                        <option selected value="">Elegir evento de votación</option>
+                        <option selected value="" disabled>Elegir evento de votación</option>
                         <option class="flex cursor mb-2 sm:mb-auto" v-for="eventos in eventos_admin" :key="eventos.id"
                             :value="eventos.id">
                             {{ eventos.nombre }}
@@ -110,7 +110,7 @@ const props = defineProps({
     votantes: Object,
 })
 
-const eventos = ref([]);
+
 
 onMounted(() => {
 
@@ -126,7 +126,6 @@ onMounted(() => {
     // Verifica si el evento recibido es de tipo 'VotoCreado'
     if (eventData.event === 'VotoCreado') {
         // Actualiza los datos en el dashboard
-        console.log(event.data);
         
     }
 };
@@ -138,10 +137,10 @@ function actualizarDashboard(data) {
     
     props.eventos_admin = data.eventos_admin;
     props.votantes = data.votantes;
-    console.log(props);
+    
 }
 
-console.log(props);
+
 
 const $toast = useToast();
 
@@ -170,7 +169,7 @@ const showVotosXtipo = () => {
     tipos.forEach(element => {
 
         votoXtipo.push(evento_info.value.votos.filter(item => item.tipo == element).length);
-        console.log(votoXtipo);
+        
     });
 
 
@@ -255,7 +254,7 @@ const info_events = useForm({
     votantes: props.votantes.filter(item => item.id_eventos == evento_selected.value).length
 });
 
-console.log(info_events.votos);
+
 
 if (errorMessage) {
     // Mensaje de error
@@ -279,9 +278,6 @@ const handleEnterKey = () => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 
-
-
-    console.log(info_events);
 
 }
 
