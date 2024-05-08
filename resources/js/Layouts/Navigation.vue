@@ -20,7 +20,7 @@
             </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Eventos</SeparadorMenu>
-            <nav-link v-if="$page.props.user.permissions.includes('analisis-editar')" :href="route('analisis.index')"
+            <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"
                 :active="route().current().includes('analisis')">
                 <ChartBarIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Análisis de resultados </span>
