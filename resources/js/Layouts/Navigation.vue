@@ -19,7 +19,7 @@
                 <span class="mx-3">Inicio</span>
             </nav-link>
 
-            <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador')">Eventos</SeparadorMenu>
+            <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-editar')" :href="route('analisis.index')"
                 :active="route().current().includes('analisis')">
                 <ChartBarIcon class="h-6 w-6 text-white" />
@@ -31,7 +31,7 @@
                 <span class="mx-3">Eventos </span>
             </nav-link>
 
-            <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador')">Configuración</SeparadorMenu>
+            <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Configuración</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('candidatos-editar')" :href="route('candidatos.index')"
                 :active="route().current().includes('candidatos')">
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
