@@ -21,11 +21,11 @@ class UpdateEventStatus extends Command
         $now = Carbon::now();
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
-        $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
+        $eventsToUpdate = Eventos::where('fecha_inicio', '>=', $now)
             ->where('estado', 'Pendiente')
             ->get();
 
-        $eventsToClose = Eventos::where('fecha_fin', '<=', $now)
+        $eventsToClose = Eventos::where('fecha_fin', '>=', $now)
             ->where('estado', 'Activo')
             ->get();
 
