@@ -9,12 +9,12 @@
 
         <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4">
             <div>
-                <select id="candidato" name="candidato" v-model="candidato" @change="handleEnterKey"
+                <!-- <select id="candidato" name="candidato" v-model="candidato" @change="handleEnterKey"
                     class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
-                    <option selected value="" disabled>Candidatos/todos</option>
+                    <option selected value="" disabled>Tipos</option>
                     <option value="1">Candidato</option>
                     <option value="0">Usuarios</option>
-                </select>
+                </select> -->
             </div>
             <div class="...">
                 <label for="default-search"

@@ -34,9 +34,7 @@ class CandidatosController extends Controller
                     ->when(RequestFacade::input('search'), function ($query, $search) {
                         $query->where('nombre', 'like', '%' . $search . '%')
                             ->OrWhere('identificacion', 'like', '%' . $search . '%');
-                    })->when(RequestFacade::input('candidato'), function ($query, $candidato) {
-                        $query->where('candidato', $candidato);
-                    })->paginate(5)
+                    })->where('candidato', 1)->paginate(5)
                     ->withQueryString(),
                 'filters' => RequestFacade::only(['search', 'candidato']),
 

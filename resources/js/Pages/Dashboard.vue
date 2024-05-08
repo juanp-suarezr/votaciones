@@ -4,7 +4,7 @@
 
     <AuthenticatedLayout>
 
-{{ $page.props.user.roles.includes('Administrador', 'Supervisor') }}
+{{ $page.props.user.roles }}
         <!-- votantes -->
         <div v-if="$page.props.user.roles.includes('Usuarios')" class="">
 
