@@ -29,20 +29,30 @@ class UpdateUsuarios extends Command
             $event->update([
                 'password' => Hash::make($event->email),
             ]);
+            $event->syncRoles('Usuarios');
             
-            $informacionUsuario = new Informacion_votantes([
-                'email' => $event->email,
-                'nombre' => $event->name,
-                'id_user' => $event->id,
-                'identificacion' => $event->email,
-                'tipo' => 'Administrativos',
-                'id_eventos' => 1,
-                'candidato' => 0,
-            ]);
+            $exist = Informacion_votantes::where('id_user', $event->id)->first();
 
-            $informacionUsuario->save();
+            if ($exist) {
+                
+
+            } else {
+                $informacionUsuario = new Informacion_votantes([
+                    'email' => $event->email,
+                    'nombre' => $event->name,
+                    'id_user' => $event->id,
+                    'identificacion' => $event->email,
+                    'tipo' => 'Administrativos',
+                    'id_eventos' => 1,
+                    'candidato' => 0,
+                ]);
+    
+                $informacionUsuario->save();
+            }
+
             
-            $this->info('cerrado');
+            
+            $this->info($event->id);
         }
 
         $this->info('Event statuses updated successfully.');
