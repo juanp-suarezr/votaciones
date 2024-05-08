@@ -22,7 +22,7 @@ class UpdateUsuarios extends Command
     public function handle()
     {
 
-        $id_especifico = 252;
+        $id_especifico = 3720;
         $usuarios = User::with('votantes')->whereNot('name', 'Administrador')->where('id', '>=', $id_especifico)->get();
 
         // Actualiza el estado de los eventos encontrados
