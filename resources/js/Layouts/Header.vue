@@ -13,8 +13,9 @@
         <div class="flex items-center">
             <dropdown>
                 <template #trigger>
-                    <button title="configuración perfil" @click="dropdownOpen = !dropdownOpen" class="relative block overflow-hidden">
+                    <button title="configuración perfil" @click="dropdownOpen = !dropdownOpen" class="relative flex gap-2 overflow-hidden">
                         {{ $page.props.auth.user.name ? $page.props.auth.user.name : '' }}
+                        <BarsArrowDownIcon class="w-6" />
                     </button>
                 </template>
 
@@ -35,4 +36,5 @@
 <script setup>
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import { BarsArrowDownIcon } from "@heroicons/vue/24/solid";
 </script>
