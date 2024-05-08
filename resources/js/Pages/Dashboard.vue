@@ -9,11 +9,11 @@
 
             <h2 class="text-gray-600 text-xl inline-flex">Votaciones pendientes</h2>
             <!-- eventos votaciones -->
-            <div class="md:grid md:grid-cols-2 gap-6 mt-4">
+            <div class="md:grid md:grid-cols-2 gap-4 mt-4">
                 <div class="items-center px-4 m-auto" v-for="ev in eventos" :key="ev.id">
                     <div class="border-2 border-gray-400 p-2 border-dashed sm:flex"
                         v-if="ev.estado != 'Cerrado' && ev.votantes != null">
-                        <p class="m-auto text-base">
+                        <p class="m-auto text-base pe-2">
                             {{ ev.nombre }}
                             <br>
                             <span class="text-sm text-gray-600">{{ ev.fecha_inicio }} - {{ ev.fecha_fin }}</span>
