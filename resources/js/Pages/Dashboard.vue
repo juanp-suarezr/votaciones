@@ -37,7 +37,7 @@
 
         </div>
         <!-- ADMIN -->
-        <div v-if="$page.props.user.roles.includes('Administrador')" class="">
+        <div v-if="$page.props.user.roles.includes('Administrador', 'Supervisor')" class="">
 
             <div v-if="eventos_admin.length" class="flex flex-col justify-center">
                 <div class="sm:flex justify-center items-center">
