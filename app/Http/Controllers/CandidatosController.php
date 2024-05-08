@@ -33,7 +33,7 @@ class CandidatosController extends Controller
                 'users' => Informacion_votantes::query()
                     ->when(RequestFacade::input('search'), function ($query, $search) {
                         $query->where('nombre', 'like', '%' . $search . '%')
-                            ->OrWhere('email', 'like', '%' . $search . '%');
+                            ->OrWhere('identificacion', 'like', '%' . $search . '%');
                     })->when(RequestFacade::input('candidato'), function ($query, $candidato) {
                         $query->where('candidato', $candidato);
                     })->paginate(5)
