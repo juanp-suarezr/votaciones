@@ -4,7 +4,6 @@
 
     <AuthenticatedLayout>
 
-{{ $page.props.user.roles }}
         <!-- votantes -->
         <div v-if="$page.props.user.roles.includes('Usuarios')" class="">
 
@@ -38,7 +37,7 @@
 
         </div>
         <!-- ADMIN -->
-        <div v-if="$page.props.user.roles.includes('Administrador', 'Supervisor')" class="">
+        <div v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')" class="">
 
             <div v-if="eventos_admin.length" class="flex flex-col justify-center">
                 <div class="sm:flex justify-center items-center">
