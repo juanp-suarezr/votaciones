@@ -183,7 +183,7 @@ const showVotosXtipo = () => {
 const setChartData = () => {
     return {
 
-        labels: transformLabels(evento_info.value.length ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ")),
+        labels: transformLabels(evento_info.value.length ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", "): ''),
         datasets: [
             {
                 label: 'Votos',

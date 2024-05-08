@@ -49,7 +49,7 @@ Route::get('/home', function () {
 Route::get('/dashboard', function () {
 
     
-    $eventos_admin = Eventos::where('estado', 'Activo')
+    $eventos_admin = Eventos::whereNot('estado', 'Pendiente')->whereNot('nombre', 'Admin')->with('votos')
         ->with('votos')
         ->get();
     $votantes = Informacion_votantes::select('id_eventos', 'nombre', 'tipo')->get();
@@ -72,7 +72,7 @@ Route::get('/sse', function ()  {
     $startTime = time();
     return response()->stream(function () use ($startTime) {
         $eventos_admin = Cache::remember('eventos_admin', 5, function () {
-            return Eventos::where('estado', 'Activo')->with('votos')->get();
+            return Eventos::whereNot('estado', 'Pendiente')->whereNot('nombre', 'Admin')->with('votos')->get();
         });
 
         $votantes = Cache::remember('votantes', 5, function () {

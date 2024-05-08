@@ -30,6 +30,7 @@ class UpdateEventStatus extends Command
             ->get();
 
         $this->info($eventsToUpdate);
+        $this->info($eventsToClose);
 
         // Actualiza el estado de los eventos encontrados
         foreach ($eventsToUpdate as $event) {
