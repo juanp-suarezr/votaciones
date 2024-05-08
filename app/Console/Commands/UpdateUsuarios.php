@@ -34,7 +34,7 @@ class UpdateUsuarios extends Command
                 'email' => $event->email,
                 'nombre' => $event->name,
                 'id_user' => $event->id,
-                'identificacion' => $event->identificacion,
+                'identificacion' => $event->email,
                 'tipo' => 'Administrativos',
                 'id_eventos' => 1,
                 'candidato' => 0,
