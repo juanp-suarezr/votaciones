@@ -12,7 +12,7 @@
             <div class="sm:flex w-full sm:grid md:grid-cols-3 grid-cols-2 gap-4">
                 <div v-for="candi in candidatos" :key="candi.id"
                     class="flex flex-col w-full h-full p-2 inline-block m-auto mb-4 rounded-lg shadow-xl bg-gray-200 hover:bg-gray-300 text-gray-800">
-                    <div class="mx-auto sm:w-3/6">
+                    <div class="mx-auto sm:w-3/6 lg:2/6">
                         <Avatar v-if="candi.imagen == 'user.png'" :label="getInitials(candi.nombre)"
                             class="w-full h-[60pt] sm:h-[100pt] bg-indigo-200 text-indigo-800 p-4 text-4xl"
                             shape="circle" />
