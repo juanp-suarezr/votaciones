@@ -22,7 +22,8 @@ class UpdateUsuarios extends Command
     public function handle()
     {
 
-        $usuarios = User::with('votantes')->whereNot('name', 'Administrador')->get();
+        $id_especifico = 252;
+        $usuarios = User::with('votantes')->whereNot('name', 'Administrador')->where('id', '>=', $id_especifico)->get();
 
         // Actualiza el estado de los eventos encontrados
         foreach ($usuarios as $event) {
@@ -30,28 +31,26 @@ class UpdateUsuarios extends Command
                 'password' => Hash::make($event->email),
             ]);
             $event->syncRoles('Usuarios');
-            
+
             $exist = Informacion_votantes::where('id_user', $event->id)->first();
 
             if ($exist) {
-                
-
             } else {
                 $informacionUsuario = new Informacion_votantes([
                     'email' => $event->email,
                     'nombre' => $event->name,
                     'id_user' => $event->id,
                     'identificacion' => $event->email,
-                    'tipo' => 'Administrativos',
+                    'tipo' => 'Docentes',
                     'id_eventos' => 1,
                     'candidato' => 0,
                 ]);
-    
+
                 $informacionUsuario->save();
             }
 
-            
-            
+
+
             $this->info($event->id);
         }
 
