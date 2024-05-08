@@ -71,7 +71,7 @@ Route::get('/dashboard', function () {
 Route::get('/sse', function ()  {
     $startTime = time();
     return response()->stream(function () use ($startTime) {
-        $eventos_admin = Cache::remember('eventos_admin', 5, function () {
+        $eventos_admin = Cache::remember('eventos_admin', 2, function () {
             return Eventos::whereNot('estado', 'Pendiente')->whereNot('nombre', 'Admin')->with('votos')->get();
         });
 

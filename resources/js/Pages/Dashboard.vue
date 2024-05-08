@@ -127,7 +127,7 @@ onMounted(() => {
         // Verifica si el evento recibido es de tipo 'VotoCreado'
         if (eventData.event === 'VotoCreado') {
             // Actualiza los datos en el dashboard
-
+            log("actu votos");
         }
     };
 
@@ -138,6 +138,7 @@ function actualizarDashboard(data) {
 
     props.eventos_admin = data.eventos_admin;
     props.votantes = data.votantes;
+    console.log(props.eventos_admin);
 
 }
 
@@ -178,12 +179,12 @@ const showVotosXtipo = () => {
 
 }
 
-
+console.log(evento_info.value);
 //chartdata
 const setChartData = () => {
     return {
 
-        labels: transformLabels(evento_info.value.length ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", "): ''),
+        labels: transformLabels(evento_info.value.length ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ") : ''),
         datasets: [
             {
                 label: 'Votos',
