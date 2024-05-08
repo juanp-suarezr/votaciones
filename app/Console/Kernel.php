@@ -7,6 +7,18 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+
+    /*
+    - PARAMETRO OBLIGATORIO: {param}
+    -Opcional: {param?} o {param=algo}
+    - OPCION: {--opcion}
+    --OPCION que requiera valor: {--opcion=}
+    - OPCION con valor default: {--opcion=valor}
+    -Abreviatura: {--0|opcion}
+    - Multiple value (array): {param*} 
+     */
+
+
     /**
      * Define the application's command schedule.
      */
@@ -14,7 +26,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
-        $schedule->command('events:update-status --force')->everyMinute();
+        $schedule->command('events:update-status')->everyMinute()->sendOutputTo("file.txt");
     }
 
     /**
@@ -22,7 +34,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
