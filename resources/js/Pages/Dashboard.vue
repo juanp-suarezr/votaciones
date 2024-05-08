@@ -121,24 +121,24 @@ onMounted(() => {
 
     const evtSource = new EventSource('/sse');
 
-    evtSource.onmessage = function(event) {
-    const eventData = JSON.parse(event.data);
-    actualizarDashboard(event.data);
-    // Verifica si el evento recibido es de tipo 'VotoCreado'
-    if (eventData.event === 'VotoCreado') {
-        // Actualiza los datos en el dashboard
-        
-    }
-};
+    evtSource.onmessage = function (event) {
+        const eventData = JSON.parse(event.data);
+        actualizarDashboard(event.data);
+        // Verifica si el evento recibido es de tipo 'VotoCreado'
+        if (eventData.event === 'VotoCreado') {
+            // Actualiza los datos en el dashboard
+
+        }
+    };
 
 
 });
 
 function actualizarDashboard(data) {
-    
+
     props.eventos_admin = data.eventos_admin;
     props.votantes = data.votantes;
-    
+
 }
 
 
@@ -170,7 +170,7 @@ const showVotosXtipo = () => {
     tipos.forEach(element => {
 
         votoXtipo.push(evento_info.value.votos.filter(item => item.tipo == element).length);
-        
+
     });
 
 
@@ -183,14 +183,14 @@ const showVotosXtipo = () => {
 const setChartData = () => {
     return {
 
-        labels: transformLabels(evento_info.value.tipos.replace(/\s*\|\s*/g, ", ")),
+        labels: transformLabels(evento_info.value.length ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ")),
         datasets: [
             {
                 label: 'Votos',
                 data:
-                    
-                        showVotosXtipo(),
-                    
+
+                    showVotosXtipo(),
+
                 backgroundColor: ['rgba(59, 130, 246, 1)'],
             }
         ]
@@ -250,10 +250,11 @@ function transformLabels(labelString) {
 
 
 
-const info_events = useForm({
-    votos: evento_selected.value != '' ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
-    votantes: props.votantes.filter(item => item.id_eventos == evento_selected.value).length
-});
+const info_events = useForm
+    ({
+        votos: evento_selected.value != '' ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
+        votantes: props.votantes.filter(item => item.id_eventos == evento_selected.value).length
+    });
 
 
 
@@ -272,7 +273,7 @@ if (errorMessage) {
 
 const handleEnterKey = () => {
 
-    evento_info.value = props.eventos_admin.find(item => item.id == evento_selected.value);
+    evento_info.value = props.eventos_admin.length ?? props.eventos_admin.find(item => item.id == evento_selected.value);
     info_events.votos = evento_selected.value != '' ? evento_info.value.votos.length : 0;
     info_events.votantes = props.votantes.filter(item => item.id_eventos == evento_selected.value).length;
 
