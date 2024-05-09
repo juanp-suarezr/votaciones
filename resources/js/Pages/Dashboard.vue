@@ -61,7 +61,7 @@
                             <br>
                             Total Votantes habilitados - {{ info_events.votantes }}
                         </h2>
-                        <Knob class="flex justify-center mt-4" v-model="info_events.votos" :size="200"
+                        <Knob class="flex justify-center mt-4" v-model="info_events.votos" :size="200" readonly
                             :max="info_events.votantes" />
                     </div>
 
@@ -236,7 +236,7 @@ function transformLabels(labelString) {
 
 const info_events = useForm
     ({
-        votos: evento_selected.value.votos != null ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
+        votos: evento_info.value.votos != null ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
         votantes: props.votantes.filter(item => item.id_eventos == evento_selected.value).length
     });
 
