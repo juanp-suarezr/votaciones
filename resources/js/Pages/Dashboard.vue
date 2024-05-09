@@ -151,12 +151,10 @@ const showVotosXtipo = () => {
     console.log(tipos);
     let votoXtipo = [];
     tipos.forEach(element => {
-        console.log("entro");
         votoXtipo.push(evento_info.value.votos.filter(item => item.tipo == element).length);
 
     });
 
-    console.log(votoXtipo.join(', ').split(',').map(label => label.trim()));
 
     return votoXtipo.join(', ').split(',').map(label => label.trim());
 
@@ -165,7 +163,7 @@ const showVotosXtipo = () => {
 
 //chartdata
 const setChartData = () => {
-    console.log(evento_info.value);
+    
     return {
 
         labels: transformLabels(evento_info.value ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ") : ''),
@@ -230,7 +228,7 @@ const setChartOptions = () => {
 
 
 function transformLabels(labelString) {
-    console.log(labelString.split(',').map(label => label.trim()));
+    
     return labelString.split(',').map(label => label.trim());
 }
 
@@ -238,7 +236,7 @@ function transformLabels(labelString) {
 
 const info_events = useForm
     ({
-        votos: evento_selected.value != '' ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
+        votos: evento_selected.value.votos != null ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
         votantes: props.votantes.filter(item => item.id_eventos == evento_selected.value).length
     });
 
@@ -260,7 +258,7 @@ if (errorMessage) {
 const handleEnterKey = () => {
 
     evento_info.value = props.eventos_admin.length ?? props.eventos_admin.find(item => item.id == evento_selected.value);
-    info_events.votos = evento_selected.value != '' ? evento_info.value.votos.length : 0;
+    info_events.votos = evento_selected.value.votos != null ? evento_info.value.votos.length : 0;
     info_events.votantes = props.votantes.filter(item => item.id_eventos == evento_selected.value).length;
 
     chartData.value = setChartData();
