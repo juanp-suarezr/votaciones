@@ -258,6 +258,7 @@ if (errorMessage) {
 const handleEnterKey = () => {
 
     evento_info.value = props.eventos_admin.length ?? props.eventos_admin.find(item => item.id == evento_selected.value);
+    console.log(evento_info.value.tipos);
     info_events.votos = evento_selected.value.votos != null ? evento_info.value.votos.length : 0;
     info_events.votantes = props.votantes.filter(item => item.id_eventos == evento_selected.value).length;
 
