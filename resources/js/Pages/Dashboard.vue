@@ -166,7 +166,7 @@ const setChartData = () => {
     
     return {
 
-        labels: transformLabels(evento_info.value ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ") : ''),
+        labels: transformLabels(evento_info.value.tipos != 'NA' ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ") : 'NA'),
         datasets: [
             {
                 label: 'Votos',
