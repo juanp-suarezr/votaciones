@@ -145,13 +145,13 @@ const evento_info = ref(props.eventos_admin.length ? props.eventos_admin.find(it
 //tipos de votantes segun evento
 
 const tipos = evento_info.value ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ");
-console.log(tipos);
+
 //Mostrar votos segun tipo
 const showVotosXtipo = () => {
-
+    console.log(tipos);
     let votoXtipo = [];
     tipos.forEach(element => {
-
+        console.log("entro");
         votoXtipo.push(evento_info.value.votos.filter(item => item.tipo == element).length);
 
     });
