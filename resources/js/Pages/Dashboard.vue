@@ -9,7 +9,7 @@
 
             <h2 class="text-gray-600 text-xl inline-flex">Votaciones pendientes</h2>
             <!-- eventos votaciones -->
-            <div class="md:grid md:grid-cols-2 gap-4 mt-4">
+            <div class="md:grid md:grid-cols-2 gap-4 mt-4 mb-4">
                 <div class="items-center px-4 m-auto" v-for="ev in eventos" :key="ev.id">
                     <div class="border-2 border-gray-400 p-2 border-dashed sm:flex"
                         v-if="ev.estado != 'Cerrado' && ev.votantes != null">
@@ -31,6 +31,29 @@
                             :href="route('votos.index', { tipo_evento: ev.id, tipo_user: ev.votantes ? ev.votantes.tipo : '' })">
                             Votar
                         </PrimaryLink>
+                    </div>
+                </div>
+            </div>
+            <h2 class="text-gray-600 text-xl inline-flex">Votaciones cerradas</h2>
+            <!-- eventos votaciones cerradas -->
+            <div class="md:grid md:grid-cols-2 gap-4 mt-4">
+                <div class="items-center px-4 m-auto" v-for="ev in eventos" :key="ev.id">
+                    <div class="border-2 border-gray-400 p-2 border-dashed sm:flex"
+                        v-if="ev.estado == 'Cerrado' && ev.votantes != null">
+                        <p class="m-auto text-base pe-2">
+                            {{ ev.nombre }}
+                            <br>
+                            <span class="text-sm text-gray-600">{{ ev.fecha_inicio }} - {{ ev.fecha_fin }}</span>
+                            <br>
+                            <span v-if="votos.find(item => item.id_eventos == ev.id)"
+                                class="text-base text-gray-800 italic">
+                                Usted ha votado por {{
+                                    candidatos.find(item => item.id == votos.find(item => item.id_eventos ==
+                                        ev.id).id_candidato).nombre
+                                }}
+                            </span>
+                        </p>
+                        
                     </div>
                 </div>
             </div>
