@@ -143,9 +143,9 @@ const reloadInterval = 5 * 60 * 1000;
 //informacion de evento, segun seleccionado
 const evento_info = ref(props.eventos_admin.length ? props.eventos_admin.find(item => item.id == evento_selected.value) : []);
 //tipos de votantes segun evento
-console.log(evento_info.value);
-const tipos = evento_info.value.length ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ");
 
+const tipos = evento_info.value.length ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ");
+console.log(tipos.value);
 //Mostrar votos segun tipo
 const showVotosXtipo = () => {
 
