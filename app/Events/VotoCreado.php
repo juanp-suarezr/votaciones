@@ -23,6 +23,6 @@ class VotoCreado implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('/sse');
+        return false;
     }
 }

@@ -155,12 +155,13 @@ const showVotosXtipo = () => {
 
     });
 
+    console.log(votoXtipo.join(', ').split(',').map(label => label.trim()));
 
     return votoXtipo.join(', ').split(',').map(label => label.trim());
 
 }
 
-console.log(evento_info.value);
+
 //chartdata
 const setChartData = () => {
     return {
@@ -227,6 +228,7 @@ const setChartOptions = () => {
 
 
 function transformLabels(labelString) {
+    console.log(labelString.split(',').map(label => label.trim()));
     return labelString.split(',').map(label => label.trim());
 }
 
