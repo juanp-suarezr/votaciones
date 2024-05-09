@@ -144,7 +144,7 @@ const reloadInterval = 5 * 60 * 1000;
 const evento_info = ref(props.eventos_admin.length ? props.eventos_admin.find(item => item.id == evento_selected.value) : []);
 //tipos de votantes segun evento
 
-const tipos = evento_info.value.length ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ");
+const tipos = evento_info.value ?? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ");
 console.log(tipos);
 //Mostrar votos segun tipo
 const showVotosXtipo = () => {
@@ -168,7 +168,7 @@ const setChartData = () => {
     console.log(evento_info.value);
     return {
 
-        labels: transformLabels(evento_info.value.length ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ") : ''),
+        labels: transformLabels(evento_info.value ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ") : ''),
         datasets: [
             {
                 label: 'Votos',
