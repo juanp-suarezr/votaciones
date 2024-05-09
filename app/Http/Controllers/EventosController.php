@@ -9,6 +9,7 @@ use App\Models\Tipos;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -66,6 +67,7 @@ class EventosController extends Controller
         );
         $eventos->save();
 
+        Cache::forget('eventos_admin');
 
         return Redirect::route('eventos.index')->with('message', 'Registro almacenado.');
     }

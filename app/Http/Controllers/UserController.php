@@ -15,6 +15,7 @@ use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
 use DB;
+use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 
@@ -91,6 +92,8 @@ class UserController extends Controller
         $user->votantes()->save($informacionUsuario);
 
         $user->syncRoles($request->input('roles_user'));
+
+        Cache::forget('votantes');
 
         return to_route('users.index');
     }

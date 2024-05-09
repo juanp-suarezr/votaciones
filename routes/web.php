@@ -49,10 +49,13 @@ Route::get('/home', function () {
 Route::get('/dashboard', function () {
 
     
-    $eventos_admin = Eventos::whereNot('estado', 'Pendiente')->whereNot('nombre', 'Admin')->with('votos')
-        ->with('votos')
-        ->get();
-    $votantes = Informacion_votantes::select('id_eventos', 'nombre', 'tipo')->get();
+    $eventos_admin = Cache::remember('eventos_admin', 2, function () {
+        return Eventos::whereNot('estado', 'Pendiente')->whereNot('nombre', 'Admin')->with('votos')->get();
+    });
+    
+    $votantes = Cache::remember('votantes', 5, function () {
+        return Informacion_votantes::select('id_eventos', 'nombre', 'tipo')->get();
+    });
 
     return Inertia::render('Dashboard', [
         'eventos' => Eventos::whereNot('nombre', '=', 'Admin')

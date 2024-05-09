@@ -115,32 +115,12 @@ console.log(props);
 
 onMounted(() => {
 
-
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 
-    const evtSource = new EventSource('/sse');
-
-    evtSource.onmessage = function (event) {
-        const eventData = JSON.parse(event.data);
-        actualizarDashboard(event.data);
-        // Verifica si el evento recibido es de tipo 'VotoCreado'
-        if (eventData.event === 'VotoCreado') {
-            // Actualiza los datos en el dashboard
-            log("actu votos");
-        }
-    };
-
-
 });
 
-function actualizarDashboard(data) {
 
-    props.eventos_admin = data.eventos_admin;
-    props.votantes = data.votantes;
-    console.log(props.eventos_admin);
-
-}
 
 
 
@@ -153,6 +133,7 @@ const chartOptions = ref();
 //para identificar routeo con error
 const searchParams = new URLSearchParams(window.location.search);
 const errorMessage = searchParams.get('error');
+
 
 //var de event select
 const evento_selected = ref(props.eventos_admin.length ? props.eventos_admin[0].id : '');
