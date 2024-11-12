@@ -34,32 +34,46 @@ const props = defineProps({
     },
 });
 
+console.log(props);
+
 const selectedRoles = Object.values(props.userRoles);
 const user = props.user;
+//para eventos seleccionados
+const eventosBD = user.eventos !== 'NA' ? user.eventos.split('|').map(id => parseInt(id)) : [];
+//evento seleccionado para elegir candidato o usuario
+const eventoSeleccionado = ref([]);
 
 
-
-
-const submit = () => {
-    form.patch(route('users.update', user.id), {
-        onSuccess: () => swal({
-            title: "Registro Actualizado",
-            text: "El usuario se ha actualizado exitosamente",
-            icon: "success"
-        })
-    });
-};
 
 const form = useForm({
     name: user.name,
     email: user.email,
     identificacion: user.votantes ? user.votantes.identificacion : '',
-    tipo: user.votantes ? user.votantes.tipo : '',
+    tipo: user.tipos != 'NA' ? user.tipos.split('|') : '' || '',
     estado: user.estado,
     roles_user: selectedRoles,
-    eventos: user.votantes ? user.votantes.id_eventos : '',
-    candidato: user.votantes ? user.votantes.candidato : '',
+    eventos: eventosBD || [],
 });
+
+
+const submit = () => {
+
+    form.tipo = form.tipo == '' ? 'NA' : form.tipo.join("|");
+    console.log(form.eventos);
+
+
+    form.patch(route('users.update', user.id), {
+        onSuccess: () => swal({
+            title: "Registro Actualizado",
+            text: "El usuario se ha actualizado exitosamente",
+            icon: "success"
+        }).then((result) => {
+            window.location.reload();
+        })
+    });
+};
+
+
 
 //checked para empresas o campistas
 const tipo_user = ref(form.candidato ? 'Candidato' : 'Usuario');
@@ -118,16 +132,16 @@ watch(tipo_user, (value) => {
                 <InputError class="mt-2" :message="form.errors.identificacion" />
             </div>
             <!-- roles y tipos -->
-            <div class="sm:flex gap-4">
+            <div class="sm:flex sm:flex-wrap gap-4">
                 <!-- tipos -->
                 <div v-if="selectedRoles.find(item => item != 'Administrador')">
                     <InputLabel for="tipo" value="Tipo votante" />
-                    <select v-if="tipos.length" v-model="form.tipo"
-                        class="block w-full px-4 py-2 mt-1 text-base text-gray-900 border border-gray-600 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
-                        <option disabled value="" class="text-xs text-gray-400">Seleccione tipo votante</option>
-                        <option v-for="vot in tipos" :value="vot.nombre" :key="vot.id">{{ vot.nombre }}
-                        </option>
-                    </select>
+
+                    <div v-if="tipos" class="card flex justify-content-center">
+                        <MultiSelect id="tipo" v-model="form.tipo" display="chip" :options="Object.values(tipos)"
+                            placeholder="Seleccione tipo votante" :maxSelectedLabels="3" class="w-full md:w-20rem" />
+                    </div>
+
                     <p v-else class="text-xs text-gray-600">No hay tipos de usuarios registrados, registrar uno nuevo <a
                             :href="route('tipos.index')">Aquí</a></p>
                     <InputError class="mt-2" :message="form.errors.tipo" />
@@ -147,16 +161,17 @@ watch(tipo_user, (value) => {
             <!-- evento -->
             <div>
                 <InputLabel for="evento" value="Evento votante" />
-                <select v-if="eventos.length" v-model="form.eventos"
-                    class="block w-full px-4 py-2 mt-1 text-base text-gray-900 border border-gray-600 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
-                    <option disabled value="" class="text-xs text-gray-400">Seleccione evento a asignar</option>
-                    <option v-for="ev in eventos" :value="ev.id" :key="ev.id">{{ ev.nombre }}
-                    </option>
-                </select>
+                <div v-if="eventos.length" class="card flex justify-content-center">
+                    <MultiSelect id="eventos" v-model="form.eventos" display="chip" :options="eventos"
+                        option-label="nombre" option-value="id" placeholder="Seleccione los eventos"
+                        :maxSelectedLabels="6" class="w-full md:w-20rem" />
+                </div>
                 <p v-else class="text-xs text-gray-600">No hay eventos registrados, registrar uno nuevo <a
                         :href="route('eventos.index')">Aquí</a></p>
                 <InputError class="mt-2" :message="form.errors.eventos" />
             </div>
+
+
 
             <!-- roles y tipos -->
             <div class="sm:flex gap-4">
@@ -172,15 +187,7 @@ watch(tipo_user, (value) => {
                     </select>
                     <InputError class="mt-2" :message="form.errors.estado" />
                 </div>
-                <!-- select empresa - campista -->
-                <div class="w-full flex justify-end">
-                    <div class="card flex z-10 gap-4 mt-4">
-                        <div class="card flex justify-content-center">
-                            <SelectButton v-model="tipo_user" :options="options_user" aria-labelledby="basic" />
-                        </div>
 
-                    </div>
-                </div>
 
             </div>
 

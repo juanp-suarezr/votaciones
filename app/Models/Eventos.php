@@ -31,7 +31,7 @@ class Eventos extends Model
 
     public function votantes()
     {
-        return $this->hasOne(Informacion_votantes::class, 'id_eventos', 'id');
+        return $this->hasMany(Hash_votantes::class, 'id_evento', 'id');
     }
 
     public function votos()

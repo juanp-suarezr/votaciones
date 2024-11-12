@@ -20,8 +20,6 @@ class Informacion_votantes extends Model
         'nombre',
         'id_user',
         'identificacion',
-        'candidato',
-        'id_eventos',
         'tipo',
         'created_at',
         'updated_at',
@@ -32,5 +30,10 @@ class Informacion_votantes extends Model
     public function user()
     {
         return $this->hasOne(User::class, 'id', 'id_user');
+    }
+
+    public function hashVotantes()
+    {
+        return $this->hasMany(Hash_votantes::class, 'id_votante', 'id');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Http\Controllers\Controller;
 use App\Models\Eventos;
+use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Tipos;
 use App\Models\Votos;
@@ -34,9 +35,13 @@ class AnalisisController extends Controller
                 'eventos' => Eventos::where('estado', '!=', 'Pendiente')->whereNot('nombre', 'Admin')
                     ->with('votos')
                     ->get(),
-                'candidatos' => Informacion_votantes::where('candidato', 1)
+                'candidatos' => Hash_votantes::where('candidato', 1)->with('votante')
                 ->get(),
-                'votantes' => Informacion_votantes::whereNot('tipo', 'Admin')
+                'votantes' => Hash_votantes::whereNot('tipo', 'Admin')
+                ->whereHas('votante.user.roles', function ($query) {
+                    $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
+                })
+                ->with(['votante.user.roles']) // Carga las relaciones necesarias
                 ->get(),
             ]
         );

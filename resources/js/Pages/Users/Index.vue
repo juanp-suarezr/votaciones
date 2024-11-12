@@ -95,7 +95,7 @@
                                         </span>
                                     </td>
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                                        <p class="text-gray-900 whitespace-no-wrap">{{ user.votantes ? user.votantes.tipo : 'No es votante' }}</p>
+                                        <p class="text-gray-900 whitespace-no-wrap">{{ user.votantes ? user.tipos : 'No es votante' }}</p>
                                     </td>
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                                         <span v-if="user.estado == 'Activo'"
@@ -147,6 +147,9 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+
+
+
 
 // pass filters in search
 let search = ref(props.filters.search);

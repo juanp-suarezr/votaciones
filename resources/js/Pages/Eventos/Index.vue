@@ -74,9 +74,9 @@
                         <td
                             class="w-full inline-block border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
 
-                            <SecondaryButton type="button" @click="Actualizar(ev.id)" class="mb-3">
+                            <SecondaryLink type="button" :href="route('eventos.edit', ev.id)" class="mb-3">
                                 Editar
-                            </SecondaryButton>
+                            </SecondaryLink>
 
                             <DangerButton @click="confirmUserDeletion(tipo.id)">Eliminar</DangerButton>
 
@@ -90,26 +90,7 @@
             </div>
         </div>
 
-        <!-- modal actu o create -->
-        <Modal :show="visible" @close="closeModal">
-            <div class="p-6">
-                <h2 class="text-xl font-semibold">
-                    {{ tipo_id == 'new' ? 'Añadir Tipo de Usuario' : 'Editar Tipo de Usuario' }}
-                </h2>
-                <!-- nombres -->
-                <div class="mt-6">
-                    <InputLabel class="sm:text-sm text-xs" for="nombre" value="Nombre del tipo de usuario" />
-                    <TextInput id="nombre" type="text" class="mt-1 block w-full p-0 sm:p-2" v-model="form.nombre"
-                        required autocomplete="nombre" />
-                    <InputError class="mt-1" :message="form.errors.nombre" />
-                </div>
-                <div class="flex items-center justify-end mt-6">
-                    <Button class="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor" type="button"
-                        @click="EventoTipo(tipo_id)">Guardar</Button>
-                </div>
-            </div>
-        </Modal>
-
+        <!-- modal para eliminar -->
         <Modal :show="confirmingDeletion" @close="closeModal">
             <div class="p-6">
                 <h2 class="text-lg font-medium text-gray-900">
@@ -148,6 +129,7 @@ import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
+import SecondaryLink from '@/Components/SecondaryLink.vue';
 const props = defineProps({
     eventos: Object
 })
@@ -169,50 +151,8 @@ const closeModal = () => {
     visible.value = false;
     form.reset();
 };
-//MODAL EDIT or CREATE
-const Actualizar = (id) => {
-    form.nombre = props.tipos.find(item => item.id == id) ? props.tipos.find(item => item.id == id).nombre : '';
-    visible.value = true;
-    tipo_id.value = id;
-
-};
 
 
-//Añadir o actualizar
-const EventoTipo = (num) => {
-
-    if (num == 'new') {
-        form.post(route('tipos.store', tipo_id.value), {
-            preserveScroll: true,
-            onSuccess: () => {
-                closeModal();
-                swal({
-                    title: "Registro Creado",
-                    text: "El tipo se ha registrado exitosamente",
-                    icon: "success"
-                })
-            },
-            onError: () => passwordInput.value.focus(),
-            onFinish: () => form.reset(),
-        });
-    } else {
-        form.put(route('tipos.update', tipo_id.value), {
-            preserveScroll: true,
-            onSuccess: () => {
-                closeModal();
-                swal({
-                    title: "Registro Actualizado",
-                    text: "El tipo se ha actualizado exitosamente",
-                    icon: "success"
-                })
-            },
-            onError: () => passwordInput.value.focus(),
-            onFinish: () => form.reset(),
-        });
-    }
-
-
-};
 
 const confirmUserDeletion = (id) => {
     confirmingDeletion.value = true;

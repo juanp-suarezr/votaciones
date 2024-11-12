@@ -15,6 +15,15 @@ use Inertia\Inertia;
 
 class EventosController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'store']]);
+        $this->middleware('permission:eventos-crear', ['only' => ['create', 'store']]);
+        $this->middleware('permission:eventos-editar', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:eventos-eliminar', ['only' => ['destroy']]);
+    }
+
     public function index()
     {
         return Inertia::render(
@@ -71,4 +80,40 @@ class EventosController extends Controller
 
         return Redirect::route('eventos.index')->with('message', 'Registro almacenado.');
     }
+
+    public function edit(Request $request,$id_user)
+    {
+        $tipos = Tipos::pluck('nombre', 'nombre')->all();
+        $evento = Eventos::findOrFail($id_user);
+
+        return Inertia::render('Eventos/Edit', compact('tipos', 'evento'));
+    }
+
+    public function update(Request $request, $id_ev)
+    {
+
+        $this->validate($request, [
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string|max:300',
+            'dependencias' => 'required|string|max:60',
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'tipos' => 'required',
+            'estado' => 'required'
+        ]);
+
+        $eventos = Eventos::find($id_ev);
+        $eventos->nombre = $request->nombre;
+        $eventos->descripcion = $request->descripcion;
+        $eventos->dependencias = $request->dependencias;
+        $eventos->fecha_inicio = $request->fecha_inicio;
+        $eventos->fecha_fin = $request->fecha_fin;
+        $eventos->tipos = $request->tipos;
+        $eventos->estado = $request->estado;
+        $eventos->save();
+
+            
+        return Redirect::route('eventos.edit',$eventos->id);
+    }
+
 }

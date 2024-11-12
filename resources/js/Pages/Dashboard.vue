@@ -10,9 +10,8 @@
             <h2 class="text-gray-600 text-xl inline-flex">Votaciones pendientes</h2>
             <!-- eventos votaciones -->
             <div class="md:grid md:grid-cols-2 gap-4 mt-4 mb-4">
-                <div class="items-center px-4 m-auto" v-for="ev in eventos" :key="ev.id">
-                    <div class="border-2 border-gray-400 p-2 border-dashed sm:flex"
-                        v-if="ev.estado != 'Cerrado' && ev.votantes != null">
+                <div class="items-center px-4 m-auto w-full" v-for="ev in eventosPendientes" :key="ev.id">
+                    <div class="border-2 border-gray-400 p-2 border-dashed sm:flex">
                         <p class="m-auto text-base pe-2">
                             {{ ev.nombre }}
                             <br>
@@ -21,8 +20,8 @@
                             <span v-if="votos.find(item => item.id_eventos == ev.id)"
                                 class="text-base text-gray-800 italic">
                                 Usted ha votado por {{
-                                    candidatos.find(item => item.id == votos.find(item => item.id_eventos ==
-                                        ev.id).id_candidato).nombre
+                                    candidatos.find(item => item.id_votante == votos.find(item => item.id_eventos ==
+                                        ev.id).id_candidato).votante.nombre
                                 }}
                             </span>
                         </p>
@@ -37,9 +36,8 @@
             <h2 class="text-gray-600 text-xl inline-flex">Votaciones cerradas</h2>
             <!-- eventos votaciones cerradas -->
             <div class="md:grid md:grid-cols-2 gap-4 mt-4">
-                <div class="items-center px-4 m-auto" v-for="ev in eventos" :key="ev.id">
-                    <div class="border-2 border-gray-400 p-2 border-dashed sm:flex"
-                        v-if="ev.estado == 'Cerrado' && ev.votantes != null">
+                <div class="items-center px-4 m-auto w-full" v-for="ev in eventosCerrados" :key="ev.id">
+                    <div class="border-2 border-gray-400 p-2 border-dashed sm:flex">
                         <p class="m-auto text-base pe-2">
                             {{ ev.nombre }}
                             <br>
@@ -48,8 +46,8 @@
                             <span v-if="votos.find(item => item.id_eventos == ev.id)"
                                 class="text-base text-gray-800 italic">
                                 Usted ha votado por {{
-                                    candidatos.find(item => item.id == votos.find(item => item.id_eventos ==
-                                        ev.id).id_candidato).nombre
+                                    candidatos.find(item => item.id_votante == votos.find(item => item.id_eventos ==
+                                        ev.id).id_candidato).votante.nombre
                                 }}
                             </span>
                         </p>
@@ -135,8 +133,14 @@ const props = defineProps({
 
 console.log(props);
 
+const eventosPendientes = ref([]);
+const eventosCerrados = ref([]);
+
 
 onMounted(() => {
+
+    eventosPendientes.value = props.eventos.filter(item => item.estado != 'Cerrado' && item.votantes != null);
+    eventosCerrados.value = props.eventos.filter(item => item.estado == 'Cerrado' && item.votantes != null);
 
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
@@ -167,13 +171,14 @@ const reloadInterval = 5 * 60 * 1000;
 const evento_info = ref(props.eventos_admin.length ? props.eventos_admin.find(item => item.id == evento_selected.value) : []);
 //tipos de votantes segun evento
 
-const tipos = evento_info.value.tipos != 'NA' ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ") : 'NA';
+const tipos = ref(evento_info.value.tipos != 'NA' ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ") : 'NA');
+
 
 //Mostrar votos segun tipo
 const showVotosXtipo = () => {
     
     let votoXtipo = [];
-    tipos.forEach(element => {
+    tipos.value.forEach(element => {
         votoXtipo.push(evento_info.value.votos.filter(item => item.tipo == element).length);
 
     });
@@ -260,7 +265,7 @@ function transformLabels(labelString) {
 const info_events = useForm
     ({
         votos: evento_info.value.votos != null ? props.eventos_admin.find(item => item.id == evento_selected.value).votos.length : 0,
-        votantes: props.votantes.filter(item => item.id_eventos == evento_selected.value).length
+        votantes: props.votantes.filter(item => item.id_evento == evento_selected.value).length
     });
 
 
@@ -283,9 +288,11 @@ const handleEnterKey = () => {
     
     evento_info.value = props.eventos_admin.length ? props.eventos_admin.find(item => item.id == evento_selected.value) : [];
     
+    
     info_events.votos = evento_info.value.votos != null ? evento_info.value.votos.length : 0;
-    info_events.votantes = props.votantes.filter(item => item.id_eventos == evento_selected.value).length;
-
+    
+    tipos.value = evento_info.value.tipos != 'NA' ? evento_info.value.tipos.replace(/\s*\|\s*/g, ", ").split(", ") : 'NA';
+    info_events.votantes = props.votantes.filter(item => item.id_evento == evento_selected.value).length;
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 

@@ -73,25 +73,25 @@
                                                 <tr v-for="user in candidatosXtipo" :key="user.id"
                                                     class="text-gray-700">
                                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                                                        <Avatar v-if="user.imagen == 'user.png'"
-                                                            :label="getInitials(user.nombre)"
+                                                        <Avatar v-if="user.votante.imagen == 'user.png'"
+                                                            :label="getInitials(user.votante.nombre)"
                                                             class="bg-indigo-200 text-indigo-800 text-xl" size="xlarge"
                                                             shape="circle" />
-                                                        <Avatar v-else :image="getImageUrl(user.imagen)"
+                                                        <Avatar v-else :image="getImageUrl(user.votante.imagen)"
                                                             class="bg-indigo-200 text-indigo-800" size="xlarge"
                                                             shape="circle" />
                                                     </td>
                                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                                                        <p class="text-gray-900 whitespace-no-wrap">{{ user.nombre }}
+                                                        <p class="text-gray-900 whitespace-no-wrap">{{ user.votante.nombre }}
                                                         </p>
                                                     </td>
 
                                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                                                         <p class="text-gray-900 whitespace-no-wrap">{{
-                                                            user.identificacion }}</p>
+                                                            user.votante.identificacion }}</p>
                                                     </td>
                                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                                                        <p class="text-gray-900 whitespace-no-wrap">{{ eventos.find(item => item.id == evento_selected).votos.filter(item => item.id_candidato == user.id).length  }}</p>
+                                                        <p class="text-gray-900 whitespace-no-wrap">{{ eventos.find(item => item.id == evento_selected).votos.filter(item => item.id_candidato == user.id_votante).length  }}</p>
                                                     </td>
 
 
@@ -148,6 +148,9 @@ const props = defineProps({
 
 })
 
+console.log(props);
+
+
 
 
 //VARS PARA CHART   
@@ -163,7 +166,7 @@ const tipos = ref(props.eventos.length ? props.eventos.find(item => item.id == e
 
 //candidatos segun tipo
 const candidatosXtipo = ref(props.candidatos.filter(item => {
-    let res = item.id_eventos == evento_selected.value;
+    let res = item.id_evento == evento_selected.value;
     let res2 = item.tipo == tipos.value;
     return res && res2
 }));
@@ -175,11 +178,14 @@ const showGraphics = tipo => {
     chartOptions.value = setChartOptions();
     chartData1.value = setChartData1();
     chartOptions1.value = setChartOptions1();
+    
+    
     candidatosXtipo.value = props.candidatos.filter(item => {
-        let res = item.id_eventos == evento_selected.value;
+        let res = item.id_evento == evento_selected.value;
         let res2 = item.tipo == tipos.value;
         return res && res2
     });
+    console.log(candidatosXtipo.value);
     
 
 }
@@ -262,7 +268,7 @@ const setChartData = () => {
 
     //candidatos segun tipo
     let candidatosXtipo = props.candidatos.filter(item => {
-        let res = item.id_eventos == evento_selected.value;
+        let res = item.id_evento == evento_selected.value;
         let res2 = item.tipo == tipos.value;
         return res && res2
     });
@@ -274,9 +280,9 @@ const setChartData = () => {
 
     //Para guardar el nombre de los candidatos y enciontrar votos por candidato
     candidatosXtipo.forEach(element => {
-        labelsCandidatos.push(element.nombre);
+        labelsCandidatos.push(element.votante.nombre);
 
-        votosArray.push(eventoSelect.votos.filter(item => item.id_candidato == element.id).length)
+        votosArray.push(eventoSelect.votos.filter(item => item.id_candidato == element.id_votante).length)
 
     });
 
@@ -351,10 +357,12 @@ const setChartData1 = () => {
     //array resultados
     let resultadosArray = [];
 
-    let votantes = props.votantes.filter(item => item.tipo == tipos.value).length;
+    let votantes = props.votantes.filter(item => item.tipo == tipos.value && item.id_evento == eventoSelect.id).length;
     let votos = eventoSelect.votos.filter(item => item.tipo == tipos.value).length;
 
     resultadosArray.push(votantes - votos, votos)
+    console.log(eventoSelect);
+    
 
     return {
 

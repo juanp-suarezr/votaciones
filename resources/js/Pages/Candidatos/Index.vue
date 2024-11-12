@@ -7,7 +7,7 @@
             Candidatos
         </template>
 
-        <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4">
+        <div class="inline-block min-w-full overflow-hidden mb-3 sm:flex flex-wrap gap-4">
             <div>
                 <!-- <select id="candidato" name="candidato" v-model="candidato" @change="handleEnterKey"
                     class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
@@ -16,10 +16,9 @@
                     <option value="0">Usuarios</option>
                 </select> -->
             </div>
-            <div class="...">
-                <label for="default-search"
-                    class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                <div class="relative">
+            <div class="sm:inline-flex sm:w-1/2 w-auto mb-2">
+                
+                <div class="relative w-full">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -28,11 +27,21 @@
                         </svg>
                     </div>
                     <input type="search" @keydown.enter="handleEnterKey" v-model="search" id="default-search"
-                        class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-0 focus:border-transparent"
+                        class="block w-full p-4 ps-8 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-0 focus:border-transparent"
                         placeholder="Busqueda de usuarios" required>
                     <button type="submit" @click="handleEnterKey"
                         class="text-white absolute end-2.5 bottom-2.5 bg-sky-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-sky-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Buscar</button>
                 </div>
+            </div>
+            <div class="flex items-center mb-2">
+                <SecondaryButton @click="ClearAll">
+                    Limpiar
+                </SecondaryButton>
+            </div>
+            <div class="flex items-center mb-2">
+                <PrimaryLink :href="route('candidatos.create')">
+                    Añadir candidato
+                </PrimaryLink>
             </div>
 
 
@@ -90,7 +99,7 @@
                                         <p class="text-gray-900 whitespace-no-wrap">{{ user.identificacion }}</p>
                                     </td>
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                                        <p class="text-gray-900 whitespace-no-wrap">{{ user.tipo }}</p>
+                                        <p class="text-gray-900 whitespace-no-wrap">{{ user.tipos }}</p>
                                     </td>
 
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
@@ -167,6 +176,7 @@ import Avatar from 'primevue/avatar';
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from '@/Components/Modal.vue';
+import InputError from "@/Components/InputError.vue";
 
 //alert cool
 const swal = inject('$swal');
@@ -181,6 +191,8 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+
+
 
 //form
 const form = useForm({
@@ -211,6 +223,20 @@ const handleEnterKey = () => {
         }
     );
 };
+
+const ClearAll = () => {
+    search.value = '';
+    candidato.value = '';
+    router.get(
+        "/candidatos",
+        { search: search.value, candidato: candidato.value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
+};
+
 //avatar letters
 const getInitials = function (name) {
     let parts = name.split(' ');
