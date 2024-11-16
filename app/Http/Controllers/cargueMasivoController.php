@@ -15,7 +15,7 @@ class cargueMasivoController extends Controller
     //PLANTILLA EXCEL RESTAURANTES
     public function plantillaRes()
     {
-        $filePath = 'excel/votantes.xlsx'; // Ruta del archivo Excel almacenado
+        $filePath = 'excel/votantes.xls'; // Ruta del archivo Excel almacenado
 
         return Storage::download($filePath); // Devuelve el archivo para descarga
     }
