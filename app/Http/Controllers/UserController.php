@@ -18,6 +18,7 @@ use Inertia\Inertia;
 use DB;
 use Illuminate\Support\Facades\Cache;
 
+
 class UserController extends Controller
 
 {
@@ -138,6 +139,18 @@ class UserController extends Controller
             // Puedes optar por lanzar el error o retornar un mensaje de error
             return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv',
+            'event_id' => 'required|exists:eventos,id',
+        ]);
+
+        Excel::import(new VotersImport($request->event_id), $request->file('file'));
+
+        return response()->json(['message' => 'Importación completada con éxito.']);
     }
 
     public function edit(Request $request, $id_user)

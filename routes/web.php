@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\CandidatosController;
+use App\Http\Controllers\cargueMasivoController;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
@@ -127,6 +128,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //PLANTILLA EXCEL para cargue masivo
+    //usuario
+    Route::get('plantillaRes', [cargueMasivoController::class, 'plantillaRes'])->name('plantillaRes.excel');
+
+    //import excel carga masiva
+    //usuarios
+    Route::post('/cargueVotantes', [CargueMasivoController::class, 'cargueVotantes'])->name('cargueVotantes');
 });
 
 Route::group(['middleware' => ['auth']], function () {
