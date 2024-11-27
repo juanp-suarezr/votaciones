@@ -19,7 +19,7 @@ class VotosController extends Controller
     {
         $infoVotante = Informacion_votantes::where('id_user', Auth::id())->get();
 
-        $votos = Votos::where('id_votante', $infoVotante[0]->id)->first();
+        $votos = Votos::where('id_votante', $infoVotante[0]->id)->where('id_eventos', RequestFacade::input('tipo_evento'))->first();
 
         if ($votos) {
             return redirect()->route('dashboard', [
