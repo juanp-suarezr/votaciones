@@ -23,7 +23,7 @@
                     <!-- Candidato -->
                     <div class="mt-4 mx-auto">
                         <h2 class="text-xl font-bold capitalize">{{ candi.votante.nombre }}</h2>
-                        <h3 class="text-base text-gray-800"> CC {{ candi.votante.identificacion }}</h3>
+                        <h3 v-if="candi.votante.nombre == 'Voto En Blanco'" class="text-base text-gray-800"> CC {{ candi.votante.identificacion }}</h3>
                         <p class="text-sm text-gray-600"> Tipo: {{ candi.tipo }}</p>
                     </div>
                     <!-- votacion -->
