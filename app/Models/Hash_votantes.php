@@ -22,9 +22,10 @@ class Hash_votantes extends Model
         'id_votante',
         'candidato',
         'tipo',
+        'subtipo',
         'created_at',
         'updated_at',
-        
+
     ];
 
     // Relación muchos a uno con Eventos (cada registro de hash pertenece a un evento)
