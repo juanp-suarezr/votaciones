@@ -15,10 +15,7 @@
 
       <form class="m-auto py-4">
         <!-- parte 1 -- validación -->
-        <div
-          class="sm:grid sm:grid-cols-2 gap-6 h-full"
-          v-if="active == 0"
-        >
+        <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
           <!-- Nombre -->
           <div class="mb-2">
             <InputLabel for="nombre" value="Nombre Completo" />
@@ -232,7 +229,9 @@
               v-model="form.etnia"
               class="mt-1 block w-full border-gray-300 rounded-lg"
             >
-              <option value="" disabled>Seleccione grupo poblacional perteneciente</option>
+              <option value="" disabled>
+                Seleccione grupo poblacional perteneciente
+              </option>
               <option v-for="et in etnia" :key="et.id" :value="et.nombre">
                 {{ et.nombre }}
               </option>
@@ -344,7 +343,13 @@
             <label
               for="consentimiento1"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Conozco y Acepto la Política de Privacidad de Datos <a href="" target="_blank" class="underline !text-azul cursor-pointer">politica</a></label
+              >Conozco y Acepto la Política de Privacidad de Datos
+              <a
+                href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
+                target="_blank"
+                class="underline !text-azul cursor-pointer"
+                >politica</a
+              ></label
             >
             <InputError class="mt-1" :message="form.errors.checked" />
           </div>
@@ -669,7 +674,7 @@ const showModalBiometrico = async () => {
   try {
     // ✅ Solicitar permiso para la cámara
     const permiso = await navigator.mediaDevices.getUserMedia({ video: true });
-    permiso.getTracks().forEach(track => track.stop()); // cerrar inmediatamente
+    permiso.getTracks().forEach((track) => track.stop()); // cerrar inmediatamente
 
     // Cargar modelos
     await faceapi.nets.tinyFaceDetector.loadFromUri(
@@ -1113,7 +1118,6 @@ const validationUser = async (num) => {
 };
 
 const submit = () => {
-
   form.post(route("create-user"), {
     onSuccess: () => {
       swal({
