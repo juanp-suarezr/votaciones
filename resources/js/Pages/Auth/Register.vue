@@ -16,7 +16,7 @@
       <form class="m-auto py-4">
         <!-- parte 1 -- validación -->
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 gap-6 h-full"
+          class="sm:grid sm:grid-cols-2 gap-6 h-full"
           v-if="active == 0"
         >
           <!-- Nombre -->
@@ -169,7 +169,7 @@
           </div>
         </div>
         <!-- parte 2 -- datos demograficos -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" v-if="active == 1">
+        <div class="sm:grid sm:grid-cols-2 gap-6" v-if="active == 1">
           <!-- Género -->
           <div>
             <InputLabel for="genero" value="Género" />
@@ -277,7 +277,7 @@
               :options="comunas"
               filter
               optionLabel="label"
-              placeholder="Seleccione lugar de expedición"
+              placeholder="Seleccione comuna del proyecto"
               checkmark
               :highlightOnSelect="false"
               class="w-full"
@@ -669,6 +669,10 @@ const prevStep = (num) => {
 const showModalBiometrico = async () => {
   loadingModal.value = true;
   try {
+    // ✅ Solicitar permiso para la cámara
+    const permiso = await navigator.mediaDevices.getUserMedia({ video: true });
+    permiso.getTracks().forEach(track => track.stop()); // cerrar inmediatamente
+
     // Cargar modelos
     await faceapi.nets.tinyFaceDetector.loadFromUri(
       "/models/tiny_face_detector"
@@ -1111,7 +1115,7 @@ const validationUser = async (num) => {
 };
 
 const submit = () => {
-    
+
   form.post(route("create-user"), {
     onSuccess: () => {
       swal({
