@@ -20,7 +20,7 @@
           v-if="active == 0"
         >
           <!-- Nombre -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="nombre" value="Nombre Completo" />
             <TextInput
               id="nombre"
@@ -33,7 +33,7 @@
           </div>
 
           <!-- Identificación -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="identificacion" value="Identificación" />
             <TextInput
               id="identificacion"
@@ -46,7 +46,7 @@
           </div>
 
           <!-- Tipo de Documento -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="tipo_documento" value="Tipo de Documento" />
             <select
               id="tipo_documento"
@@ -66,7 +66,7 @@
           </div>
 
           <!-- Fecha de Expedición -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="fecha_expedicion" value="Fecha de Expedición" />
             <TextInput
               id="fecha_expedicion"
@@ -80,7 +80,7 @@
 
           <!-- Lugar de Expedición -->
           <div
-            class="cols-span-2 w-full"
+            class="cols-span-2 w-full mb-2"
             v-if="form.tipo_documento !== 'Cédula Extranjería'"
           >
             <InputLabel for="lugar_expedicion" value="Lugar de Expedición" />
@@ -120,7 +120,7 @@
           </div>
 
           <!-- Fecha de Nacimiento -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="nacimiento" value="Fecha de Nacimiento" />
             <TextInput
               id="nacimiento"
@@ -132,7 +132,7 @@
             <InputError class="mt-2" :message="form.errors.nacimiento" />
           </div>
           <!-- Cédula Frontal -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="cedula_front" value="Foto Documento Frontal" />
             <TextInput
               id="cedula_front"
@@ -145,7 +145,7 @@
             <InputError class="mt-2" :message="form.errors.cedula_front" />
           </div>
           <!-- Cédula Posterior -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="cedula_back" value="Foto Documento Posterior" />
             <TextInput
               id="cedula_back"
@@ -171,7 +171,7 @@
         <!-- parte 2 -- datos demograficos -->
         <div class="sm:grid sm:grid-cols-2 gap-6" v-if="active == 1">
           <!-- Género -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="genero" value="Género" />
             <div class="mt-2 block sm:flex">
               <div class="">
@@ -225,7 +225,7 @@
           </div>
 
           <!-- Etnia -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="etnia" value="Etnia" />
             <select
               id="etnia"
@@ -240,7 +240,7 @@
             <InputError class="mt-2" :message="form.errors.etnia" />
           </div>
           <!-- Indicativo -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="indicativo" value="Indicativo" />
             <TextInput
               id="indicativo"
@@ -253,7 +253,7 @@
             <InputError class="mt-2" :message="form.errors.indicativo" />
           </div>
           <!-- Celular -->
-          <div class="col-span-2 flex flex-wrap">
+          <div class="col-span-2 flex flex-wrap mb-1">
             <!-- celular -->
             <div>
               <InputLabel for="celular" value="Celular" />
@@ -269,7 +269,7 @@
           </div>
 
           <!-- Comuna -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="comuna" value="Comuna" />
             <Select
               id="comuna"
@@ -286,7 +286,7 @@
           </div>
 
           <!-- Barrio -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="barrio" value="Barrio" />
             <TextInput
               id="barrio"
@@ -297,7 +297,7 @@
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
           <!-- Dirección -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="direccion" value="Dirección" />
             <TextInput
               id="direccion"
@@ -309,7 +309,7 @@
             <InputError class="mt-2" :message="form.errors.direccion" />
           </div>
           <!-- Correo -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="email" value="Correo Electrónico" />
             <TextInput
               id="email"
@@ -321,7 +321,7 @@
             <InputError class="mt-2" :message="form.errors.email" />
           </div>
           <!-- Contraseña -->
-          <div>
+          <div class="mb-2">
             <InputLabel for="password" value="Contraseña" />
             <Password
               id="password"
@@ -333,7 +333,7 @@
             <InputError class="mt-2" :message="form.errors.password" />
           </div>
           <!-- ncheck tratamiento datos -->
-          <div class="my-4 col-span-2">
+          <div class="my-4 col-span-2 mb-2">
             <input
               type="checkbox"
               id="consentimiento1"
@@ -351,7 +351,7 @@
             <InputError class="mt-1" :message="form.errors.checked" />
           </div>
           <!-- declaración juramentada -->
-          <div class="mb-4 col-span-2">
+          <div class="mb-4 col-span-2 mb-2">
             <input
               type="checkbox"
               id="consentimiento2"
