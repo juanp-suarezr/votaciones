@@ -226,13 +226,13 @@
 
           <!-- Etnia -->
           <div class="mb-2">
-            <InputLabel for="etnia" value="Etnia" />
+            <InputLabel for="etnia" value="Grupo poblacional" />
             <select
               id="etnia"
               v-model="form.etnia"
               class="mt-1 block w-full border-gray-300 rounded-lg"
             >
-              <option value="" disabled>Seleccione etnia perteneciente</option>
+              <option value="" disabled>Seleccione grupo poblacional perteneciente</option>
               <option v-for="et in etnia" :key="et.id" :value="et.nombre">
                 {{ et.nombre }}
               </option>
@@ -344,9 +344,7 @@
             <label
               for="consentimiento1"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Acepto el tratamiento de mis datos personales para fines
-              informativos de la Alcaldía de Pereira y la secretaría de las
-              TIC</label
+              >Conozco y Acepto la Política de Privacidad de Datos <a href="" target="_blank" class="underline !text-azul cursor-pointer">politica</a></label
             >
             <InputError class="mt-1" :message="form.errors.checked" />
           </div>

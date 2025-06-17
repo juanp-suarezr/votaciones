@@ -1,9 +1,9 @@
-<!-- filepath: resources/views/consulta_certificado.blade.php -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta de Certificado Canino</title>
+    <title>Consulta de Certificado electoral</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; }
         .card { max-width: 500px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #ccc; padding: 30px; }
@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="card">
-        <h2>Certificado de Registro Canino</h2>
+        <h2>Certificado electoral {{ $evento->nombre }} {{  }}</h2>
         <div class="info">
             <p><strong>Nombre del canino:</strong> {{ $canino->nombre }}</p>
             <p><strong>Raza:</strong> {{ $canino->raza }}</p>
