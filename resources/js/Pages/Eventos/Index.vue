@@ -2,7 +2,7 @@
 
     <Head title="Eventos" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Eventos
         </template>
@@ -35,6 +35,10 @@
                         </th>
                         <th
                             class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                            Evento padre
+                        </th>
+                        <th
+                            class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                             Fecha inicio
                         </th>
                         <th
@@ -63,6 +67,9 @@
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.dependencias }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
+                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.evento_padre ? ev.evento_padre.nombre : 'No tiene' }}</p>
+                        </td>
+                        <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.fecha_inicio }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
@@ -78,7 +85,7 @@
                                 Editar
                             </SecondaryLink>
 
-                            <DangerButton @click="confirmUserDeletion(tipo.id)">Eliminar</DangerButton>
+                            <!-- <DangerButton @click="confirmUserDeletion(tipo.id)">Eliminar</DangerButton> -->
 
                         </td>
                     </tr>
@@ -133,6 +140,9 @@ import SecondaryLink from '@/Components/SecondaryLink.vue';
 const props = defineProps({
     eventos: Object
 })
+
+console.log(props.eventos);
+
 const swal = inject('$swal');
 
 // Modal de eliminacion
@@ -145,6 +155,11 @@ const form = useForm({
     password: '',
     nombre: '',
 });
+
+const breadcrumbLinks = [
+    { url: '', text: 'listado de eventos' },
+
+];
 
 const closeModal = () => {
     confirmingDeletion.value = false;

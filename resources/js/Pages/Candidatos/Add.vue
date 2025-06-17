@@ -2,7 +2,7 @@
 
     <Head title="Agregar candidato" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Nuevo Candidato
         </template>
@@ -111,6 +111,13 @@ const form = useForm({
 
 
 });
+
+// Breadcrumb
+const breadcrumbLinks = [
+    { url: '/candidatos', text: 'Listado de candidatos' },
+    { url: '', text: 'Nuevo candidato' },
+];
+
 
 // Lógica al seleccionar un evento
 const eventoSelect = () => {

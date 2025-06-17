@@ -2,7 +2,7 @@
 
     <Head title="Votaciones" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Votaciones
         </template>
@@ -72,6 +72,10 @@ const form = useForm({
 
 });
 
+const breadcrumbLinks = [
+    { url: '', text: 'Votaciones' },
+];
+
 
 //funtion para avatar letter
 const getInitials = function (name) {
@@ -88,8 +92,8 @@ const getInitials = function (name) {
     return initials;
 };
 
-//MOSTRAR IMAGEN EN TABLA 
-//IMAGEN 
+//MOSTRAR IMAGEN EN TABLA
+//IMAGEN
 const getImageUrl = (imageName) => {
     // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
     return `/storage/uploads/usuarios/${imageName}`;
@@ -97,7 +101,7 @@ const getImageUrl = (imageName) => {
 
 const votar = candidato => {
     console.log(candidato);
-    
+
 
     form.id_candidato = candidato.id_votante;
     form.id_eventos = candidato.id_evento;

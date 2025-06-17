@@ -19,12 +19,15 @@ class Votos extends Model
     protected $fillable = [
         'id_votante',
         'id_candidato',
+        'id_proyecto',
         'id_eventos',
         'tipo',
+        'subtipo',
+        'is_virtual',
         'created_at',
         'updated_at',
         'estado',
-        
+
     ];
 
     public function votante()
@@ -35,5 +38,10 @@ class Votos extends Model
     public function candidato()
     {
         return $this->hasOne(Informacion_votantes::class, 'id', 'id_candidato');
+    }
+
+    public function proyecto()
+    {
+        return $this->hasOne(Proyectos::class, 'id', 'id_proyecto');
     }
 }

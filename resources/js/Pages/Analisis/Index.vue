@@ -1,8 +1,12 @@
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Análisis" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
+
+        <template #header>
+            Análisis resultados
+        </template>
 
         <!-- ADMIN -->
         <div class="">
@@ -148,12 +152,17 @@ const props = defineProps({
 
 })
 
+//breadcrumb
+const breadcrumbLinks = [
+    { url: '/', text: 'Análisis' },
+];
+
 console.log(props);
 
 
 
 
-//VARS PARA CHART   
+//VARS PARA CHART
 const chartData = ref();
 const chartOptions = ref();
 const chartData1 = ref();
@@ -178,15 +187,15 @@ const showGraphics = tipo => {
     chartOptions.value = setChartOptions();
     chartData1.value = setChartData1();
     chartOptions1.value = setChartOptions1();
-    
-    
+
+
     candidatosXtipo.value = props.candidatos.filter(item => {
         let res = item.id_evento == evento_selected.value;
         let res2 = item.tipo == tipos.value;
         return res && res2
     });
     console.log(candidatosXtipo.value);
-    
+
 
 }
 
@@ -215,8 +224,8 @@ watch(itemsPerPage, () => {
     currentPage.value = 0;
 });
 
-//MOSTRAR IMAGEN EN TABLA 
-//IMAGEN 
+//MOSTRAR IMAGEN EN TABLA
+//IMAGEN
 const getImageUrl = (imageName) => {
     // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
     return `/storage/uploads/usuarios/${imageName}`;
@@ -273,7 +282,7 @@ const setChartData = () => {
         return res && res2
     });
 
-    //label con nombre 
+    //label con nombre
     let labelsCandidatos = [];
     //Array con resultado votos
     let votosArray = [];
@@ -362,7 +371,7 @@ const setChartData1 = () => {
 
     resultadosArray.push(votantes - votos, votos)
     console.log(eventoSelect);
-    
+
 
     return {
 

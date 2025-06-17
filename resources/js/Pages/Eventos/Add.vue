@@ -2,7 +2,7 @@
 
     <Head title="Agregar evento" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Nuevo Evento
         </template>
@@ -130,11 +130,11 @@ const props = defineProps({
     roles: {
         type: Object,
         default: () => ({}),
-    }, 
+    },
     tipos: {
         type: Object,
         default: () => ({}),
-    }, 
+    },
 });
 
 const form = useForm({
@@ -145,8 +145,14 @@ const form = useForm({
     dependencias: '',
     tipos: '',
     estado: 'Pendiente',
-    
+
 });
+
+// Breadcrumb
+const breadcrumbLinks = [
+    { url: route('eventos.index'), text: 'Listado de eventos' },
+    { url: '', text: 'Nuevo evento' },
+];
 
 
 // Limite palabras

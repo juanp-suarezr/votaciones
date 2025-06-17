@@ -31,7 +31,7 @@ class EventosController extends Controller
             'Eventos/Index',
 
             [
-                'eventos' => Eventos::whereNot('nombre', 'Admin')->paginate(5),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->with('evento_padre')->paginate(5),
             ]
         );
     }
@@ -44,6 +44,7 @@ class EventosController extends Controller
 
             [
                 'tipos' => Tipos::pluck('nombre', 'nombre')->all(),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->get(),
             ]
         );
     }
@@ -69,6 +70,7 @@ class EventosController extends Controller
                 'descripcion' => $request->input('descripcion'),
                 'dependencias' => $request->input('dependencias'),
                 'tipos' => $request->input('tipos'),
+                'evento_padre' => $request->input('evento_padre'),
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'estado' => $request->input('estado'),
@@ -85,8 +87,9 @@ class EventosController extends Controller
     {
         $tipos = Tipos::pluck('nombre', 'nombre')->all();
         $evento = Eventos::findOrFail($id_user);
+        $eventos = Eventos::whereNot('nombre', 'Admin')->whereNot('id', $id_user)->get();
 
-        return Inertia::render('Eventos/Edit', compact('tipos', 'evento'));
+        return Inertia::render('Eventos/Edit', compact('tipos', 'evento', 'eventos'));
     }
 
     public function update(Request $request, $id_ev)
@@ -109,10 +112,11 @@ class EventosController extends Controller
         $eventos->fecha_inicio = $request->fecha_inicio;
         $eventos->fecha_fin = $request->fecha_fin;
         $eventos->tipos = $request->tipos;
+        $eventos->evento_padre = $request->evento_padre;
         $eventos->estado = $request->estado;
         $eventos->save();
 
-            
+
         return Redirect::route('eventos.edit',$eventos->id);
     }
 

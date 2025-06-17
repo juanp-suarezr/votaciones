@@ -18,6 +18,7 @@ class Proyectos extends Model
      */
     protected $fillable = [
         'detalle',
+        'descripcion',
         'tipo',
         'subtipo',
         'numero_tarjeton',
@@ -28,13 +29,13 @@ class Proyectos extends Model
 
     ];
 
-    public function votantes()
+    public function parametroDetalle()
     {
-        return $this->hasMany(Hash_votantes::class, 'id_evento', 'id');
+        return $this->belongsTo(ParametrosDetalle::class, 'subtipo', 'id');
     }
 
-    public function votos()
+    public function hash_proyectos()
     {
-        return $this->hasMany(Votos::class, 'id_eventos', 'id');
+        return $this->hasMany(Hash_proyectos::class, 'id_proyecto', 'id');
     }
 }

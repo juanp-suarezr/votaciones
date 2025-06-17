@@ -35,6 +35,10 @@
                     class="text-sm text-gray-600 underline hover:text-gray-900">
                 ¿Olvidaste tu contraseña?
                 </Link>
+                <Link v-if="canResetPassword" :href="route('password.request')"
+                    class="text-sm text-gray-600 underline hover:text-gray-900">
+                Ingresar como admin
+                </Link>
             </div>
 
             <div class="mt-6">
@@ -60,7 +64,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 defineProps({
     canResetPassword: Boolean,
     status: String,
-    
+
 });
 
 const form = useForm({
@@ -69,7 +73,7 @@ const form = useForm({
     remember: false,
     origin: usePage().props.origin,
     identificacion: usePage().props.identificacion,
-    
+
 });
 
 const submit = () => {
@@ -77,4 +81,4 @@ const submit = () => {
         onFinish: () => form.reset('password'),
     });
 };
-</script> 
+</script>

@@ -1,7 +1,7 @@
 <template>
     <Head title="Roles del sistema" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Roles del sistema
         </template>
@@ -116,6 +116,11 @@ const role_id = ref();
 const form = useForm({
     password: '',
 });
+
+//Breadcrumb
+const breadcrumbLinks = [
+    { url: '', text: 'Roles del sistema' },
+];
 
 const closeModal = () => {
     confirmingDeletion.value = false;

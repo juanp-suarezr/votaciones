@@ -19,11 +19,18 @@
     },
     "dependencies": {
         "@heroicons/vue": "^2.1.1",
+        "@primeuix/themes": "^1.0.0",
         "chart.js": "^4.4.2",
+        "chartjs-plugin-datalabels": "^2.2.0",
         "date-fns": "^3.6.0",
-        "primevue": "^3.48.1",
+        "dayjs": "^1.11.13",
+        "face-api.js": "^0.22.2",
+        "firebase": "^11.6.1",
+        "primevue": "^4.3.2",
+        "vue-easy-lightbox": "^1.19.0",
         "vue-qrcode": "^2.2.2",
         "vue-qrcode-component": "^2.1.1",
+        "vue-recaptcha-v3": "^2.0.1",
         "vue-sweetalert2": "^5.0.5",
         "vue-toast-notification": "^3.1.2"
     }

@@ -17,6 +17,11 @@ const props = defineProps({
     rolePermissions: Object,
 });
 
+const breadcrumbLinks = [
+    { url: '/roles', text: 'Roles del sistema' },
+    { url: '', text: 'Editar roles' },
+];
+
 
 const counter = ref(Object.values(props.rolePermissions));
 const form = useForm({
@@ -47,9 +52,9 @@ watch(
 <template>
     <Head title="Editar Rol" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
-            <!-- <Link class="text-sky-400 hover:text-sky-600" href="/roles"> Roles </Link> / {{ form.name }} -->
+            <Link class="text-sky-400 hover:text-sky-600" href="/roles"> Roles </Link> / {{ form.name }}
 
         </template>
         <div class="flex flex-col bg-white border shadow-sm rounded-xl w-full">

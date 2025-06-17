@@ -23,6 +23,9 @@ class Hash_votantes extends Model
         'candidato',
         'tipo',
         'subtipo',
+        'motivo',
+        'validaciones',
+        'estado',
         'created_at',
         'updated_at',
 

@@ -17,6 +17,8 @@ return [
     */
 
     'name' => env('votaYa'),
+    'emergency_login_code' => env('EMERGENCY_LOGIN_CODE'),
+    'recaptcha_site_key' => env('RECAPTCHA_SITE_KEY'),
 
     /*
     |--------------------------------------------------------------------------
@@ -171,9 +173,9 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
 
 
-        
-        
-        
+
+
+
     ])->toArray(),
 
     /*
@@ -189,7 +191,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
-        
+
     ])->toArray(),
 
 ];

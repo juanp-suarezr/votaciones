@@ -1,16 +1,26 @@
 <?php
 
 use App\Http\Controllers\AnalisisController;
+use App\Http\Controllers\Auth\FaceController;
 use App\Http\Controllers\CandidatosController;
 use App\Http\Controllers\cargueMasivoController;
+use App\Http\Controllers\CedulaController;
+use App\Http\Controllers\CertificadosController;
+use App\Http\Controllers\DelegadosController;
 use App\Http\Controllers\EventosController;
+
+use App\Http\Controllers\ParametrosController;
+use App\Http\Controllers\ParametrosDetalleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProyectosController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TiposController;
+use App\Http\Controllers\ValidacionesController;
 use App\Http\Controllers\VotosController;
 use App\Models\Eventos;
+use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Votos;
@@ -31,6 +41,11 @@ use Inertia\Inertia;
 |
 */
 
+// routes/api.php
+
+
+
+
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
@@ -46,6 +61,35 @@ Route::get('/home', function () {
         return redirect()->route('login');
     }
 });
+
+//pagina consulta de certificados para descargar
+Route::get('/certificado', function () {
+
+    return Inertia::render('Certificados', [
+
+
+    ]);
+
+});
+
+
+//Consultar por qr de carnet
+Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_id, $votante_id) {
+    $voto = Votos::select('id', 'id_votante', 'id_eventos', 'isVirtual')
+        ->with(['votante:id,nombre,tipo_documento,identificacion,comuna']) // corregido el with
+        ->where('id_eventos', $evento_id)
+        ->where('id_votante', $votante_id)
+        ->firstOrFail();
+
+    $evento = Eventos::select('id', 'nombre')->findOrFail($evento_id);
+
+    return view('consulta_certificado', [
+        'voto' => $voto,
+        'evento' => $evento,
+    ]);
+})->name('consulta.certificado.publica');
+
+
 
 
 Route::get('/dashboard', function () {
@@ -63,7 +107,7 @@ Route::get('/dashboard', function () {
     });
 
     $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->get();
-    
+
     // Obtén todos los tipos de los objetos en $info_votante
     $tipos = collect($info_votante)->pluck('tipo')->unique()->toArray();
 
@@ -71,13 +115,14 @@ Route::get('/dashboard', function () {
         'eventos' => Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
                 $query->where('id_votante', Auth::user()->votantes->id);
-            }])
+            }, 'evento_padre'])
             ->get(),
-        'votos' => Votos::where('id_votante', Auth::user()->votantes->id)->select('id_votante', 'id_eventos', 'id_candidato')->get(),
-        'candidatos' => Hash_votantes::where('candidato', 1)->whereIn('tipo', $tipos)->with('votante')->get(),
-
+        'votos' => Votos::where('id_votante', Auth::user()->votantes->id)->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')->get(),
+        'proyectos' => Hash_proyectos::with('proyecto')->get(),
+        'candidatos' => Hash_votantes::where('candidato', 0)->whereIn('tipo', $tipos)->with('votante')->get(),
         'eventos_admin' => $eventos_admin,
         'votantes' => $votantes,
+
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -129,6 +174,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+
+
+    //update proyectos
+    Route::post('/proyecto-update', [ProyectosController::class, 'updateProyecto'])->name('proyectoUpdate');
     //PLANTILLA EXCEL para cargue masivo
     //usuario
     Route::get('plantillaRes', [cargueMasivoController::class, 'plantillaRes'])->name('plantillaRes.excel');
@@ -136,17 +185,33 @@ Route::middleware('auth')->group(function () {
     //import excel carga masiva
     //usuarios
     Route::post('/cargueVotantes', [CargueMasivoController::class, 'cargueVotantes'])->name('cargueVotantes');
+
+    //GESTION REGISTROS
+    Route::post('/aprobar-registro', [ValidacionesController::class, 'aprobarRegistro'])->name('aprobarRegistro');
+    Route::post('/rechazar-registro', [ValidacionesController::class, 'rechazarRegistro'])->name('rechazarRegistro');
+
+    //GESTION CERTIFICADOS
+    //descargar
+    Route::get('/certificados/descargar/{id}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
+
+
 });
 
 Route::group(['middleware' => ['auth']], function () {
     Route::resource('users', UserController::class)->middleware('auth');
     Route::resource('roles', RoleController::class);
     Route::resource('tipos', TiposController::class);
+    Route::resource('parametros', ParametrosController::class);
+    Route::resource('parametrosDetalle', ParametrosDetalleController::class);
+    Route::resource('proyectos', ProyectosController::class);
 
     Route::resource('eventos', EventosController::class);
     Route::resource('votos', VotosController::class);
     Route::resource('candidatos', CandidatosController::class);
     Route::resource('analisis', AnalisisController::class);
+
+    Route::resource('gestion_registros', ValidacionesController::class);
+    Route::resource('delegado', DelegadosController::class);
 });
 
 

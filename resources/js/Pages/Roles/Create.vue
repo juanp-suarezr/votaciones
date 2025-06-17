@@ -18,6 +18,12 @@ const form = useForm({
     name: '',
     permisos: []
 });
+
+const breadcrumbLinks = [
+    { url: '/roles', text: 'Roles' },
+    { url: '', text: 'Nuevo Rol' },
+];
+
 const submit = () => {
     form.post(route('roles.store'), {
         onSuccess: () => swal({
@@ -40,7 +46,7 @@ watch(
 <template>
     <Head title="Nuevo Rol" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             <Link class="text-indigo-400 hover:text-indigo-600" href="/roles"> Roles </Link> / {{ form.name }}
         </template>

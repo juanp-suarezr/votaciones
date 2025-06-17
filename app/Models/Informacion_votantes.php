@@ -20,11 +20,20 @@ class Informacion_votantes extends Model
         'nombre',
         'id_user',
         'identificacion',
-        'tipo',
+        'tipo_documento',
+        'fecha_expedicion',
+        'lugar_expedicion',
+        'nacimiento',
+        'genero',
+        'etnia',
+        'direccion',
+        'celular',
+        'comuna',
+        'barrio',
         'created_at',
         'updated_at',
         'imagen',
-        
+
     ];
 
     public function user()

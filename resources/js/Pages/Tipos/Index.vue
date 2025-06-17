@@ -1,10 +1,10 @@
 <template>
 
-    <Head title="Tipo de usuario" />
+    <Head title="Tipo de usuario/evento" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
-            Tipo de usuario
+            Tipo de usuario/evento
         </template>
 
 
@@ -65,7 +65,7 @@
         <!-- modal actu o create -->
         <Modal :show="visible" @close="closeModal">
             <div class="p-6">
-                <h2 class="text-xl font-semibold"> 
+                <h2 class="text-xl font-semibold">
                     {{ tipo_id == 'new' ? 'Añadir Tipo de Usuario' : 'Editar Tipo de Usuario' }}
                 </h2>
                 <!-- nombres -->
@@ -118,6 +118,8 @@ import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
+import Button from 'primevue/button';
+
 const props = defineProps({
     tipos: Object
 })
@@ -134,6 +136,12 @@ const form = useForm({
     nombre: '',
 });
 
+//Breadcrumb
+const breadcrumbLinks = [
+    { url: '', text: 'listado de tipos' },
+
+];
+
 const closeModal = () => {
     confirmingDeletion.value = false;
     visible.value = false;
@@ -141,7 +149,7 @@ const closeModal = () => {
 };
 //MODAL EDIT or CREATE
 const Actualizar = (id) => {
-    
+
     form.nombre = props.tipos.find(item => item.id == id) ? props.tipos.find(item => item.id == id).nombre : '';
     visible.value = true;
     tipo_id.value = id;

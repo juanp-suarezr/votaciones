@@ -2,7 +2,7 @@
 
     <Head title="Candidatos" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Candidatos
         </template>
@@ -17,7 +17,7 @@
                 </select> -->
             </div>
             <div class="sm:inline-flex sm:w-1/2 w-auto mb-2">
-                
+
                 <div class="relative w-full">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
@@ -177,6 +177,7 @@ import SecondaryLink from "@/Components/SecondaryLink.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from '@/Components/Modal.vue';
 import InputError from "@/Components/InputError.vue";
+import Button from "primevue/button";
 
 //alert cool
 const swal = inject('$swal');
@@ -200,6 +201,12 @@ const form = useForm({
     nombre: '',
     imagen: '',
 });
+
+//breadcrumb
+const breadcrumbLinks = [
+    { url: '', text: 'listado de candidatos' },
+
+];
 
 //Modal de añadir o actualizar
 const visible = ref(false);
@@ -294,8 +301,8 @@ const onAdvancedUpload = (ev) => {
 
 };
 
-//MOSTRAR IMAGEN EN TABLA 
-//IMAGEN 
+//MOSTRAR IMAGEN EN TABLA
+//IMAGEN
 const getImageUrl = (imageName) => {
     // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
     return `/storage/uploads/usuarios/${imageName}`;

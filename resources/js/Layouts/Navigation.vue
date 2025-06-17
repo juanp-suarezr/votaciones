@@ -32,15 +32,29 @@
             </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Configuración</SeparadorMenu>
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('gestion_registros.index')" :active="route().current().includes('gestion_registros')">
+                <CheckIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Gestión registros</span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('candidatos-editar')" :href="route('candidatos.index')"
                 :active="route().current().includes('candidatos')">
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Candidatos</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('proyectos.index')"
+                :active="route().current().includes('proyectos')">
+                <PaperClipIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Proyectos </span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('tipos-listar')" :href="route('tipos.index')"
                 :active="route().current().includes('tipos')">
                 <FireIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Tipos</span>
+            </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('parametros.index')"
+                :active="route().current().includes('parametros')">
+                <AdjustmentsHorizontalIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Parametros</span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('users.index')"
                 :active="route().current().includes('users')">
@@ -65,7 +79,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -78,6 +92,9 @@ export default {
         FireIcon,
         UserGroupIcon,
         FingerPrintIcon,
+        AdjustmentsHorizontalIcon,
+        PaperClipIcon,
+        CheckIcon,
         SeparadorMenu
     },
 

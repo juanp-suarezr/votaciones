@@ -23,10 +23,11 @@ class Eventos extends Model
         'descripcion',
         'dependencias',
         'tipos',
+        'evento_padre',
         'fecha_inicio',
         'fecha_fin',
         'estado',
-        
+
     ];
 
     public function votantes()
@@ -37,5 +38,10 @@ class Eventos extends Model
     public function votos()
     {
         return $this->hasMany(Votos::class, 'id_eventos', 'id');
+    }
+
+    public function evento_padre()
+    {
+        return $this->belongsTo(Eventos::class, 'evento_padre', 'id');
     }
 }

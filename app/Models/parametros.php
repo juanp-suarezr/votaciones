@@ -28,7 +28,7 @@ class Parametros extends Model
     //RELACION USER CON parametros detalle
     public function parametrosDetalle()
     {
-        return $this->hasMany(ParametrosDetalle::class, 'codParamaetro', 'cod');
+        return $this->hasMany(ParametrosDetalle::class, 'codParametro', 'cod');
     }
 
 }

@@ -1,7 +1,7 @@
 <template>
     <Head title="Usuarios" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
         <template #header>
             Usuarios
         </template>
@@ -135,6 +135,7 @@ import Pagination from '@/Components/Pagination.vue'
 import { Head } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3'
 import Avatar from 'primevue/avatar';
+
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 
 const props = defineProps({
@@ -148,7 +149,10 @@ const props = defineProps({
     },
 });
 
+const breadcrumbLinks = [
+    { url: '', text: 'listado de usuarios' },
 
+];
 
 
 // pass filters in search

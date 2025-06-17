@@ -46,6 +46,10 @@ class HandleInertiaRequests extends Middleware
             'user.info' => $request->user() ? $request->user()->votantes : [],
             'user.permissions' => $request->user() ? $request->user()->getPermissionsViaRoles()->pluck('name') : [],
             'showingMobileMenu' => false,
+            // Agregar la clave del sitio de reCAPTCHA
+            'recaptcha' => [
+                'site_key' => config('app.recaptcha_site_key'), // Obtiene la clave del archivo de configuración
+            ],
         ]);
     }
 }
