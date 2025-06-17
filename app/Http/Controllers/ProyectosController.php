@@ -8,7 +8,7 @@ use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Parametros;
 use App\Models\ParametrosDetalle;
-use App\Models\Proyectos;
+use App\Models\proyectos;
 use App\Models\Tipos;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Http\Request;
