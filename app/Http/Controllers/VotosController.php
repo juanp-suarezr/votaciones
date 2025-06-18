@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
-use App\Models\proyectos;
+use App\Models\Proyectos;
 use App\Models\Votos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
