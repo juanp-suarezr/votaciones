@@ -28,7 +28,7 @@ class ValidationController extends Controller
             'nombre' => 'required|string|max:255',
             'identificacion' => 'required|string|max:20',
             Rule::unique('informacion_votantes')->where(function ($query) {
-                return $query->whereNotNull('comuna')->where('comuna', '!=', '');
+                return $query->whereNotNull('comuna')->where('comuna', '!=', 0);
             }),
             'tipo_documento' => 'required|string',
             'fecha_expedicion' => 'required|date',
@@ -248,7 +248,7 @@ class ValidationController extends Controller
         ]);
 
         $existe = Informacion_votantes::where('identificacion', $request->identificacion)
-        ->where('comuna', '!=', '')
+        ->where('comuna', '!=', 0)
         ->whereNotNull('comuna')
         ->exists();
 
