@@ -642,7 +642,7 @@ const active = ref(0);
 //mensaje error
 const errorMessage = ref("");
 //error fecha nacimiento
-const errorEdad = ref('')
+const errorEdad = ref("");
 //validado
 const isValidate = ref(false);
 //abrir modal
@@ -968,23 +968,23 @@ const registerAndValidate = async () => {
 
 const validateEdad = () => {
   if (!form.nacimiento) {
-    errorEdad.value = 'Debes ingresar la fecha de nacimiento.'
-    return false
+    errorEdad.value = "Debes ingresar la fecha de nacimiento.";
+    return false;
   }
-  const hoy = new Date()
-  const nacimiento = new Date(form.nacimiento)
-  let edad = hoy.getFullYear() - nacimiento.getFullYear()
-  const m = hoy.getMonth() - nacimiento.getMonth()
+  const hoy = new Date();
+  const nacimiento = new Date(form.nacimiento);
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
   if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
-    edad--
+    edad--;
   }
   if (edad < 14) {
-    errorEdad.value = 'No es posible el registro de menores de 14 años.'
-    return false
+    errorEdad.value = "No es posible el registro de menores de 14 años.";
+    return false;
   }
-  errorEdad.value = ''
-  return true
-}
+  errorEdad.value = "";
+  return true;
+};
 
 //validar datos step1
 const validateStep1 = async () => {
@@ -998,7 +998,7 @@ const validateStep1 = async () => {
     form.cedula_front &&
     form.cedula_back
   ) {
-    if (!validateEdad()) return
+    if (!validateEdad()) return;
     // Limpia mensajes previos
     errorMessage.value = "";
 
@@ -1013,7 +1013,6 @@ const validateStep1 = async () => {
         errorMessage.value = "";
         isValidate.value = true;
       }
-
     } catch (error) {
       errorMessage.value =
         "Error al validar la identificación. Intenta de nuevo.";
@@ -1188,10 +1187,21 @@ const validationUser = async (num) => {
     active.value = 2; // Ir al paso de verificación
   } catch (error) {
     console.error(error);
-    console.error(form.errors);
+    let mensajes =
+      "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.";
+
+    // Si Laravel devuelve errores en error.response.data.errors
+    if (error.response && error.response.data && error.response.data.errors) {
+      const errores = error.response.data.errors;
+
+      // Convertimos el objeto de errores a un array de mensajes
+      mensajes = Object.values(errores)
+        .flat() // une arrays internos en uno solo
+        .join("\n"); // separa con salto de línea para mostrar en SweetAlert
+    }
     swal.fire({
       title: "Error",
-      text: form.errors ? form.errors+", Por favor, inténtalo nuevamente." : "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.",
+      text: mensajes,
       icon: "error",
     });
   } finally {
