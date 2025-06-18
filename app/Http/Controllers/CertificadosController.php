@@ -82,7 +82,7 @@ class CertificadosController extends Controller
 
         $votante = $evento->votantes->first()->votante;
         $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($votante->comuna);
-        $voto = Votos::select('id', 'id_votante', 'id_eventos', 'is_virtual', 'created_at')
+        $voto = Votos::select('id', 'id_votante', 'id_eventos', 'isVirtual', 'created_at')
             ->where('id_eventos', $evento->id)
             ->where('id_votante', $votante->id)
             ->firstOrFail();
