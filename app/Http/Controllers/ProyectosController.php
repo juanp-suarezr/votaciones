@@ -205,7 +205,7 @@ class ProyectosController extends Controller
 
         DB::beginTransaction(); // Iniciar la transacción
 
-        
+
         try {
 
             $fileName = null;
@@ -236,7 +236,7 @@ class ProyectosController extends Controller
                 'detalle' => $request->detalle,
                 'descripcion' => $request->descripcion,
                 'tipo' => $request->tipo,
-                'subtipo' => $request->input('subtipo.id', 'NA'), // Aseguramos que subtipo tenga un valor por defecto si no se envía
+                'subtipo' => $request->input('subtipo.id', 0), // Aseguramos que subtipo tenga un valor por defecto si no se envía
                 'numero_tarjeton' => $request->numero_tarjeton,
                 'imagen' => $fileName ?? $proyecto->imagen,
                 'estado' => $request->estado,
