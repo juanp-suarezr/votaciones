@@ -1164,6 +1164,7 @@ const validationUser = async (num) => {
     formData.append("lugar_expedicion", form.lugar_expedicion);
     formData.append("nacimiento", form.nacimiento);
     formData.append("etnia", form.etnia);
+    formData.append("condicion", form.condicion);
     formData.append("direccion", form.direccion);
     formData.append("genero", form.genero);
     formData.append("comuna", form.comuna);
