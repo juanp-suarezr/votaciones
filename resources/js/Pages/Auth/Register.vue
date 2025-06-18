@@ -1052,7 +1052,7 @@ const validateStep1 = async () => {
 
 //llamado validador identificacion
 const checkIdentificacionService = async (identificacion) => {
-  const response = await axios.post("/api/validar-identificacion", {
+  const response = await axios.post("/validar-identificacion", {
     identificacion,
   });
   return response.data.existe; // true si existe, false si no
