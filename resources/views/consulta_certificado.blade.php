@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="card">
-        <h2>Certificado electoral {{ $evento->nombre }} {{  }}</h2>
+        <h2>Certificado electoral {{ $evento->nombre }} {{ $annio }}</h2>
         <div class="info">
             <p><strong>Nombre del canino:</strong> {{ $canino->nombre }}</p>
             <p><strong>Raza:</strong> {{ $canino->raza }}</p>

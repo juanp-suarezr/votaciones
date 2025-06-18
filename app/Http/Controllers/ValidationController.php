@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Twilio\Rest\Client;
 
 class ValidationController extends Controller
@@ -25,13 +26,17 @@ class ValidationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'identificacion' => 'required|string|max:20|unique:votantes',
+            'identificacion' => 'required|string|max:20',
+            Rule::unique('informacion_votantes')->where(function ($query) {
+                return $query->whereNotNull('comuna')->where('comuna', '!=', '');
+            }),
             'tipo_documento' => 'required|string',
             'fecha_expedicion' => 'required|date',
             'lugar_expedicion' => 'required|string',
             'nacimiento' => 'required|date',
             'genero' => 'required|string',
             'etnia' => 'required|string',
+            'condicion' => 'required|string',
             'comuna' => 'required',
             'barrio' => 'string',
             'direccion' => 'string',
@@ -171,7 +176,6 @@ class ValidationController extends Controller
                 ]);
 
                 $validacion = 'validado';
-
             } else {
 
                 //CREAR REGISTRO BIOMETRICO no validado
@@ -184,8 +188,6 @@ class ValidationController extends Controller
                     'estado' => 'Pendiente',
 
                 ]);
-
-
             }
 
 
@@ -237,5 +239,19 @@ class ValidationController extends Controller
             // Puedes optar por lanzar el error o retornar un mensaje de error
             return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
+    }
+
+    public function verificar(Request $request)
+    {
+        $request->validate([
+            'identificacion' => 'required'
+        ]);
+
+        $existe = Informacion_votantes::where('identificacion', $request->identificacion)
+        ->where('comuna', '!=', '')
+        ->whereNotNull('comuna')
+        ->exists();
+
+        return response()->json(['existe' => $existe]);
     }
 }

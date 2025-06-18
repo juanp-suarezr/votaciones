@@ -26,6 +26,7 @@ class Informacion_votantes extends Model
         'nacimiento',
         'genero',
         'etnia',
+        'condicion',
         'direccion',
         'celular',
         'comuna',

@@ -25,6 +25,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/validate-doc', [CedulaController::class, 'validateCedula'])->name('validate-doc');
     //validar face ia
     Route::post('/face-validate', [FaceController::class, 'validateFace'])->name('face-validate');
+    //validar identificacion
+    Route::post('/validar-identificacion', [ValidationController::class, 'verificar']);
 
     //enviar cod de verificacion
     Route::post('/validationUser', [ValidationController::class, 'register'])->name('validate-user');

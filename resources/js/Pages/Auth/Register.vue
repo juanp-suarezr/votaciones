@@ -238,6 +238,23 @@
             </select>
             <InputError class="mt-2" :message="form.errors.etnia" />
           </div>
+          <!-- Condicion -->
+          <div class="mb-2">
+            <InputLabel for="condicion" value="Condición" />
+            <select
+              id="condicion"
+              v-model="form.condicion"
+              class="mt-1 block w-full border-gray-300 rounded-lg"
+            >
+              <option value="" disabled>
+                Seleccione condición poblacional
+              </option>
+              <option v-for="et in condicion" :key="et.id" :value="et.nombre">
+                {{ et.nombre }}
+              </option>
+            </select>
+            <InputError class="mt-2" :message="form.errors.condicion" />
+          </div>
           <!-- Indicativo -->
           <div class="mb-2">
             <InputLabel for="indicativo" value="Indicativo" />
@@ -554,6 +571,7 @@ import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
 import departamentos from "@/shared/departamentos.json"; // Importa el JSON
 import ciudades from "@/shared/ciudades.json"; // Importa el JSON
 import comunas from "@/shared/comunas.json"; // Importa el JSON
+import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
 import { inject, ref, computed, watch, onMounted } from "vue";
 import axios from "axios";
@@ -573,6 +591,7 @@ const form = useForm({
   cedula_back: null,
   genero: "",
   etnia: "",
+  condicion: "",
   direccion: "",
   indicativo: "+57",
   celular: "",
@@ -936,7 +955,7 @@ const registerAndValidate = async () => {
 };
 
 //validar datos step1
-const validateStep1 = () => {
+const validateStep1 = async () => {
   isValidate.value = false;
   if (
     form.nombre &&
@@ -947,7 +966,24 @@ const validateStep1 = () => {
     form.cedula_front &&
     form.cedula_back
   ) {
-    isValidate.value = true;
+    // Limpia mensajes previos
+    errorMessage.value = "";
+
+    // Llama al servicio para comprobar la identificación
+    try {
+      const existe = await checkIdentificacionService(form.identificacion);
+      if (existe) {
+        errorMessage.value = "La identificación ya está registrada.";
+        isValidate.value = false;
+      }
+      // Si no existe, permite continuar
+      isValidate.value = true;
+    } catch (error) {
+      errorMessage.value =
+        "Error al validar la identificación. Intenta de nuevo.";
+      isValidate.value = false;
+    }
+
   }
 
   if (isValidate.value) {
@@ -956,8 +992,8 @@ const validateStep1 = () => {
     if (!form.nombre) {
       form.errors.nombre = "Este campo es requerido.";
     }
-    if (!form.identificacion) {
-      form.errors.identificacion = "Este campo es requerido.";
+    if (!form.identificacion || errorMessage.value != "") {
+      form.errors.identificacion = errorMessage.value || "Este campo es requerido.";
     }
     if (!form.tipo_documento) {
       form.errors.tipo_documento = "Este campo es requerido.";
@@ -979,6 +1015,12 @@ const validateStep1 = () => {
       form.errors.cedula_back = "Este campo es requerido.";
     }
   }
+};
+
+//llamado validador identificacion
+const checkIdentificacionService = async (identificacion) => {
+  const response = await axios.post('/api/validar-identificacion', { identificacion });
+  return response.data.existe; // true si existe, false si no
 };
 
 //next
@@ -1004,6 +1046,7 @@ const validarDatos2 = () => {
   if (
     form.genero &&
     form.etnia &&
+    form.condicion &&
     form.celular &&
     form.comuna &&
     form.barrio &&
