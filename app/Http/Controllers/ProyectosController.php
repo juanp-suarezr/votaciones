@@ -245,8 +245,9 @@ class ProyectosController extends Controller
                 // Si no hay hash_proyectos, creamos uno nuevo
 
                 foreach ($request->eventos as $idEvento) {
+                    if($idEvento == null) continue; // Evitar insertar eventos nulos
                     Hash_proyectos::create([
-                        'id_proyecto' => $request->id_proyecto,  // ID del votante
+                        'id_proyecto' => $request->id,  // ID del proyecto
                         'id_evento' =>  $idEvento,  // ID del evento
                         'tipo' => $request->tipo,  // Asignamos el tipo que ya tenemos
                         'subtipo' => $request->subtipo,  // Asignamos el subtipo que ya tenemos
@@ -259,7 +260,7 @@ class ProyectosController extends Controller
                     $data = [];
                     foreach ($nuevosARegistrar as $idEvento) {
                         $data[] = [
-                            'id_proyecto' => $request->id_proyecto,
+                            'id_proyecto' => $request->id,
                             'id_evento' => $idEvento,
                             'tipo' => $request->tipo,  // Asignamos el tipo que ya tenemos
                             'subtipo' => $request->subtipo,  // Asignamos el subtipo que ya tenemos
