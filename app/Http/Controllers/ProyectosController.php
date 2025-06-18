@@ -10,6 +10,7 @@ use App\Models\Parametros;
 use App\Models\ParametrosDetalle;
 use App\Models\Proyectos;
 use App\Models\Tipos;
+use App\Models\User;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
@@ -74,7 +75,7 @@ class ProyectosController extends Controller
         $tipos = Tipos::pluck('nombre', 'nombre')->all();
         $parametros = Parametros::where('estado', 1)->get();
         $subtipos = ParametrosDetalle::where('estado', 1)->get();
-        $eventos = Eventos::where('tipos', 'Proyecto')->get();
+        $eventos = Eventos::where('tipos','LIKE', '%Proyecto%')->get();
 
         return Inertia::render('Proyectos/Add', [
             'tipos' => $tipos,
@@ -167,7 +168,7 @@ class ProyectosController extends Controller
         $tipos = Tipos::pluck('nombre', 'nombre')->all();
         $parametros = Parametros::where('estado', 1)->get();
         $subtipos = ParametrosDetalle::where('estado', 1)->get();
-        $eventos = Eventos::where('tipos', 'Proyecto')->get();
+        $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->get();
         $proyecto = Proyectos::with('hash_proyectos')->find($id_proyecto);
 
         $proyecto->eventos = optional($proyecto->hash_proyectos)
