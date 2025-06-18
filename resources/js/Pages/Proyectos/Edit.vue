@@ -404,13 +404,11 @@ const removeImage = () => {
 const submit = () => {
   console.log(form);
 
-  if(form.imagen && typeof form.imagen === "object") {
-    // Si la imagen es un objeto, significa que se ha seleccionado una nueva imagen
-    form.append("imagen", form.imagen);
-  } else {
-    // Si no se ha seleccionado una nueva imagen, eliminar el campo imagen del formulario
-    form.delete("imagen");
+  if(form.imagen && typeof form.imagen === "string") {
+    console.log("Imagen no modificada, enviando nombre del archivo");
 
+    // Si la imagen es un objeto, significa que se ha seleccionado una nueva imagen
+    form.imagen = ''; // Solo enviar el nombre del archivo
   }
 
   form.post(route("proyectoUpdate", { id: props.proyecto.id }), {
