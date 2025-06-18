@@ -1159,6 +1159,7 @@ const validationUser = async (num) => {
     active.value = 2; // Ir al paso de verificación
   } catch (error) {
     console.error(error);
+    console.error(form.errors);
     swal({
       title: "Error",
       text: "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.",
