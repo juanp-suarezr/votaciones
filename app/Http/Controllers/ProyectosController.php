@@ -197,7 +197,7 @@ class ProyectosController extends Controller
             'detalle' => 'required|string|max:100',
             'descripcion' => 'required|string|max:500',
             'tipo' => 'required',
-            'subtipo' => 'required',
+            'subtipo' => '',
             'numero_tarjeton' => 'required',
             'estado' => 'required',
 
