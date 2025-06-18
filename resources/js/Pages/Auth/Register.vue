@@ -1005,6 +1005,7 @@ const validateStep1 = async () => {
     // Llama al servicio para comprobar la identificación
     try {
       const existe = await checkIdentificacionService(form.identificacion);
+      console.log("Identificación existe:", existe);
       if (existe) {
         errorMessage.value = "La identificación ya está registrada.";
         isValidate.value = false;
