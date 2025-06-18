@@ -245,7 +245,7 @@ class ProyectosController extends Controller
                 // Si no hay hash_proyectos, creamos uno nuevo
 
                 foreach ($request->eventos as $idEvento) {
-                    if($idEvento == null) continue; // Evitar insertar eventos nulos
+                    if($idEvento == null || $idEvento == 'NaN') continue; // Evitar insertar eventos nulos
                     Hash_proyectos::create([
                         'id_proyecto' => $request->id,  // ID del proyecto
                         'id_evento' =>  $idEvento,  // ID del evento
