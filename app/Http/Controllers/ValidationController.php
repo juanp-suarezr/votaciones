@@ -77,7 +77,7 @@ class ValidationController extends Controller
         VerificationCode::create([
             'email' => $request->email,
             'code' => $verificationCode,
-            'expires_at' => now()->addMinutes(10),
+            'expires_at' => now()->addMinutes(20),
         ]);
         Log::info('Código de verificación generado: ' . $verificationCode);
         // Enviar el código por correo o SMS

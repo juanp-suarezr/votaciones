@@ -1010,9 +1010,10 @@ const validateStep1 = async () => {
         errorMessage.value = "La identificación ya está registrada.";
         isValidate.value = false;
       } else {
+        errorMessage.value = "";
         isValidate.value = true;
       }
-      
+
     } catch (error) {
       errorMessage.value =
         "Error al validar la identificación. Intenta de nuevo.";
@@ -1188,9 +1189,9 @@ const validationUser = async (num) => {
   } catch (error) {
     console.error(error);
     console.error(form.errors);
-    swal({
+    swal.fire({
       title: "Error",
-      text: "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.",
+      text: form.errors ? form.errors+", Por favor, inténtalo nuevamente." : "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.",
       icon: "error",
     });
   } finally {
