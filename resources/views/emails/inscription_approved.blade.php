@@ -75,8 +75,9 @@
             <h1>¡Hola, {{ $nombre }}!</h1>
             <p><b>La alcaldía de Pereira</b>, a traves de la <b>Secretaria de planeación</b> te informa que tu registro
                 ha sido <b style="color: green">aprobado.</b> cuando sea habilitada la fecha de votación, podrás ingresar
-                al software y votar por el proyecto de preferencia para beneficio de tu comunidad
+                al <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">software</a> y votar por el proyecto de preferencia para beneficio de tu comunidad
             </p>
+            <em>Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login</a></em>
 
         </div>
         <div class="footer">
