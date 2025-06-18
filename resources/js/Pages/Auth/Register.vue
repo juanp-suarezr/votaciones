@@ -127,6 +127,7 @@
               required
             />
             <InputError class="mt-2" :message="form.errors.nacimiento" />
+            <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
           </div>
           <!-- Cédula Frontal -->
           <div class="mb-2">
@@ -638,6 +639,10 @@ const items = ref([
 
 //step activo
 const active = ref(0);
+//mensaje error
+const errorMessage = ref("");
+//error fecha nacimiento
+const errorEdad = ref('')
 //validado
 const isValidate = ref(false);
 //abrir modal
@@ -961,6 +966,26 @@ const registerAndValidate = async () => {
   }
 };
 
+const validateEdad = () => {
+  if (!form.nacimiento) {
+    errorEdad.value = 'Debes ingresar la fecha de nacimiento.'
+    return false
+  }
+  const hoy = new Date()
+  const nacimiento = new Date(form.nacimiento)
+  let edad = hoy.getFullYear() - nacimiento.getFullYear()
+  const m = hoy.getMonth() - nacimiento.getMonth()
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+    edad--
+  }
+  if (edad < 14) {
+    errorEdad.value = 'No es posible el registro de menores de 14 años.'
+    return false
+  }
+  errorEdad.value = ''
+  return true
+}
+
 //validar datos step1
 const validateStep1 = async () => {
   isValidate.value = false;
@@ -973,6 +998,7 @@ const validateStep1 = async () => {
     form.cedula_front &&
     form.cedula_back
   ) {
+    if (!validateEdad()) return
     // Limpia mensajes previos
     errorMessage.value = "";
 
