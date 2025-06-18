@@ -205,6 +205,7 @@ class ProyectosController extends Controller
 
         DB::beginTransaction(); // Iniciar la transacción
 
+        dd($request->subtipo);
         try {
 
             $fileName = null;
