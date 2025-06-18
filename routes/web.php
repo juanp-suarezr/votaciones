@@ -90,7 +90,7 @@ Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_i
     return view('consulta_certificado', [
         'voto' => $voto,
         'evento' => $evento,
-        'annio_actual' => Carbon::parse($evento->fecha_inicio)->year,
+        'annio' => Carbon::parse($evento->fecha_inicio)->year,
         'comuna' => $comuna->detalle,
     ]);
 })->name('consulta.certificado.publica');
