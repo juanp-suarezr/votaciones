@@ -1009,9 +1009,10 @@ const validateStep1 = async () => {
       if (existe) {
         errorMessage.value = "La identificación ya está registrada.";
         isValidate.value = false;
+      } else {
+        isValidate.value = true;
       }
-      // Si no existe, permite continuar
-      isValidate.value = true;
+      
     } catch (error) {
       errorMessage.value =
         "Error al validar la identificación. Intenta de nuevo.";
