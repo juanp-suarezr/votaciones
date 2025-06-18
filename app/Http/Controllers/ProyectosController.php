@@ -236,7 +236,7 @@ class ProyectosController extends Controller
                 'detalle' => $request->detalle,
                 'descripcion' => $request->descripcion,
                 'tipo' => $request->tipo,
-                'subtipo' => $request->subtipo,
+                'subtipo' => $request->input('subtipo.id', 'NA'), // Aseguramos que subtipo tenga un valor por defecto si no se envía
                 'numero_tarjeton' => $request->numero_tarjeton,
                 'imagen' => $fileName ?? $proyecto->imagen,
                 'estado' => $request->estado,
