@@ -23,7 +23,9 @@ use App\Models\Eventos;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
+use App\Models\ParametrosDetalle;
 use App\Models\Votos;
+use Carbon\Carbon;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -81,11 +83,15 @@ Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_i
         ->where('id_votante', $votante_id)
         ->firstOrFail();
 
-    $evento = Eventos::select('id', 'nombre')->findOrFail($evento_id);
+        $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($voto->votante->comuna);
+
+    $evento = Eventos::select('id', 'nombre', 'fecha_inicio')->findOrFail($evento_id);
 
     return view('consulta_certificado', [
         'voto' => $voto,
         'evento' => $evento,
+        'annio_actual' => Carbon::parse($evento->fecha_inicio)->year,
+        'comuna' => $comuna->detalle,
     ]);
 })->name('consulta.certificado.publica');
 

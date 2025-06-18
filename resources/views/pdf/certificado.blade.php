@@ -126,9 +126,9 @@
 
                     <!-- Details -->
                     <td class="details">
-                        <h3>Risaralda, Pereira</h3>
-                        <p><strong>Nombre:</strong> {{ $votante->nombre }}</p>
-                        <p><strong>identificación:</strong> {{ $votante->tipo_documento }} - {{ $votante->identificacion }}</p>
+                        <h3>Pereira, {{ $created_at }}</h3>
+                        <p><strong>Nombre:</strong> {{ $voto->votante->nombre }}</p>
+                        <p><strong>identificación:</strong> {{ $voto->votante->tipo_documento }} - {{ $voto->votante->identificacion }}</p>
                         <p><strong>Comuna:</strong> {{$comuna }}</p>
 
                     </td>

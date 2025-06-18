@@ -16,6 +16,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Delegado;
 use App\Models\Eventos;
 use App\Models\ParametrosDetalle;
+use App\Models\Votos;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -79,13 +80,18 @@ class CertificadosController extends Controller
 
         $qr = 'data:image/svg+xml;base64,' . base64_encode(QrCode::format('svg')->size(120)->generate(url('/consulta-certificado/' . $evento->id . '/' . $evento->votantes->first()?->id_votante)));
 
-         $votante = $evento->votantes->first()->votante;
-         $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($votante->comuna);
-         Log::info('Datos para PDF', ['comuna' => $comuna]);
+        $votante = $evento->votantes->first()->votante;
+        $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($votante->comuna);
+        $voto = Votos::select('id', 'id_votante', 'id_eventos', 'is_virtual', 'created_at')
+            ->where('id_eventos', $evento->id)
+            ->where('id_votante', $votante->id)
+            ->firstOrFail();
         $pdf = Pdf::loadView('pdf.certificado', [
             'evento' => $evento,
             'votante' => $votante,
             'comuna' => $comuna->detalle,
+            'voto' => $voto,
+            'created_at' => $voto->created_at->format('d/m/Y H:i'),
             'annio_actual' => Carbon::parse($evento->fecha_inicio)->year,
             'qr' => $qr
         ]);
