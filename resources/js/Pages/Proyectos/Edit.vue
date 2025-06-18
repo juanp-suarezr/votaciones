@@ -298,7 +298,7 @@ const props = defineProps({
   },
 });
 
-console.log(props.proyecto);
+console.log(props);
 
 //para eventos seleccionados
 const eventosBD =
