@@ -75,7 +75,7 @@ class ProyectosController extends Controller
         $tipos = Tipos::pluck('nombre', 'nombre')->all();
         $parametros = Parametros::where('estado', 1)->get();
         $subtipos = ParametrosDetalle::where('estado', 1)->get();
-        $eventos = Eventos::where('tipos','LIKE', '%Proyecto%')->get();
+        $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->get();
 
         return Inertia::render('Proyectos/Add', [
             'tipos' => $tipos,
@@ -225,11 +225,9 @@ class ProyectosController extends Controller
                 $filePath = $request->file('imagen')->storeAs('uploads/' . $folder, $fileName, 'public');
 
                 // Eliminar el archivo antiguo si existe
-            if ($proyecto->imagen != 'NA') {
-                Storage::delete('uploads/' . $folder . '/' . $proyecto->imagen);
-            }
-
-
+                if ($proyecto->imagen != 'NA') {
+                    Storage::delete('uploads/' . $folder . '/' . $proyecto->imagen);
+                }
             }
 
             // Crear el usuario
@@ -243,46 +241,34 @@ class ProyectosController extends Controller
                 'estado' => $request->estado,
             ]);
 
-            foreach ($hash_proyectos as $hv) {
+            if ($hash_proyectos->isEmpty()) {
+                // Si no hay hash_proyectos, creamos uno nuevo
 
-                // Aseguramos que $currentEventos sea un array, incluso si es un solo valor
-                $currentEventos = is_array($hv->id_evento) ? $hv->id_evento : [$hv->id_evento];  // Convierte a array si es un solo valor
-
-                // Los eventos nuevos recibidos en la solicitud
-                $newEventos = $request->eventos;  // Este es un array con los IDs de los eventos
-
-                // 1. Verificar los eventos nuevos y agregar los que no estén presentes
-                foreach ($newEventos as $evento) {
-                    $existingHash = Hash_proyectos::where('id_proyecto', $hv->id_proyecto)
-                            ->where('id_evento', $evento)
-                            ->first();
-
-
-                    // Verificamos si el evento no está en los eventos actuales
-                    if (!in_array($evento, $currentEventos)) {
-                        // Solo creamos el registro si no existe uno con el mismo id_votante e id_evento
-
-                        if (!$existingHash) {
-                            Hash_proyectos::create([
-                                'id_proyecto' => $hv->id_proyecto,  // ID del votante
-                                'id_evento' => $evento,  // ID del evento
-                                'tipo' => $hv->tipo,  // Asignamos el tipo que ya tenemos
-                                'subtipo' => $hv->subtipo,  // Asignamos el subtipo que ya tenemos
-                            ]);
-                        }
-                    }
+                foreach ($request->eventos as $idEvento) {
+                    Hash_proyectos::create([
+                        'id_proyecto' => $request->id_proyecto,  // ID del votante
+                        'id_evento' =>  $idEvento,  // ID del evento
+                        'tipo' => $request->tipo,  // Asignamos el tipo que ya tenemos
+                        'subtipo' => $request->subtipo,  // Asignamos el subtipo que ya tenemos
+                    ]);
                 }
-
-                // 2. Eliminar los eventos que ya no están en la solicitud
-                foreach ($currentEventos as $evento) {
-                    // Si el evento actual no está en los nuevos eventos, lo eliminamos
-                    if (!in_array($evento, $newEventos)) {
-                        Hash_proyectos::where('id_proyecto', $hv->id_proyecto)
-                            ->where('id_evento', $evento)
-                            ->delete();
+            } else {
+                $nuevosARegistrar = array_diff($request->eventos, $hash_proyectos->pluck('id_evento')->toArray());
+                // 3. Insertar solo los nuevos
+                if (!empty($nuevosARegistrar)) {
+                    $data = [];
+                    foreach ($nuevosARegistrar as $idEvento) {
+                        $data[] = [
+                            'id_proyecto' => $request->id_proyecto,
+                            'id_evento' => $idEvento,
+                            'tipo' => $request->tipo,  // Asignamos el tipo que ya tenemos
+                            'subtipo' => $request->subtipo,  // Asignamos el subtipo que ya tenemos
+                        ];
                     }
+                    Hash_proyectos::insert($data);
                 }
             }
+
 
             //save
             $proyecto->save();
