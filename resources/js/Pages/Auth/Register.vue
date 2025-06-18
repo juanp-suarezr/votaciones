@@ -515,6 +515,13 @@
         Validando documento
       </h2>
 
+      <div class="mt-4 px-4">
+        <p class="text-sm sm:text-base text-gray-800">
+          Por favor, asegúrese de que su rostro esté bien iluminado y visible en
+          la cámara (sin gorras, tapabocas, gafas). Si no se detecta un rostro,
+          puede intentar nuevamente o continuar sin registro biométrico.
+        </p>
+      </div>
       <div class="my-12 px-4">
         <label for="camera">Seleccionar cámara:</label>
         <select
@@ -983,7 +990,6 @@ const validateStep1 = async () => {
         "Error al validar la identificación. Intenta de nuevo.";
       isValidate.value = false;
     }
-
   }
 
   if (isValidate.value) {
@@ -993,7 +999,8 @@ const validateStep1 = async () => {
       form.errors.nombre = "Este campo es requerido.";
     }
     if (!form.identificacion || errorMessage.value != "") {
-      form.errors.identificacion = errorMessage.value || "Este campo es requerido.";
+      form.errors.identificacion =
+        errorMessage.value || "Este campo es requerido.";
     }
     if (!form.tipo_documento) {
       form.errors.tipo_documento = "Este campo es requerido.";
@@ -1019,7 +1026,9 @@ const validateStep1 = async () => {
 
 //llamado validador identificacion
 const checkIdentificacionService = async (identificacion) => {
-  const response = await axios.post('/api/validar-identificacion', { identificacion });
+  const response = await axios.post("/api/validar-identificacion", {
+    identificacion,
+  });
   return response.data.existe; // true si existe, false si no
 };
 
@@ -1165,10 +1174,10 @@ const submit = () => {
     onSuccess: () => {
       swal({
         title: "Registro realizado",
-        text: "Registro realizado exitosamente.",
+        text: "Registro de usuario realizado exitosamente. Se realizará la validación de su información, el estado sera notificado a su correo.",
         icon: "success",
       }).then((result) => {
-        window.location.href = route("login");
+        window.location.reload();
       });
       sessionStorage.removeItem("fallo_camara");
       sessionStorage.removeItem("fallo_registro");
