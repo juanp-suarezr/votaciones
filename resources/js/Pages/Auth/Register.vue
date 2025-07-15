@@ -3,7 +3,7 @@
     <Head title="Registro de Usuario" />
 
     <div
-      class="w-full sm:max-w-6xl h-full mx-auto bg-white shadow-lg rounded-lg px-6 py-12 z-10"
+      class="w-full sm:max-w-6xl h-full mx-auto bg-white shadow-lg rounded-lg px-4 sm:px-6 py-12 z-10"
     >
       <h1 class="text-2xl font-bold text-center text-gray-800">
         Registro votante

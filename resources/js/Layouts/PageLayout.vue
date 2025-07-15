@@ -1,5 +1,5 @@
 <template>
-    <div class="flex h-full min-h-screen items-center justify-center bg-black px-6 py-6 relative">
+    <div class="flex h-full min-h-screen w-full items-center justify-center bg-black px-6 py-6 relative">
         <!-- Fondo con la palabra REGISTRO -->
         <div class="absolute inset-0 bg-pattern h-full min-h-screen"></div>
         <!-- Contenido del slot -->
