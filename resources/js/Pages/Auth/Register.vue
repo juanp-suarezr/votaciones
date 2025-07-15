@@ -574,9 +574,9 @@
             <div v-else>
               <canvas
                 ref="canvas"
-                width="350"
+
                 height="200"
-                class="border border-gray-400 rounded-md bg-white cursor-crosshair"
+                class="border border-gray-400 rounded-md bg-white cursor-crosshair sm:w-4/6 w-[250px]"
                 @mousedown="startDrawing"
                 @mousemove="draw"
                 @mouseup="stopDrawing"
