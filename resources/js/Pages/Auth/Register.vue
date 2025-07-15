@@ -10,7 +10,16 @@
       </h1>
 
       <div class="mt-4 justify-center">
-        <Steps :model="items" v-model:activeStep="active" />
+        <Steps
+          class="hidden sm:block"
+          :model="items"
+          v-model:activeStep="active"
+        />
+        <Steps
+          class="sm:hidden block"
+          :model="itemsMobil"
+          v-model:activeStep="active"
+        />
       </div>
 
       <form class="m-auto py-4">
@@ -602,11 +611,11 @@
           <!-- CAMPO OBLIGATORIO PARA EL USUARIO -->
           <div class="w-full">
             <TextInput
-                  id="campo_obligatorio"
-                  type="text"
-                  class="mt-1 !border-0 hidden"
-                  v-model="form.campoObligatorio"
-                />
+              id="campo_obligatorio"
+              type="text"
+              class="mt-1 !border-0 hidden"
+              v-model="form.campoObligatorio"
+            />
           </div>
           <!-- Botón de Enviar -->
           <div class="col-span-2 flex justify-between gap-2 mt-4">
@@ -899,6 +908,21 @@ const items = ref([
   },
   {
     label: "Verificación",
+  },
+]);
+
+const itemsMobil = ref([
+  {
+    label: "1",
+  },
+  {
+    label: "2",
+  },
+  {
+    label: "3",
+  },
+  {
+    label: "4",
   },
 ]);
 
@@ -1476,8 +1500,8 @@ const validarDatos3 = () => {
     if (!form.cedula_back) {
       form.errors.cedula_back = "Este campo es requerido.";
     }
-    if(!form.firma){
-        form.errors.firma = "Este campo es requerido"
+    if (!form.firma) {
+      form.errors.firma = "Este campo es requerido";
     }
   }
 };
