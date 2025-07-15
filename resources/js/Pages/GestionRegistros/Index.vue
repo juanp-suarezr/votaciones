@@ -55,7 +55,11 @@
               <Pagination :links="votantes.links" />
             </div>
           </template>
-
+          <Column header="ID">
+            <template #body="slotProps">
+              {{ slotProps.data.id || "N/A" }}
+            </template>
+          </Column>
           <Column header="Propietario">
             <template #body="slotProps">
               <p>
@@ -79,7 +83,6 @@
           <Column header="Evento">
             <template #body="slotProps">
               {{ slotProps.data.evento.nombre || "N/A" }}
-              
             </template>
           </Column>
 

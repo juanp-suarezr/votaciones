@@ -129,32 +129,7 @@
             <InputError class="mt-2" :message="form.errors.nacimiento" />
             <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
           </div>
-          <!-- Cédula Frontal -->
-          <div class="mb-2">
-            <InputLabel for="cedula_front" value="Foto Documento Frontal" />
-            <TextInput
-              id="cedula_front"
-              type="file"
-              accept="image/*"
-              class="mt-1 block w-full"
-              @change="onFileChange('cedula_front', $event)"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.cedula_front" />
-          </div>
-          <!-- Cédula Posterior -->
-          <div class="mb-2">
-            <InputLabel for="cedula_back" value="Foto Documento Posterior" />
-            <TextInput
-              id="cedula_back"
-              type="file"
-              accept="image/*"
-              class="mt-1 block w-full"
-              @change="onFileChange('cedula_back', $event)"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.cedula_back" />
-          </div>
+
           <!-- Botón de Enviar -->
           <div class="col-span-2 flex justify-end">
             <button
@@ -241,7 +216,7 @@
           </div>
           <!-- Condicion -->
           <div class="mb-2">
-            <InputLabel for="condicion" value="Condición" />
+            <InputLabel for="condicion" value="Condición poblacional" />
             <select
               id="condicion"
               v-model="form.condicion"
@@ -287,7 +262,7 @@
 
           <!-- Comuna -->
           <div class="mb-2">
-            <InputLabel for="comuna" value="Comuna" />
+            <InputLabel for="comuna" value="Comuna/Corregimiento" />
             <Select
               id="comuna"
               v-model="form.comuna"
@@ -339,7 +314,10 @@
           </div>
           <!-- Contraseña -->
           <div class="mb-2">
-            <InputLabel for="password" value="Contraseña" />
+            <InputLabel
+              for="password"
+              value="Contraseña (mínimo: 8 caracteres)"
+            />
             <Password
               id="password"
               v-model="form.password"
@@ -410,14 +388,252 @@
                 :class="{ 'opacity-25': form.processing }"
                 :disabled="form.processing"
               >
-                Validar datos
+                Siguiente
               </PrimaryButton>
             </div>
           </div>
         </div>
 
-        <!-- parte 3 -- verificacion -->
+        <!-- parte 3 -- registro datos -->
         <div class="gap-6" v-if="active == 2">
+          <!-- parte frontal documento -->
+          <div class="sm:grid sm:grid-cols-2 gap-2 h-full sm:px-16 px-4">
+            <!-- titulo -->
+            <div class="col-span-2 text-sm sm:text-base text-gray-800 pt-6">
+              <h3 class="text-lg font-semibold">
+                Cargue documento de identificación parte frontal
+              </h3>
+              <p>
+                Para cargar el documento frontal, asegúrese de que la imagen sea
+                clara y legible. El documento debe estar bien iluminado y sin
+                reflejos.
+              </p>
+            </div>
+            <!-- ejemplo de doc frontal -->
+            <div class="w-full h-full mt-4">
+              <div class="w-full">
+                <img
+                  :src="frontEjemplo"
+                  alt="Documento Frontal ejemplo"
+                  class="w-full h-full object-contain mt-2"
+                />
+              </div>
+            </div>
+            <!-- Cédula Frontal -->
+            <div class="mb-2 h-full flex justify-center items-center mt-4">
+              <div class="border-2 border-gray-300 rounded-md p-2 h-full">
+                <TextInput
+                  id="cedula_front"
+                  type="file"
+                  class="mt-1 !border-0"
+                  accept="image/*"
+                  @input="onFileChange('cedula_front', $event)"
+                  :maxFileSize="2e6"
+                />
+                <InputError class="mt-2" :message="form.errors.cedula_front" />
+
+                <div class="flex justify-center">
+                  <img
+                    v-if="imageUrl"
+                    :src="imageUrl"
+                    :alt="form.cedula_front"
+                    class="w-4/6 h-full object-contain"
+                  />
+                  <PhotoIcon
+                    v-else
+                    class="w-2/6 text-gray-300 flex justify-center items-center"
+                  />
+                </div>
+                <div v-if="imageUrl" class="flex justify-center mt-2">
+                  <button
+                    @click="removeImage(1)"
+                    type="button"
+                    class="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Eliminar Imagen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- parte trasera documento -->
+          <div class="sm:grid sm:grid-cols-2 gap-2 h-full sm:px-16 px-4">
+            <!-- titulo -->
+            <div class="col-span-2 text-sm sm:text-base text-gray-800 pt-6">
+              <h3 class="text-lg font-semibold">
+                Cargue documento de identificación parte trasera
+              </h3>
+              <p>
+                Para cargar el documento en su parte trasera, asegúrese de que
+                la imagen sea clara y legible. El documento debe estar bien
+                iluminado y sin reflejos.
+              </p>
+            </div>
+            <!-- ejemplo de doc trasero -->
+            <div class="w-full h-full mt-4">
+              <div class="w-full">
+                <img
+                  :src="backEjemplo"
+                  alt="Documento parte trasera ejemplo"
+                  class="w-full h-full object-contain mt-2"
+                />
+              </div>
+            </div>
+            <!-- Cédula trasera -->
+            <div class="mb-2 h-full flex justify-center items-center mt-4">
+              <div class="border-2 border-gray-300 rounded-md p-2 h-full">
+                <TextInput
+                  id="cedula_back"
+                  type="file"
+                  class="mt-1 !border-0"
+                  accept="image/*"
+                  @input="onFileChange('cedula_back', $event)"
+                  :maxFileSize="2e6"
+                />
+                <InputError class="mt-2" :message="form.errors.cedula_back" />
+
+                <div class="flex justify-center">
+                  <img
+                    v-if="imageUrl1"
+                    :src="imageUrl1"
+                    :alt="form.cedula_back"
+                    class="w-4/6 h-full object-contain"
+                  />
+                  <PhotoIcon
+                    v-else
+                    class="w-2/6 text-gray-300 flex justify-center items-center"
+                  />
+                </div>
+                <div v-if="imageUrl1" class="flex justify-center mt-2">
+                  <button
+                    @click="removeImage(2)"
+                    type="button"
+                    class="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Eliminar Imagen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="w-full gap-2 h-full sm:px-16 px-4 mt-4">
+            <InputLabel for="firma" value="Firma" />
+            <div class="flex gap-4 mb-2">
+              <button
+                type="button"
+                :class="[
+                  'px-2 py-1 rounded',
+                  firmaModo === 'imagen'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200',
+                ]"
+                @click="firmaModo = 'imagen'"
+              >
+                Cargar imagen
+              </button>
+              <button
+                type="button"
+                :class="[
+                  'px-2 py-1 rounded',
+                  firmaModo === 'canvas'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200',
+                ]"
+                @click="firmaModo = 'canvas'"
+              >
+                Dibujar firma
+              </button>
+            </div>
+            <div v-if="firmaModo === 'imagen'">
+              <TextInput
+                id="firma"
+                type="file"
+                class="mt-1 block w-full"
+                accept="image/*"
+                @change="onFileChange('firma', $event)"
+                :maxFileSize="2e6"
+              />
+              <InputError class="mt-2" :message="form.errors.firma" />
+              <div v-if="firmaPreview" class="mt-2">
+                <img
+                  :src="firmaPreview"
+                  alt="Vista previa de la firma"
+                  class="h-24 border rounded"
+                />
+              </div>
+            </div>
+            <div v-else>
+              <canvas
+                ref="canvas"
+                width="350"
+                height="200"
+                class="border border-gray-400 rounded-md bg-white cursor-crosshair"
+                @mousedown="startDrawing"
+                @mousemove="draw"
+                @mouseup="stopDrawing"
+                @mouseleave="stopDrawing"
+              ></canvas>
+              <div class="flex gap-2 mt-1">
+                <button
+                  type="button"
+                  @click="clearCanvas"
+                  class="text-xs text-blue-600 underline"
+                >
+                  Limpiar
+                </button>
+                <button
+                  type="button"
+                  @click="saveCanvas"
+                  class="text-xs text-green-600 underline"
+                >
+                  Usar firma
+                </button>
+              </div>
+              <InputError class="mt-2" :message="form.errors.firma" />
+              <div v-if="firmaPreview" class="mt-2">
+                <img
+                  :src="firmaPreview"
+                  alt="Vista previa de la firma"
+                  class="h-24 border rounded"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- CAMPO OBLIGATORIO PARA EL USUARIO -->
+          <div class="w-full">
+            <TextInput
+                  id="campo_obligatorio"
+                  type="text"
+                  class="mt-1 !border-0 hidden"
+                  v-model="form.campoObligatorio"
+                />
+          </div>
+          <!-- Botón de Enviar -->
+          <div class="col-span-2 flex justify-between gap-2 mt-4">
+            <div class="flex pt-4 justify-end">
+              <button
+                type="button"
+                @click="prevStep(1)"
+                class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 rounded-md shadow-xl"
+              >
+                Atrás
+              </button>
+            </div>
+            <div class="flex pt-4 justify-end">
+              <PrimaryButton
+                type="button"
+                @click="validarDatos3"
+                :class="{ 'opacity-25': form.processing }"
+                :disabled="form.processing"
+              >
+                Siguiente
+              </PrimaryButton>
+            </div>
+          </div>
+        </div>
+
+        <!-- parte 4 -- verificacion -->
+        <div class="gap-6" v-if="active == 3">
           <div class="text-sm sm:text-base text-gray-800 pt-6 sm:px-16 px-4">
             Ingrese el código de verificación que le fue enviado a su correo o
             celular. Si no recibió el código, por favor revise su bandeja de
@@ -468,7 +684,7 @@
       <h2
         class="py-4 text-2xl font-semibold text-gray-800 flex tex-center justify-center bg-azul text-white"
       >
-        Validando datos
+        Cargando datos...
       </h2>
 
       <div class="flex justify-center my-12">
@@ -513,7 +729,7 @@
       <h2
         class="py-4 text-2xl font-semibold text-gray-800 flex flex-wrap tex-center justify-center bg-azul text-white"
       >
-        Validando documento
+        Validación Biométrica
       </h2>
 
       <div class="mt-4 px-4">
@@ -560,6 +776,36 @@
       </div>
     </template>
   </Modal>
+
+  <!-- Modal inicio -->
+  <Modal :show="InicioModal" :closeable="true">
+    <template #default>
+      <h2
+        class="py-4 sm:text-4xl text-2x font-bold text-gray-800 flex tex-center justify-center bg-azul text-white"
+      >
+        Aviso importante
+      </h2>
+
+      <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
+        <p>
+          Por favor llenar todos los datos correctamente, para no ser rechazado,
+          ¡recuerda! solo tiene tres oportunidades para registrarse
+        </p>
+      </div>
+
+      <div class="flex justify-center gap-4 text-center h-full my-6">
+        <PrimaryButton
+          type="button"
+          class="h-full text-xl sm:text-2xl"
+          @click="InicioModal = false"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Continuar
+        </PrimaryButton>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <script setup>
@@ -581,10 +827,15 @@ import ciudades from "@/shared/ciudades.json"; // Importa el JSON
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
-import { inject, ref, computed, watch, onMounted } from "vue";
+import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 const swal = inject("$swal");
 import { useReCaptcha } from "vue-recaptcha-v3";
+import { PhotoIcon } from "@heroicons/vue/24/solid";
+
+//imagen
+import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp";
+import backEjemplo from "../../../../public/assets/img/cedulaBackEjemplo.webp";
 
 import * as faceapi from "face-api.js";
 
@@ -612,7 +863,9 @@ const form = useForm({
   validaciones: "",
   checked: false,
   declaracion: false,
+  firma: "",
   recaptcha_token: "",
+  campoObligatorio: "",
   codigo: "",
 });
 
@@ -621,19 +874,31 @@ const { executeRecaptcha } = useReCaptcha();
 const departamentoSelected = ref("");
 const ciudadesxDep = ref([]);
 
+//firma
+const firmaPreview = ref(null);
+const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
+const canvas = ref(null);
+let drawing = false;
+
 //modal loading
 const loadingModal = ref(false);
+
+//modal Inicio
+const InicioModal = ref(true);
 
 //ITEMS DEL STEP
 const items = ref([
   {
-    label: "Paso 1",
+    label: "Información Personal",
   },
   {
-    label: "Paso 2",
+    label: "Datos Demográficos",
   },
   {
-    label: "Paso 3",
+    label: "Registro datos",
+  },
+  {
+    label: "Verificación",
   },
 ]);
 
@@ -652,6 +917,12 @@ const IsNewGenero = ref(false);
 
 //Modal botones de validar
 const botonesValidarModal = ref(false);
+
+//imagenes documentos
+//variable de imagen frontal
+const imageUrl = ref(null);
+//variable de imagen documento posterior
+const imageUrl1 = ref(null);
 
 //face api js
 const devices = ref([]);
@@ -682,6 +953,36 @@ watch(departamentoSelected, (newValue) => {
 
 const onFileChange = (field, event) => {
   form[field] = event.target.files[0];
+  if (field === "cedula_front") {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(form[field]);
+  } else if (field === "cedula_back") {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageUrl1.value = e.target.result;
+    };
+    reader.readAsDataURL(form[field]);
+  } else if (field == "firma") {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      firmaPreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+// Eliminar la imagen seleccionada
+const removeImage = (num) => {
+  if (num === 1) {
+    form.cedula_front = null;
+    imageUrl.value = null;
+  } else if (num === 2) {
+    form.cedula_back = null;
+    imageUrl1.value = null;
+  }
 };
 
 const formatDate = (date) => {
@@ -690,6 +991,42 @@ const formatDate = (date) => {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+//PARTE DE FIRMA
+// Canvas firma
+const startDrawing = (e) => {
+  drawing = true;
+  const ctx = canvas.value.getContext("2d");
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+};
+const draw = (e) => {
+  if (!drawing) return;
+  const ctx = canvas.value.getContext("2d");
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.strokeStyle = "#222";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+};
+const stopDrawing = () => {
+  drawing = false;
+};
+const clearCanvas = () => {
+  const ctx = canvas.value.getContext("2d");
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
+  firmaPreview.value = null;
+  form.firma = null;
+};
+const saveCanvas = () => {
+  canvas.value.toBlob((blob) => {
+    form.firma = new File([blob], "firma.webp", { type: "image/webp" });
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      firmaPreview.value = e.target.result;
+    };
+    reader.readAsDataURL(form.firma);
+  }, "image/webp");
 };
 
 //STEP PART
@@ -753,16 +1090,10 @@ const registerAndValidate = async () => {
 
   if (!isCameraReady.value) {
     const falloCamara = getCounter("fallo_camara") + 1;
-    setCounter("fallo_camara", falloCamara);
+
     message.value = "La cámara no está lista.";
     loadingButtonBiometric.value = false;
 
-    if (falloCamara >= 5) {
-      form.validaciones = "fallo_camara";
-      //poner llamado a modal de botones
-      biometricoModal.value = false;
-      botonesValidarModal.value = true;
-    }
     return;
   }
 
@@ -800,11 +1131,11 @@ const registerAndValidate = async () => {
         swal
           .fire({
             title: "Error en validación",
-            text: "Error, no se detectó un rostro, vuelve a intentar o avanzar sin registro biometrico",
+            text: "Error, no se detectó un rostro, vuelve a intentar o avanzar con la imagen poco visible y posiblemente sin registro biométrico (alta probabilidad de rechazo)",
             icon: "error",
             showCancelButton: true,
             cancelButtonText: "Volver a intentar",
-            confirmButtonText: "Continuar sin validar",
+            confirmButtonText: "Continuar",
           })
           .then((result) => {
             if (result.isConfirmed) {
@@ -867,11 +1198,11 @@ const registerAndValidate = async () => {
           swal
             .fire({
               title: "Error en validación",
-              text: "Usted ya tiene un registro biométrico. Si está seguro que no se ha registrado, puede volver a intentarlo o continuar sin validar.",
+              text: "Usted ya tiene un registro biométrico. Si está seguro que no se ha registrado, puede volver a intentarlo o continuar (probabilidad de rechazo).",
               icon: "error",
               showCancelButton: true,
               cancelButtonText: "Volver a intentar",
-              confirmButtonText: "Continuar sin validar",
+              confirmButtonText: "Continuar",
             })
             .then((result) => {
               if (result.isConfirmed) {
@@ -880,7 +1211,7 @@ const registerAndValidate = async () => {
                 biometricoModal.value = false;
                 botonesValidarModal.value = true;
                 //poner llamado a modal de botones
-              } else if (result.dismiss === Swal.DismissReason.cancel) {
+              } else if (result.dismiss === swal.DismissReason.cancel) {
                 // Volver a intentar
                 console.log("Usuario decide volver a intentar");
               }
@@ -888,7 +1219,7 @@ const registerAndValidate = async () => {
         } else {
           swal({
             title: "Validación exitosa",
-            text: "Validación de documento exitosa",
+            text: "Validación biométrica exitosa",
             icon: "success",
             didClose: () => {
               //poner llamado a modal de botones
@@ -909,11 +1240,11 @@ const registerAndValidate = async () => {
         swal
           .fire({
             title: "Error en validación",
-            text: "Error en la validación, vuelve a intentar o avanzar sin registro biometrico",
+            text: "Error en la validación, vuelve a intentar o avanzar sin registro biometrico (posibilidad de rechazo)",
             icon: "error",
             showCancelButton: true,
             cancelButtonText: "Volver a intentar",
-            confirmButtonText: "Continuar sin validar",
+            confirmButtonText: "Continuar",
           })
           .then((result) => {
             if (result.isConfirmed) {
@@ -923,7 +1254,7 @@ const registerAndValidate = async () => {
               biometricoModal.value = false;
               botonesValidarModal.value = true;
               //poner llamado a modal de botones
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
+            } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
               console.log("Usuario decide volver a intentar");
             }
@@ -938,11 +1269,11 @@ const registerAndValidate = async () => {
       swal
         .fire({
           title: "Error en validación",
-          text: "Error al procesar el rostro, vuelve a intentar o avanzar sin registro biometrico",
+          text: "Error al procesar el rostro, vuelve a intentar o avanzar sin registro biometrico (posibilidad de rechazo)",
           icon: "error",
           showCancelButton: true,
           cancelButtonText: "Volver a intentar",
-          confirmButtonText: "Continuar sin validar",
+          confirmButtonText: "Continuar",
         })
         .then((result) => {
           if (result.isConfirmed) {
@@ -952,7 +1283,7 @@ const registerAndValidate = async () => {
             //poner llamado a modal de botones
             biometricoModal.value = false;
             botonesValidarModal.value = true;
-          } else if (result.dismiss === Swal.DismissReason.cancel) {
+          } else if (result.dismiss === swal.DismissReason.cancel) {
             // Volver a intentar
             console.log("Usuario decide volver a intentar");
             message.value = "";
@@ -994,9 +1325,8 @@ const validateStep1 = async () => {
     form.identificacion &&
     form.tipo_documento &&
     form.fecha_expedicion &&
-    form.nacimiento &&
-    form.cedula_front &&
-    form.cedula_back
+    form.lugar_expedicion &&
+    form.nacimiento
   ) {
     if (!validateEdad()) return;
     // Limpia mensajes previos
@@ -1043,12 +1373,6 @@ const validateStep1 = async () => {
     if (!form.nacimiento) {
       form.errors.nacimiento = "Este campo es requerido.";
     }
-    if (!form.cedula_front) {
-      form.errors.cedula_front = "Este campo es requerido.";
-    }
-    if (!form.cedula_back) {
-      form.errors.cedula_back = "Este campo es requerido.";
-    }
   }
 };
 
@@ -1066,6 +1390,10 @@ const nextStep = (num) => {
   switch (num) {
     case 1:
       validateStep1();
+      break;
+
+    case 2:
+      validarDatos2();
       break;
 
     default:
@@ -1094,10 +1422,10 @@ const validarDatos2 = () => {
     form.declaracion
   ) {
     isValidate.value = true;
+    active.value = 2;
   }
 
   if (isValidate.value) {
-    showModalBiometrico();
   } else {
     if (!form.genero) {
       form.errors.genero = "Este campo es requerido.";
@@ -1129,6 +1457,27 @@ const validarDatos2 = () => {
     }
     if (!form.declaracion) {
       form.errors.declaracion = "Este campo es requerido.";
+    }
+  }
+};
+
+const validarDatos3 = () => {
+  isValidate.value = false;
+  if (form.cedula_front && form.cedula_back && form.firma) {
+    isValidate.value = true;
+  }
+
+  if (isValidate.value) {
+    showModalBiometrico();
+  } else {
+    if (!form.cedula_front) {
+      form.errors.cedula_front = "Este campo es requerido.";
+    }
+    if (!form.cedula_back) {
+      form.errors.cedula_back = "Este campo es requerido.";
+    }
+    if(!form.firma){
+        form.errors.firma = "Este campo es requerido"
     }
   }
 };
@@ -1174,18 +1523,25 @@ const validationUser = async (num) => {
     formData.append("indicativo", form.indicativo);
     formData.append("password", form.password);
     formData.append("recaptcha_token", recaptchaToken);
+    formData.append("campoObligatorio", form.campoObligatorio);
 
     // Enviar la solicitud al backend
-    await axios.post(route("validate-user"), formData);
+    const response = await axios.post(route("validate-user"), formData);
 
     loadingModal.value = false;
+
+    console.log(response);
+
+    if (response.data.isSpam) {
+      form.validaciones = "posible robot o spam";
+    }
 
     swal({
       title: "Código enviado",
       text: "Revisa tu correo o SMS para el código de verificación.",
       icon: "success",
     });
-    active.value = 2; // Ir al paso de verificación
+    active.value = 3; // Ir al paso de verificación
   } catch (error) {
     console.error(error);
     let mensajes =
@@ -1231,7 +1587,10 @@ const submit = () => {
         title: "Error",
         text: "Ocurrió un error al registrar el usuario.",
         icon: "error",
+      }).then((result) => {
+        active.value = 0;
       });
+
       console.error(errors); // Puedes ver los errores específicos aquí
     },
   });

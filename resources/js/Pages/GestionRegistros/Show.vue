@@ -56,6 +56,7 @@
       >
         <!-- Foto del votante -->
         <div class="flex-shrink-0 flex flex-col items-center">
+          <h2>Fotografía</h2>
           <img
             v-if="votante.votante?.user.biometrico"
             :src="getUrlPhoto(votante.votante?.user.biometrico.photo)"
@@ -70,6 +71,7 @@
 
         <!-- Foto de cedula -->
         <div class="flex-shrink-0 flex flex-col items-center">
+          <h2>frontal</h2>
           <img
             v-if="votante.votante?.user.biometrico"
             :src="
@@ -88,6 +90,7 @@
 
         <!-- Foto de cedula -->
         <div class="flex-shrink-0 flex flex-col items-center">
+          <h2>Posterior</h2>
           <img
             v-if="votante.votante?.user.biometrico"
             :src="
@@ -98,6 +101,21 @@
               openLightbox(
                 getUrlDocumentos(votante.votante?.user.biometrico.cedula_back)
               )
+            "
+            class="w-full h-64 cursor-pointer object-cover rounded-lg border shadow"
+          />
+          <span v-else class="text-gray-400 italic">Sin foto</span>
+        </div>
+
+        <!-- Firma -->
+        <div class="flex-shrink-0 flex flex-col items-center">
+          <h2>Firma</h2>
+          <img
+            v-if="votante.votante?.user.biometrico"
+            :src="getUrlFirma(votante.votante?.user.biometrico.firma)"
+            alt="Foto del votante"
+            @click="
+              openLightbox(getUrlFirma(votante.votante?.user.biometrico.firma))
             "
             class="w-full h-64 cursor-pointer object-cover rounded-lg border shadow"
           />
@@ -136,6 +154,12 @@
             </option>
             <option value="Parte Trasera del documento poco visible">
               Parte Trasera del documento poco visible
+            </option>
+            <option value="Firma poco visible">Firma poco visible</option>
+            <option
+              value="Firma diferente a la presentada en el documento de identificación"
+            >
+              Firma diferente a la presentada en el documento de identificación
             </option>
             <option value="Registro duplicado">Registro duplicado</option>
             <option
@@ -209,6 +233,10 @@
               class="w-36 h-full object-cover rounded"
             />
             <div>
+              <p class="text-gray-800 font-medium">ID: {{ item.user.votantes.hash_votantes[0].id }}</p>
+              <p class="text-gray-800 font-medium">Nombre: {{ item.user.votantes.nombre }}</p>
+              <p class="text-gray-800 font-medium">Identificación: {{ item.user.votantes.identificacion }}</p>
+              <p class="text-gray-800 font-medium">Creación: {{ formatDate(item.user.votantes.hash_votantes[0].created_at) }}</p>
               <p class="text-gray-800 font-medium">Estado: {{ item.estado }}</p>
             </div>
           </div>
@@ -272,17 +300,15 @@ const previewImage = ref("");
 const showLightbox = ref(false);
 //modal duppicados
 const verDuplicados = ref(false);
-const currentPage = ref(1)
-const perPage = 5
+const currentPage = ref(1);
+const perPage = 5;
 
-const totalPages = computed(() =>
-  Math.ceil(props.duplicados.length / perPage)
-)
+const totalPages = computed(() => Math.ceil(props.duplicados.length / perPage));
 
 const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * perPage
-  return props.duplicados.slice(start, start + perPage)
-})
+  const start = (currentPage.value - 1) * perPage;
+  return props.duplicados.slice(start, start + perPage);
+});
 
 const openLightbox = (imageUrl) => {
   previewImage.value = imageUrl;
@@ -293,6 +319,14 @@ const closeLightbox = () => {
   showLightbox.value = false;
 };
 
+const formatDate = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 // Breadcrumb
 const breadcrumbLinks = [
   { url: route("gestion_registros.index"), text: "Gestion de registros" },
@@ -301,6 +335,7 @@ const breadcrumbLinks = [
 
 const getUrlPhoto = (url) => `/storage/uploads/fotos/${url}`;
 const getUrlDocumentos = (url) => `/storage/uploads/documentos/${url}`;
+const getUrlFirma = (url) => `/storage/uploads/firmas/${url}`;
 
 const getComuna = (idComuna) => {
   console.log(idComuna);

@@ -192,6 +192,8 @@ Route::middleware('auth')->group(function () {
     //usuarios
     Route::post('/cargueVotantes', [CargueMasivoController::class, 'cargueVotantes'])->name('cargueVotantes');
 
+    //historial registros
+    Route::get('/historial_registros', [ValidacionesController::class, 'historial'])->name('historial_registros');
     //GESTION REGISTROS
     Route::post('/aprobar-registro', [ValidacionesController::class, 'aprobarRegistro'])->name('aprobarRegistro');
     Route::post('/rechazar-registro', [ValidacionesController::class, 'rechazarRegistro'])->name('rechazarRegistro');

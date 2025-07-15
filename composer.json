@@ -17,7 +17,8 @@
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^6.3",
         "tightenco/ziggy": "^1.0",
-        "twilio/sdk": "^8.5"
+        "twilio/sdk": "^8.5",
+        "vonage/client": "^4.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

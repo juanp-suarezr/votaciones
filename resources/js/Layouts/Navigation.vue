@@ -36,6 +36,10 @@
                 <CheckIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Gestión registros</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('historial_registros')" :active="route().current().includes('historial_registros')">
+                <CircleStackIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Historial registros</span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('candidatos-editar')" :href="route('candidatos.index')"
                 :active="route().current().includes('candidatos')">
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
@@ -79,7 +83,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -95,6 +99,7 @@ export default {
         AdjustmentsHorizontalIcon,
         PaperClipIcon,
         CheckIcon,
+        CircleStackIcon,
         SeparadorMenu
     },
 

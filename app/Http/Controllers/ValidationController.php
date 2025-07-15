@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Twilio\Rest\Client;
 
+
 class ValidationController extends Controller
 {
     public function register(Request $request)
@@ -40,17 +41,21 @@ class ValidationController extends Controller
             'comuna' => 'required',
             'barrio' => 'string',
             'direccion' => 'string',
-            'email' => 'required|email|unique:users',
-            'celular' => 'required|string|max:15',
+            // 'email' => 'required|email|unique:users',
+            'email' => 'required|email',
+            // 'celular' => 'required|string|max:15|unique:users,celular,NULL,id,estado,Activo|regex:/^\d{10,15}$/', // Validación para números de celular
+            'celular' => 'required|string|max:15|regex:/^\d{10,15}$/', // Validación para números de celular
             'indicativo' => 'required|string|max:5',
             'password' => 'required|string|min:8',
             'recaptcha_token' => 'required|string',
+
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $posibleSpam = false;
         // Verifica el token de reCAPTCHA
         try {
             $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
@@ -62,8 +67,12 @@ class ValidationController extends Controller
 
             Log::info('reCAPTCHA response:', $recaptchaData);
 
-            if (!$recaptchaData['success'] || $recaptchaData['score'] < 0.5) {
-                return response()->json(['errors' => 'La validación de reCAPTCHA falló. Inténtelo nuevamente.'], 422);
+            if (!$recaptchaData['success'] || $recaptchaData['score'] < 0.3) {
+                if ($request->campoObligatorio != null && $request->campoObligatorio != '') {
+                    return response()->json(['errors' => 'La validación de reCAPTCHA falló. Inténtelo nuevamente.'], 422);
+                } else {
+                    $posibleSpam = true;
+                }
             }
         } catch (\Exception $e) {
             Log::error('Error al verificar reCAPTCHA: ' . $e->getMessage());
@@ -103,7 +112,7 @@ class ValidationController extends Controller
             });
         }
 
-        return response()->json(['message' => 'Código de verificación enviado.']);
+        return response()->json(['message' => 'Código de verificación enviado.', 'isSpam' => $posibleSpam], 200);
     }
 
     public function verify(Request $request)
@@ -129,22 +138,14 @@ class ValidationController extends Controller
             return back()->withErrors(['error' => 'Código de verificación inválido o expirado.']);
         }
 
-        // Eliminar el código de verificación
-        $verification->delete();
 
         // Crear el usuario
         try {
-            // Crear el usuario
-            $user = User::create([
-                'name' => $request->nombre,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'estado' => 'Activo',
-            ]);
 
             // Obtener la extensión original de los archivos
             $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
             $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+
 
             $folderDoc = 'documentos';
             $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
@@ -159,10 +160,42 @@ class ValidationController extends Controller
 
             $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
 
+            //gestion firma
+            $firma = 'NA';
+            if ($request->hasFile('firma')) {
+                $folder = 'firmas';
+                $original = $request->file('firma');
+                $extension = strtolower($original->getClientOriginalExtension());
+                $firma = time() . '_votante_' . $request->identificacion . '.' . $extension;
+
+                $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $firma);
+
+                if (in_array($extension, ['jpg', 'jpeg'])) {
+                    $img = imagecreatefromjpeg($original->getPathname());
+                    imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
+                    imagedestroy($img);
+                } elseif ($extension === 'png') {
+                    $img = imagecreatefrompng($original->getPathname());
+                    imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
+                    imagedestroy($img);
+                } else {
+                    // Otros formatos, solo mover
+                    $original->move(storage_path('app/public/uploads/' . $folder), $firma);
+                }
+            }
+
             $validacion = $request->validaciones;
             Log::info('embedding', ['embedding' => json_encode($request->embedding)]);
 
-            if ($request->embedding && $validacion == "") {
+            // Crear el usuario
+            $user = User::create([
+                'name' => $request->nombre,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'estado' => 'Activo',
+            ]);
+
+            if ($request->embedding && ($validacion == "" && $validacion == 'posible robot o spam')) {
 
                 //CREAR REGISTRO BIOMETRICO
                 $registroBiometrico = new UsuariosBiometricos([
@@ -171,11 +204,15 @@ class ValidationController extends Controller
                     'photo' => $fileNamePhoto,
                     'cedula_front' => $fileNameFront,
                     'cedula_back' => $fileNameBack,
+                    'firma' => $firma,
                     'estado' => 'Validado',
 
                 ]);
 
-                $validacion = 'validado';
+                if ($validacion != 'posible robot o spam') {
+
+                    $validacion = 'validado';
+                }
             } else {
 
                 //CREAR REGISTRO BIOMETRICO no validado
@@ -185,6 +222,7 @@ class ValidationController extends Controller
                     'photo' => $fileNamePhoto,
                     'cedula_front' => $fileNameFront,
                     'cedula_back' => $fileNameBack,
+                    'firma' => $firma,
                     'estado' => 'Pendiente',
 
                 ]);
@@ -230,11 +268,16 @@ class ValidationController extends Controller
             // Confirmar la transacción
             DB::commit();
             Cache::forget('votantes');
+            // Eliminar el código de verificación
+            $verification->delete();
+
 
             return back();
         } catch (\Exception $e) {
             // Si ocurre algún error, revertir todos los cambios
             DB::rollBack();
+            // Eliminar el código de verificación
+            $verification->delete();
 
             // Puedes optar por lanzar el error o retornar un mensaje de error
             return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
@@ -248,9 +291,9 @@ class ValidationController extends Controller
         ]);
 
         $existe = Informacion_votantes::where('identificacion', $request->identificacion)
-        ->where('comuna', '!=', 0)
-        ->whereNotNull('comuna')
-        ->exists();
+            ->where('comuna', '!=', 0)
+            ->whereNotNull('comuna')
+            ->exists();
 
         return response()->json(['existe' => $existe]);
     }

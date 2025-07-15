@@ -23,6 +23,7 @@ class UsuariosBiometricos extends Model
         'photo',
         'cedula_front',
         'cedula_back',
+        'firma',
         'estado',
         'created_at',
         'updated_at',

@@ -40,7 +40,7 @@ class ValidacionesController extends Controller
         $this->middleware('permission:usuarios-crear', ['only' => ['aprobarRegistro', 'rechazarRegistro']]);
     }
 
-
+    //REGISTROS PENDIENTES
     public function index()
     {
         $user = Auth::user();
@@ -101,7 +101,16 @@ class ValidacionesController extends Controller
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('estado', 'Validado')
             ->where('user_id', '!=', $votante->votante->user->id)
+            ->with([
+                'user:id', // solo carga el id del usuario
+                'user.votantes:id,id_user,nombre,identificacion', // solo carga el id del votante y su user_id
+                'user.votantes.hashVotantes' => function ($q) {
+                    $q->select('id', 'id_votante', 'created_at') // incluye la FK 'id_votante'
+                        ->where('id_evento', 15);
+                }
+            ])
             ->get();
+
 
 
 
@@ -154,7 +163,7 @@ class ValidacionesController extends Controller
                     'id' => $usuario->id,
                     'distance' => $distance
                 ];
-                
+
 
                 // Si es duplicado (distancia < 0.5)
                 if ($distance < 0.5) {
@@ -226,5 +235,62 @@ class ValidacionesController extends Controller
             DB::rollBack();
             return back()->withErrors(['error' => 'Ocurrió un error durante el proceso. Inténtelo nuevamente. ' . $e]);
         }
+    }
+
+    //REGISTROS HISTORIAL
+    public function historial()
+    {
+        $user = Auth::user();
+
+
+        $votantes = Hash_votantes::query()
+            ->where('id_evento', 15)
+            ->when(RequestFacade::input('subtipo'), function ($query) {
+                $subtipo = RequestFacade::input('subtipo.value');
+                $query->where('subtipo', 'like', $subtipo);
+            })->whereHas('votante', function ($query) use ($user) {
+
+                $identificacion = RequestFacade::input('identificacion');
+                $nombre = RequestFacade::input('nombre');
+                $estado = RequestFacade::input('estado');
+
+                if ($identificacion) {
+                    $query->where('identificacion', $identificacion);
+                }
+
+                if (is_numeric($nombre)) {
+                    $query->where('id', (int) $nombre);
+                } else {
+                    $query->where('nombre', 'like', '%' . $nombre . '%');
+                }
+
+                if ($estado) {
+                    $query->where('estado', $estado);
+                } else {
+                    $query->where('estado', 'Activo')
+                        ->orWhere('estado', 'Rechazado');
+                }
+            })
+            ->with('votante.user.biometrico', 'evento')
+
+            ->paginate(5)
+            ->withQueryString();
+
+
+
+
+
+
+
+
+
+        return Inertia::render(
+            'GestionRegistros/Historial',
+            [
+                'votantes' => $votantes,
+
+                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo', 'estado']),
+            ]
+        );
     }
 }
