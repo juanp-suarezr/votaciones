@@ -913,16 +913,16 @@ const items = ref([
 
 const itemsMobil = ref([
   {
-    label: "1",
+    label: "paso 1",
   },
   {
-    label: "2",
+    label: "paso 2",
   },
   {
-    label: "3",
+    label: "paso 3",
   },
   {
-    label: "4",
+    label: "paso 4",
   },
 ]);
 
