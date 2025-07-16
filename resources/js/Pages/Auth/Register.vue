@@ -575,8 +575,8 @@
               <canvas
                 ref="canvas"
 
-                height="200"
-                class="border border-gray-400 rounded-md bg-white cursor-crosshair sm:w-4/6 w-[250px]"
+                height="150"
+                class="border border-gray-400 rounded-md bg-white cursor-crosshair sm:w-[300px] w-[250px]"
                 @mousedown="startDrawing"
                 @mousemove="draw"
                 @mouseup="stopDrawing"
