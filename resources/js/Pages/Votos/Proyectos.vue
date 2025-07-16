@@ -175,16 +175,26 @@
         <div class="flex flex-wrap gap-8 mt-4 text-base sm:text-4xl">
           <div class="w-auto border-r pr-2 border-gray-600">
             <span class="text-gray-600">Número de tarjetón:</span>
-            {{ selectedProject ? selectedProject.proyecto.numero_tarjeton : 'NA' }}
+            {{
+              selectedProject ? selectedProject.proyecto.numero_tarjeton : "NA"
+            }}
           </div>
           <div class="w-auto pr-2">
             <span class="text-gray-600">Comuna:</span>
-            {{ selectedProject ? getComuna(selectedProject.proyecto.subtipo) : 'VOTO BLANCO' }}
+            {{
+              selectedProject
+                ? getComuna(selectedProject.proyecto.subtipo)
+                : "VOTO BLANCO"
+            }}
           </div>
         </div>
         <div class="mt-6 text-base sm:text-4xl">
-            <span class="text-gray-600">Detalle:</span>
-          {{ selectedProject ? selectedProject.proyecto.detalle : 'VOTO EN BLANCO' }}
+          <span class="text-gray-600">Detalle:</span>
+          {{
+            selectedProject
+              ? selectedProject.proyecto.detalle
+              : "VOTO EN BLANCO"
+          }}
         </div>
 
         <div class="w-full flex flex-wrap justify-center gap-4 sm:gap-6 mt-6">
@@ -203,6 +213,35 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal inicio -->
+    <Modal :show="InicioModal" :closeable="true">
+      <template #default>
+        <h2
+          class="py-4 sm:text-4xl text-2x font-bold text-gray-800 flex tex-center justify-center bg-azul text-white"
+        >
+          Aviso importante
+        </h2>
+
+        <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
+          <p>
+            Por favor selecciona correctamente el proyecto de tu preferencia, ¡recuerda! solo tienes una oportunidad para registrarte
+          </p>
+        </div>
+
+        <div class="flex justify-center gap-4 text-center h-full my-6">
+          <PrimaryButton
+            type="button"
+            class="h-full text-xl sm:text-2xl"
+            @click="InicioModal = false"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+          >
+            Continuar
+          </PrimaryButton>
+        </div>
+      </template>
+    </Modal>
   </AuthenticatedLayout>
 </template>
 
@@ -217,6 +256,7 @@ import Tag from "primevue/tag";
 import { inject, ref } from "vue";
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 const swal = inject("$swal");
+import Modal from "@/Components/Modal.vue";
 
 const props = defineProps({
   proyectos: Object,
@@ -237,6 +277,7 @@ const form = useForm({
 
 const breadcrumbLinks = [{ url: "", text: "Votaciones" }];
 //modales
+const InicioModal = ref(true);
 const modalVisible = ref(false);
 const ModalConfirmacion = ref(false);
 //info
@@ -284,7 +325,6 @@ const truncate = (text, length) => {
 };
 
 const showModal = (pro) => {
-
   modalProyecto.value = pro;
   modalVisible.value = true;
 };
