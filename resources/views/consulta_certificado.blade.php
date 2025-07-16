@@ -37,11 +37,11 @@
     <div class="card">
         <h2>Certificado electoral {{ $evento->nombre }} {{ $annio }}</h2>
         <div class="info">
-            
+
             <p><strong>Nombre:</strong> {{ $voto->votante->nombre }}</p>
             <p><strong>identificación:</strong> {{ $voto->votante->tipo_documento }} -
                 {{ $voto->votante->identificacion }}</p>
-            <p><strong>Comuna:</strong> {{ $comuna }}</p>
+            <p><strong>Comuna/Corregimiento:</strong> {{ $comuna }}</p>
             <p><strong>Modalidad:</strong> {{ $voto->isVirtual ? 'Virtual' : 'Presencial' }}</p>
 
         </div>

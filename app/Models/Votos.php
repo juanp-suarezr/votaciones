@@ -23,7 +23,7 @@ class Votos extends Model
         'id_eventos',
         'tipo',
         'subtipo',
-        'is_virtual',
+        'isVirtual',
         'created_at',
         'updated_at',
         'estado',

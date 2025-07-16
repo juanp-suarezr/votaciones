@@ -335,7 +335,7 @@ const proyecto = (proyecto) => {
 
   form.id_candidato = proyecto
     ? proyecto.id_proyecto
-    : props.proyectos[0].id_proyecto;
+    : 0;
   form.id_eventos = proyecto
     ? proyecto.id_evento
     : props.proyectos[0].id_evento;

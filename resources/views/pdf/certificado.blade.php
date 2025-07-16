@@ -129,7 +129,7 @@
                         <h3>Pereira, {{ $created_at }}</h3>
                         <p><strong>Nombre:</strong> {{ $votante->nombre }}</p>
                         <p><strong>identificación:</strong> {{ $votante->tipo_documento }} - {{ $votante->identificacion }}</p>
-                        <p><strong>Comuna:</strong> {{$comuna }}</p>
+                        <p><strong>Comuna/Corregimiento:</strong> {{$comuna }}</p>
                         <p><strong>Modalidad:</strong> {{ $voto->isVirtual ? 'Virtual' : 'Presencial' }}</p>
                     </td>
                     <!-- QR -->

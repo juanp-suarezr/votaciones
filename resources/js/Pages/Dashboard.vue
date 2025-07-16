@@ -36,19 +36,30 @@
                 Usted ha votado por
                 {{
                   ev.tipos.includes("Proyecto")
-                    ? " el proyecto " +
-                      proyectos.find(
-                        (item) =>
-                          item.id_proyecto ==
-                          votos.find((item) => item.id_eventos == ev.id)
-                            .id_proyecto
-                      ).proyecto.detalle
-                    : candidatos.find(
-                        (item) =>
-                          item.id_votante ==
-                          votos.find((item) => item.id_eventos == ev.id)
-                            .id_candidato
-                      ).votante.nombre
+                    ? (() => {
+                        const voto = votos.find(
+                          (item) => item.id_eventos == ev.id
+                        );
+                        const proyectoVotado = proyectos.find(
+                          (p) => p.id_proyecto == voto.id_proyecto
+                        );
+                        return (
+                          proyectoVotado?.proyecto?.detalle ??
+                          "(Voto en blanco)"
+                        );
+                      })()
+                    : (() => {
+                        const voto = votos.find(
+                          (item) => item.id_eventos == ev.id
+                        );
+                        const candidatoVotado = candidatos.find(
+                          (c) => c.id_votante == voto.id_candidato
+                        );
+                        return (
+                          candidatoVotado?.votante?.nombre ??
+                          "(Voto no encontrado)"
+                        );
+                      })()
                 }}
               </span>
               <br />
@@ -84,8 +95,9 @@
             class="border-2 border-gray-400 px-1 py-2 border-dashed flex flex-wrap"
           >
             <Tag
+             v-if="ev.votantes[0].subtipo"
               :value="
-                'Comuna: ' +
+                'Comuna/Corregimiento: ' +
                 getComuna(ev.votantes.length != 0 ? ev.votantes[0].subtipo : '')
               "
               class="!bg-primary text-[8px] sm:text-sm !text-white w-full flex p-2 z-10"
@@ -120,19 +132,30 @@
                 Usted ha votado por
                 {{
                   ev.tipos.includes("Proyecto")
-                    ? " el proyecto " +
-                      proyectos.find(
-                        (item) =>
-                          item.id_proyecto ==
-                          votos.find((item) => item.id_eventos == ev.id)
-                            .id_proyecto
-                      ).proyecto.detalle
-                    : candidatos.find(
-                        (item) =>
-                          item.id_votante ==
-                          votos.find((item) => item.id_eventos == ev.id)
-                            .id_candidato
-                      ).votante.nombre
+                    ? (() => {
+                        const voto = votos.find(
+                          (item) => item.id_eventos == ev.id
+                        );
+                        const proyectoVotado = proyectos.find(
+                          (p) => p.id_proyecto == voto.id_proyecto
+                        );
+                        return (
+                          proyectoVotado?.proyecto?.detalle ??
+                          "(Voto en blanco)"
+                        );
+                      })()
+                    : (() => {
+                        const voto = votos.find(
+                          (item) => item.id_eventos == ev.id
+                        );
+                        const candidatoVotado = candidatos.find(
+                          (c) => c.id_votante == voto.id_candidato
+                        );
+                        return (
+                          candidatoVotado?.votante?.nombre ??
+                          "(Voto no encontrado)"
+                        );
+                      })()
                 }}
               </span>
               <br />
@@ -192,19 +215,30 @@
                 Usted ha votado por
                 {{
                   ev.tipos.includes("Proyecto")
-                    ? " el proyecto " +
-                      proyectos.find(
-                        (item) =>
-                          item.id_proyecto ==
-                          votos.find((item) => item.id_eventos == ev.id)
-                            .id_proyecto
-                      ).proyecto.detalle
-                    : candidatos.find(
-                        (item) =>
-                          item.id_votante ==
-                          votos.find((item) => item.id_eventos == ev.id)
-                            .id_candidato
-                      ).votante.nombre
+                    ? (() => {
+                        const voto = votos.find(
+                          (item) => item.id_eventos == ev.id
+                        );
+                        const proyectoVotado = proyectos.find(
+                          (p) => p.id_proyecto == voto.id_proyecto
+                        );
+                        return (
+                          proyectoVotado?.proyecto?.detalle ??
+                          "(Voto en blanco)"
+                        );
+                      })()
+                    : (() => {
+                        const voto = votos.find(
+                          (item) => item.id_eventos == ev.id
+                        );
+                        const candidatoVotado = candidatos.find(
+                          (c) => c.id_votante == voto.id_candidato
+                        );
+                        return (
+                          candidatoVotado?.votante?.nombre ??
+                          "(Voto no encontrado)"
+                        );
+                      })()
                 }}
               </span>
             </p>
