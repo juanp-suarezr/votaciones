@@ -1022,26 +1022,32 @@ const formatDate = (date) => {
 const startDrawing = (e) => {
   drawing = true;
   const ctx = canvas.value.getContext("2d");
+  const pos = getCoordinates(e);
   ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
+  ctx.moveTo(pos.x, pos.y);
 };
+
 const draw = (e) => {
   if (!drawing) return;
   const ctx = canvas.value.getContext("2d");
-  ctx.lineTo(e.offsetX, e.offsetY);
+  const pos = getCoordinates(e);
+  ctx.lineTo(pos.x, pos.y);
   ctx.strokeStyle = "#222";
   ctx.lineWidth = 2;
   ctx.stroke();
 };
+
 const stopDrawing = () => {
   drawing = false;
 };
+
 const clearCanvas = () => {
   const ctx = canvas.value.getContext("2d");
   ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
   firmaPreview.value = null;
   form.firma = null;
 };
+
 const saveCanvas = () => {
   canvas.value.toBlob((blob) => {
     form.firma = new File([blob], "firma.webp", { type: "image/webp" });
@@ -1052,6 +1058,23 @@ const saveCanvas = () => {
     reader.readAsDataURL(form.firma);
   }, "image/webp");
 };
+
+// 🔧 Función para obtener coordenadas, sea touch o mouse
+const getCoordinates = (e) => {
+  const rect = canvas.value.getBoundingClientRect();
+  if (e.touches && e.touches.length > 0) {
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top,
+    };
+  } else {
+    return {
+      x: e.offsetX,
+      y: e.offsetY,
+    };
+  }
+};
+
 
 //STEP PART
 //prev
