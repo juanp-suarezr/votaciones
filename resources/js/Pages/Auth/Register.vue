@@ -1349,7 +1349,7 @@ const validateStep1 = async () => {
     form.identificacion &&
     form.tipo_documento &&
     form.fecha_expedicion &&
-    form.lugar_expedicion &&
+    (form.lugar_expedicion || form.tipo_documento != 'Cédula Ciudadanía') &&
     form.nacimiento
   ) {
     if (!validateEdad()) return;
