@@ -574,13 +574,15 @@
             <div v-else>
               <canvas
                 ref="canvas"
-
                 height="150"
                 class="border border-gray-400 rounded-md bg-white cursor-crosshair sm:w-[300px] w-[250px]"
                 @mousedown="startDrawing"
                 @mousemove="draw"
                 @mouseup="stopDrawing"
                 @mouseleave="stopDrawing"
+                @touchstart.prevent="startDrawing"
+                @touchmove.prevent="draw"
+                @touchend="stopDrawing"
               ></canvas>
               <div class="flex gap-2 mt-1">
                 <button
@@ -1075,7 +1077,6 @@ const getCoordinates = (e) => {
   }
 };
 
-
 //STEP PART
 //prev
 const prevStep = (num) => {
@@ -1372,7 +1373,7 @@ const validateStep1 = async () => {
     form.identificacion &&
     form.tipo_documento &&
     form.fecha_expedicion &&
-    (form.lugar_expedicion || form.tipo_documento != 'Cédula Ciudadanía') &&
+    (form.lugar_expedicion || form.tipo_documento != "Cédula Ciudadanía") &&
     form.nacimiento
   ) {
     if (!validateEdad()) return;
