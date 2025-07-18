@@ -1,13 +1,13 @@
 <template>
-  <PageLayout>
-    <Head title="Registro de Usuario" />
+  <Head title="Corregir datos" />
 
-    <div
-      class="w-full sm:max-w-6xl h-full mx-auto bg-white shadow-lg rounded-lg px-4 sm:px-6 py-12 z-10"
-    >
-      <h1 class="text-2xl font-bold text-center text-gray-800">
-        Registro votante
-      </h1>
+  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
+    <template #header> Corregir datos </template>
+
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6 border-b border-gray-200">
+        <h1>Corrección registro</h1>
+      </div>
 
       <div class="mt-4 justify-center">
         <Steps
@@ -22,7 +22,7 @@
         />
       </div>
 
-      <form class="m-auto py-4">
+      <form class="m-auto py-4 px-4">
         <!-- parte 1 -- validación -->
         <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
           <!-- Nombre -->
@@ -240,34 +240,6 @@
             </select>
             <InputError class="mt-2" :message="form.errors.condicion" />
           </div>
-          <!-- Indicativo -->
-          <div class="mb-2">
-            <InputLabel for="indicativo" value="Indicativo" />
-            <TextInput
-              id="indicativo"
-              type="text"
-              maxlength="3"
-              class="mt-1 block w-full"
-              v-model="form.indicativo"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.indicativo" />
-          </div>
-          <!-- Celular -->
-          <div class="col-span-2 flex flex-wrap mb-1">
-            <!-- celular -->
-            <div>
-              <InputLabel for="celular" value="Celular" />
-              <TextInput
-                id="celular"
-                type="number"
-                class="mt-1 block w-full"
-                v-model="form.celular"
-                required
-              />
-              <InputError class="mt-2" :message="form.errors.celular" />
-            </div>
-          </div>
 
           <!-- Comuna -->
           <div class="mb-2">
@@ -309,33 +281,7 @@
             />
             <InputError class="mt-2" :message="form.errors.direccion" />
           </div>
-          <!-- Correo -->
-          <div class="mb-2">
-            <InputLabel for="email" value="Correo Electrónico" />
-            <TextInput
-              id="email"
-              type="email"
-              class="mt-1 block w-full"
-              v-model="form.email"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.email" />
-          </div>
-          <!-- Contraseña -->
-          <div class="mb-2">
-            <InputLabel
-              for="password"
-              value="Contraseña (mínimo: 8 caracteres)"
-            />
-            <Password
-              id="password"
-              v-model="form.password"
-              required
-              toggleMask
-            />
 
-            <InputError class="mt-2" :message="form.errors.password" />
-          </div>
           <!-- ncheck tratamiento datos -->
           <div class="my-4 col-span-2 mb-2">
             <input
@@ -444,7 +390,7 @@
                 <div class="flex justify-center">
                   <img
                     v-if="imageUrl"
-                    :src="imageUrl"
+                    :src="getUrlDocumentos(imageUrl)"
                     :alt="form.cedula_front"
                     class="w-4/6 h-full object-contain"
                   />
@@ -504,7 +450,7 @@
                 <div class="flex justify-center">
                   <img
                     v-if="imageUrl1"
-                    :src="imageUrl1"
+                    :src="getUrlDocumentos(imageUrl1)"
                     :alt="form.cedula_back"
                     class="w-4/6 h-full object-contain"
                   />
@@ -525,6 +471,7 @@
               </div>
             </div>
           </div>
+          <!-- firma -->
           <div class="w-full gap-2 h-full sm:px-16 px-4 mt-4">
             <InputLabel for="firma" value="Firma" />
             <div class="flex gap-4 mb-2">
@@ -565,7 +512,7 @@
               <InputError class="mt-2" :message="form.errors.firma" />
               <div v-if="firmaPreview" class="mt-2">
                 <img
-                  :src="firmaPreview"
+                  :src="getUrlFirma(firmaPreview)"
                   alt="Vista previa de la firma"
                   class="h-24 border rounded"
                 />
@@ -642,52 +589,9 @@
             </div>
           </div>
         </div>
-
-        <!-- parte 4 -- verificacion -->
-        <div class="gap-6" v-if="active == 3">
-          <div class="text-sm sm:text-base text-gray-800 pt-6 sm:px-16 px-4">
-            Ingrese el código de verificación que le fue enviado a su correo o
-            celular. Si no recibió el código, por favor revise su bandeja de
-            entrada o carpeta de spam. o vuelva a atrás y valide nuevamente.
-          </div>
-          <div class="w-full mt-6">
-            <InputLabel for="codigo" value="Código de Verificación" />
-            <TextInput
-              id="codigo"
-              type="text"
-              class="mt-1 block w-full"
-              v-model="form.codigo"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.codigo" />
-          </div>
-
-          <!-- Botón de Enviar -->
-          <div class="col-span-2 flex justify-between gap-2 mt-4">
-            <div class="flex pt-4 justify-end">
-              <button
-                type="button"
-                @click="prevStep(0)"
-                class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 rounded-md shadow-xl"
-              >
-                Atrás
-              </button>
-            </div>
-            <div class="flex pt-4 justify-end">
-              <PrimaryButton
-                type="button"
-                @click="submit"
-                :class="{ 'opacity-25': form.processing }"
-                :disabled="form.processing"
-              >
-                Registrarse
-              </PrimaryButton>
-            </div>
-          </div>
-        </div>
       </form>
     </div>
-  </PageLayout>
+  </AuthenticatedLayout>
 
   <!-- Modal loading -->
   <Modal :show="loadingModal" :closeable="false">
@@ -710,25 +614,25 @@
       <h2
         class="py-4 text-2xl font-semibold text-gray-800 flex tex-center justify-center bg-azul text-white"
       >
-        Validar por código de verificación
+        Desea volver a realizar el registro biométrico
       </h2>
 
       <div class="flex justify-center gap-4 text-center h-full my-12">
         <PrimaryButton
           type="button"
           class="h-full"
-          @click="validationUser(0)"
+          @click="showModalBiometrico()"
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
         >
-          Validar con correo
+          Volver a realizar el registro biométrico
         </PrimaryButton>
         <SecondaryButton
-          @click="validationUser(1)"
+          @click="submit"
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
         >
-          Validar con sms
+          Continuar y guardar los datos
         </SecondaryButton>
       </div>
     </template>
@@ -800,7 +704,9 @@
       <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
         <p>
           Por favor llenar todos los datos correctamente, para no ser rechazado,
-          ¡recuerda! solo tiene tres oportunidades para registrarse
+          ¡recuerda! solo tiene
+          {{ 3 - votante.hash_votantes[0].intentos }} oportunidades para
+          registrarse
         </p>
       </div>
 
@@ -820,67 +726,72 @@
 </template>
 
 <script setup>
-import PageLayout from "@/Layouts/PageLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Head, useForm } from "@inertiajs/vue3";
+import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
+
+import comunas from "@/shared/comunas.json"; // Importa el JSON
+import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
+import departamentos from "@/shared/departamentos.json"; // Importa el JSON
+import ciudades from "@/shared/ciudades.json"; // Importa el JSON
+import condicion from "@/shared/condicion.json"; // Importa el JSON
+import etnia from "@/shared/etnia.json"; // Importa el JSON
+
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { useForm, Head } from "@inertiajs/vue3";
+
 import Steps from "primevue/steps";
 import Select from "primevue/select";
 import ProgressSpinner from "primevue/progressspinner";
-import Password from "primevue/password";
-import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
-import departamentos from "@/shared/departamentos.json"; // Importa el JSON
-import ciudades from "@/shared/ciudades.json"; // Importa el JSON
-import comunas from "@/shared/comunas.json"; // Importa el JSON
-import condicion from "@/shared/condicion.json"; // Importa el JSON
-import etnia from "@/shared/etnia.json"; // Importa el JSON
-import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
 import axios from "axios";
-const swal = inject("$swal");
-import { useReCaptcha } from "vue-recaptcha-v3";
 import { PhotoIcon } from "@heroicons/vue/24/solid";
 
 //imagen
-import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp";
-import backEjemplo from "../../../../public/assets/img/cedulaBackEjemplo.webp";
+import frontEjemplo from "../../../public/assets/img/cedulaFrontEjemplo.webp";
+import backEjemplo from "../../../public/assets/img/cedulaBackEjemplo.webp";
 
 import * as faceapi from "face-api.js";
+const swal = inject("$swal");
 
-const form = useForm({
-  nombre: "",
-  identificacion: "",
-  tipo_documento: "",
-  fecha_expedicion: "",
-  lugar_expedicion: "",
-  nacimiento: "",
-  cedula_front: null,
-  cedula_back: null,
-  genero: "",
-  etnia: "",
-  condicion: "",
-  direccion: "",
-  indicativo: "+57",
-  celular: "",
-  comuna: "",
-  barrio: "",
-  email: "",
-  password: "",
-  embedding: "",
-  photo: "",
-  validaciones: "",
-  checked: false,
-  declaracion: false,
-  firma: "",
-  recaptcha_token: "",
-  campoObligatorio: "",
-  codigo: "",
+const breadcrumbLinks = [{ url: "", text: "Corregir datos" }];
+
+const props = defineProps({
+  votante: {
+    type: Object,
+    required: true,
+  },
 });
 
-const { executeRecaptcha } = useReCaptcha();
+console.log("Votante data:", props.votante);
+
+const form = useForm({
+  nombre: props.votante.nombre || "",
+  identificacion: props.votante.identificacion || "",
+  tipo_documento: props.votante.tipo_documento || "",
+  fecha_expedicion: props.votante.fecha_expedicion || "",
+  lugar_expedicion: props.votante.lugar_expedicion || "",
+  nacimiento: props.votante.nacimiento || "",
+  cedula_front: null,
+  cedula_back: null,
+  genero: props.votante.genero || "",
+  etnia: props.votante.etnia || "",
+  condicion: props.votante.condicion || "",
+  direccion: props.votante.direccion || "",
+  comuna: props.votante.hash_votantes[0].subtipo || "",
+  barrio: props.votante.barrio || "",
+
+  embedding: props.votante.user.biometrico.embedding || "",
+  photo: null,
+  validaciones: props.votante.hash_votantes[0].validaciones || "",
+  checked: true,
+  declaracion: true,
+  firma: null,
+  campoObligatorio: "",
+});
 
 const departamentoSelected = ref("");
 const ciudadesxDep = ref([]);
@@ -961,6 +872,23 @@ const loadingButtonBiometric = ref(false);
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
 
+const getUrlDocumentos = (url) => `/storage/uploads/documentos/${url}`;
+const getUrlFirma = (url) => `/storage/uploads/firmas/${url}`;
+
+const departamentoXciudadName = computed(() => {
+  const dep = ciudades.find((d) => d.ciudades.includes(form.lugar_expedicion));
+  return dep || "No encontrado";
+});
+
+//COMPUTED PARA LOS DATOS DEL departamento segun ciudad prop
+departamentoSelected.value = departamentos.find(
+  (dep) => dep.id === departamentoXciudadName.value.id
+);
+
+ciudadesxDep.value = ciudades.find(
+  (ciudad) => ciudad.id === departamentoXciudadName.value.id
+).ciudades;
+
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
   if (value) {
@@ -970,6 +898,8 @@ watch(IsNewGenero, (value) => {
 
 //WATCH DEPARTAMENTOS
 watch(departamentoSelected, (newValue) => {
+  console.log(form.lugar_expedicion);
+
   if (newValue) {
     ciudadesxDep.value = ciudades.find(
       (ciudad) => ciudad.id === newValue.id
@@ -1012,6 +942,7 @@ const removeImage = (num) => {
 };
 
 const formatDate = (date) => {
+  if (!date) return "";
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -1272,7 +1203,8 @@ const registerAndValidate = async () => {
             didClose: () => {
               //poner llamado a modal de botones
               biometricoModal.value = false;
-              botonesValidarModal.value = true;
+              loadingModal.value = true;
+              submit();
             },
           });
         }
@@ -1460,12 +1392,9 @@ const validarDatos2 = () => {
     form.genero &&
     form.etnia &&
     form.condicion &&
-    form.celular &&
     form.comuna &&
     form.barrio &&
     form.direccion &&
-    form.email &&
-    form.password &&
     form.checked &&
     form.declaracion
   ) {
@@ -1484,9 +1413,7 @@ const validarDatos2 = () => {
     if (!form.condicion) {
       form.errors.condicion = "Este campo es requerido.";
     }
-    if (!form.celular) {
-      form.errors.celular = "Este campo es requerido.";
-    }
+
     if (!form.comuna) {
       form.errors.comuna = "Este campo es requerido.";
     }
@@ -1497,12 +1424,7 @@ const validarDatos2 = () => {
     if (!form.direccion) {
       form.errors.direccion = "Este campo es requerido.";
     }
-    if (!form.email) {
-      form.errors.email = "Este campo es requerido.";
-    }
-    if (!form.password) {
-      form.errors.password = "Este campo es requerido.";
-    }
+
     if (!form.checked) {
       form.errors.checked = "Este campo es requerido.";
     }
@@ -1519,7 +1441,16 @@ const validarDatos3 = () => {
   }
 
   if (isValidate.value) {
-    showModalBiometrico();
+    if (
+      form.embedding &&
+      props.votante.hash_votantes[0].validaciones != "no_rostro"
+    ) {
+      // Si ya tiene registro biométrico o no es necesario validar, continuar
+      botonesValidarModal.value = true;
+    } else {
+      // Si no tiene registro biométrico, abrir modal de validación
+      showModalBiometrico();
+    }
   } else {
     if (!form.cedula_front) {
       form.errors.cedula_front = "Este campo es requerido.";
@@ -1533,99 +1464,15 @@ const validarDatos3 = () => {
   }
 };
 
-const validationUser = async (num) => {
-  // Mostrar el modal de carga mientras se realiza la validación
-  botonesValidarModal.value = false;
-  loadingModal.value = true;
-  console.log(form.embedding);
-
-  try {
-    // Continuar con la validación de correo o SMS
-    const formData = new FormData();
-
-    switch (num) {
-      case 0:
-        formData.append("via", "correo");
-        break;
-      case 1:
-        formData.append("via", "sms");
-        break;
-    }
-
-    const recaptchaToken = await executeRecaptcha("register");
-
-    // Agregar el token de reCAPTCHA al formulario
-    form.recaptcha_token = recaptchaToken;
-
-    formData.append("nombre", form.nombre);
-    formData.append("identificacion", form.identificacion);
-    formData.append("tipo_documento", form.tipo_documento);
-    formData.append("fecha_expedicion", form.fecha_expedicion);
-    formData.append("lugar_expedicion", form.lugar_expedicion);
-    formData.append("nacimiento", form.nacimiento);
-    formData.append("etnia", form.etnia);
-    formData.append("condicion", form.condicion);
-    formData.append("direccion", form.direccion);
-    formData.append("genero", form.genero);
-    formData.append("comuna", form.comuna);
-    formData.append("barrio", form.barrio);
-    formData.append("email", form.email);
-    formData.append("celular", form.celular);
-    formData.append("indicativo", form.indicativo);
-    formData.append("password", form.password);
-    formData.append("recaptcha_token", recaptchaToken);
-    formData.append("campoObligatorio", form.campoObligatorio);
-
-    // Enviar la solicitud al backend
-    const response = await axios.post(route("validate-user"), formData);
-
-    loadingModal.value = false;
-
-    console.log(response);
-
-    if (response.data.isSpam) {
-      form.validaciones = "posible robot o spam";
-    }
-
-    swal({
-      title: "Código enviado",
-      text: "Revisa tu correo o SMS para el código de verificación.",
-      icon: "success",
-    });
-    active.value = 3; // Ir al paso de verificación
-  } catch (error) {
-    console.error(error);
-    let mensajes =
-      "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.";
-
-    // Si Laravel devuelve errores en error.response.data.errors
-    if (error.response && error.response.data && error.response.data.errors) {
-      const errores = error.response.data.errors;
-
-      // Convertimos el objeto de errores a un array de mensajes
-      mensajes = Object.values(errores)
-        .flat() // une arrays internos en uno solo
-        .join("\n"); // separa con salto de línea para mostrar en SweetAlert
-    }
-    swal.fire({
-      title: "Error",
-      text: mensajes,
-      icon: "error",
-    });
-  } finally {
-    loadingModal.value = false; // Ocultar el modal de carga
-  }
-};
-
 const submit = () => {
-  form.post(route("create-user"), {
+  form.post(route("corregir-registro.update", props.votante.id), {
     onSuccess: () => {
       swal({
-        title: "Registro realizado",
-        text: "Registro de usuario realizado exitosamente. Se realizará la validación de su información, el estado sera notificado a su correo.",
+        title: "Registro actualizado",
+        text: "Registro de usuario actualizado exitosamente. Se realizará la validación de su información, el estado sera notificado a su correo.",
         icon: "success",
       }).then((result) => {
-        window.location.reload();
+        window.location.href = route("dashboard");
       });
       sessionStorage.removeItem("fallo_camara");
       sessionStorage.removeItem("fallo_registro");
@@ -1680,5 +1527,33 @@ watch(biometricoModal, (newVal) => {
   if (newVal == false) {
     stopCamera();
   }
+});
+
+const getComuna = (idComuna) => {
+  console.log(idComuna);
+
+  return comunas.find((item) => item.value == idComuna);
+};
+
+onMounted(() => {
+  if (props.votante.user.biometrico.cedula_front) {
+    imageUrl.value = props.votante.user.biometrico.cedula_front;
+  }
+  if (props.votante.user.biometrico.cedula_back) {
+    imageUrl1.value = props.votante.user.biometrico.cedula_back;
+  }
+  if (props.votante.user.biometrico.firma) {
+    firmaPreview.value = props.votante.user.biometrico.firma;
+  }
+
+  if (props.votante.hash_votantes[0].subtipo) {
+    form.comuna = getComuna(props.votante.hash_votantes[0].subtipo);
+  }
+
+  form.fecha_expedicion = formatDate(props.votante.fecha_expedicion);
+  form.nacimiento = formatDate(props.votante.nacimiento);
+
+  // Mostrar modal de inicio
+  InicioModal.value = true;
 });
 </script>

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Twilio\Rest\Client;
 
 
@@ -242,6 +243,7 @@ class ValidationController extends Controller
                 'nacimiento' => $request->nacimiento,
                 'genero' => $request->genero,
                 'etnia' => $request->etnia,
+                'condicion' => $request->condicion,
                 'comuna' => $request->input('comuna.value'),
                 'barrio' => $request->barrio,
                 'direccion' => $request->direccion,
@@ -296,5 +298,212 @@ class ValidationController extends Controller
             ->exists();
 
         return response()->json(['existe' => $existe]);
+    }
+
+    //editar registro corrección
+    public function edit(Request $request, $id_votante)
+    {
+
+        $votante =  Informacion_votantes::with('user.biometrico')
+            ->with([
+                'hashVotantes' => function ($query) {
+                    $query->where('subtipo', '!=', 0);
+                }
+            ])
+            ->findOrFail($id_votante);
+
+        return Inertia::render(
+            'CorregirDatos',
+            [
+                'votante' => $votante,
+            ]
+        );
+    }
+
+    public function update(Request $request, $id_votante)
+    {
+        $votante = Informacion_votantes::findOrFail($id_votante);
+        $user = User::where('id_user', $votante->id_user)->first();
+        $biometrico = UsuariosBiometricos::where('user_id', $user->id)->first();
+        $hash_votante = Hash_votantes::where('id_votante', $votante->id)->first();
+
+        // Crear el usuario
+        try {
+
+            $fileNameFront = 'NA';
+            $fileNameBack = 'NA';
+            $fileNamePhoto = 'NA';
+            // Obtener la extensión original de los archivos
+            if ($request->hasFile('cedula_front') && $request->hasFile('cedula_back')) {
+                $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
+                $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+
+
+                $folderDoc = 'documentos';
+                $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
+                $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
+                // Guardar los archivos con su extensión original
+                $frontPath = $request->file('cedula_front')->storeAs('uploads/' . $folderDoc, $fileNameFront, 'public');
+                $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
+
+                //foto evidencia
+                $folderPhoto = 'fotos';
+                $fileNamePhoto = 'foto' . $request->identificacion . '.' . $request->file('photo')->getClientOriginalExtension();
+
+                $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
+            }
+
+
+            //gestion firma
+            $firma = 'NA';
+            if ($request->hasFile('firma')) {
+                $folder = 'firmas';
+                $original = $request->file('firma');
+                $extension = strtolower($original->getClientOriginalExtension());
+                $firma = time() . '_votante_' . $request->identificacion . '.' . $extension;
+
+                $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $firma);
+
+                if (in_array($extension, ['jpg', 'jpeg'])) {
+                    $img = imagecreatefromjpeg($original->getPathname());
+                    imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
+                    imagedestroy($img);
+                } elseif ($extension === 'png') {
+                    $img = imagecreatefrompng($original->getPathname());
+                    imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
+                    imagedestroy($img);
+                } else {
+                    // Otros formatos, solo mover
+                    $original->move(storage_path('app/public/uploads/' . $folder), $firma);
+                }
+            }
+
+            $validacion = $request->validaciones;
+
+            if ($request->has('embedding')) {
+                $nuevoEmbedding = is_string($request->embedding)
+                    ? $request->embedding
+                    : json_encode($request->embedding);
+
+                $embeddingActual = $biometrico->embedding;
+
+                // Compara los JSON decodificados para evitar diferencias de formato
+                $nuevoArray = json_decode($nuevoEmbedding, true);
+                $actualArray = json_decode($embeddingActual, true);
+
+                if ($nuevoArray !== $actualArray) {
+                    $biometrico->embedding = $nuevoEmbedding; // Actualiza el embedding solo si es diferente
+
+                }
+            }
+
+            if ($request->embedding && ($validacion == "" && $validacion == 'posible robot o spam')) {
+
+                //ACTUALIZAR REGISTRO BIOMETRICO
+
+
+                $biometrico->user_id = $user->id;
+
+                $biometrico->photo = $fileNamePhoto;
+                $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
+                $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
+                $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
+
+
+                $registroBiometrico = new UsuariosBiometricos([
+                    'user_id' => $user->id,
+                    'embedding' => json_encode($request->embedding), // convertir a string JSON
+                    'photo' => $fileNamePhoto,
+                    'cedula_front' => $fileNameFront,
+                    'cedula_back' => $fileNameBack,
+                    'firma' => $firma,
+                    'estado' => 'Validado',
+
+                ]);
+
+                if ($validacion != 'posible robot o spam') {
+
+                    $validacion = 'validado';
+                }
+            } else {
+
+                //CREAR REGISTRO BIOMETRICO no validado
+                $registroBiometrico = new UsuariosBiometricos([
+                    'user_id' => $user->id,
+                    'embedding' => json_encode($request->embedding), // convertir a string JSON
+                    'photo' => $fileNamePhoto,
+                    'cedula_front' => $fileNameFront,
+                    'cedula_back' => $fileNameBack,
+                    'firma' => $firma,
+                    'estado' => 'Pendiente',
+
+                ]);
+            }
+
+
+            $user->biometrico()->save($registroBiometrico);
+
+            // Crear la información del votante asociada al usuario
+            $informacionUsuario = new Informacion_votantes([
+                'nombre' => $request->nombre,
+                'id_user' => $user->id,
+                'identificacion' => $request->identificacion,
+                'tipo_documento' => $request->tipo_documento,
+                'fecha_expedicion' => $request->fecha_expedicion,
+                'lugar_expedicion' => $request->lugar_expedicion,
+                'nacimiento' => $request->nacimiento,
+                'genero' => $request->genero,
+                'etnia' => $request->etnia,
+                'condicion' => $request->condicion,
+                'comuna' => $request->input('comuna.value'),
+                'barrio' => $request->barrio,
+                'direccion' => $request->direccion,
+                'celular' => $request->celular,
+            ]);
+            $user->votantes()->save($informacionUsuario);
+
+
+            // Crear el registro de hash_votantes asociado a la información del votante
+            $hash_votante = new Hash_votantes([
+                'id_votante' => $informacionUsuario->id,
+                'tipo' => 'votante',
+                'subtipo' => $request->input('comuna.value'),
+                'id_evento' => 15,
+                'candidato' => 0,
+                'validaciones' => $validacion,
+                'estado' => 'Pendiente',
+            ]);
+            $informacionUsuario->hashVotantes()->save($hash_votante);
+
+            // Asignar roles al usuario
+            $user->syncRoles('Usuarios');
+
+            // Confirmar la transacción
+            DB::commit();
+            Cache::forget('votantes');
+            // Eliminar el código de verificación
+            $verification->delete();
+
+
+            return back();
+        } catch (\Exception $e) {
+            // Si ocurre algún error, revertir todos los cambios
+            DB::rollBack();
+            // Eliminar el código de verificación
+            $verification->delete();
+
+            // Puedes optar por lanzar el error o retornar un mensaje de error
+            return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
+        }
+
+
+        // Actualizar el registro biométrico si se proporciona un nuevo embedding
+        if ($request->has('embedding')) {
+            $votante->user->biometrico->update([
+                'embedding' => json_encode($request->embedding),
+            ]);
+        }
+
+        return redirect()->back();
     }
 }

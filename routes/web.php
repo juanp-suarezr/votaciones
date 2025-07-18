@@ -18,6 +18,7 @@ use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TiposController;
 use App\Http\Controllers\ValidacionesController;
+use App\Http\Controllers\ValidationController;
 use App\Http\Controllers\VotosController;
 use App\Models\Eventos;
 use App\Models\Hash_proyectos;
@@ -128,6 +129,7 @@ Route::get('/dashboard', function () {
         'candidatos' => Hash_votantes::where('candidato', 0)->whereIn('tipo', $tipos)->with('votante')->get(),
         'eventos_admin' => $eventos_admin,
         'votantes' => $votantes,
+        'info_votante' => $info_votante->where('subtipo', '!=', 0)->values(),
 
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -220,6 +222,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::resource('gestion_registros', ValidacionesController::class);
     Route::resource('delegado', DelegadosController::class);
+    Route::resource('corregir-registro', ValidationController::class);
 });
 
 

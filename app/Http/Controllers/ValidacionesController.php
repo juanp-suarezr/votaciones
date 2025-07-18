@@ -221,11 +221,30 @@ class ValidacionesController extends Controller
                 ->with('votante.user')->findOrFail($request->id);
 
 
+            $user = User::findOrFail($votante->votante->id_user);
+
+            $biometrico = UsuariosBiometricos::where('user_id', $user->id)->first();
+
 
             $votante->estado = 'Rechazado';
             $votante->motivo = $request->motivo;
-            $votante->save();
 
+
+            if ($request->motivo == 'Registro duplicado' || $votante->intentos == 3) {
+                $user->estado = 'Bloqueado';
+                $votante->estado = 'Bloqueado';
+
+                if($request->motivo == 'Registro duplicado') {
+                    $biometrico->estado = 'Rechazado';
+                    $biometrico->save();
+                }
+
+            } else {
+                $votante->intentos += 1;
+            }
+
+            $votante->save();
+            $user->save();
 
             Mail::to($votante->votante->user->email)->send(new InscriptionDisapprovedMail($votante));
 

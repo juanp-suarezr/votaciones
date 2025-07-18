@@ -4,6 +4,27 @@
   <AuthenticatedLayout>
     <template #header> Dashboard </template>
 
+    <!-- si tiene correcciones -->
+    <div
+      class="items-center px-4 m-auto"
+      v-if="info_votante[0]?.subtipo != 0 && info_votante[0]?.estado == 'Rechazado'"
+    >
+      <div class="border-2 border-gray-400 p-2 border-dashed sm:flex">
+        <p class="m-auto">
+          Para ser habilitado para votar debe corregir sus datos personales.
+        </p>
+        <PrimaryLink
+          class="md:text-base mt-4"
+          :class="{ 'opacity-25': isLoading }"
+          :disabled="isLoading"
+          type="button"
+          :href="route('corregir-registro.edit', info_votante[0].id_votante)"
+        >
+          Corregir datos
+        </PrimaryLink>
+      </div>
+    </div>
+
     <!-- votantes -->
     <div v-if="$page.props.user.roles.includes('Usuarios')" class="">
       <h2 class="text-gray-600 text-2xl inline-flex">Votaciones pendientes</h2>
@@ -95,7 +116,7 @@
             class="border-2 border-gray-400 px-1 py-2 border-dashed flex flex-wrap"
           >
             <Tag
-             v-if="ev.votantes[0].subtipo"
+              v-if="ev.votantes[0].subtipo"
               :value="
                 'Comuna/Corregimiento: ' +
                 getComuna(ev.votantes.length != 0 ? ev.votantes[0].subtipo : '')
@@ -342,6 +363,7 @@ import Chart from "primevue/chart";
 import Knob from "primevue/knob";
 import Tag from "primevue/tag";
 import comunas from "@/shared/comunas.json"; // Importa el JSON
+import { info } from "autoprefixer";
 
 const props = defineProps({
   eventos: Object,
@@ -350,6 +372,7 @@ const props = defineProps({
   proyectos: Object,
   eventos_admin: Object,
   votantes: Object,
+  info_votante: Object,
 });
 
 console.log(props);

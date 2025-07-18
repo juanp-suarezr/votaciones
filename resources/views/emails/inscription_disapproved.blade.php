@@ -79,7 +79,23 @@
                 <b>El motivo de la desaprobación es el siguiente:</b>
                 <p>{{ $motivo }}</p>
             @endif
-            
+
+            @if ($motivo == 'Registro duplicado')
+                <p>El registro es duplicado, por lo tanto este usuario será bloqueado por temas de seguridad</p>
+
+            @elseif($intentos == 3)
+                <p>Haz superado el numero máximo permitido para corregir el registro, su usuario sera bloqueado. Para votar puede asistir a la votación presencial en las fechas establecidas y puntos destinados</p>
+            @else
+                <p><b>numero de intento:</b> {{ $intentos }}
+                <br>
+                podrás ingresar
+                al <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">software</a>
+                 para corregir lo solicitado y cambiar su estado actual
+                </p>
+                <br>
+                <em>Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login</a></em>
+            @endif
+
         </div>
         <div class="footer">
             &copy; {{ date('Y') }} Alcaldía de Pereira. Todos los derechos reservados.

@@ -36,7 +36,8 @@ class InscriptionDisapprovedMail extends Mailable
             ->view('emails.inscription_disapproved')
             ->with([
                 'nombre' => $this->votante->votante->nombre,
-                'motivo' => $this->votante->motivo
+                'motivo' => $this->votante->motivo,
+                'intentos' => $this->votante->intentos,
             ]);
     }
 }
