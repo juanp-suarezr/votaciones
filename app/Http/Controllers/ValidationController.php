@@ -322,6 +322,23 @@ class ValidationController extends Controller
 
     public function update(Request $request, $id_votante)
     {
+
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'identificacion' => 'required|string|max:20|unique:votantes,identificacion,' . $id_votante . ',id',
+            'tipo_documento' => 'required|string',
+            'fecha_expedicion' => 'required|date',
+            'lugar_expedicion' => 'required|string',
+            'nacimiento' => 'required|date',
+            'genero' => 'required|string',
+            'etnia' => 'required|string',
+            'condicion' => 'required|string',
+            'comuna' => 'required',
+            'barrio' => 'string',
+            'direccion' => 'string',
+            
+        ]);
+
         $votante = Informacion_votantes::findOrFail($id_votante);
         $user = User::where('id_user', $votante->id_user)->first();
         $biometrico = UsuariosBiometricos::where('user_id', $user->id)->first();
@@ -401,25 +418,12 @@ class ValidationController extends Controller
 
                 //ACTUALIZAR REGISTRO BIOMETRICO
 
-
-                $biometrico->user_id = $user->id;
-
                 $biometrico->photo = $fileNamePhoto;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
                 $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
+                $biometrico->estado = 'Validado';
 
-
-                $registroBiometrico = new UsuariosBiometricos([
-                    'user_id' => $user->id,
-                    'embedding' => json_encode($request->embedding), // convertir a string JSON
-                    'photo' => $fileNamePhoto,
-                    'cedula_front' => $fileNameFront,
-                    'cedula_back' => $fileNameBack,
-                    'firma' => $firma,
-                    'estado' => 'Validado',
-
-                ]);
 
                 if ($validacion != 'posible robot o spam') {
 
@@ -427,82 +431,60 @@ class ValidationController extends Controller
                 }
             } else {
 
-                //CREAR REGISTRO BIOMETRICO no validado
-                $registroBiometrico = new UsuariosBiometricos([
-                    'user_id' => $user->id,
-                    'embedding' => json_encode($request->embedding), // convertir a string JSON
-                    'photo' => $fileNamePhoto,
-                    'cedula_front' => $fileNameFront,
-                    'cedula_back' => $fileNameBack,
-                    'firma' => $firma,
-                    'estado' => 'Pendiente',
 
-                ]);
+                //ACTUALIZAR REGISTRO BIOMETRICO no validado
+
+                $biometrico->photo = $fileNamePhoto;
+                $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
+                $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
+                $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
+                $biometrico->estado = 'Pendiente';
+
+
             }
 
 
-            $user->biometrico()->save($registroBiometrico);
+            $biometrico->save();
 
-            // Crear la información del votante asociada al usuario
-            $informacionUsuario = new Informacion_votantes([
-                'nombre' => $request->nombre,
-                'id_user' => $user->id,
-                'identificacion' => $request->identificacion,
-                'tipo_documento' => $request->tipo_documento,
-                'fecha_expedicion' => $request->fecha_expedicion,
-                'lugar_expedicion' => $request->lugar_expedicion,
-                'nacimiento' => $request->nacimiento,
-                'genero' => $request->genero,
-                'etnia' => $request->etnia,
-                'condicion' => $request->condicion,
-                'comuna' => $request->input('comuna.value'),
-                'barrio' => $request->barrio,
-                'direccion' => $request->direccion,
-                'celular' => $request->celular,
-            ]);
-            $user->votantes()->save($informacionUsuario);
+            // Actualizar la información del votante asociada al usuario
+            $votante->nombre = $request->nombre;
+            $votante->identificacion = $request->identificacion;
+            $votante->tipo_documento = $request->tipo_documento;
+            $votante->fecha_expedicion = $request->fecha_expedicion;
+            $votante->lugar_expedicion = $request->lugar_expedicion;
+            $votante->nacimiento = $request->nacimiento;
+            $votante->genero = $request->genero;
+            $votante->etnia = $request->etnia;
+            $votante->condicion = $request->condicion;
+            $votante->comuna = $request->input('comuna.value');
+            $votante->barrio = $request->barrio;
+            $votante->direccion = $request->direccion;
+            $votante->celular = $request->celular;
+            $votante->save();
+
+            // Actualizar el registro de hash_votantes asociado a la información del votante
+            $hash_votante->subtipo = $request->input('comuna.value');
+            $hash_votante->validaciones = $validacion;
+            $hash_votante->estado = 'Pendiente';
+            $hash_votante->save();
 
 
-            // Crear el registro de hash_votantes asociado a la información del votante
-            $hash_votante = new Hash_votantes([
-                'id_votante' => $informacionUsuario->id,
-                'tipo' => 'votante',
-                'subtipo' => $request->input('comuna.value'),
-                'id_evento' => 15,
-                'candidato' => 0,
-                'validaciones' => $validacion,
-                'estado' => 'Pendiente',
-            ]);
-            $informacionUsuario->hashVotantes()->save($hash_votante);
 
-            // Asignar roles al usuario
-            $user->syncRoles('Usuarios');
 
             // Confirmar la transacción
             DB::commit();
             Cache::forget('votantes');
-            // Eliminar el código de verificación
-            $verification->delete();
 
 
             return back();
         } catch (\Exception $e) {
             // Si ocurre algún error, revertir todos los cambios
             DB::rollBack();
-            // Eliminar el código de verificación
-            $verification->delete();
 
             // Puedes optar por lanzar el error o retornar un mensaje de error
-            return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
         }
 
-
-        // Actualizar el registro biométrico si se proporciona un nuevo embedding
-        if ($request->has('embedding')) {
-            $votante->user->biometrico->update([
-                'embedding' => json_encode($request->embedding),
-            ]);
-        }
 
         return redirect()->back();
     }
