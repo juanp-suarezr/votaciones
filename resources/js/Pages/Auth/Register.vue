@@ -1377,10 +1377,18 @@ const validateEdad = () => {
     return false;
   }
   const hoy = new Date();
-  const nacimiento = new Date(form.nacimiento);
-  let edad = hoy.getFullYear() - nacimiento.getFullYear();
-  const m = hoy.getMonth() - nacimiento.getMonth();
-  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+  console.log("hoy", hoy);
+
+  const nacimiento = form.nacimiento;
+  const [anioNac, mesNac, diaNac] = nacimiento.split('-').map(Number);
+
+
+  let edad = hoy.getFullYear() - anioNac;
+
+  const m = hoy.getMonth() - mesNac;
+  
+    console.log(hoy.getDate());
+  if (m < 0 || (m === 0 && hoy.getDate() < diaNac)) {
     edad--;
   }
   if (edad < 14) {

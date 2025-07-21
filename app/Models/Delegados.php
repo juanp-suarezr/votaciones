@@ -25,6 +25,7 @@ class Delegados extends Model
         'contacto',
         'tipo',
         'comuna',
+        'punto_votacion',
         'firma',
         'estado',
         'created_at',

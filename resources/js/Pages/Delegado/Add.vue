@@ -33,34 +33,7 @@
             />
             <InputError class="mt-2" :message="form.errors.nombre" />
           </div>
-          <!-- identificacion -->
-          <div class="mb-2">
-            <InputLabel for="identificacion" value="Identificación" />
-            <TextInput
-              id="identificacion"
-              type="text"
-              class="mt-1 block w-full"
-              v-model="form.identificacion"
-              required
-              autofocus
-              autocomplete="off"
-            />
-            <InputError class="mt-2" :message="form.errors.identificacion" />
-          </div>
-          <!-- contacto -->
-          <div class="mb-2">
-            <InputLabel for="contacto" value="Contacto" />
-            <TextInput
-              id="contacto"
-              type="text"
-              class="mt-1 block w-full"
-              v-model="form.contacto"
-              required
-              autofocus
-              autocomplete="off"
-            />
-            <InputError class="mt-2" :message="form.errors.contacto" />
-          </div>
+
           <!-- cargo -->
           <div class="mb-2">
             <InputLabel for="cargo" value="Cargo" />
@@ -88,41 +61,7 @@
             </select>
             <InputError class="mt-2" :message="form.errors.tipo" />
           </div>
-          <!-- comuna -->
-          <div class="mb-2">
-            <InputLabel for="comuna" value="Comuna correspondiente" />
-            <Select
-              id="comuna"
-              v-model="form.comuna"
-              :options="comunas"
-              filter
-              optionLabel="label"
-              placeholder="Seleccione comuna"
-              checkmark
-              :highlightOnSelect="false"
-              class="w-full"
-            />
-            <InputError class="mt-2" :message="form.errors.comuna" />
-          </div>
-          <!-- evento -->
-          <div class="mb-2">
-            <InputLabel for="id_evento" value="Asignar Evento" />
-            <select
-              id="id_evento"
-              v-model="form.id_evento"
-              class="block mt-1 w-full rounded-md form-select focus:border-sky-600"
-            >
-              <option value="" disabled selected>Seleccione un evento</option>
-              <option
-                v-for="evento in eventos"
-                :key="evento.id"
-                :value="evento.id"
-              >
-                {{ evento.nombre }}
-              </option>
-            </select>
-            <InputError class="mt-2" :message="form.errors.id_evento" />
-          </div>
+
           <!-- firma -->
           <div>
             <InputLabel for="firma" value="Firma" />
@@ -237,24 +176,13 @@ const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
 const canvas = ref(null);
 let drawing = false;
 
-const props = defineProps({
-  eventos: {
-    type: Object,
-    default: () => ({}),
-  },
-});
-
-console.log(props);
-
 
 const form = useForm({
   nombre: "",
-  identificacion: "",
-  contacto: "",
+
   cargo: "",
-  tipo: "",
-  comuna: "",
-  id_evento: "",
+  tipo: "secretario",
+  
   firma: null,
 });
 

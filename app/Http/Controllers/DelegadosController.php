@@ -28,7 +28,13 @@ class DelegadosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    function __construct() {}
+    function __construct()
+    {
+        $this->middleware('permission:delegados-listar|delegados-crear|delegados-editar|delegados-eliminar', ['only' => ['index', 'show']]);
+        $this->middleware('permission:delegados-crear', ['only' => ['create', 'store']]);
+        $this->middleware('permission:delegados-editar', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:delegados-eliminar', ['only' => ['destroy']]);
+    }
 
 
 
@@ -48,13 +54,9 @@ class DelegadosController extends Controller
     public function create()
     {
 
-        $eventos = Eventos::select('id', 'nombre')
-            ->where('estado', 'Activo')
-            ->get();
 
-        return Inertia::render('Delegado/Add', [
-            'eventos' => $eventos,
-        ]);
+
+        return Inertia::render('Delegado/Add', []);
     }
 
     public function store(Request $request)
@@ -89,24 +91,10 @@ class DelegadosController extends Controller
             }
         }
 
-        $user = null;
 
-        if ($request->tipo == 'jurado') {
-            $user = User::create([
-                'name' => $request->nombre,
-                'email' => $request->identificacion . '@jurado.com',
-                'password' => Hash::make($request->identificacion),
-                'estado' => 1,
-            ]);
-            $user->assignRole('Jurado');
-        }
 
         $delegado = Delegados::create([
-            'id_user' => $user->id,
-            'id_evento' => $request->id_evento || null,
             'nombre' => $request->nombre,
-            'identificacion' => $request->identificacion,
-            'contacto' => $request->contacto,
             'cargo' => $request->cargo,
             'estado' => 1,
             'tipo' => $request->tipo,
