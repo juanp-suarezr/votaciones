@@ -1377,16 +1377,21 @@ const validateEdad = () => {
     return false;
   }
   const hoy = new Date();
-  console.log("hoy", hoy);
+
 
   const nacimiento = form.nacimiento;
   const [anioNac, mesNac, diaNac] = nacimiento.split('-').map(Number);
 
 
+
+
   let edad = hoy.getFullYear() - anioNac;
 
-  const m = hoy.getMonth() - mesNac;
-  
+  const m = hoy.getMonth() - (mesNac-1);
+  console.log(hoy.getMonth());
+
+    console.log(m);
+
     console.log(hoy.getDate());
   if (m < 0 || (m === 0 && hoy.getDate() < diaNac)) {
     edad--;
