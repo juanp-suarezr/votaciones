@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Delegado;
+use App\Models\Delegados;
 use App\Models\Eventos;
 use App\Models\ParametrosDetalle;
 use App\Models\Votos;
@@ -70,7 +71,7 @@ class CertificadosController extends Controller
             ])
             ->findOrFail($id);
 
-        // $delegado = Delegado::where('estado', 1)->first();
+
         // Generar nombre único para el PDF
 
         $nombreLimpio = preg_replace('/[^A-Za-z0-9\-]/', '_', $evento->nombre);
@@ -86,11 +87,29 @@ class CertificadosController extends Controller
             ->where('id_eventos', $evento->id)
             ->where('id_votante', $votante->id)
             ->firstOrFail();
+
+        if ($voto && $voto->isVirtual) {
+            $delegado = Delegados::select('nombre', 'firma', 'cargo')
+                ->where('estado', 1)
+                ->where('tipo', 'secretario')
+
+                ->first();
+        } else {
+            $delegado = Delegados::select('nombre', 'firma', 'cargo', 'comuna')
+                ->where('estado', 1)
+                ->where('comuna', $votante->comuna)
+                ->where('tipo', 'jurado')
+
+                ->first();
+        }
+
+
         $pdf = Pdf::loadView('pdf.certificado', [
             'evento' => $evento,
             'votante' => $votante,
             'comuna' => $comuna->detalle,
             'voto' => $voto,
+            'delegado' => $delegado,
             'created_at' => $voto->created_at->format('d/m/Y H:i'),
             'annio_actual' => Carbon::parse($evento->fecha_inicio)->year,
             'qr' => $qr

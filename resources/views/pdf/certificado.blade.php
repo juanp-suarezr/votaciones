@@ -155,12 +155,12 @@
 
                         <!-- Firma a la derecha -->
                         <td style="text-align: right;">
-                            <img src="{{ public_path('storage/uploads/delegado/' . '1749440263_delegado_Juan P Suarez_Contratista.webp') }}"
+                            <img src="{{ public_path('storage/uploads/delegado/' . $delegado->firma) }}"
                                 alt="Foto de firma">
                             <p style="margin-top:-10px;">
                                 __________________<br>
-                                <span style="font-weight: bold;">Julian Buitrago</span><br>
-                                Secretaría de Planeación<br>
+                                <span style="font-weight: bold;">{{ $delegado->nombre }}</span><br>
+                                {{ $delegado->cargo }}<br>
                                 Alcaldía de Pereira
                             </p>
                         </td>
