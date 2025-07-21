@@ -288,7 +288,7 @@
 
           <!-- Barrio -->
           <div class="mb-2">
-            <InputLabel for="barrio" value="Barrio" />
+            <InputLabel for="barrio" value="Barrio/Vereda" />
             <TextInput
               id="barrio"
               type="text"
@@ -321,6 +321,16 @@
             />
             <InputError class="mt-2" :message="form.errors.email" />
           </div>
+          <!-- aviso contraseña -->
+          <div class="mb-2">
+            <div class="bg-azul rounded-md p-2 w-full h-full">
+              <p class="text-white text-base">
+                Asegúrese de que la contraseña sea facil de recordar para usted,
+                ya que la necesitará para acceder a su cuenta en el momento de
+                la votación.
+              </p>
+            </div>
+          </div>
           <!-- Contraseña -->
           <div class="mb-2">
             <InputLabel
@@ -336,6 +346,7 @@
 
             <InputError class="mt-2" :message="form.errors.password" />
           </div>
+
           <!-- ncheck tratamiento datos -->
           <div class="my-4 col-span-2 mb-2">
             <input
@@ -370,11 +381,14 @@
             <label
               for="consentimiento2"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Declaro bajo la gravedad de juramento que toda la información
-              suministrada en este formulario es verídica, completa y
-              corresponde a la realidad. Entiendo que proporcionar información
-              falsa puede acarrear sanciones legales conforme a la normativa
-              vigente.</label
+              >Manifiesto que acepto la
+              <a
+                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
+                target="_blank"
+                class="underline !text-azul cursor-pointer"
+                >Declaración</a
+              >
+              juramentada</label
             >
             <InputError class="mt-1" :message="form.errors.declaracion" />
           </div>
@@ -746,8 +760,7 @@
       <div class="mt-4 px-4">
         <p class="text-sm sm:text-base text-gray-800">
           Por favor, asegúrese de que su rostro esté bien iluminado y visible en
-          la cámara (sin gorras, tapabocas, gafas). Si no se detecta un rostro,
-          puede intentar nuevamente o continuar sin registro biométrico.
+          la cámara (sin gorras, tapabocas, gafas).
         </p>
       </div>
       <div class="my-12 px-4">
@@ -792,16 +805,29 @@
   <Modal :show="InicioModal" :closeable="true">
     <template #default>
       <h2
-        class="py-4 sm:text-4xl text-2x font-bold text-gray-800 flex tex-center justify-center bg-azul text-white"
+        class="p-4 sm:text-4xl text-2x font-bold text-gray-800 text-justify flex tex-center justify-center bg-azul text-white"
       >
-        Aviso importante
+        Aviso Importante para el proceso de registro
       </h2>
 
       <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
         <p>
-          Por favor llenar todos los datos correctamente, para no ser rechazado,
-          ¡recuerda! solo tiene tres oportunidades para registrarse
+          El dispositivo que utilice para registrarse debe contar con cámara, ya
+          que es un requisito indispensable para la validación de identidad.
         </p>
+        <br />
+        <p>
+          Asegúrese de ingresar correctamente toda la información solicitada, ya
+          que cualquier error podría resultar en el rechazo. ¡Recuerde! solo
+          tiene tres oportunidades para registrarse.
+        </p>
+        <br />
+        <p>
+          Al momento de seleccionar su comuna o corregimiento, hágalo con
+          precisión. Recuerde que el derecho al voto solo podrá ejercerse una
+          única vez y no habrá posibilidad de repetir el proceso.
+        </p>
+
       </div>
 
       <div class="flex justify-center gap-4 text-center h-full my-6">
@@ -1358,7 +1384,7 @@ const validateEdad = () => {
     edad--;
   }
   if (edad < 14) {
-    errorEdad.value = "No es posible el registro de menores de 14 años.";
+    errorEdad.value = "No cumple con el requisito de edad mínima (14 años), por lo tanto, no puede ejercer el derecho al voto.";
     return false;
   }
   errorEdad.value = "";
@@ -1622,7 +1648,7 @@ const submit = () => {
     onSuccess: () => {
       swal({
         title: "Registro realizado",
-        text: "Registro de usuario realizado exitosamente. Se realizará la validación de su información, el estado sera notificado a su correo.",
+        text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará internamente la validación de su información, el estado del tramite sera notificado a su correo.",
         icon: "success",
       }).then((result) => {
         window.location.reload();

@@ -71,7 +71,7 @@
             <img src="https://www.pereira.gov.co/info/pereira_se/media/bloque36.png" alt="Alcaldía de Pereira">
         </div>
         <div class="content">
-            <p>Hola,</p>
+            <p>Este código se solicita para validar que la información del correo electrónico o celular este correcta como medio de contacto.</p>
             <p>Tu código de verificación es:</p>
             <h2>{{ $code }}</h2>
             <p>Este código expirará en 10 minutos.</p>

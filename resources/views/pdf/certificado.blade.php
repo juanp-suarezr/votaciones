@@ -116,7 +116,7 @@
     <div class="card">
         <!-- Header -->
         <div class="header">
-            <h1>Certificado electoral {{$evento->nombre}} {{$annio_actual}}</h1>
+            <h1>Certificado de Participación {{$evento->nombre}} {{$annio_actual}}</h1>
         </div>
 
         <!-- Content -->
@@ -159,7 +159,7 @@
                                 alt="Foto de firma">
                             <p style="margin-top:-10px;">
                                 __________________<br>
-                                <span style="font-weight: bold;">Nombre delegado</span><br>
+                                <span style="font-weight: bold;">Julian Buitrago</span><br>
                                 Secretaría de Planeación<br>
                                 Alcaldía de Pereira
                             </p>

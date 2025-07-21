@@ -260,7 +260,7 @@
 
           <!-- Barrio -->
           <div class="mb-2">
-            <InputLabel for="barrio" value="Barrio" />
+            <InputLabel for="barrio" value="Barrio/Vereda" />
             <TextInput
               id="barrio"
               type="text"
@@ -367,6 +367,7 @@
             <!-- ejemplo de doc frontal -->
             <div class="w-full h-full mt-4">
               <div class="w-full">
+                <h4>Ejemplo parte frontal</h4>
                 <img
                   :src="frontEjemplo"
                   alt="Documento Frontal ejemplo"
@@ -427,6 +428,7 @@
             <!-- ejemplo de doc trasero -->
             <div class="w-full h-full mt-4">
               <div class="w-full">
+                <h4>Ejemplo parte trasera</h4>
                 <img
                   :src="backEjemplo"
                   alt="Documento parte trasera ejemplo"
@@ -537,14 +539,14 @@
                   @click="clearCanvas"
                   class="text-xl sm:text-2xl text-blue-600 underline"
                 >
-                  Limpiar
+                  Limpiar canvas
                 </button>
                 <button
                   type="button"
                   @click="saveCanvas"
                   class="text-xl sm:text-2xl text-green-600 underline"
                 >
-                  Usar firma
+                  Guardar firma
                 </button>
               </div>
               <InputError class="mt-2" :message="form.errors.firma" />
@@ -1290,7 +1292,8 @@ const validateEdad = () => {
     edad--;
   }
   if (edad < 14) {
-    errorEdad.value = "No es posible el registro de menores de 14 años.";
+    errorEdad.value =
+      "No cumple con el requisito de edad mínima (14 años), por lo tanto, no puede ejercer el derecho al voto.";
     return false;
   }
   errorEdad.value = "";
@@ -1317,7 +1320,8 @@ const validateStep1 = async () => {
       const existe = await checkIdentificacionService(form.identificacion);
       console.log("Identificación existe:", existe);
       if (existe) {
-        errorMessage.value = "La identificación ya está registrada.";
+        errorMessage.value =
+          "El número de cédula ingresado ya se encuentra registrado en el sistema. /n Por favor, continúe con el proceso de votación ingresando a la plataforma con su número de documento y la contraseña que registró previamente.";
         isValidate.value = false;
       } else {
         errorMessage.value = "";

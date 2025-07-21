@@ -111,9 +111,34 @@
             </template>
           </Column>
 
+          <Column header="# Intentos">
+            <template #body="slotProps">
+              {{ slotProps.data.intentos }}
+            </template>
+          </Column>
+
           <Column header="Acciones">
             <template #body="slotProps">
-              <div class="flex gap-2"></div>
+              <div class="flex gap-2">
+                <SecondaryLink
+                  :href="route('gestion_registros.show', slotProps.data.id, { query: { from: 'historial' } })"
+                  class="flex items-center"
+                >
+                  <EyeIcon class="h-5 w-5" />
+                </SecondaryLink>
+                <SecondaryLink
+                  :href="route('gestion_registros.edit', slotProps.data.id)"
+                  class="flex items-center"
+                >
+                  <PencilIcon class="h-5 w-5" />
+                </SecondaryLink>
+                <SecondaryButton
+                  @click="$emit('delete', slotProps.data.id)"
+                  class="flex items-center"
+                >
+                  <TrashIcon class="h-5 w-5" />
+                </SecondaryButton>
+              </div>
             </template>
           </Column>
         </DataTable>

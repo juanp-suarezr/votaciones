@@ -86,6 +86,12 @@
             </template>
           </Column>
 
+          <Column header="# de Intentos">
+            <template #body="slotProps">
+              {{ slotProps.data.intentos }}
+            </template>
+          </Column>
+
           <Column header="Tiempo de espera">
             <template #body="slotProps">
               <Tag

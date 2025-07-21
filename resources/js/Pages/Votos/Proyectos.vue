@@ -220,12 +220,14 @@
         <h2
           class="py-4 sm:text-4xl text-2x font-bold text-gray-800 flex tex-center justify-center bg-azul text-white"
         >
-          Aviso importante
+          Aviso Importante para el proceso de votación
         </h2>
 
         <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
           <p>
-            Por favor selecciona correctamente el proyecto de tu preferencia, ¡recuerda! solo tienes una oportunidad para registrarte
+            Es responsabilidad del votante verificar que cumple con todos los
+            requisitos y condiciones antes de emitir su voto, ya que no se
+            permitirá una segunda oportunidad para realizar esta acción.
           </p>
         </div>
 
@@ -333,9 +335,7 @@ const proyecto = (proyecto) => {
   selectedProject.value = proyecto;
   console.log(proyecto);
 
-  form.id_candidato = proyecto
-    ? proyecto.id_proyecto
-    : 0;
+  form.id_candidato = proyecto ? proyecto.id_proyecto : 0;
   form.id_eventos = proyecto
     ? proyecto.id_evento
     : props.proyectos[0].id_evento;

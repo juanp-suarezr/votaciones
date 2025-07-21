@@ -48,6 +48,10 @@
             <b>Dirección:</b>
             {{ votante.votante?.direccion || "N/A" }}
           </div>
+          <div v-if="votante.intentos > 0">
+            <b>motivo rechazo:</b>
+            {{ votante.votante?.motivo || "N/A" }}
+          </div>
         </div>
       </div>
 

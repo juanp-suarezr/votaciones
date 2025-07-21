@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Delegado extends Model
+class Delegados extends Model
 {
     use HasFactory;
 
-    protected $table = 'delegado';
+    protected $table = 'delegados';
 
     /**
      * The attributes that are mass assignable.
@@ -19,6 +19,7 @@ class Delegado extends Model
     protected $fillable = [
         'nombre',
         'cargo',
+        'tipo',
         'firma',
         'estado',
         'created_at',
