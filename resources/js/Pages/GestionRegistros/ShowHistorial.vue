@@ -1,5 +1,5 @@
 <template>
-  <Head title="Validación del votante" />
+  <Head title="Revisión del votante" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header>
@@ -51,6 +51,10 @@
           <div v-if="votante.intentos > 0">
             <b>motivo rechazo:</b>
             {{ votante.motivo || "N/A" }}
+          </div>
+          <div>
+            <b>Estado:</b>
+            {{ votante.estado || "N/A" }}
           </div>
         </div>
       </div>
@@ -183,6 +187,7 @@
         class="flex flex-col md:flex-row gap-4 mt-8 justify-center items-center h-full"
       >
         <PrimaryButton
+          v-if="votante.estado === 'Rechazado'"
           @click="aprobarRegistro"
           class="flex h-full items-center"
           :disabled="form.processing"
@@ -190,11 +195,20 @@
           Aprobar
         </PrimaryButton>
         <SecondaryButton
-          @click="rechazarRegistro"
+          v-if="votante.estado === 'Activo'"
+          @click="confirmacionRechazo = true"
           class="!bg-red-500 text-white"
           :disabled="form.processing"
         >
           Rechazar
+        </SecondaryButton>
+        <SecondaryButton
+          v-if="votante.estado === 'Bloqueado'"
+          @click="confirmacionDesbloqueo = true"
+          class="!bg-yellow-500 text-white"
+          :disabled="form.processing"
+        >
+          Desbloquear
         </SecondaryButton>
       </div>
 
@@ -237,10 +251,19 @@
               class="w-36 h-full object-cover rounded"
             />
             <div>
-              <p class="text-gray-800 font-medium">ID: {{ item.user.votantes.hash_votantes[0].id }}</p>
-              <p class="text-gray-800 font-medium">Nombre: {{ item.user.votantes.nombre }}</p>
-              <p class="text-gray-800 font-medium">Identificación: {{ item.user.votantes.identificacion }}</p>
-              <p class="text-gray-800 font-medium">Creación: {{ formatDate(item.user.votantes.hash_votantes[0].created_at) }}</p>
+              <p class="text-gray-800 font-medium">
+                ID: {{ item.user.votantes.hash_votantes[0].id }}
+              </p>
+              <p class="text-gray-800 font-medium">
+                Nombre: {{ item.user.votantes.nombre }}
+              </p>
+              <p class="text-gray-800 font-medium">
+                Identificación: {{ item.user.votantes.identificacion }}
+              </p>
+              <p class="text-gray-800 font-medium">
+                Creación:
+                {{ formatDate(item.user.votantes.hash_votantes[0].created_at) }}
+              </p>
               <p class="text-gray-800 font-medium">Estado: {{ item.estado }}</p>
             </div>
           </div>
@@ -262,6 +285,65 @@
             >
               Siguiente
             </button>
+          </div>
+        </div>
+      </template>
+    </Modal>
+    <!-- Confirmación de rechazo -->
+    <Modal :show="confirmacionRechazo" :closeable="true">
+      <template #default>
+        <div class="flex justify-center items-center h-full w-full">
+          <div class="text-center tex-base w-full">
+            <div class="bg-azul text-white p-2 shadow-lg w-full mb-4">
+              <h2 class="text-2xl font-semibold">Confirmar Rechazo</h2>
+            </div>
+            <p class="mb-4">
+              ¿Estás seguro de que deseas rechazar este registro?
+            </p>
+            <div class="flex justify-center gap-4 my-4 h-full">
+              <PrimaryButton
+                @click="rechazarRegistro"
+                class="!bg-red-500 text-white"
+              >
+                Confirmar
+              </PrimaryButton>
+              <SecondaryButton
+                @click="confirmacionRechazo = false"
+                class="!bg-gray-300 text-black"
+              >
+                Cancelar
+              </SecondaryButton>
+            </div>
+          </div>
+        </div>
+      </template>
+    </Modal>
+    <!-- Confirmación de desbloqueo -->
+    <Modal :show="confirmacionDesbloqueo" :closeable="true">
+      <template #default>
+        <div class="flex justify-center items-center h-full w-full">
+          <div class="text-center tex-base w-full">
+            <div class="bg-azul text-white p-2 shadow-lg w-full mb-4">
+              <h2 class="text-2xl font-semibold">Confirmar desbloqueo</h2>
+            </div>
+            <p class="mb-4">
+              ¿Estás seguro de que deseas desbloquear al usuario?
+              una vez desbloqueado, podrá volver a corregir los datos.
+            </p>
+            <div class="flex justify-center gap-4 my-4 h-full">
+              <PrimaryButton
+                @click="desbloquearRegistro"
+                class="!bg-red-500 text-white"
+              >
+                Confirmar
+              </PrimaryButton>
+              <SecondaryButton
+                @click="confirmacionDesbloqueo = false"
+                class="!bg-gray-300 text-black"
+              >
+                Cancelar
+              </SecondaryButton>
+            </div>
           </div>
         </div>
       </template>
@@ -304,6 +386,8 @@ const previewImage = ref("");
 const showLightbox = ref(false);
 //modal duppicados
 const verDuplicados = ref(false);
+const confirmacionRechazo = ref(false);
+const confirmacionDesbloqueo = ref(false);
 const currentPage = ref(1);
 const perPage = 5;
 
@@ -383,6 +467,27 @@ const rechazarRegistro = () => {
       swal({
         title: "Error al rechazar registro",
         text: "Error al intentar rechazar este registro, por favor vuelve a intentar",
+        icon: "error",
+      });
+    },
+  });
+};
+
+const desbloquearRegistro = () => {
+  form.post(route("desbloquearRegistro"), {
+    onSuccess: function () {
+      swal({
+        title: "Registro Desbloqueado",
+        text: "El registro ha sido desbloqueado exitosamente",
+        icon: "success",
+      }).then(() => {
+        window.location.href = route("gestion_registros.index");
+      });
+    },
+    onError: function () {
+      swal({
+        title: "Error al desbloquear registro",
+        text: "Error al intentar desbloquear este registro, por favor vuelve a intentar",
         icon: "error",
       });
     },

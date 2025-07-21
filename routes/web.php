@@ -196,10 +196,13 @@ Route::middleware('auth')->group(function () {
 
     //historial registros
     Route::get('/historial_registros', [ValidacionesController::class, 'historial'])->name('historial_registros');
+    //show registros segun historial
+    Route::get('/historial_registros/{id}', [ValidacionesController::class, 'showHistorial'])->name('historial_registros.show');
     //GESTION REGISTROS
     Route::post('/aprobar-registro', [ValidacionesController::class, 'aprobarRegistro'])->name('aprobarRegistro');
     Route::post('/rechazar-registro', [ValidacionesController::class, 'rechazarRegistro'])->name('rechazarRegistro');
-
+    Route::post('/desbloquear-registro', [ValidacionesController::class, 'desbloquearRegistro'])->name('desbloquearRegistro');
+    
     //GESTION CERTIFICADOS
     //descargar
     Route::get('/certificados/descargar/{id}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');

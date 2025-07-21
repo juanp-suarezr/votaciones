@@ -121,23 +121,13 @@
             <template #body="slotProps">
               <div class="flex gap-2">
                 <SecondaryLink
-                  :href="route('gestion_registros.show', slotProps.data.id, { query: { from: 'historial' } })"
+                  :href="route('historial_registros.show', slotProps.data.id)"
                   class="flex items-center"
                 >
                   <EyeIcon class="h-5 w-5" />
+
                 </SecondaryLink>
-                <SecondaryLink
-                  :href="route('gestion_registros.edit', slotProps.data.id)"
-                  class="flex items-center"
-                >
-                  <PencilIcon class="h-5 w-5" />
-                </SecondaryLink>
-                <SecondaryButton
-                  @click="$emit('delete', slotProps.data.id)"
-                  class="flex items-center"
-                >
-                  <TrashIcon class="h-5 w-5" />
-                </SecondaryButton>
+
               </div>
             </template>
           </Column>
@@ -161,7 +151,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Select from "primevue/select";
 import Tag from "primevue/tag";
-import { PencilIcon, TrashIcon, EyeIcon } from "@heroicons/vue/24/solid";
+import { EyeIcon, SwatchIcon } from "@heroicons/vue/24/solid";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import SecondaryLink from "@/Components/SecondaryLink.vue";

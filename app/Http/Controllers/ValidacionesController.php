@@ -87,16 +87,17 @@ class ValidacionesController extends Controller
         );
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-
 
         $votante = Hash_votantes::query()
             ->with('votante.user.biometrico')->findOrFail($id);
 
 
         //duplicados
-        $raw = $votante->votante->user->biometrico->embedding;
+        $raw = ($votante->votante->user->biometrico && $votante->votante->user->biometrico->embedding)
+            ? $votante->votante->user->biometrico->embedding
+            : null;
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('estado', 'Validado')
@@ -176,6 +177,7 @@ class ValidacionesController extends Controller
             Log::info('Embedding no disponible o es NA.');
         }
 
+
         return Inertia::render(
             'GestionRegistros/Show',
             [
@@ -234,11 +236,10 @@ class ValidacionesController extends Controller
                 $user->estado = 'Bloqueado';
                 $votante->estado = 'Bloqueado';
 
-                if($request->motivo == 'Registro duplicado') {
+                if ($request->motivo == 'Registro duplicado') {
                     $biometrico->estado = 'Rechazado';
                     $biometrico->save();
                 }
-
             } else {
                 $votante->intentos += 1;
             }
@@ -311,5 +312,140 @@ class ValidacionesController extends Controller
                 'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo', 'estado']),
             ]
         );
+    }
+
+    //historial de un votante
+    public function showHistorial($id)
+    {
+
+        $votante = Hash_votantes::query()
+            ->with('votante.user.biometrico')->findOrFail($id);
+
+
+        //duplicados
+        $raw = ($votante->votante->user->biometrico && $votante->votante->user->biometrico->embedding)
+            ? $votante->votante->user->biometrico->embedding
+            : null;
+
+        $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
+            ->where('estado', 'Validado')
+            ->where('user_id', '!=', $votante->votante->user->id)
+            ->with([
+                'user:id', // solo carga el id del usuario
+                'user.votantes:id,id_user,nombre,identificacion', // solo carga el id del votante y su user_id
+                'user.votantes.hashVotantes' => function ($q) {
+                    $q->select('id', 'id_votante', 'created_at') // incluye la FK 'id_votante'
+                        ->where('id_evento', 15);
+                }
+            ])
+            ->get();
+
+
+
+
+
+        $duplicados = [];
+        $distancias = [];
+
+        if ($raw && $raw !== 'NA') {
+
+            // Parsear embedding recibido
+            $data = json_decode($raw, true);
+
+            $input = collect($data);
+
+
+            if ($input->count() !== 128) {
+                Log::warning('El embedding tiene dimensiones incorrectas.', [
+                    'input_count' => $input->count(),
+                    'usuario_id' => $votante->votante->user->id,
+                ]);
+            }
+
+            foreach ($usuarios as $usuario) {
+                $stored = collect(json_decode($usuario->embedding, true));
+
+
+                // Validar que ambos embeddings tienen la misma longitud
+                if ($input->count() !== $stored->count()) {
+                    Log::warning("Dimensiones incompatibles entre embeddings. ID usuario: {$usuario->id}");
+                    continue;
+                }
+
+                // Calcular distancia Euclidiana
+                $distance = sqrt($input->zip($stored)->reduce(function ($acc, $pair) {
+                    $pair = $pair->toArray(); // 👈 convertir a array directamente
+
+                    if (count($pair) === 2 && is_numeric($pair[0]) && is_numeric($pair[1])) {
+                        $diff = $pair[0] - $pair[1];
+
+                        return $acc + pow($diff, 2);
+                    } else {
+                        Log::warning('Par inválido en zip:', ['pair' => $pair]);
+                    }
+
+                    return $acc;
+                }, 0));
+
+
+                $distancias[] = [
+                    'id' => $usuario->id,
+                    'distance' => $distance
+                ];
+
+
+                // Si es duplicado (distancia < 0.5)
+                if ($distance < 0.5) {
+                    Log::info('duplicado');
+                    Log::info('usuario', ['usuario' => $usuario]);
+                    $duplicados[] = $usuario; // O `$usuario->toArray()` si lo necesita como array
+                }
+            }
+        } else {
+            Log::info('Embedding no disponible o es NA.');
+        }
+
+
+        return Inertia::render(
+            'GestionRegistros/ShowHistorial',
+            [
+                'votante' => $votante,
+                'duplicados' => $duplicados,
+            ]
+        );
+    }
+
+    //desbloquear registro
+    //rechazar registro
+    public function desbloquearRegistro(Request $request)
+    {
+
+        DB::beginTransaction();
+        try {
+            $votante = Hash_votantes::query()
+                ->with('votante.user')->findOrFail($request->id);
+
+
+            $user = User::findOrFail($votante->votante->id_user);
+
+            $biometrico = UsuariosBiometricos::where('user_id', $user->id)->first();
+
+
+            $votante->estado = 'Rechazado';
+            $votante->motivo = 'desbloqueado -- '.$request->motivo;
+
+
+            $votante->intentos = 1;
+
+            $votante->save();
+            $user->save();
+
+
+            DB::commit();
+            return back()->with('message', 'registro rechazado exitosamente.');;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Ocurrió un error durante el proceso. Inténtelo nuevamente. ' . $e]);
+        }
     }
 }
