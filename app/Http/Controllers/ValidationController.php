@@ -194,9 +194,10 @@ class ValidationController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'estado' => 'Activo',
+
             ]);
 
-            if ($request->embedding && ($validacion == "" && $validacion == 'posible robot o spam')) {
+            if ($request->embedding && ($validacion == "" || $validacion == 'posible robot o spam')) {
 
                 //CREAR REGISTRO BIOMETRICO
                 $registroBiometrico = new UsuariosBiometricos([
@@ -336,7 +337,7 @@ class ValidationController extends Controller
             'comuna' => 'required',
             'barrio' => 'string',
             'direccion' => 'string',
-            
+
         ]);
 
         $votante = Informacion_votantes::findOrFail($id_votante);

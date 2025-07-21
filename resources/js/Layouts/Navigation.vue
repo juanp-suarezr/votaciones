@@ -45,6 +45,11 @@
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Candidatos</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('delegados-editar')" :href="route('delegados.index')"
+                :active="route().current().includes('delegados')">
+                <ClipboardDocumentIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Delegados/Jurados</span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('proyectos.index')"
                 :active="route().current().includes('proyectos')">
                 <PaperClipIcon class="h-6 w-6 text-white" />

@@ -202,7 +202,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/aprobar-registro', [ValidacionesController::class, 'aprobarRegistro'])->name('aprobarRegistro');
     Route::post('/rechazar-registro', [ValidacionesController::class, 'rechazarRegistro'])->name('rechazarRegistro');
     Route::post('/desbloquear-registro', [ValidacionesController::class, 'desbloquearRegistro'])->name('desbloquearRegistro');
-    
+
     //GESTION CERTIFICADOS
     //descargar
     Route::get('/certificados/descargar/{id}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
@@ -224,7 +224,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('analisis', AnalisisController::class);
 
     Route::resource('gestion_registros', ValidacionesController::class);
-    Route::resource('delegado', DelegadosController::class);
+    Route::resource('delegados', DelegadosController::class);
     Route::resource('corregir-registro', ValidationController::class);
 });
 

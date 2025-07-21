@@ -17,9 +17,14 @@ class Delegados extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'id_evento',
+        'id_user',
         'nombre',
         'cargo',
+        'identificacion',
+        'contacto',
         'tipo',
+        'comuna',
         'firma',
         'estado',
         'created_at',

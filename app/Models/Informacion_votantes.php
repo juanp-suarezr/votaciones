@@ -47,4 +47,9 @@ class Informacion_votantes extends Model
     {
         return $this->hasMany(Hash_votantes::class, 'id_votante', 'id');
     }
+
+    public function jurado()
+    {
+        return $this->hasOne(Delegados::class, 'id', 'id_jurado');
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Caninos;
 use App\Models\Delegado;
+use App\Models\Delegados;
+use App\Models\Eventos;
 use App\Models\InformacionUsuario;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Http\Request;
@@ -15,6 +17,7 @@ use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
 use DB;
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Auth;
 
 class DelegadosController extends Controller
@@ -31,9 +34,8 @@ class DelegadosController extends Controller
 
     public function index()
     {
-        $user = Auth::user();
 
-        $delegados = Delegado::paginate(5)->withQueryString();
+        $delegados = Delegados::paginate(5)->withQueryString();
 
         return Inertia::render(
             'Delegado/Index',
@@ -46,45 +48,68 @@ class DelegadosController extends Controller
     public function create()
     {
 
-        return Inertia::render('Delegado/Add');
+        $eventos = Eventos::select('id', 'nombre')
+            ->where('estado', 'Activo')
+            ->get();
+
+        return Inertia::render('Delegado/Add', [
+            'eventos' => $eventos,
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:250',
-            'cargo' => 'required|string|max:100',
+            'nombre' => 'required|string|max:200',
+            'cargo' => 'required|string|max:150',
             'firma' => 'required|image|mimes:pg,png,jpeg,jpg,gif,bmp,tiff,svg,web,webp|max:2048',
         ]);
 
         $fileName = 'NA';
 
         if ($request->hasFile('firma')) {
-                $folder = 'delegado';
-                $original = $request->file('firma');
-                $extension = strtolower($original->getClientOriginalExtension());
-                $fileName = time() . '_delegado_' . $request->nombre . '_' . $request->cargo . '.' . $extension;
+            $folder = 'delegado';
+            $original = $request->file('firma');
+            $extension = strtolower($original->getClientOriginalExtension());
+            $fileName = time() . '_delegado_' . $request->nombre . '_' . $request->cargo . '.' . $extension;
 
-                $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $fileName);
+            $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $fileName);
 
-                if (in_array($extension, ['jpg', 'jpeg'])) {
-                    $img = imagecreatefromjpeg($original->getPathname());
-                    imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
-                    imagedestroy($img);
-                } elseif ($extension === 'png') {
-                    $img = imagecreatefrompng($original->getPathname());
-                    imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
-                    imagedestroy($img);
-                } else {
-                    // Otros formatos, solo mover
-                    $original->move(storage_path('app/public/uploads/' . $folder), $fileName);
-                }
+            if (in_array($extension, ['jpg', 'jpeg'])) {
+                $img = imagecreatefromjpeg($original->getPathname());
+                imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
+                imagedestroy($img);
+            } elseif ($extension === 'png') {
+                $img = imagecreatefrompng($original->getPathname());
+                imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
+                imagedestroy($img);
+            } else {
+                // Otros formatos, solo mover
+                $original->move(storage_path('app/public/uploads/' . $folder), $fileName);
             }
+        }
 
-        $delegado = Delegado::create([
+        $user = null;
+
+        if ($request->tipo == 'jurado') {
+            $user = User::create([
+                'name' => $request->nombre,
+                'email' => $request->identificacion . '@jurado.com',
+                'password' => Hash::make($request->identificacion),
+                'estado' => 1,
+            ]);
+            $user->assignRole('Jurado');
+        }
+
+        $delegado = Delegados::create([
+            'id_user' => $user->id,
+            'id_evento' => $request->id_evento || null,
             'nombre' => $request->nombre,
+            'identificacion' => $request->identificacion,
+            'contacto' => $request->contacto,
             'cargo' => $request->cargo,
             'estado' => 1,
+            'tipo' => $request->tipo,
             'firma' => $fileName
         ]);
 

@@ -4,10 +4,15 @@
   <AuthenticatedLayout>
     <template #header>
       <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Delegado</h1>
-        <PrimaryLink :href="route('delegado.create')"> Agregar </PrimaryLink>
+        <h1 class="text-2xl font-bold">Delegados</h1>
       </div>
     </template>
+
+    <div class="overflow-x-scroll md:overflow-x-auto">
+      <div class="text-right p-4">
+        <PrimaryLink :href="route('delegados.create')"> Agregar </PrimaryLink>
+      </div>
+    </div>
 
     <div class="p-4">
       <!-- Tabla -->
@@ -37,8 +42,17 @@
               {{ slotProps.data.cargo || "N/A" }}
             </template>
           </Column>
+          <Column header="tipo">
+            <template #body="slotProps">
+              {{ slotProps.data.tipo || "N/A" }}
+            </template>
+          </Column>
+          <Column header="comuna">
+            <template #body="slotProps">
+              {{ getComuna(slotProps.data.comuna) || "No tiene" }}
+            </template>
+          </Column>
 
-          
           <Column header="Foto">
             <template #body="slotProps">
               <img
@@ -114,6 +128,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import VueEasyLightbox from "vue-easy-lightbox";
 import { PencilIcon, TrashIcon, EyeIcon } from "@heroicons/vue/24/solid";
+import comunas from "@/shared/comunas.json";
 
 const props = defineProps({
   delegados: {
@@ -138,6 +153,12 @@ const closeLightbox = () => {
 };
 
 const getUrl = (url) => `/storage/uploads/delegado/${url}`;
+
+const getComuna = (idComuna) => {
+  console.log(idComuna);
+
+  return comunas.find((item) => item.value == idComuna)?.label;
+};
 
 const editCanino = (id) => {
   router.visit(`/caninos/${id}/edit`);

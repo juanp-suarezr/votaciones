@@ -4,17 +4,24 @@
   <AuthenticatedLayout>
     <template #header> Nuevo delegado </template>
 
-    <div class="max-w-2xl mx-auto bg-white border shadow-sm rounded-xl mt-8">
-      <div class="bg-gray-100 border-b rounded-t-xl py-3 px-4 md:py-4 md:px-5 flex justify-between items-center">
+    <div class="px-4 mx-auto bg-white border shadow-sm rounded-xl mt-8">
+      <div
+        class="bg-gray-100 border-b rounded-t-xl py-3 px-4 md:py-4 md:px-5 flex justify-between items-center"
+      >
         <h3 class="text-gray-500">Nuevo delegado</h3>
-        <SecondaryLink :href="route('delegado.index')">
+        <SecondaryLink :href="route('delegados.index')">
           Regresar
         </SecondaryLink>
       </div>
       <div class="p-4 md:p-5">
-        <form @submit.prevent="submit" enctype="multipart/form-data" class="grid gap-4">
-          <div>
-            <InputLabel for="nombre" value="Nombre" />
+        <form
+          @submit.prevent="submit"
+          enctype="multipart/form-data"
+          class="sm:grid sm:grid-cols-2 gap-4"
+        >
+          <!-- nombre -->
+          <div class="mb-2">
+            <InputLabel for="nombre" value="Nombre(*)" />
             <TextInput
               id="nombre"
               type="text"
@@ -26,7 +33,36 @@
             />
             <InputError class="mt-2" :message="form.errors.nombre" />
           </div>
-          <div>
+          <!-- identificacion -->
+          <div class="mb-2">
+            <InputLabel for="identificacion" value="Identificación" />
+            <TextInput
+              id="identificacion"
+              type="text"
+              class="mt-1 block w-full"
+              v-model="form.identificacion"
+              required
+              autofocus
+              autocomplete="off"
+            />
+            <InputError class="mt-2" :message="form.errors.identificacion" />
+          </div>
+          <!-- contacto -->
+          <div class="mb-2">
+            <InputLabel for="contacto" value="Contacto" />
+            <TextInput
+              id="contacto"
+              type="text"
+              class="mt-1 block w-full"
+              v-model="form.contacto"
+              required
+              autofocus
+              autocomplete="off"
+            />
+            <InputError class="mt-2" :message="form.errors.contacto" />
+          </div>
+          <!-- cargo -->
+          <div class="mb-2">
             <InputLabel for="cargo" value="Cargo" />
             <TextInput
               id="cargo"
@@ -38,19 +74,79 @@
             />
             <InputError class="mt-2" :message="form.errors.cargo" />
           </div>
+          <!-- tipo -->
+          <div class="mb-2">
+            <InputLabel for="tipo" value="Tipo" />
+            <select
+              id="tipo"
+              v-model="form.tipo"
+              class="block mt-1 w-full rounded-md form-select focus:border-sky-600"
+            >
+              <option value="" disabled selected>Seleccione un tipo</option>
+              <option value="secretario">Secretario</option>
+              <option value="jurado">Jurado</option>
+            </select>
+            <InputError class="mt-2" :message="form.errors.tipo" />
+          </div>
+          <!-- comuna -->
+          <div class="mb-2">
+            <InputLabel for="comuna" value="Comuna correspondiente" />
+            <Select
+              id="comuna"
+              v-model="form.comuna"
+              :options="comunas"
+              filter
+              optionLabel="label"
+              placeholder="Seleccione comuna"
+              checkmark
+              :highlightOnSelect="false"
+              class="w-full"
+            />
+            <InputError class="mt-2" :message="form.errors.comuna" />
+          </div>
+          <!-- evento -->
+          <div class="mb-2">
+            <InputLabel for="id_evento" value="Asignar Evento" />
+            <select
+              id="id_evento"
+              v-model="form.id_evento"
+              class="block mt-1 w-full rounded-md form-select focus:border-sky-600"
+            >
+              <option value="" disabled selected>Seleccione un evento</option>
+              <option
+                v-for="evento in eventos"
+                :key="evento.id"
+                :value="evento.id"
+              >
+                {{ evento.nombre }}
+              </option>
+            </select>
+            <InputError class="mt-2" :message="form.errors.id_evento" />
+          </div>
+          <!-- firma -->
           <div>
             <InputLabel for="firma" value="Firma" />
             <div class="flex gap-4 mb-2">
               <button
                 type="button"
-                :class="['px-2 py-1 rounded', firmaModo === 'imagen' ? 'bg-blue-600 text-white' : 'bg-gray-200']"
+                :class="[
+                  'px-2 py-1 rounded',
+                  firmaModo === 'imagen'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200',
+                ]"
                 @click="firmaModo = 'imagen'"
               >
                 Cargar imagen
               </button>
               <button
                 type="button"
-                :class="['px-2 py-1 rounded', firmaModo === 'canvas' ? 'bg-blue-600 text-white' : 'bg-gray-200']"
+                :class="[
+                  'px-2 py-1 rounded',
+                  firmaModo === 'canvas'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200',
+                ]"
                 @click="firmaModo = 'canvas'"
               >
                 Dibujar firma
@@ -66,7 +162,11 @@
               />
               <InputError class="mt-2" :message="form.errors.firma" />
               <div v-if="firmaPreview" class="mt-2">
-                <img :src="firmaPreview" alt="Vista previa de la firma" class="h-24 border rounded" />
+                <img
+                  :src="firmaPreview"
+                  alt="Vista previa de la firma"
+                  class="h-24 border rounded"
+                />
               </div>
             </div>
             <div v-else>
@@ -84,21 +184,25 @@
                 <button
                   type="button"
                   @click="clearCanvas"
-                  class="text-xs text-blue-600 underline"
+                  class="text-xl text-blue-600 underline"
                 >
                   Limpiar
                 </button>
                 <button
                   type="button"
                   @click="saveCanvas"
-                  class="text-xs text-green-600 underline"
+                  class="text-xl text-green-600 underline"
                 >
                   Usar firma
                 </button>
               </div>
               <InputError class="mt-2" :message="form.errors.firma" />
               <div v-if="firmaPreview" class="mt-2">
-                <img :src="firmaPreview" alt="Vista previa de la firma" class="h-24 border rounded" />
+                <img
+                  :src="firmaPreview"
+                  alt="Vista previa de la firma"
+                  class="h-24 border rounded"
+                />
               </div>
             </div>
           </div>
@@ -125,15 +229,32 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import { ref } from "vue";
+import comunas from "@/shared/comunas.json";
+import Select from "primevue/select";
 
 const firmaPreview = ref(null);
 const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
 const canvas = ref(null);
 let drawing = false;
 
+const props = defineProps({
+  eventos: {
+    type: Object,
+    default: () => ({}),
+  },
+});
+
+console.log(props);
+
+
 const form = useForm({
   nombre: "",
+  identificacion: "",
+  contacto: "",
   cargo: "",
+  tipo: "",
+  comuna: "",
+  id_evento: "",
   firma: null,
 });
 
@@ -187,7 +308,7 @@ const saveCanvas = () => {
 };
 
 const submit = () => {
-  form.post(route("delegado.store"), {
+  form.post(route("delegados.store"), {
     forceFormData: true,
     onSuccess: () => {
       form.reset();
