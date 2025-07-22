@@ -488,7 +488,7 @@ class ValidationController extends Controller
             Cache::forget('votantes');
 
 
-            return back();
+            return redirect()->back();
         } catch (\Exception $e) {
             // Si ocurre algún error, revertir todos los cambios
             DB::rollBack();

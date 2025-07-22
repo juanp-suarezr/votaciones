@@ -290,7 +290,7 @@ const form = useForm({
   nacimiento: "",
   comuna: usePage().props.user.jurado.comuna,
   id_jurado: usePage().props.user.jurado.id,
-  id_evento: usePage().props.user.evento.id,
+  id_evento: usePage().props.user.jurado.evento.id,
   genero: "",
   etnia: "",
   condicion: "",
@@ -410,8 +410,8 @@ const validateStep1 = async () => {
         } else {
           window.location.href = route("votos.index", {
             id_votante: data.votante.id,
-            evento: usePage().props.user.evento.id,
-            tipo_evento: usePage().props.user.evento.tipos,
+            evento: usePage().props.user.jurado.evento.id,
+            tipo_evento: usePage().props.user.jurado.evento.tipos,
             tipo_user:
               data.votante.hash_votantes.length != 0
                 ? data.votante.hash_votantes[0].tipo
@@ -537,8 +537,8 @@ const submit = () => {
 
         window.location.href = route("votos.index", {
           id_votante: usePage().props.flash.success.id_votante,
-          evento: usePage().props.user.evento.id,
-          tipo_evento: usePage().props.user.evento.tipos,
+          evento: usePage().props.user.jurado.evento.id,
+          tipo_evento: usePage().props.user.jurado.evento.tipos,
           tipo_user:
             usePage().props.flash.success.hash_votante.tipo,
           subtipo_user:
