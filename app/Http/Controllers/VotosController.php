@@ -20,7 +20,18 @@ class VotosController extends Controller
     public function index()
     {
 
-        $infoVotante = Informacion_votantes::where('id_user', Auth::id())->get();
+
+
+        $infoVotante = [];
+        if (Auth::user()->jurado) {
+
+            $infoVotante = Informacion_votantes::where('id', RequestFacade::input('id_votante'))->get();
+        }  else {
+            $infoVotante = Informacion_votantes::where('id_user', Auth::id())->get();
+        }
+
+
+
 
         $votos = Votos::where('id_votante', $infoVotante[0]->id)->where('id_eventos', RequestFacade::input('evento'))->first();
 
@@ -155,6 +166,12 @@ class VotosController extends Controller
 
 
 
+            if(Auth::user()->jurado) {
+                // Redirige con mensaje de éxito
+                return redirect()->route('dashboard', [
+                    
+                ])->with('success', 'Recurso almacenado exitosamente');
+            }
 
             // Redirige con mensaje de éxito
             return redirect()->route('votos.store', [

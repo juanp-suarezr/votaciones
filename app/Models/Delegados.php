@@ -25,13 +25,23 @@ class Delegados extends Model
         'contacto',
         'tipo',
         'comuna',
-        'punto_votacion',
+        'puntos_votacion',
         'firma',
         'estado',
         'created_at',
         'updated_at',
 
     ];
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'id_user');
+    }
+
+    public function evento()
+    {
+        return $this->hasOne(Eventos::class, 'id', 'id_evento');
+    }
 
 
 }

@@ -52,4 +52,9 @@ class Informacion_votantes extends Model
     {
         return $this->hasOne(Delegados::class, 'id', 'id_jurado');
     }
+
+    public function votos()
+    {
+        return $this->hasMany(Votos::class, 'id_votante', 'id');
+    }
 }

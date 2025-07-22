@@ -51,6 +51,12 @@ class User extends Authenticatable
         return $this->hasOne(Informacion_votantes::class, 'id_user', 'id');
     }
 
+    //RELACION USER CON INFO DELEGADOS
+    public function jurado()
+    {
+        return $this->hasOne(Delegados::class, 'id_user', 'id');
+    }
+
     //RELACION USER CON REG BIOMETRICO
     public function biometrico()
     {

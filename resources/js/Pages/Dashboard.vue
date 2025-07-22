@@ -7,7 +7,9 @@
     <!-- si tiene correcciones -->
     <div
       class="items-center px-4 m-auto"
-      v-if="info_votante[0]?.subtipo != 0 && info_votante[0]?.estado == 'Rechazado'"
+      v-if="
+        info_votante[0]?.subtipo != 0 && info_votante[0]?.estado == 'Rechazado'
+      "
     >
       <div class="border-2 border-gray-400 p-2 border-dashed sm:flex">
         <p class="m-auto">
@@ -346,6 +348,22 @@
           >Los eventos de votación activos serán mostrados en esta
           sección</Message
         >
+      </div>
+    </div>
+
+    <div class="" v-if="$page.props.user.roles.includes('Jurado')">
+      <h2 class="text-gray-600 text-2xl inline-flex">Gestión de registro presencial - virtual</h2>
+      <div>
+        <PrimaryLink
+          class="md:text-base mt-4"
+          :class="{ 'opacity-25': isLoading }"
+          :disabled="isLoading"
+          type="button"
+          :href="route('votantesPresencial.create')"
+        >
+          Registro presencial - virtual
+        </PrimaryLink>
+
       </div>
     </div>
   </AuthenticatedLayout>

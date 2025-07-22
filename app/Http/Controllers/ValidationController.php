@@ -298,6 +298,17 @@ class ValidationController extends Controller
             ->whereNotNull('comuna')
             ->exists();
 
+        if($existe && $request->registro_presencial) {
+            $votante = Informacion_votantes::select('id', 'identificacion', 'id_user')
+                ->where('identificacion', $request->identificacion)
+                ->where('comuna', '!=', 0)
+                ->whereNotNull('comuna')
+                ->with('votos')
+                ->with('hashVotantes')
+                ->first();
+            return response()->json(['existe' => $existe, 'votante' => $votante]);
+        }
+
         return response()->json(['existe' => $existe]);
     }
 

@@ -1468,6 +1468,8 @@ const checkIdentificacionService = async (identificacion) => {
   const response = await axios.post("/validar-identificacion", {
     identificacion,
   });
+  
+
   return response.data.existe; // true si existe, false si no
 };
 
@@ -1664,7 +1666,7 @@ const submit = () => {
         text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará internamente la validación de su información, el estado del tramite sera notificado a su correo.",
         icon: "success",
       }).then((result) => {
-        window.location.reload();
+        window.location.href = route("welcome");
       });
       sessionStorage.removeItem("fallo_camara");
       sessionStorage.removeItem("fallo_registro");

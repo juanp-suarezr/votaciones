@@ -45,6 +45,8 @@ class HandleInertiaRequests extends Middleware
             'user.roles' => $request->user() ? $request->user()->roles->pluck('name') : [],
             'user.info' => $request->user() ? $request->user()->votantes : [],
             'user.permissions' => $request->user() ? $request->user()->getPermissionsViaRoles()->pluck('name') : [],
+            'user.evento' => $request->user() ? $request->user()->jurado->evento : [],
+            'user.jurado' => $request->user() ? $request->user()->jurado : [],
             'showingMobileMenu' => false,
             // Agregar la clave del sitio de reCAPTCHA
             'recaptcha' => [

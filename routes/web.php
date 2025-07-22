@@ -8,7 +8,7 @@ use App\Http\Controllers\CedulaController;
 use App\Http\Controllers\CertificadosController;
 use App\Http\Controllers\DelegadosController;
 use App\Http\Controllers\EventosController;
-
+use App\Http\Controllers\JuradosController;
 use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\ParametrosDetalleController;
 use App\Http\Controllers\UserController;
@@ -19,6 +19,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TiposController;
 use App\Http\Controllers\ValidacionesController;
 use App\Http\Controllers\ValidationController;
+use App\Http\Controllers\VotantesPresencialController;
 use App\Http\Controllers\VotosController;
 use App\Models\Eventos;
 use App\Models\Hash_proyectos;
@@ -68,11 +69,7 @@ Route::get('/home', function () {
 //pagina consulta de certificados para descargar
 Route::get('/certificado', function () {
 
-    return Inertia::render('Certificados', [
-
-
-    ]);
-
+    return Inertia::render('Certificados', []);
 });
 
 
@@ -84,7 +81,7 @@ Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_i
         ->where('id_votante', $votante_id)
         ->firstOrFail();
 
-        $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($voto->votante->comuna);
+    $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($voto->votante->comuna);
 
     $evento = Eventos::select('id', 'nombre', 'fecha_inicio')->findOrFail($evento_id);
 
@@ -96,8 +93,19 @@ Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_i
     ]);
 })->name('consulta.certificado.publica');
 
+//registro jurados
+Route::get('/registro-jurados-@djdo33kc', [JuradosController::class, 'create'])->name('registro.jurados');
+Route::post('/registro-jurados-@djdo33kc', [JuradosController::class, 'store'])->name('jurados.store');
 
-
+//landing welcome
+Route::get('/welcome', function () {
+    return Inertia::render('Welcome', [
+        'eventos' => Eventos::where('estado', 'Activo')->get(),
+        'puntos_votacion' => ParametrosDetalle::where('estado', 1)
+            ->where('codParametro', 'pt_v')
+            ->get(),
+    ]);
+})->name('welcome');
 
 Route::get('/dashboard', function () {
 
@@ -110,26 +118,39 @@ Route::get('/dashboard', function () {
         return Hash_votantes::select('id_evento')->whereHas('votante.user.roles', function ($query) {
             $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
         })
-        ->with(['votante.user.roles'])->get();
+            ->with(['votante.user.roles'])->get();
     });
 
-    $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->get();
+    $info_votante = [];
+    $eventos = [];
+    $votos = [];
+    if (Auth::user()->votantes) {
+        $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->get();
+
+        $eventos = Eventos::whereNot('nombre', '=', 'Admin')
+            ->with(['votantes' => function ($query) {
+                $query->where('id_votante', Auth::user()->votantes->id);
+            }, 'evento_padre'])
+            ->get();
+
+        $votos = Votos::where('id_votante', Auth::user()->votantes->id)
+        ->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')
+        ->get();
+    }
+
+
 
     // Obtén todos los tipos de los objetos en $info_votante
     $tipos = collect($info_votante)->pluck('tipo')->unique()->toArray();
 
     return Inertia::render('Dashboard', [
-        'eventos' => Eventos::whereNot('nombre', '=', 'Admin')
-            ->with(['votantes' => function ($query) {
-                $query->where('id_votante', Auth::user()->votantes->id);
-            }, 'evento_padre'])
-            ->get(),
-        'votos' => Votos::where('id_votante', Auth::user()->votantes->id)->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')->get(),
+        'eventos' => $eventos,
+        'votos' => $votos,
         'proyectos' => Hash_proyectos::with('proyecto')->get(),
         'candidatos' => Hash_votantes::where('candidato', 0)->whereIn('tipo', $tipos)->with('votante')->get(),
         'eventos_admin' => $eventos_admin,
         'votantes' => $votantes,
-        'info_votante' => $info_votante->where('subtipo', '!=', 0)->values(),
+        'info_votante' => $info_votante ? $info_votante->where('subtipo', '!=', 0)->values() : 0,
 
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -203,11 +224,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/rechazar-registro', [ValidacionesController::class, 'rechazarRegistro'])->name('rechazarRegistro');
     Route::post('/desbloquear-registro', [ValidacionesController::class, 'desbloquearRegistro'])->name('desbloquearRegistro');
 
+    //validar identificacion
+    Route::post('/validar-identificacion-presencial', [ValidationController::class, 'verificar']);
+
     //GESTION CERTIFICADOS
     //descargar
     Route::get('/certificados/descargar/{id}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
-
-
 });
 
 Route::group(['middleware' => ['auth']], function () {
@@ -226,6 +248,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('gestion_registros', ValidacionesController::class);
     Route::resource('delegados', DelegadosController::class);
     Route::resource('corregir-registro', ValidationController::class);
+    Route::resource('votantesPresencial', VotantesPresencialController::class);
 });
 
 
