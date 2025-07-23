@@ -176,15 +176,15 @@
           <div class="w-auto border-r pr-2 border-gray-600">
             <span class="text-gray-600">Número de tarjetón:</span>
             {{
-              selectedProject ? selectedProject.proyecto.numero_tarjeton : "NA"
+              selectedProject ? selectedProject.proyecto.numero_tarjeton : "Elecciones presupuesto participativo 2025"
             }}
           </div>
           <div class="w-auto pr-2">
-            <span class="text-gray-600">Comuna:</span>
+            <span class="text-gray-600">Comuna/Corregimiento:</span>
             {{
               selectedProject
                 ? getComuna(selectedProject.proyecto.subtipo)
-                : "VOTO BLANCO"
+                : getComuna(proyectos[0].proyecto.subtipo)
             }}
           </div>
         </div>
