@@ -46,7 +46,6 @@ class ValidationController extends Controller
             'email' => 'required|email',
             // 'celular' => 'required|string|max:15|unique:users,celular,NULL,id,estado,Activo|regex:/^\d{10,15}$/', // Validación para números de celular
             'celular' => 'required|string|max:15|regex:/^\d{10,15}$/', // Validación para números de celular
-            'indicativo' => 'required|string|max:5',
             'password' => 'required|string|min:8',
             'recaptcha_token' => 'required|string',
 
@@ -96,7 +95,7 @@ class ValidationController extends Controller
                 $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
 
                 $twilio->messages->create(
-                    $request->indicativo . $request->celular, // Número de destino
+                    '+57' . $request->celular, // Número de destino
                     [
                         'from' => env('TWILIO_PHONE_NUMBER'), // Número de Twilio
                         'body' => "Tu código de verificación es: $verificationCode",

@@ -240,19 +240,7 @@
             </select>
             <InputError class="mt-2" :message="form.errors.condicion" />
           </div>
-          <!-- Indicativo -->
-          <div class="mb-2">
-            <InputLabel for="indicativo" value="Indicativo" />
-            <TextInput
-              id="indicativo"
-              type="text"
-              maxlength="3"
-              class="mt-1 block w-full"
-              v-model="form.indicativo"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.indicativo" />
-          </div>
+
           <!-- Celular -->
           <div class="col-span-2 flex flex-wrap mb-1">
             <!-- celular -->
@@ -891,7 +879,6 @@ const form = useForm({
   etnia: "",
   condicion: "",
   direccion: "",
-  indicativo: "+57",
   celular: "",
   comuna: "",
   barrio: "",
@@ -1614,7 +1601,6 @@ const validationUser = async (num) => {
     formData.append("barrio", form.barrio);
     formData.append("email", form.email);
     formData.append("celular", form.celular);
-    formData.append("indicativo", form.indicativo);
     formData.append("password", form.password);
     formData.append("recaptcha_token", recaptchaToken);
     formData.append("campoObligatorio", form.campoObligatorio);
