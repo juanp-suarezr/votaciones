@@ -226,6 +226,8 @@ Route::middleware('auth')->group(function () {
 
     //validar identificacion
     Route::post('/validar-identificacion-presencial', [ValidationController::class, 'verificar']);
+    //actualizacion de datos con imgs
+    Route::post('/corregir-datos', [ValidationController::class, 'corregirDatos'])->name('corregirDatos');
 
     //GESTION CERTIFICADOS
     //descargar

@@ -435,6 +435,7 @@
             <!-- ejemplo de doc frontal -->
             <div class="w-full h-full mt-4">
               <div class="w-full">
+                <h4>Ejemplo parte frontal</h4>
                 <img
                   :src="frontEjemplo"
                   alt="Documento Frontal ejemplo"
@@ -495,6 +496,7 @@
             <!-- ejemplo de doc trasero -->
             <div class="w-full h-full mt-4">
               <div class="w-full">
+                <h4>Ejemplo parte trasera</h4>
                 <img
                   :src="backEjemplo"
                   alt="Documento parte trasera ejemplo"
@@ -1468,7 +1470,7 @@ const checkIdentificacionService = async (identificacion) => {
   const response = await axios.post("/validar-identificacion", {
     identificacion,
   });
-  
+
 
   return response.data.existe; // true si existe, false si no
 };

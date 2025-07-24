@@ -66,7 +66,7 @@ class ValidationController extends Controller
 
             $recaptchaData = $response->json();
 
-            Log::info('reCAPTCHA response:', $recaptchaData);
+
 
             if (!$recaptchaData['success'] || $recaptchaData['score'] < 0.3) {
                 if ($request->campoObligatorio != null && $request->campoObligatorio != '') {
@@ -89,7 +89,7 @@ class ValidationController extends Controller
             'code' => $verificationCode,
             'expires_at' => now()->addMinutes(10),
         ]);
-        Log::info('Código de verificación generado: ' . $verificationCode);
+
         // Enviar el código por correo o SMS
         if ($request->has('via') && $request->via === 'sms') {
             try {
@@ -186,7 +186,7 @@ class ValidationController extends Controller
             }
 
             $validacion = $request->validaciones;
-            Log::info('embedding', ['embedding' => json_encode($request->embedding)]);
+            // Log::info('embedding', ['embedding' => json_encode($request->embedding)]);
 
             // Crear el usuario
             $user = User::create([
@@ -332,12 +332,12 @@ class ValidationController extends Controller
         );
     }
 
-    public function update(Request $request, $id_votante)
+    public function corregirDatos(Request $request)
     {
 
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'identificacion' => 'required|string|max:20|unique:votantes,identificacion,' . $id_votante . ',id',
+            'identificacion' => 'required|string|max:20|unique:votantes,identificacion,' . $request->id_votante . ',id',
             'tipo_documento' => 'required|string',
             'fecha_expedicion' => 'required|date',
             'lugar_expedicion' => 'required|string',
@@ -351,8 +351,8 @@ class ValidationController extends Controller
 
         ]);
 
-        $votante = Informacion_votantes::findOrFail($id_votante);
-        $user = User::where('id_user', $votante->id_user)->first();
+        $votante = Informacion_votantes::findOrFail($request->id_votante);
+        $user = User::where('id', $votante->id_user)->first();
         $biometrico = UsuariosBiometricos::where('user_id', $user->id)->first();
         $hash_votante = Hash_votantes::where('id_votante', $votante->id)->first();
 
@@ -471,7 +471,6 @@ class ValidationController extends Controller
             $votante->comuna = $request->input('comuna.value');
             $votante->barrio = $request->barrio;
             $votante->direccion = $request->direccion;
-            $votante->celular = $request->celular;
             $votante->save();
 
             // Actualizar el registro de hash_votantes asociado a la información del votante

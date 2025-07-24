@@ -391,7 +391,7 @@
                 <div class="flex justify-center">
                   <img
                     v-if="imageUrl"
-                    :src="getUrlDocumentos(imageUrl)"
+                    :src="getUrlDocumentos(imageUrl, 1)"
                     :alt="form.cedula_front"
                     class="w-4/6 h-full object-contain"
                   />
@@ -452,7 +452,7 @@
                 <div class="flex justify-center">
                   <img
                     v-if="imageUrl1"
-                    :src="getUrlDocumentos(imageUrl1)"
+                    :src="getUrlDocumentos(imageUrl1, 1)"
                     :alt="form.cedula_back"
                     class="w-4/6 h-full object-contain"
                   />
@@ -771,6 +771,7 @@ const props = defineProps({
 console.log("Votante data:", props.votante);
 
 const form = useForm({
+  id_votante: props.votante.id || "",
   nombre: props.votante.nombre || "",
   identificacion: props.votante.identificacion || "",
   tipo_documento: props.votante.tipo_documento || "",
@@ -874,8 +875,25 @@ const loadingButtonBiometric = ref(false);
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
 
-const getUrlDocumentos = (url) => `/storage/uploads/documentos/${url}`;
-const getUrlFirma = (url) => `/storage/uploads/firmas/${url}`;
+const getUrlDocumentos = (url, num) => {
+  if (num === 1) {
+    if (form.cedula_front === null) {
+      return `/storage/uploads/documentos/${url}`;
+    }
+  } else if (num === 2) {
+    if (form.cedula_back === null) {
+      return `/storage/uploads/documentos/${url}`;
+    }
+  }
+  return url;
+};
+
+const getUrlFirma = (url) => {
+  if (form.firma === null) {
+    return `/storage/uploads/firmas/${url}`;
+  }
+  return url;
+};
 
 const departamentoXciudadName = computed(() => {
   const dep = ciudades.find((d) => d.ciudades.includes(form.lugar_expedicion));
@@ -1440,7 +1458,7 @@ const validarDatos2 = () => {
 
 const validarDatos3 = () => {
   isValidate.value = false;
-  if (form.cedula_front && form.cedula_back && form.firma) {
+  if ((form.cedula_front || imageUrl) && (form.cedula_back || imageUrl1) && (form.firma || firmaPreview)) {
     isValidate.value = true;
   }
 
@@ -1469,7 +1487,7 @@ const validarDatos3 = () => {
 };
 
 const submit = () => {
-  form.post(route("corregir-registro.update", props.votante.id), {
+  form.post(route("corregirDatos"), {
     onSuccess: () => {
       swal({
         title: "Registro actualizado",
