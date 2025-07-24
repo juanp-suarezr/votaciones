@@ -249,6 +249,7 @@ class ValidationController extends Controller
                 'barrio' => $request->barrio,
                 'direccion' => $request->direccion,
                 'celular' => $request->celular,
+
             ]);
             $user->votantes()->save($informacionUsuario);
 
@@ -262,6 +263,7 @@ class ValidationController extends Controller
                 'candidato' => 0,
                 'validaciones' => $validacion,
                 'estado' => 'Pendiente',
+                'intentos' => 1,
             ]);
             $informacionUsuario->hashVotantes()->save($hash_votante);
 
@@ -362,21 +364,33 @@ class ValidationController extends Controller
             $fileNameFront = 'NA';
             $fileNameBack = 'NA';
             $fileNamePhoto = 'NA';
+            $folderDoc = 'documentos';
+            $folderPhoto = 'fotos';
             // Obtener la extensión original de los archivos
-            if ($request->hasFile('cedula_front') && $request->hasFile('cedula_back')) {
+            if ($request->hasFile('cedula_front')) {
                 $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
-                $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
 
-
-                $folderDoc = 'documentos';
                 $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
-                $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
+
                 // Guardar los archivos con su extensión original
                 $frontPath = $request->file('cedula_front')->storeAs('uploads/' . $folderDoc, $fileNameFront, 'public');
+
+            }
+
+            if ($request->hasFile('cedula_back')) {
+
+                $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+
+                $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
+
+                // Guardar los archivos con su extensión original
                 $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
+            }
+
+            if ($request->hasFile('photo')) {
 
                 //foto evidencia
-                $folderPhoto = 'fotos';
+
                 $fileNamePhoto = 'foto' . $request->identificacion . '.' . $request->file('photo')->getClientOriginalExtension();
 
                 $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
@@ -430,7 +444,7 @@ class ValidationController extends Controller
 
                 //ACTUALIZAR REGISTRO BIOMETRICO
 
-                $biometrico->photo = $fileNamePhoto;
+                $biometrico->photo = $fileNamePhoto != 'NA' ? $fileNamePhoto : $biometrico->photo;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
                 $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
@@ -477,6 +491,7 @@ class ValidationController extends Controller
             $hash_votante->subtipo = $request->input('comuna.value');
             $hash_votante->validaciones = $validacion;
             $hash_votante->estado = 'Pendiente';
+            $hash_votante->intentos += 1;
             $hash_votante->save();
 
 

@@ -185,7 +185,7 @@
         <PrimaryButton
           @click="aprobarRegistro"
           class="flex h-full items-center"
-          :disabled="form.processing"
+          :disabled="form.processing || (form.motivo !== '' && form.motivo !== 'aprobado')"
         >
           Aprobar
         </PrimaryButton>

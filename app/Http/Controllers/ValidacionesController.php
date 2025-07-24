@@ -240,8 +240,6 @@ class ValidacionesController extends Controller
                     $biometrico->estado = 'Rechazado';
                     $biometrico->save();
                 }
-            } else {
-                $votante->intentos += 1;
             }
 
             $votante->save();
@@ -288,7 +286,8 @@ class ValidacionesController extends Controller
                     $query->where('estado', $estado);
                 } else {
                     $query->where('estado', 'Activo')
-                        ->orWhere('estado', 'Rechazado');
+                        ->orWhere('estado', 'Rechazado')
+                        ->orWhere('estado', 'Bloqueado');
                 }
             })
             ->with('votante.user.biometrico', 'evento')

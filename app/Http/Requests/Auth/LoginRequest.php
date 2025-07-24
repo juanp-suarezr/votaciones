@@ -53,7 +53,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'El usuario con este Usuario no existe',
+                'email' => 'El usuario ingresado no existe',
             ]);
         }
 
@@ -61,7 +61,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'El usuario con este Usuario esta Bloqueado',
+                'email' => 'El usuario ingresado esta Bloqueado',
             ]);
         }
 
