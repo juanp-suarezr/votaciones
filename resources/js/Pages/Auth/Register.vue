@@ -242,17 +242,27 @@
           </div>
 
           <!-- Celular -->
-          <div class="col-span-2 flex flex-wrap mb-1">
+          <div class="w-full mb-2">
             <!-- celular -->
             <div>
               <InputLabel for="celular" value="Celular" />
-              <TextInput
-                id="celular"
-                type="number"
-                class="mt-1 block w-full"
-                v-model="form.celular"
-                required
-              />
+              <div class="w-full flex flex-wrap gap-2 mt-1">
+                <!-- indicativo bloqueado -->
+                <div
+                  class="flex items-center w-auto[20%] block p-2 border border-gray-400 bg-gray-100 rounded-md"
+                >
+                  <p>+57</p>
+                </div>
+                <!-- celular -->
+                <TextInput
+                  id="celular"
+                  type="number"
+                  class="w-[80%] flex"
+                  v-model="form.celular"
+                  required
+                />
+              </div>
+
               <InputError class="mt-2" :message="form.errors.celular" />
             </div>
           </div>
@@ -817,7 +827,6 @@
           precisión. Recuerde que el derecho al voto solo podrá ejercerse una
           única vez y no habrá posibilidad de repetir el proceso.
         </p>
-
       </div>
 
       <div class="flex justify-center gap-4 text-center h-full my-6">
@@ -1367,26 +1376,23 @@ const validateEdad = () => {
   }
   const hoy = new Date();
 
-
   const nacimiento = form.nacimiento;
-  const [anioNac, mesNac, diaNac] = nacimiento.split('-').map(Number);
-
-
-
+  const [anioNac, mesNac, diaNac] = nacimiento.split("-").map(Number);
 
   let edad = hoy.getFullYear() - anioNac;
 
-  const m = hoy.getMonth() - (mesNac-1);
+  const m = hoy.getMonth() - (mesNac - 1);
   console.log(hoy.getMonth());
 
-    console.log(m);
+  console.log(m);
 
-    console.log(hoy.getDate());
+  console.log(hoy.getDate());
   if (m < 0 || (m === 0 && hoy.getDate() < diaNac)) {
     edad--;
   }
   if (edad < 14) {
-    errorEdad.value = "No cumple con el requisito de edad mínima (14 años), por lo tanto, no puede ejercer el derecho al voto.";
+    errorEdad.value =
+      "No cumple con el requisito de edad mínima (14 años), por lo tanto, no puede ejercer el derecho al voto.";
     return false;
   }
   errorEdad.value = "";
@@ -1457,7 +1463,6 @@ const checkIdentificacionService = async (identificacion) => {
   const response = await axios.post("/validar-identificacion", {
     identificacion,
   });
-
 
   return response.data.existe; // true si existe, false si no
 };
