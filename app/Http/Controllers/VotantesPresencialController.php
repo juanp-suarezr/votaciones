@@ -3,6 +3,7 @@
 // app/Http/Controllers/CertificadosController.php
 namespace App\Http\Controllers;
 
+use App\Exports\VotantesVotoExports;
 use App\Models\Caninos;
 use App\Models\InformacionUsuario;
 use App\Models\PageView;
@@ -12,6 +13,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Delegado;
 use App\Models\Delegados;
@@ -37,15 +39,58 @@ class VotantesPresencialController extends Controller
      */
     function __construct() {}
 
+    //index para mostrar el reporte de todos los votantes
+    public function index()
+    {
+
+        $id_evento = 15;
+
+        if (Auth::user()->jurado) {
+
+            $id_evento = Auth::user()->jurado->id_evento;
+        } else {
+
+            $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
+        }
+
+        $votantes = Votos::select(
+            'id_votante',
+            'id_eventos',
+            'subtipo',
+            'created_at',
+            'updated_at',
+            'estado',
+        )
+            ->where('id_eventos', $id_evento)
+            ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) {
+                $query->where('subtipo',  $subtipo);
+            })
+            ->whereHas('votante', function ($query) {
+                $query->when(RequestFacade::input('search'), function ($query, $search) {
+                    $query->where('nombre', 'like', '%' . $search . '%')
+                        ->orWhere('identificacion', 'like', '%' . $search . '%');
+                });
+            })
+            ->with('votante')->with(['votante' => function ($query) {
+                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'created_at' ); // agrega aquí solo los campos necesarios
+            }])
+            ->paginate(5)
+            ->withQueryString(); // Mantener los parámetros en la URL
+
+            return Inertia::render('ReporteVotantes/Index', [
+                'votantes_voto' => $votantes,
+                'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
+                'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo']),
+            ]);
+    }
+
     //register
     public function create(Request $request)
     {
 
 
 
-        return Inertia::render('VotantesPresencial/Registro', [
-
-        ]);
+        return Inertia::render('VotantesPresencial/Registro', []);
     }
 
 
@@ -114,5 +159,31 @@ class VotantesPresencialController extends Controller
             Log::error('Error al registrar jurado: ' . $e->getMessage());
             return redirect()->back()->withErrors('error', 'Error al registrar el votante.' . $e->getMessage());
         }
+    }
+
+    public function excel()
+    {
+        ob_end_clean();
+        ob_start();
+
+        $id_evento = 15;
+        
+
+        if (Auth::user()->jurado) {
+
+            $id_evento = Auth::user()->jurado->id_evento;
+        } else {
+
+            $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
+        }
+
+        $subtipo = RequestFacade::input('subtipo');
+        $search = RequestFacade::input('search');
+
+
+
+
+
+        return Excel::download(new VotantesVotoExports($id_evento, $subtipo, $search), 'votantes_voto.xls', \Maatwebsite\Excel\Excel::XLS);
     }
 }

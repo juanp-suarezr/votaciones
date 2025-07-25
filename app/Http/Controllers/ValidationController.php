@@ -459,7 +459,7 @@ class ValidationController extends Controller
 
                 //ACTUALIZAR REGISTRO BIOMETRICO no validado
 
-                $biometrico->photo = $fileNamePhoto;
+                $biometrico->photo = $fileNamePhoto != 'NA' ? $fileNamePhoto : $biometrico->photo;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
                 $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;

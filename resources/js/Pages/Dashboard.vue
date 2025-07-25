@@ -352,7 +352,10 @@
     </div>
 
     <div class="" v-if="$page.props.user.roles.includes('Jurado')">
-      <h2 class="text-gray-600 text-2xl inline-flex">Gestión de registro presencial - virtual</h2>
+      <h2 class="text-gray-600 text-2xl inline-flex">
+        Gestión de registro presencial - virtual
+      </h2>
+      <!-- boton registros -->
       <div>
         <PrimaryLink
           class="md:text-base mt-4"
@@ -363,7 +366,32 @@
         >
           Registro presencial - virtual
         </PrimaryLink>
-
+      </div>
+      <!-- buscador de cedula para validar votacion -->
+      <div class="mt-4 sm:w-1/2">
+        <h2 class="text-gray-600 text-2xl inline-flex">
+          Buscar votante por numero de identificación
+        </h2>
+        <form
+          @submit.prevent="buscarVotante(cedulaVotante)"
+          @keydown.enter="buscarVotante(cedulaVotante)"
+          class="flex items-center mt-2"
+        >
+          <TextInput
+            v-model="cedulaVotante"
+            type="number"
+            placeholder="Ingrese numero de identificación del votante"
+            class="block w-auto"
+          />
+          <PrimaryButton
+            type="submit"
+            class="ml-2 flex h-full justify-center items-center"
+            :class="{ 'opacity-25': isLoading }"
+            :disabled="isLoading"
+          >
+            Buscar
+          </PrimaryButton>
+        </form>
       </div>
     </div>
   </AuthenticatedLayout>
@@ -382,6 +410,10 @@ import Knob from "primevue/knob";
 import Tag from "primevue/tag";
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 import { info } from "autoprefixer";
+import axios from "axios";
+import TextInput from "@/Components/TextInput.vue";
+
+const swal = inject("$swal");
 
 const props = defineProps({
   eventos: Object,
@@ -395,8 +427,13 @@ const props = defineProps({
 
 console.log(props);
 
+const isLoading = ref(false);
+
 const eventosPendientes = ref([]);
 const eventosCerrados = ref([]);
+
+//variable de cedula votante
+const cedulaVotante = ref("");
 
 onMounted(() => {
   eventosPendientes.value = props.eventos.filter(
@@ -547,27 +584,26 @@ const info_events = useForm({
 });
 
 if (errorMessage) {
+  console.log(usePage().props);
 
-    console.log(usePage().props);
-
-    if (usePage().props.auth.user.jurado) {
-      let instance = $toast.open({
-        message: "Ya se ha registrado un acta para este jurado, comuna y puesto de votación.",
-        type: "error",
-        position: "top-right",
-        duration: 8000,
-        pauseOnHover: true,
-      });
-    } else {
-      let instance = $toast.open({
-        message: "Usted ya ha realizado el voto, No puede volver a votar",
-        type: "error",
-        position: "top-right",
-        duration: 8000,
-        pauseOnHover: true,
-      });
-    }
-
+  if (usePage().props.auth.user.jurado) {
+    let instance = $toast.open({
+      message:
+        "Ya se ha registrado un acta para este jurado, comuna y puesto de votación.",
+      type: "error",
+      position: "top-right",
+      duration: 8000,
+      pauseOnHover: true,
+    });
+  } else {
+    let instance = $toast.open({
+      message: "Usted ya ha realizado el voto, No puede volver a votar",
+      type: "error",
+      position: "top-right",
+      duration: 8000,
+      pauseOnHover: true,
+    });
+  }
 }
 
 const handleEnterKey = () => {
@@ -592,6 +628,55 @@ const handleEnterKey = () => {
 //dercargar certificado
 const descargarCertificado = (ev) => {
   window.open(route("certificados.descargar", ev), "_blank");
+};
+
+//buscar votante por cedula
+//llamado validador identificacion
+const buscarVotante = async (identificacion) => {
+  isLoading.value = true;
+  try {
+    const response = await axios.post("/validar-identificacion-presencial", {
+      identificacion,
+      registro_presencial: true,
+    });
+
+    isLoading.value = false;
+
+    if (response.data.existe) {
+      if (response.data.votante && response.data.votante.votos.length > 0) {
+        swal.fire({
+          icon: "warning",
+          title: "Votante con voto",
+          text: "El votante ya ha votado virtualmente.",
+          confirmButtonColor: "#d33",
+        });
+      } else {
+        swal.fire({
+          icon: "success",
+          title: "Votante encontrado",
+          text: "El votante, se registro pero no voto virtualmente.",
+          confirmButtonColor: "#3085d6",
+        });
+      }
+    } else {
+      swal.fire({
+        icon: "success",
+        title: "Votante no encontrado",
+        text: "No se encontró un votante con ese numero de identificación registrado previamente.",
+        confirmButtonColor: "#3085d6",
+      });
+    }
+    return response.data;
+  } catch (error) {
+    isLoading.value = false;
+    swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Ocurrió un error al validar la identificación del votante. Intenta de nuevo.",
+      confirmButtonColor: "#d33",
+    });
+    return false;
+  }
 };
 </script>
 

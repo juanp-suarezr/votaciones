@@ -233,6 +233,9 @@ Route::middleware('auth')->group(function () {
     //GESTION CERTIFICADOS
     //descargar
     Route::get('/certificados/descargar/{id}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
+
+    //descargar excel
+    Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');
 });
 
 Route::group(['middleware' => ['auth']], function () {

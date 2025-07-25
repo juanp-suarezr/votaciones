@@ -52,6 +52,7 @@
               type="text"
               class="mt-1 block w-full"
               v-model="form.identificacion"
+              @keydown.enter="nextStep(1)"
               required
             />
             <InputError class="mt-2" :message="form.errors.identificacion" />
@@ -194,6 +195,7 @@
               type="text"
               class="mt-1 block w-full"
               v-model="form.barrio"
+
             />
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
