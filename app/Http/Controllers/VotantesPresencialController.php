@@ -50,8 +50,14 @@ class VotantesPresencialController extends Controller
             $id_evento = Auth::user()->jurado->id_evento;
         } else {
 
-            $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
+            if (RequestFacade::input('id_evento')) {
+                # code...
+                $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
+                $id_evento = $id_evento->id;
+            }
         }
+
+
 
         $votantes = Votos::select(
             'id_votante',
@@ -167,7 +173,7 @@ class VotantesPresencialController extends Controller
         ob_start();
 
         $id_evento = 15;
-        
+
 
         if (Auth::user()->jurado) {
 
