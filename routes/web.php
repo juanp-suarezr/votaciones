@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActaPresencialController;
 use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\Auth\FaceController;
 use App\Http\Controllers\CandidatosController;
@@ -251,6 +252,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('delegados', DelegadosController::class);
     Route::resource('corregir-registro', ValidationController::class);
     Route::resource('votantesPresencial', VotantesPresencialController::class);
+    Route::resource('actaPresencial', ActaPresencialController::class);
 });
 
 

@@ -10,6 +10,7 @@ class Votos_fisicos extends Model
     use HasFactory;
 
     protected $table = 'votos_fisicos';
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.

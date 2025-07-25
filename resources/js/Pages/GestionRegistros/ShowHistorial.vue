@@ -417,7 +417,7 @@ const formatDate = (date) => {
 
 // Breadcrumb
 const breadcrumbLinks = [
-  { url: route("gestion_registros.index"), text: "Gestion de registros" },
+  { url: route("historial_registros"), text: "Histórico de registros" },
   { url: "", text: "Detalle registro" },
 ];
 
@@ -439,7 +439,7 @@ const aprobarRegistro = () => {
         text: "El registro ha sido aprobado exitosamente",
         icon: "success",
       }).then(() => {
-        window.location.href = route("gestion_registros.index");
+        window.location.href = route("historial_registros");
       });
     },
     onError: function () {
@@ -460,7 +460,7 @@ const rechazarRegistro = () => {
         text: "El registro ha sido rechazado exitosamente",
         icon: "success",
       }).then(() => {
-        window.location.href = route("gestion_registros.index");
+        window.location.href = route("historial_registros");
       });
     },
     onError: function () {
@@ -481,7 +481,7 @@ const desbloquearRegistro = () => {
         text: "El registro ha sido desbloqueado exitosamente",
         icon: "success",
       }).then(() => {
-        window.location.href = route("gestion_registros.index");
+        window.location.href = route("historial_registros");
       });
     },
     onError: function () {

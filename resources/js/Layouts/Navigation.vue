@@ -18,6 +18,10 @@
                 <HomeIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Inicio</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.roles.includes('Jurado')" :href="route('actaPresencial.create')" :active="route().current('actaPresencial')">
+                <ClipboardDocumentIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Cargar acta escrutinio</span>
+            </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"

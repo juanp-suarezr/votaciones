@@ -373,7 +373,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryLink from "@/Components/PrimaryLink.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { Head, useForm } from "@inertiajs/vue3";
+import { Head, useForm, usePage } from "@inertiajs/vue3";
 import { ref, computed, watch, inject, onMounted } from "vue";
 import { useToast } from "vue-toast-notification";
 import Message from "primevue/message";
@@ -547,15 +547,27 @@ const info_events = useForm({
 });
 
 if (errorMessage) {
-  // Mensaje de error
-  console.log(errorMessage);
-  let instance = $toast.open({
-    message: "Usted ya ha realizado el voto, No puede volver a votar",
-    type: "error",
-    position: "top-right",
-    duration: 8000,
-    pauseOnHover: true,
-  });
+
+    console.log(usePage().props);
+
+    if (usePage().props.auth.user.jurado) {
+      let instance = $toast.open({
+        message: "Ya se ha registrado un acta para este jurado, comuna y puesto de votación.",
+        type: "error",
+        position: "top-right",
+        duration: 8000,
+        pauseOnHover: true,
+      });
+    } else {
+      let instance = $toast.open({
+        message: "Usted ya ha realizado el voto, No puede volver a votar",
+        type: "error",
+        position: "top-right",
+        duration: 8000,
+        pauseOnHover: true,
+      });
+    }
+
 }
 
 const handleEnterKey = () => {
