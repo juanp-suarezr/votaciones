@@ -56,8 +56,6 @@ const descargarCertificado = (ev, idVotante) => {
     "_blank"
   );
 };
-
-
 </script>
 
 <template>
@@ -70,9 +68,9 @@ const descargarCertificado = (ev, idVotante) => {
       <div class="sm:flex justify-start mb-8 mt-2">
         <img src="/assets/img/logo_white.png" alt="Logo" class="h-24 w-auto" />
         <div class="w-full flex justify-end items-center">
-            <a class="text-white text-xl" href="#certificados_info">
-                Consultar certificado
-            </a>
+          <a class="text-white text-xl" href="#certificados_info">
+            Consultar certificado
+          </a>
         </div>
       </div>
 
@@ -236,7 +234,8 @@ const descargarCertificado = (ev, idVotante) => {
         </div>
       </div>
       <!-- consultar certificados -->
-      <div id="certificados_info"
+      <div
+        id="certificados_info"
         class="w-full bg-white dark:bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
       >
         <!-- Filtro de búsqueda -->
@@ -268,7 +267,10 @@ const descargarCertificado = (ev, idVotante) => {
         <!-- Tabla de resultados - right side -->
         <div class="mt-6">
           <div class="bg-gray-50 dark:bg-gray-900/40 shadow-md rounded-lg p-4">
-            <div v-if="registro.data && registro.data.length > 0" class="w-full overflow-x-auto">
+            <div
+              v-if="registro.data && registro.data.length > 0"
+              class="w-full overflow-x-auto"
+            >
               <table class="table-medium w-full border-collapse">
                 <thead class="bg-gray-900/40 text-red-600 text-bold">
                   <tr>
@@ -297,7 +299,11 @@ const descargarCertificado = (ev, idVotante) => {
                     </td>
 
                     <td class="px-4 py-2 text-white">
-                      <PrimaryButton @click="descargarCertificado(info.evento.id, info.votante.id)">
+                      <PrimaryButton
+                        @click="
+                          descargarCertificado(info.evento.id, info.votante.id)
+                        "
+                      >
                         Descargar certificado
                       </PrimaryButton>
                     </td>
@@ -309,20 +315,34 @@ const descargarCertificado = (ev, idVotante) => {
                 <div
                   v-for="(info, index) in registro.data"
                   :key="index"
-                  class="rounded-lg p-4 shadow-md"
+                  class="rounded-lg p-4 shadow-md text-white"
                 >
-                  <p><strong>#:</strong> {{ index + 1 }}</p>
                   <p>
-                    <strong>Nombre del Usuario:</strong>
+                    <strong class="text-red-600">#:</strong> {{ index + 1 }}
+                  </p>
+                  <p>
+                    <strong class="text-red-600">Nombre del Usuario:</strong>
                     {{ info.votante.nombre || "Sin información" }}
                   </p>
                   <p>
-                    <strong>Identificación:</strong>
+                    <strong class="text-red-600">Identificación:</strong>
+                    {{ info.votante.tipo_documento }} --
                     {{ info.votante.identificacion }}
                   </p>
-                  <p><strong>Evento:</strong> {{ info.evento.nombre }}</p>
+                  <p>
+                    <strong class="text-red-600">Evento:</strong>
+                    {{ info.evento.nombre }}
+                  </p>
 
-                  <p><strong>Sexo:</strong> {{ info.sexo }}</p>
+                  <div class="px-4 py-2 text-white">
+                    <PrimaryButton
+                      @click="
+                        descargarCertificado(info.evento.id, info.votante.id)
+                      "
+                    >
+                      Descargar certificado
+                    </PrimaryButton>
+                  </div>
                 </div>
               </div>
             </div>
@@ -374,6 +394,16 @@ const descargarCertificado = (ev, idVotante) => {
 @media (prefers-color-scheme: dark) {
   .dark\:bg-dots-lighter {
     background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .table-medium {
+    display: none;
+  }
+
+  .table-responsive {
+    display: block;
   }
 }
 </style>
