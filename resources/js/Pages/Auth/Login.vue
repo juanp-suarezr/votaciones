@@ -2,7 +2,7 @@
     <Head title="Iniciar Sesión" />
 
     <GuestLayout>
-        <Link href="/" class="flex items-center justify-center">
+        <Link href="/Welcome" class="flex items-center justify-center">
         <ApplicationLogo class="fill-current text-gray-500" />
         </Link>
 
@@ -35,10 +35,10 @@
                     class="text-sm text-gray-600 underline hover:text-gray-900">
                 ¿Olvidaste tu contraseña?
                 </Link>
-                <Link v-if="canResetPassword" :href="route('password.request')"
+                <!-- <Link v-if="canResetPassword" :href="route('password.request')"
                     class="text-sm text-gray-600 underline hover:text-gray-900">
                 Ingresar como admin
-                </Link>
+                </Link> -->
             </div>
 
             <div class="mt-6">
