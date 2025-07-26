@@ -26,7 +26,7 @@ class VotosController extends Controller
         if (Auth::user()->jurado) {
 
             $infoVotante = Informacion_votantes::where('id', RequestFacade::input('id_votante'))->get();
-        }  else {
+        } else {
             $infoVotante = Informacion_votantes::where('id_user', Auth::id())->get();
         }
 
@@ -121,6 +121,35 @@ class VotosController extends Controller
         );
     }
 
+    //consultar votacion segun identificacion
+    public function verificar($identificacion)
+    {
+
+        $registro = Votos::select(
+            'id_votante',
+            'id_eventos',
+            'subtipo',
+            'created_at',
+
+        )
+            ->whereNotNull('subtipo')
+            ->whereHas('votante', function ($query) use ($identificacion) {
+                if ($identificacion) {
+                    $query->where('identificacion', $identificacion);
+                }
+            })
+            ->with([
+            'votante:id,nombre,tipo_documento,identificacion,genero',
+            'evento:id,nombre'
+        ])
+            ->paginate(5)
+            ->withQueryString(); // Mantener los parámetros en la URL
+
+
+        return response()->json(['registro' => $registro]);
+    }
+
+
     //voto normal y por proyecto solo
     public function store(Request $request)
     {
@@ -166,11 +195,9 @@ class VotosController extends Controller
 
 
 
-            if(Auth::user()->jurado) {
+            if (Auth::user()->jurado) {
                 // Redirige con mensaje de éxito
-                return redirect()->route('dashboard', [
-                    
-                ])->with('success', 'Recurso almacenado exitosamente');
+                return redirect()->route('dashboard', [])->with('success', 'Recurso almacenado exitosamente');
             }
 
             // Redirige con mensaje de éxito

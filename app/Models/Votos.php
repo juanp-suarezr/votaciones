@@ -35,6 +35,11 @@ class Votos extends Model
         return $this->hasOne(Informacion_votantes::class, 'id', 'id_votante');
     }
 
+    public function evento()
+    {
+        return $this->hasOne(Eventos::class, 'id', 'id_eventos');
+    }
+
     public function candidato()
     {
         return $this->hasOne(Informacion_votantes::class, 'id', 'id_candidato');

@@ -108,6 +108,12 @@ Route::get('/welcome', function () {
     ]);
 })->name('welcome');
 
+//GESTION CERTIFICADOS
+//descargar
+Route::get('/certificados/descargar/{id}/{idVotante?}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
+//ver eventos a los que voto el votante segun identificacion
+Route::get('/validar-certificado/{identificacion}', [VotosController::class, 'verificar']);
+
 Route::get('/dashboard', function () {
 
 
@@ -135,8 +141,8 @@ Route::get('/dashboard', function () {
             ->get();
 
         $votos = Votos::where('id_votante', Auth::user()->votantes->id)
-        ->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')
-        ->get();
+            ->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')
+            ->get();
     }
 
 
@@ -230,9 +236,6 @@ Route::middleware('auth')->group(function () {
     //actualizacion de datos con imgs
     Route::post('/corregir-datos', [ValidationController::class, 'corregirDatos'])->name('corregirDatos');
 
-    //GESTION CERTIFICADOS
-    //descargar
-    Route::get('/certificados/descargar/{id}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
 
     //descargar excel
     Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');

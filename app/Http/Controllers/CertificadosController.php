@@ -49,14 +49,22 @@ class CertificadosController extends Controller
             ]
         );
     }
+
+
+
     //generar certificado
-    public function descargarCertificado($id)
+    public function descargarCertificado($id, $idVotante = null)
     {
 
         ini_set('memory_limit', '1024M'); // 1 GB, puedes ajustar el valor
         ini_set('max_execution_time', 180); // 180 segundos (3 minutos)
 
-        $idVotante = Auth::user()->votantes->id ?? null;
+        $idVotante = Auth::user()->votantes->id ?? $idVotante;
+        
+
+        if (!$idVotante) {
+            abort(403, 'No se puede generar el certificado sin un votante válido.');
+        }
 
         // Obtener el evento y cargar solo al votante relacionado
         $evento = Eventos::select('id', 'nombre', 'fecha_inicio')
