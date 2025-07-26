@@ -2,7 +2,7 @@
     <Head title="Iniciar Sesión" />
 
     <GuestLayout>
-        <Link href="/Welcome" class="flex items-center justify-center">
+        <Link href="/welcome" class="flex items-center justify-center">
         <ApplicationLogo class="fill-current text-gray-500" />
         </Link>
 
