@@ -191,6 +191,7 @@ class ValidationController extends Controller
             $user = User::create([
                 'name' => $request->nombre,
                 'email' => $request->email,
+                'identificacion' => $request->identificacion,
                 'password' => Hash::make($request->password),
                 'estado' => 'Activo',
 
@@ -470,6 +471,9 @@ class ValidationController extends Controller
 
 
             $biometrico->save();
+
+            $user->identificacion = $request->identificacion;
+            $user->save();
 
             // Actualizar la información del votante asociada al usuario
             $votante->nombre = $request->nombre;
