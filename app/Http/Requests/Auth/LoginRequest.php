@@ -42,12 +42,16 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $credentials = $this->only('email', 'password');
+        $login = $this->input('email'); // Puede ser email o identificación
+        $password = $this->input('password');
 
-        // Verificar si el usuario existe y está activo
-        $user = User::where('email', $credentials['email'])
-/*                     ->where('estado', 'Activo') // Asegurarse de que el usuario esté activo */
-                    ->first();
+
+        // Buscar usuario por email o identificación
+        $user = User::where(function ($query) use ($login) {
+            $query->where('email', $login)
+                ->orWhere('identificacion', $login);
+        })
+            ->first();
 
         if (! $user) {
             RateLimiter::hit($this->throttleKey());
@@ -64,6 +68,11 @@ class LoginRequest extends FormRequest
                 'email' => 'El usuario ingresado esta Bloqueado',
             ]);
         }
+
+        // Intentar autenticación usando email o identificación
+        $credentials = filter_var($login, FILTER_VALIDATE_EMAIL)
+            ? ['email' => $login, 'password' => $password]
+            : ['identificacion' => $login, 'password' => $password];
 
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
@@ -104,6 +113,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
     }
 }
