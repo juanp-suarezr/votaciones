@@ -159,7 +159,14 @@ const breadcrumbLinks = [
 
 console.log(props);
 
-
+const baseColors = [
+  '#C20E1A', // primary
+  '#E20613', // secondary
+  '#d3d8f7', // option1
+  '#F2F2F2', // option2
+  '#585857', // parrafo
+  '#004884', // azul
+];
 
 
 //VARS PARA CHART
@@ -255,7 +262,16 @@ watch(evento_selected, (value) => {
 
 });
 
-
+// Genera un array de colores aleatorios para los datos
+const getRandomChartColors = (length) => {
+  const colors = [];
+  for (let i = 0; i < length; i++) {
+    // Elige un color base aleatorio
+    const color = baseColors[Math.floor(Math.random() * baseColors.length)];
+    colors.push(color);
+  }
+  return colors;
+}
 
 onMounted(() => {
 
@@ -305,7 +321,7 @@ const setChartData = () => {
             {
                 label: 'Votos',
                 data: votosArray.join(', ').split(',').map(label => label.trim()),
-                backgroundColor: [documentStyle.getPropertyValue('--gray-500')],
+                backgroundColor: '#E20613',
             }
         ]
 
@@ -381,8 +397,8 @@ const setChartData1 = () => {
             {
                 label: 'Cantidad',
                 data: resultadosArray,
-                backgroundColor: [documentStyle.getPropertyValue('--red-900'), documentStyle.getPropertyValue('--gray-500')],
-                hoverBackgroundColor: [documentStyle.getPropertyValue('--red-800'), documentStyle.getPropertyValue('--gray-400')]
+                backgroundColor: ['#004884', '#585857'],
+                hoverBackgroundColor: ['#3b82f6', '#b0b6c0']
             }
         ]
 

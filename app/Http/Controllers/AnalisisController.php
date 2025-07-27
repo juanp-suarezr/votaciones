@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Http\Controllers\Controller;
 use App\Models\Eventos;
@@ -28,21 +29,29 @@ class AnalisisController extends Controller
     function index()
     {
 
+        $eventos = Eventos::where('estado', '!=', 'Pendiente')
+        ->whereNot('nombre', 'Admin')
+        ->with('votos')
+        ->get()
+        ->filter(function ($evento) {
+            // Filtra eventos cuyo tipo contiene "proyectos" (mayúsculas o minúsculas)
+            return stripos($evento->tipos, 'Presupuesto Participativo') === false;
+        })
+        ->values();
+
         return Inertia::render(
             'Analisis/Index',
             [
 
-                'eventos' => Eventos::where('estado', '!=', 'Pendiente')->whereNot('nombre', 'Admin')
-                    ->with('votos')
-                    ->get(),
+                'eventos' => $eventos,
                 'candidatos' => Hash_votantes::where('candidato', 1)->with('votante')
-                ->get(),
+                    ->get(),
                 'votantes' => Hash_votantes::whereNot('tipo', 'Admin')
-                ->whereHas('votante.user.roles', function ($query) {
-                    $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
-                })
-                ->with(['votante.user.roles']) // Carga las relaciones necesarias
-                ->get(),
+                    ->whereHas('votante.user.roles', function ($query) {
+                        $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
+                    })
+                    ->with(['votante.user.roles']) // Carga las relaciones necesarias
+                    ->get(),
             ]
         );
     }
