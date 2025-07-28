@@ -86,8 +86,44 @@ class ParametrosDetalleController extends Controller
                 'estado' => 1,
             ]);
 
+
             //save
             $parametro->save();
+
+            $codParametro = $parametro->codParametro;
+            $idParametro = $parametro->id;
+
+            if (
+                $codParametro === 'com01'
+            ) {
+
+                $jsonPath = resource_path('js/shared/comunas.json');
+                if (file_exists($jsonPath)) {
+                    $comunas = json_decode(file_get_contents($jsonPath), true);
+
+                    // Verifica si ya existe la comuna antes de agregarla
+                    $existe = false;
+                    foreach ($comunas as $comuna) {
+                        if (isset($comuna['value']) && $comuna['value'] == $idParametro) {
+                            $existe = true;
+                            break;
+                        }
+                    }
+
+                    if (!$existe) {
+                        // Agrega la comuna con label y value
+                        $comunas[] = [
+                            'label' => $parametro->detalle,
+                            'value' => (string) $idParametro,
+                        ];
+                    }
+
+                    // Reindexa el array para evitar huecos en los índices
+                    $comunas = array_values($comunas);
+
+                    file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                }
+            }
 
 
             // Confirmar la transacción
@@ -119,9 +155,68 @@ class ParametrosDetalleController extends Controller
         DB::beginTransaction(); // Iniciar la transacción
 
         try {
+            // Guardar el estado anterior y el codParametro
+            $wasActive = $parametrosDetalle->estado;
+            $codParametro = $parametrosDetalle->codParametro;
+            $idParametro = $parametrosDetalle->id;
             // Actualizar el parámetroDetalle
-            $parametrosDetalle->update($request->only(['detalle', 'estado']));
 
+
+            // Si es de tipo com01 y se desactiva (estado == 0)
+            if (
+                $codParametro === 'com01' &&
+                $wasActive == 1 &&
+                isset($request->estado) && $request->estado == 0
+            ) {
+                $jsonPath = resource_path('js/shared/comunas.json');
+                if (file_exists($jsonPath)) {
+                    $comunas = json_decode(file_get_contents($jsonPath), true);
+
+                    // Elimina el registro cuyo value coincida con el id del parámetro
+                    $comunas = array_filter($comunas, function ($comuna) use ($idParametro) {
+                        return $comuna['value'] != $idParametro;
+                    });
+
+                    // Reindexa el array para evitar huecos en los índices
+                    $comunas = array_values($comunas);
+
+                    file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                }
+            } else if (
+                $codParametro === 'com01' &&
+                $wasActive == 0 &&
+                isset($request->estado) && $request->estado == 1
+            ) {
+
+                $jsonPath = resource_path('js/shared/comunas.json');
+                if (file_exists($jsonPath)) {
+                    $comunas = json_decode(file_get_contents($jsonPath), true);
+
+                    // Verifica si ya existe la comuna antes de agregarla
+                    $existe = false;
+                    foreach ($comunas as $comuna) {
+                        if (isset($comuna['value']) && $comuna['value'] == $idParametro) {
+                            $existe = true;
+                            break;
+                        }
+                    }
+
+                    if (!$existe) {
+                        // Agrega la comuna con label y value
+                        $comunas[] = [
+                            'label' => $parametrosDetalle->detalle,
+                            'value' => (string) $idParametro,
+                        ];
+                    }
+
+                    // Reindexa el array para evitar huecos en los índices
+                    $comunas = array_values($comunas);
+
+                    file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                }
+            }
+
+            $parametrosDetalle->update($request->only(['detalle', 'estado']));
             // Confirmar la transacción
             DB::commit();
 
@@ -143,9 +238,38 @@ class ParametrosDetalleController extends Controller
             'password' => ['required', 'current_password'],
         ]);
 
+
+
         $parametro = ParametrosDetalle::find($id);
+
+        $wasActive = $parametro->estado;
+        $codParametro = $parametro->codParametro;
+        $idParametro = $parametro->id;
+
+        // Si es de tipo com01 y se desactiva (estado == 0)
+        if (
+            $codParametro === 'com01' &&
+            $wasActive == 1 &&
+            isset($request->estado) && $request->estado == 0
+        ) {
+            $jsonPath = resource_path('js/shared/comunas.json');
+            if (file_exists($jsonPath)) {
+                $comunas = json_decode(file_get_contents($jsonPath), true);
+
+                // Elimina el registro cuyo value coincida con el id del parámetro
+                $comunas = array_filter($comunas, function ($comuna) use ($idParametro) {
+                    return $comuna['value'] != $idParametro;
+                });
+
+                // Reindexa el array para evitar huecos en los índices
+                $comunas = array_values($comunas);
+
+                file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
+        }
+
         $parametro->delete();
-        
+
 
         return back()
             ->with('success', 'Recurso eliminado exitosamente');
