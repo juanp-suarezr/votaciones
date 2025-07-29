@@ -190,12 +190,15 @@
           <!-- Barrio -->
           <div class="mb-2">
             <InputLabel for="barrio" value="Barrio/Vereda" />
-            <TextInput
+            <Select
               id="barrio"
-              type="text"
-              class="mt-1 block w-full"
               v-model="form.barrio"
-
+              :options="barriosXComuna"
+              filter
+              placeholder="Seleccione barrio/vereda de dirección"
+              checkmark
+              :highlightOnSelect="false"
+              class="w-full"
             />
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
@@ -263,8 +266,8 @@ import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
 
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
-import departamentos from "@/shared/departamentos.json"; // Importa el JSON
-import ciudades from "@/shared/ciudades.json"; // Importa el JSON
+
+import barrios from "@/shared/barrios.json"; // Importa el JSON
 import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
 
@@ -335,6 +338,17 @@ const IsNewGenero = ref(false);
 
 //si existe y no ha votado
 const existeNoVota = ref(false);
+
+const comunaSelected = ref("");
+const barriosXComuna = ref([]);
+
+
+
+
+barriosXComuna.value = barrios.find(
+  (barrio) => barrio.id === parseInt(usePage().props.user.jurado.comuna)
+).barrios;
+console.log(barriosXComuna.value);
 
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
@@ -541,10 +555,8 @@ const submit = () => {
           id_votante: usePage().props.flash.success.id_votante,
           evento: usePage().props.user.jurado.evento.id,
           tipo_evento: usePage().props.user.jurado.evento.tipos,
-          tipo_user:
-            usePage().props.flash.success.hash_votante.tipo,
-          subtipo_user:
-            usePage().props.flash.success.hash_votante.subtipo,
+          tipo_user: usePage().props.flash.success.hash_votante.tipo,
+          subtipo_user: usePage().props.flash.success.hash_votante.subtipo,
         });
       });
     },

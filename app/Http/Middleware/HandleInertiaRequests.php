@@ -49,6 +49,9 @@ class HandleInertiaRequests extends Middleware
             'user.jurado.evento' => $request->user() && $request->user()->jurado
                 ? $request->user()->jurado->evento
                 : null,
+                'user.jurado' => $request->user() && $request->user()->jurado
+                ? $request->user()->jurado
+                : null,
             'showingMobileMenu' => false,
             // Agregar la clave del sitio de reCAPTCHA
             'recaptcha' => [
