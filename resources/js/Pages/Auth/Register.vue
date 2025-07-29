@@ -292,7 +292,7 @@
               v-model="form.barrio"
               :options="barriosXComuna"
               filter
-              
+
               placeholder="Seleccione barrio/vereda de dirección"
               checkmark
               :highlightOnSelect="false"
@@ -961,7 +961,7 @@ const itemsMobil = ref([
 ]);
 
 //step activo
-const active = ref(1);
+const active = ref(0);
 //mensaje error
 const errorMessage = ref("");
 //error fecha nacimiento
