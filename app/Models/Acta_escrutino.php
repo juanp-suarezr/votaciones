@@ -49,5 +49,10 @@ class Acta_escrutino extends Model
         return $this->hasOne(Eventos::class, 'id', 'id_evento');
     }
 
+    public function votos_fisico()
+    {
+        return $this->hasMany(Votos_fisicos::class, 'id_acta', 'id');
+    }
+
 
 }

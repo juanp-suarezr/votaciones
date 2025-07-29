@@ -28,6 +28,11 @@
                 <span class="mx-3">Reporte votantes</span>
             </nav-link>
 
+            <nav-link v-if="$page.props.user.roles.includes('Jurado') || $page.props.user.roles.includes('Administrador')" :href="route('actaPresencial.index')" :active="route().current('actaPresencial')">
+                <DocumentTextIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Reporte escrutinio</span>
+            </nav-link>
+
             <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"
                 :active="route().current().includes('analisis')">
@@ -97,7 +102,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -115,6 +120,7 @@ export default {
         CheckIcon,
         CircleStackIcon,
         ArchiveBoxArrowDownIcon,
+        DocumentTextIcon,
         SeparadorMenu
     },
 

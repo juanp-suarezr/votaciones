@@ -44,12 +44,51 @@ class ActaPresencialController extends Controller
     //index
     public function index(Request $request)
     {
-        // $eventos = Eventos::where('estado', 'Activo')->get();
+        $id_evento = 15;
 
 
-        // return Inertia::render('ActaPresencial/Index', [
-        //     'eventos' => $eventos,
-        // ]);
+        if (RequestFacade::input('id_evento')) {
+            # code...
+            $id_evento = RequestFacade::input('id_evento');
+        }
+
+
+        $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->get();
+        $actas = Acta_escrutino::when($id_evento, function ($query, $id_evento) {
+            $query->where('id_evento',  $id_evento);
+        })
+            ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) {
+                $query->where('comuna',  $subtipo);
+            })
+            ->whereHas('jurado', function ($query) {
+                $query->when(RequestFacade::input('search'), function ($query, $search) {
+                    $query->where('nombre',  $search)
+                        ->orWhere('identificacion', $search);
+                });
+            })
+            ->with('jurado')
+            ->with('votos_fisico.proyecto')
+            ->paginate(5)
+            ->withQueryString();
+
+        return Inertia::render('VotantesPresencial/Index', [
+            'eventos' => $eventos,
+            'actas' => $actas,
+            'parametros' => ParametrosDetalle::where('estado', 1)->get(),
+        ]);
+    }
+
+    public function show(Request $request, $id) {
+
+        $acta = Acta_escrutino::with('jurado')
+        ->with('votos_fisico.proyecto')
+        ->findOrFail($id);
+
+        return Inertia::render('VotantesPresencial/Show', [
+            'acta' => $acta,
+            'parametros' => ParametrosDetalle::where('estado', 1)->get(),
+
+        ]);
     }
 
     //register
@@ -62,10 +101,9 @@ class ActaPresencialController extends Controller
             ->first();
 
         if ($actaExistente) {
-             return redirect()->route('dashboard', [
+            return redirect()->route('dashboard', [
                 'error' => true,
             ])->with('error', 'Ya se ha registrado un acta para este jurado, comuna y puesto de votación.');
-
         }
 
         //proyectos
@@ -84,8 +122,6 @@ class ActaPresencialController extends Controller
             'id_jurado' => Auth::user()->jurado->id,
         ]);
     }
-
-
 
     /**
      * Store a newly created resource in storage.
@@ -123,7 +159,7 @@ class ActaPresencialController extends Controller
 
             $imgExtension = $request->file('evidencia')->getClientOriginalExtension();
             $folder = 'actas';
-            $fileName = 'acta_escrutinio' . $request->id_jurado. '_'.$request->comuna.'_'.$request->puesto_votacion . '.' . $imgExtension;
+            $fileName = 'acta_escrutinio' . $request->id_jurado . '_' . $request->comuna . '_' . $request->puesto_votacion . '.' . $imgExtension;
             // Guardar la imagen
             $imagePath = $request->file('evidencia')->storeAs('uploads/' . $folder, $fileName, 'public');
 
@@ -170,5 +206,20 @@ class ActaPresencialController extends Controller
             Log::error('Error al registrar el acta de escrutinio: ' . $e->getMessage());
             return redirect()->back()->withErrors('error', 'Error al registrar el acta de escrutinio.' . $e->getMessage());
         }
+    }
+
+    //editar
+    public function edit(Request $request, $id) {
+
+        $acta = Acta_escrutino::with('jurado')
+        ->with('votos_fisico.proyecto')
+        ->findOrFail($id);
+
+        return Inertia::render('VotantesPresencial/Show', [
+            'acta' => $acta,
+            'parametros' => ParametrosDetalle::where('estado', 1)->get(),
+
+        ]);
+
     }
 }
