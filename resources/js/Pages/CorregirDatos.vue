@@ -246,7 +246,7 @@
             <InputLabel for="comuna" value="Comuna/Corregimiento" />
             <Select
               id="comuna"
-              v-model="form.comuna"
+              v-model="comunaSelected"
               :options="comunas"
               filter
               optionLabel="label"
@@ -261,11 +261,15 @@
           <!-- Barrio -->
           <div class="mb-2">
             <InputLabel for="barrio" value="Barrio/Vereda" />
-            <TextInput
+            <Select
               id="barrio"
-              type="text"
-              class="mt-1 block w-full"
               v-model="form.barrio"
+              :options="barriosXComuna"
+              filter
+              placeholder="Seleccione barrio/vereda de dirección"
+              checkmark
+              :highlightOnSelect="false"
+              class="w-full"
             />
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
@@ -736,6 +740,7 @@ import comunas from "@/shared/comunas.json"; // Importa el JSON
 import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
 import departamentos from "@/shared/departamentos.json"; // Importa el JSON
 import ciudades from "@/shared/ciudades.json"; // Importa el JSON
+import barrios from "@/shared/barrios.json"; // Importa el JSON
 import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
 
@@ -798,6 +803,8 @@ const form = useForm({
 
 const departamentoSelected = ref("");
 const ciudadesxDep = ref([]);
+const comunaSelected = ref("");
+const barriosXComuna = ref([]);
 
 //firma
 const firmaPreview = ref(null);
@@ -924,6 +931,20 @@ watch(departamentoSelected, (newValue) => {
     ciudadesxDep.value = ciudades.find(
       (ciudad) => ciudad.id === newValue.id
     ).ciudades;
+  }
+});
+
+//WATCH COMUNAS
+watch(comunaSelected, (newValue) => {
+
+
+  if (newValue) {
+    form.comuna = newValue;
+    barriosXComuna.value = barrios.find(
+      (barrio) => barrio.id === parseInt(newValue.value)
+    ).barrios;
+    console.log(barriosXComuna.value);
+
   }
 });
 
@@ -1458,7 +1479,11 @@ const validarDatos2 = () => {
 
 const validarDatos3 = () => {
   isValidate.value = false;
-  if ((form.cedula_front || imageUrl) && (form.cedula_back || imageUrl1) && (form.firma || firmaPreview)) {
+  if (
+    (form.cedula_front || imageUrl) &&
+    (form.cedula_back || imageUrl1) &&
+    (form.firma || firmaPreview)
+  ) {
     isValidate.value = true;
   }
 
