@@ -272,11 +272,11 @@
             <InputLabel for="comuna" value="Comuna/Corregimiento" />
             <Select
               id="comuna"
-              v-model="form.comuna"
+              v-model="comunaSelected"
               :options="comunas"
               filter
               optionLabel="label"
-              placeholder="Seleccione comuna del proyecto"
+              placeholder="Seleccione comuna de dirección"
               checkmark
               :highlightOnSelect="false"
               class="w-full"
@@ -287,11 +287,16 @@
           <!-- Barrio -->
           <div class="mb-2">
             <InputLabel for="barrio" value="Barrio/Vereda" />
-            <TextInput
+            <Select
               id="barrio"
-              type="text"
-              class="mt-1 block w-full"
               v-model="form.barrio"
+              :options="barriosXComuna"
+              filter
+              
+              placeholder="Seleccione barrio/vereda de dirección"
+              checkmark
+              :highlightOnSelect="false"
+              class="w-full"
             />
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
@@ -861,6 +866,7 @@ import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
 import departamentos from "@/shared/departamentos.json"; // Importa el JSON
 import ciudades from "@/shared/ciudades.json"; // Importa el JSON
 import comunas from "@/shared/comunas.json"; // Importa el JSON
+import barrios from "@/shared/barrios.json"; // Importa el JSON
 import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
 import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
@@ -908,6 +914,8 @@ const { executeRecaptcha } = useReCaptcha();
 
 const departamentoSelected = ref("");
 const ciudadesxDep = ref([]);
+const comunaSelected = ref("");
+const barriosXComuna = ref([]);
 
 //firma
 const firmaPreview = ref(null);
@@ -953,7 +961,7 @@ const itemsMobil = ref([
 ]);
 
 //step activo
-const active = ref(0);
+const active = ref(1);
 //mensaje error
 const errorMessage = ref("");
 //error fecha nacimiento
@@ -994,10 +1002,27 @@ watch(IsNewGenero, (value) => {
 
 //WATCH DEPARTAMENTOS
 watch(departamentoSelected, (newValue) => {
+
+
+
   if (newValue) {
     ciudadesxDep.value = ciudades.find(
       (ciudad) => ciudad.id === newValue.id
     ).ciudades;
+  }
+});
+
+//WATCH COMUNAS
+watch(comunaSelected, (newValue) => {
+
+
+  if (newValue) {
+    form.comuna = newValue;
+    barriosXComuna.value = barrios.find(
+      (barrio) => barrio.id === parseInt(newValue.value)
+    ).barrios;
+    console.log(barriosXComuna.value);
+
   }
 });
 
@@ -1504,6 +1529,8 @@ const validarDatos2 = () => {
     form.checked &&
     form.declaracion
   ) {
+    console.log(form.barrio);
+
     isValidate.value = true;
     active.value = 2;
   }

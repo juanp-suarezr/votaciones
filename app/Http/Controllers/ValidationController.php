@@ -348,7 +348,7 @@ class ValidationController extends Controller
             'etnia' => 'required|string',
             'condicion' => 'required|string',
             'comuna' => 'required',
-            'barrio' => 'string',
+            'barrio' => 'required',
             'direccion' => 'string',
 
         ]);
