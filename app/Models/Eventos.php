@@ -40,6 +40,11 @@ class Eventos extends Model
         return $this->hasMany(Votos::class, 'id_eventos', 'id');
     }
 
+    public function acta_escrutinio()
+    {
+        return $this->hasMany(Acta_escrutino::class, 'id_evento', 'id');
+    }
+
     public function evento_padre()
     {
         return $this->belongsTo(Eventos::class, 'evento_padre', 'id');

@@ -276,7 +276,7 @@
               :options="comunas"
               filter
               optionLabel="label"
-              placeholder="Seleccione comuna de dirección"
+              placeholder="Seleccione comuna/corregimiento de dirección"
               checkmark
               :highlightOnSelect="false"
               class="w-full"

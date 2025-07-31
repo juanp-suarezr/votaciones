@@ -37,7 +37,7 @@
             {{ votante.votante?.genero || "N/A" }}
           </div>
           <div>
-            <b>Comuna:</b>
+            <b>Comuna/Corregimiento:</b>
             {{ getComuna(votante.subtipo) || "N/A" }}
           </div>
           <div>
@@ -175,8 +175,8 @@
             >
               Información errónea, en comparación con la documentación
             </option>
-            <option value="Dirección diferente a la comuna">
-              Dirección diferente a la comuna
+            <option value="Dirección diferente a la comuna/corregimiento">
+              Dirección diferente a la comuna/corregimiento
             </option>
           </select>
         </div>

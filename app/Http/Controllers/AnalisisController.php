@@ -12,6 +12,7 @@ use App\Models\Tipos;
 use App\Models\Votos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AnalisisController extends Controller
@@ -82,7 +83,7 @@ class AnalisisController extends Controller
             ->get()
             ->filter(function ($evento) {
                 // Filtra eventos cuyo tipo contiene "proyectos" (mayúsculas o minúsculas)
-                return stripos($evento->tipos, 'Presupuesto Participativo') === true;
+                return stripos($evento->tipos, 'Presupuesto Participativo') !== false;
             })
             ->values();
 

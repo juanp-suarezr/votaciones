@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActaPresencialController;
 use App\Http\Controllers\AnalisisController;
+use App\Http\Controllers\AnalisisPresupuestoController;
 use App\Http\Controllers\Auth\FaceController;
 use App\Http\Controllers\CandidatosController;
 use App\Http\Controllers\cargueMasivoController;
@@ -113,6 +114,12 @@ Route::get('/welcome', function () {
 Route::get('/certificados/descargar/{id}/{idVotante?}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
 //ver eventos a los que voto el votante segun identificacion
 Route::get('/validar-certificado/{identificacion}', [VotosController::class, 'verificar']);
+
+//pagina de resultados
+Route::get('/resultado-evento', [AnalisisPresupuestoController::class, 'index']);
+Route::get('/resultado-comunas', [AnalisisPresupuestoController::class, 'ResultadosComunas'])->name('resultado-comunas');
+Route::get('/resultado-proyectos', [AnalisisPresupuestoController::class, 'ResultadosProyectos'])->name('resultado-proyectos');
+Route::get('/resultado-generales', [AnalisisPresupuestoController::class, 'ResultadosGenerales'])->name('resultado-generales');
 
 Route::get('/dashboard', function () {
 

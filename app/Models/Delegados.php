@@ -43,5 +43,10 @@ class Delegados extends Model
         return $this->hasOne(Eventos::class, 'id', 'id_evento');
     }
 
+    public function puntos_votacion_rp()
+    {
+        return $this->hasOne(ParametrosDetalle::class, 'id', 'puntos_votacion');
+    }
+
 
 }

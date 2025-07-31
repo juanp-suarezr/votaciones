@@ -172,7 +172,14 @@ class VotosController extends Controller
                     'id_eventos' => $request->id_eventos,
                     'tipo' => $request->tipo,
                     'subtipo' => $request->subtipo,
+                    'isVirtual' => Auth::user()->jurado ? 0 : 1,
                 ]);
+
+                if(Auth::user()->jurado) {
+                    $votante = Informacion_votantes::find($request->id_votante);
+                    $votante->id_jurado = Auth::user()->jurado->id;
+                    $votante->save();
+                }
 
                 // Asocia la información del usuario
                 $Votos->save();

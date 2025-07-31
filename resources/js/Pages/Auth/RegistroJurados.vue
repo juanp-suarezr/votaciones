@@ -59,7 +59,7 @@
 
         <!-- comuna -->
         <div class="mb-2">
-          <InputLabel for="comuna" value="Comuna correspondiente" />
+          <InputLabel for="comuna" value="Comuna/corregimiento correspondiente" />
           <Select
             id="comuna"
             v-model="form.comuna"

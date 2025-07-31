@@ -30,7 +30,7 @@
             :options="comunas"
             filter
             optionLabel="label"
-            placeholder="Seleccione comuna"
+            placeholder="Seleccione comuna/corregimiento"
             checkmark
             :highlightOnSelect="false"
             class="w-full"

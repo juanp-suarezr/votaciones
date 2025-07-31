@@ -28,7 +28,7 @@
           <div class="rounded-md w-full justify-center shadow-md p-4">
             <div class="sm:grid sm:grid-cols-2 gap-4">
               <div class="md:col-span-2">
-                <b>Comuna:</b>
+                <b>Comuna/Corregimiento:</b>
                 {{ getParametros(acta.comuna) || "Sin información" }}
               </div>
               <div class="md:col-span-2">

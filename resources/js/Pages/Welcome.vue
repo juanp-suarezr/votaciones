@@ -72,6 +72,11 @@ const descargarCertificado = (ev, idVotante) => {
             Consultar certificado
           </a>
         </div>
+        <div class="w-full flex justify-end items-center">
+          <a class="text-white text-xl" href="/resultado-evento">
+            Resultados votaciones
+          </a>
+        </div>
       </div>
 
       <!-- seccion 1 -->

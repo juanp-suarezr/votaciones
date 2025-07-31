@@ -20,7 +20,7 @@ class Acta_escrutino extends Model
         'id_evento',
         'id_jurado',
         'comuna',
-        'puestos_votacion',
+        'puesto_votacion',
         'nombre_testigo',
         'identificacion_testigo',
         'contacto_testigo',
@@ -29,7 +29,7 @@ class Acta_escrutino extends Model
         'hora_inicio',
         'hora_cierre',
         'votos_nulos',
-        'votos_blancos',
+        'votos_blanco',
         'votos_no_marcados',
         'total_ciudadanos',
         'observaciones',
@@ -52,6 +52,11 @@ class Acta_escrutino extends Model
     public function votos_fisico()
     {
         return $this->hasMany(Votos_fisicos::class, 'id_acta', 'id');
+    }
+
+    public function puntos_votacion_rp()
+    {
+        return $this->hasOne(ParametrosDetalle::class, 'id', 'puesto_votacion');
     }
 
 

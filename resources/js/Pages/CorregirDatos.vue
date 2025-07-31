@@ -250,7 +250,7 @@
               :options="comunas"
               filter
               optionLabel="label"
-              placeholder="Seleccione comuna del proyecto"
+              placeholder="Seleccione comuna/corregimiento del proyecto"
               checkmark
               :highlightOnSelect="false"
               class="w-full"
