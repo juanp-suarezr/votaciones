@@ -376,7 +376,7 @@ const submit = () => {
     parseInt(form.votos_nulos) +
     parseInt(form.votos_no_marcados);
   const total_proyectos = Object.values(form.votos_proyectos).reduce(
-    (acc, votos) => acc + (votos || 0),
+    (acc, votos) => parseInt(acc) + parseInt((votos || 0)),
     0
   );
 

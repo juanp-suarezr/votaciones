@@ -218,7 +218,7 @@
     <Modal :show="InicioModal" :closeable="true">
       <template #default>
         <h2
-          class="py-4 sm:text-4xl text-2x font-bold text-gray-800 flex tex-center justify-center bg-azul text-white"
+          class="p-4 sm:text-4xl text-2x font-bold text-gray-800 flex text-center justify-center bg-azul text-white"
         >
           Aviso Importante para el proceso de votación
         </h2>
