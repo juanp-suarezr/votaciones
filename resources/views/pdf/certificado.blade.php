@@ -130,7 +130,7 @@
                         <p><strong>Nombre:</strong> {{ $votante->nombre }}</p>
                         <p><strong>identificación:</strong> {{ $votante->tipo_documento }} - {{ $votante->identificacion }}</p>
                         <p><strong>Comuna/Corregimiento:</strong> {{$comuna }}</p>
-                        <p><strong>Modalidad:</strong> {{ $voto->isVirtual ? 'Virtual' : 'Presencial' }}</p>
+                        <p><strong>Modalidad:</strong> {{ $voto->isVirtual ? 'Virtual' : 'Virtual-TIC' }}</p>
                     </td>
                     <!-- QR -->
                     <td style="width:150px; text-align:center; vertical-align:top;">
