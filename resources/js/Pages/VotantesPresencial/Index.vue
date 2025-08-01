@@ -257,7 +257,7 @@
                       >
                         <EyeIcon class="h-6 w-6 text-gray-800" />
                       </Link>
-                      <Link
+                      <Link v-if="$page.props.user.roles.includes('Administrador')"
                         class="bg-yellow-400/60 rounded-full hover:!bg-yellow-400/80 p-1"
                         v-tooltip.bottom="'Editar'"
                         :href="
