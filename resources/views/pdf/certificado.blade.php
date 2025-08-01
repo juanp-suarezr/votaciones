@@ -148,9 +148,9 @@
                 <table>
                     <tr>
                         <!-- Logo a la izquierda -->
-                        <td style="text-align: left; margin-top: 40px;">
+                        <td style="text-align: left;">
 
-                            <img src="{{ public_path('assets/img/logo.webp') }}" height="60">
+                            <img style="margin-top: 40px;" src="{{ public_path('assets/img/logo.webp') }}" height="60">
                         </td>
 
                         <!-- Firma a la derecha -->
