@@ -150,7 +150,7 @@
                         <!-- Logo a la izquierda -->
                         <td style="text-align: left;">
 
-                            <img style="margin-top: 40px;" src="{{ public_path('assets/img/logo.webp') }}" height="60">
+                            <img style="margin-top: 50px;" src="{{ public_path('assets/img/logo.webp') }}" height="60">
                         </td>
 
                         <!-- Firma a la derecha -->
