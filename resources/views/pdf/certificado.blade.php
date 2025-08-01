@@ -148,7 +148,7 @@
                 <table>
                     <tr>
                         <!-- Logo a la izquierda -->
-                        <td style="text-align: left; margin-top: 10px;">
+                        <td style="text-align: left; margin-top: 20px;">
 
                             <img src="{{ public_path('assets/img/logo.webp') }}" height="60">
                         </td>
@@ -160,7 +160,7 @@
                             <p style="margin-top:-10px;">
                                 __________________<br>
                                 <span style="font-weight: bold;">{{ $delegado->nombre }}</span><br>
-                                {{ $delegado->cargo || '' }}<br>
+                                {{ $delegado->cargo || 'Jurado' }}<br>
                                 Alcaldía de Pereira
                             </p>
                         </td>
