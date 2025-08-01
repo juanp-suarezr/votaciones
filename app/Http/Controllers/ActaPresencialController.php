@@ -150,7 +150,7 @@ class ActaPresencialController extends Controller
             'votos_proyectos' => 'required|array',
             'votos_proyectos.*' => 'required|integer|min:0',
 
-            'evidencia' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'evidencia' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
 
         ]);
 
