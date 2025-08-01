@@ -154,7 +154,7 @@
         <div class="sm:grid sm:grid-cols-2 gap-6" v-if="active == 1">
           <!-- Género -->
           <div class="mb-2">
-            <InputLabel for="genero" value="Género" />
+            <InputLabel for="genero" value="Identidad de Género" />
             <div class="mt-2 block sm:flex">
               <div class="">
                 <input
@@ -292,7 +292,6 @@
               v-model="form.barrio"
               :options="barriosXComuna"
               filter
-
               placeholder="Seleccione barrio/vereda de dirección"
               checkmark
               :highlightOnSelect="false"
@@ -1002,9 +1001,6 @@ watch(IsNewGenero, (value) => {
 
 //WATCH DEPARTAMENTOS
 watch(departamentoSelected, (newValue) => {
-
-
-
   if (newValue) {
     ciudadesxDep.value = ciudades.find(
       (ciudad) => ciudad.id === newValue.id
@@ -1014,17 +1010,50 @@ watch(departamentoSelected, (newValue) => {
 
 //WATCH COMUNAS
 watch(comunaSelected, (newValue) => {
-
-
   if (newValue) {
     form.comuna = newValue;
     barriosXComuna.value = barrios.find(
       (barrio) => barrio.id === parseInt(newValue.value)
     ).barrios;
     console.log(barriosXComuna.value);
-
   }
 });
+
+async function verificarCamaraONecesaria() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    swal.fire({
+      icon: "warning",
+      title: "Navegador no compatible",
+      text: "Tu navegador no permite acceder a los dispositivos multimedia.",
+    });
+    return;
+  }
+
+  try {
+    const dispositivos = await navigator.mediaDevices.enumerateDevices();
+    const camaras = dispositivos.filter(
+      (dispositivo) => dispositivo.kind === "videoinput"
+    );
+
+    if (camaras.length === 0) {
+      swal.fire({
+        icon: "warning",
+        title: "Cámara no detectada",
+        text: "Es necesario que el dispositivo tenga una cámara para continuar con el proceso.",
+      });
+    } else {
+      console.log("Cámara detectada, puede continuar.");
+      // Aquí puede continuar con su proceso
+    }
+  } catch (error) {
+    console.error("Error al verificar dispositivos:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al verificar la cámara",
+      text: "Ocurrió un problema al intentar detectar la cámara.",
+    });
+  }
+}
 
 const onFileChange = (field, event) => {
   form[field] = event.target.files[0];
@@ -1529,14 +1558,17 @@ const validarDatos2 = () => {
     form.checked &&
     form.declaracion
   ) {
-    console.log(form.barrio);
-
-    isValidate.value = true;
-    active.value = 2;
+    if (form.password.length >= 8) {
+      isValidate.value = true;
+      active.value = 2;
+    }
   }
 
   if (isValidate.value) {
   } else {
+    if (form.password) {
+        form.errors.password = "El campo de contraseña debe contener minimo 8 caracteres. "+form.password.length+ "/8 caracteres ingresados";
+    }
     if (!form.genero) {
       form.errors.genero = "Este campo es requerido.";
     }
@@ -1741,5 +1773,9 @@ watch(biometricoModal, (newVal) => {
   if (newVal == false) {
     stopCamera();
   }
+});
+
+onMounted(() => {
+  verificarCamaraONecesaria();
 });
 </script>

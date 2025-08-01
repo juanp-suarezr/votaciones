@@ -106,6 +106,9 @@ Route::get('/welcome', function () {
         'puntos_votacion' => ParametrosDetalle::where('estado', 1)
             ->where('codParametro', 'pt_v')
             ->get(),
+        'isActive' => Eventos::where('estado', 'activo')
+            ->whereRaw("LOWER(tipos) LIKE ?", ['%presupuesto participativo%'])
+            ->exists(),
     ]);
 })->name('welcome');
 

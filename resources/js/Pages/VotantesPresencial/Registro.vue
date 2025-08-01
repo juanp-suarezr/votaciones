@@ -100,7 +100,7 @@
           </div>
           <!-- Género -->
           <div class="mb-2">
-            <InputLabel for="genero" value="Género" />
+            <InputLabel for="genero" value="Identidad de Género" />
             <div class="mt-2 block sm:flex">
               <div class="">
                 <input

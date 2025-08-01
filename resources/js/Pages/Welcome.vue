@@ -10,11 +10,23 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import axios from "axios";
 const swal = inject("$swal");
 
+const props = defineProps({
+  eventos: Object,
+  puntos_votacion: Object,
+  isActive: Boolean,
+});
+
+console.log(props);
+
+
 const IsSecondTime = ref(false);
 //loading
 const loading = ref(false);
 //info
 const registro = ref([]);
+
+//is disabledsegun fecha
+const eventoActivo = ref(props.isActive);
 
 // pass filters in search
 let identificacion = ref(null);
@@ -62,7 +74,7 @@ const descargarCertificado = (ev, idVotante) => {
   <Head title="Welcome" />
 
   <div
-    class="relative min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white flex items-center justify-center sm:px-16 px-4"
+    class="relative min-h-screen bg-dots-lighter bg-gray-900 bg-center selection:bg-red-500 selection:text-white flex items-center justify-center sm:px-16 px-4"
   >
     <div class="w-full">
       <div class="sm:flex justify-start mb-8 mt-2">
@@ -81,7 +93,7 @@ const descargarCertificado = (ev, idVotante) => {
 
       <!-- seccion 1 -->
       <div
-        class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center bg-white dark:bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
+        class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
       >
         <!-- Texto lado izquierdo -->
         <div
@@ -91,11 +103,9 @@ const descargarCertificado = (ev, idVotante) => {
             class="text-4xl md:text-5xl font-extrabold text-red-600 mb-6 leading-tight"
           >
             ¡Vota Ya! <br />
-            <span class="text-gray-800 dark:text-white"
-              >Tu voz, tu decisión</span
-            >
+            <span class="text-gray-800 text-white">Tu voz, tu decisión</span>
           </h1>
-          <p class="text-lg md:text-2xl text-gray-700 dark:text-gray-300 mb-4">
+          <p class="text-lg md:text-2xl text-gray-300 mb-4">
             Plataforma de votaciones más segura y fácil para votar de forma
             digital.
             <br />
@@ -116,7 +126,7 @@ const descargarCertificado = (ev, idVotante) => {
 
       <!-- seccion 2 paso a paso presupuesto participativo -->
       <div
-        class="md:grid md:grid-cols-3 gap-8 items-stretch bg-white dark:bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
+        class="md:grid md:grid-cols-3 gap-8 items-stretch bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
       >
         <!-- info general -->
         <div class="flex justify-center items-center col-span-3 mb-4">
@@ -127,10 +137,10 @@ const descargarCertificado = (ev, idVotante) => {
         </div>
         <!-- Paso 1 -->
         <div
-          class="flex flex-col justify-between items-start bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 shadow"
+          class="flex flex-col justify-between items-start bg-gray-900/40 rounded-lg p-6 shadow"
         >
           <h2 class="text-2xl font-bold text-red-600 mb-4">1. Regístrate</h2>
-          <p class="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-4">
+          <p class="text-base md:text-lg text-gray-300 mb-4">
             Ingresa tus datos personales, sube foto de tu documento y realiza el
             registro biométrico. Recibirás una notificación por correo si tu
             registro fue aprobado. Si es rechazado, podrás corregir la
@@ -145,30 +155,38 @@ const descargarCertificado = (ev, idVotante) => {
         </div>
         <!-- Paso 2 -->
         <div
-          class="flex flex-col justify-between items-start bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 shadow"
+          class="flex flex-col justify-between items-start bg-gray-900/40 rounded-lg p-6 shadow"
+          :class="{'!bg-gray-900': eventoActivo == false}"
         >
-          <h2 class="text-2xl font-bold text-red-600 mb-4">
+          <h2 class="text-2xl font-bold text-red-600 mb-4" :class="{'!text-gray-500': eventoActivo == false}">
             2. Vota por tu proyecto
           </h2>
-          <p class="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-4">
+          <p class="text-base md:text-lg text-gray-300 mb-4">
             En las fechas estipuladas, ingresa al software y vota por el
             proyecto de tu preferencia.
           </p>
           <Link
-            :href="route('login')"
-            class="mt-auto px-4 py-2 bg-indigo-600 text-white font-semibold rounded shadow hover:bg-indigo-700 transition"
+            :href="eventoActivo == false ? null : route('login')"
+            @click.prevent="
+              eventoActivo == false ? null : $inertia.visit(route('login'))
+            "
+            class="mt-auto px-4 py-2 text-white font-semibold rounded shadow transition"
+            :class="{
+              'bg-indigo-700 hover:bg-indigo-800': eventoActivo,
+              'bg-indigo-200/60 cursor-not-allowed': eventoActivo == false,
+            }"
           >
             Ir a votación
           </Link>
         </div>
         <!-- Paso 3 -->
         <div
-          class="flex flex-col justify-between items-start bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 shadow"
+          class="flex flex-col justify-between items-start bg-gray-900/40 rounded-lg p-6 shadow"
         >
           <h2 class="text-2xl font-bold text-red-600 mb-4">
             3. Descarga tu certificado
           </h2>
-          <p class="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-4">
+          <p class="text-base md:text-lg text-gray-300 mb-4">
             Descarga tu certificado de participación en el software o accede a
             la sección específica para obtenerlo.
           </p>
@@ -198,7 +216,7 @@ const descargarCertificado = (ev, idVotante) => {
       <!-- Nuevo grid landing registro info-->
       <div
         id="registro_info"
-        class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white dark:bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
+        class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
       >
         <!-- Video lado izquierdo -->
         <div class="flex justify-center items-center">
@@ -220,11 +238,9 @@ const descargarCertificado = (ev, idVotante) => {
             class="text-4xl md:text-5xl font-extrabold text-red-600 mb-6 leading-tight"
           >
             ¡Registro! <br />
-            <span class="text-gray-800 dark:text-white"
-              >Presupuesto participativo</span
-            >
+            <span class="text-white">Presupuesto participativo</span>
           </h1>
-          <p class="text-lg md:text-2xl text-gray-700 dark:text-gray-300 mb-4">
+          <p class="text-lg md:text-2xl text-gray-300 mb-4">
             Participa y vota por los proyectos que más beneficien a tu comunidad
             de forma más segura y moderna.
             <br />
@@ -241,11 +257,11 @@ const descargarCertificado = (ev, idVotante) => {
       <!-- consultar certificados -->
       <div
         id="certificados_info"
-        class="w-full bg-white dark:bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
+        class="w-full bg-gray-800/70 rounded-xl shadow-lg p-8 mb-12"
       >
         <!-- Filtro de búsqueda -->
         <div class="w-full">
-          <div class="bg-gray-50 dark:bg-gray-900/40 shadow-md rounded-lg p-4">
+          <div class="bg-gray-900/40 shadow-md rounded-lg p-4">
             <span class="text-2xl text-center font-bold text-white mb-6">
               Ingresar número de identificación para consultar los certificados
               registrados a su nombre
@@ -271,7 +287,7 @@ const descargarCertificado = (ev, idVotante) => {
         </div>
         <!-- Tabla de resultados - right side -->
         <div class="mt-6">
-          <div class="bg-gray-50 dark:bg-gray-900/40 shadow-md rounded-lg p-4">
+          <div class="bg-gray-900/40 shadow-md rounded-lg p-4">
             <div
               v-if="registro.data && registro.data.length > 0"
               class="w-full overflow-x-auto"
@@ -396,10 +412,9 @@ const descargarCertificado = (ev, idVotante) => {
 .bg-dots-darker {
   background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(0,0,0,0.07)'/%3E%3C/svg%3E");
 }
-@media (prefers-color-scheme: dark) {
-  .dark\:bg-dots-lighter {
-    background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
-  }
+
+.bg-dots-lighter {
+  background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
 }
 
 @media screen and (max-width: 900px) {
