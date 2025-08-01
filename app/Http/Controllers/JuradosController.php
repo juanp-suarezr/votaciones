@@ -124,7 +124,7 @@ class JuradosController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error al registrar jurado: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al registrar el jurado.');
+            return redirect()->back()->withErrors('error', 'Error al registrar el jurado.');
         }
     }
 }
