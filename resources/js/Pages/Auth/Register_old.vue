@@ -71,6 +71,60 @@
             <InputError class="mt-2" :message="form.errors.tipo_documento" />
           </div>
 
+          <!-- Fecha de Expedición -->
+          <div class="mb-2">
+            <InputLabel for="fecha_expedicion" value="Fecha de Expedición" />
+            <TextInput
+              id="fecha_expedicion"
+              type="date"
+              class="mt-1 block w-full"
+              v-model="form.fecha_expedicion"
+              required
+            />
+            <InputError class="mt-2" :message="form.errors.fecha_expedicion" />
+          </div>
+
+          <!-- Lugar de Expedición -->
+          <div
+            class="cols-span-2 w-full mb-2"
+            v-if="form.tipo_documento !== 'Cédula Extranjería'"
+          >
+            <InputLabel for="lugar_expedicion" value="Lugar de Expedición" />
+            <!-- departamento -->
+            <div class="mb-2 mt-1">
+              <Select
+                id="departamento"
+                v-model="departamentoSelected"
+                :options="departamentos"
+                filter
+                optionLabel="departamento"
+                placeholder="Seleccione departamento"
+                checkmark
+                :highlightOnSelect="false"
+                class="w-full"
+              />
+            </div>
+
+            <!-- ciudad -->
+            <div class="" v-if="form.tipo_documento !== 'Pasaporte'">
+              <Select
+                :disabled="
+                  departamentoSelected === null || departamentoSelected === ''
+                "
+                id="lugar_expedicion"
+                v-model="form.lugar_expedicion"
+                :options="ciudadesxDep"
+                filter
+                optionLabel=""
+                placeholder="Seleccione lugar de expedición"
+                checkmark
+                :highlightOnSelect="false"
+                class="w-full"
+              />
+            </div>
+            <InputError class="mt-2" :message="form.errors.lugar_expedicion" />
+          </div>
+
           <!-- Fecha de Nacimiento -->
           <div class="mb-2">
             <InputLabel for="nacimiento" value="Fecha de Nacimiento" />
@@ -398,7 +452,7 @@
                   id="cedula_front"
                   type="file"
                   class="mt-1 !border-0"
-                  accept="image/jpeg,image/jpg,image/png,image/gif,image/svg+xml,image/webp"
+                  accept="image/*"
                   @input="onFileChange('cedula_front', $event)"
                   :maxFileSize="2e6"
                 />
@@ -428,7 +482,67 @@
               </div>
             </div>
           </div>
-          <!-- firma -->
+          <!-- parte trasera documento -->
+          <div class="sm:grid sm:grid-cols-2 gap-2 h-full sm:px-16 px-4">
+            <!-- titulo -->
+            <div class="col-span-2 text-sm sm:text-base text-gray-800 pt-6">
+              <h3 class="text-lg font-semibold">
+                Cargue documento de identificación parte trasera
+              </h3>
+              <p>
+                Para cargar el documento en su parte trasera, asegúrese de que
+                la imagen sea clara y legible. El documento debe estar bien
+                iluminado y sin reflejos.
+              </p>
+            </div>
+            <!-- ejemplo de doc trasero -->
+            <div class="w-full h-full mt-4">
+              <div class="w-full">
+                <h4>Ejemplo parte trasera</h4>
+                <img
+                  :src="backEjemplo"
+                  alt="Documento parte trasera ejemplo"
+                  class="w-full h-full object-contain mt-2"
+                />
+              </div>
+            </div>
+            <!-- Cédula trasera -->
+            <div class="mb-2 h-full flex justify-center items-center mt-4">
+              <div class="border-2 border-gray-300 rounded-md p-2 h-full">
+                <TextInput
+                  id="cedula_back"
+                  type="file"
+                  class="mt-1 !border-0"
+                  accept="image/*"
+                  @input="onFileChange('cedula_back', $event)"
+                  :maxFileSize="2e6"
+                />
+                <InputError class="mt-2" :message="form.errors.cedula_back" />
+
+                <div class="flex justify-center">
+                  <img
+                    v-if="imageUrl1"
+                    :src="imageUrl1"
+                    :alt="form.cedula_back"
+                    class="w-4/6 h-full object-contain"
+                  />
+                  <PhotoIcon
+                    v-else
+                    class="w-2/6 text-gray-300 flex justify-center items-center"
+                  />
+                </div>
+                <div v-if="imageUrl1" class="flex justify-center mt-2">
+                  <button
+                    @click="removeImage(2)"
+                    type="button"
+                    class="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Eliminar Imagen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="w-full gap-2 h-full sm:px-16 px-4 mt-4">
             <InputLabel for="firma" value="Firma" />
             <div class="flex gap-4 mb-2">
@@ -546,6 +660,49 @@
             </div>
           </div>
         </div>
+
+        <!-- parte 4 -- verificacion -->
+        <div class="gap-6" v-if="active == 3">
+          <div class="text-sm sm:text-base text-gray-800 pt-6 sm:px-16 px-4">
+            Ingrese el código de verificación que le fue enviado a su correo o
+            celular. Si no recibió el código, por favor revise su bandeja de
+            entrada o carpeta de spam. o vuelva a atrás y valide nuevamente.
+          </div>
+          <div class="w-full mt-6">
+            <InputLabel for="codigo" value="Código de Verificación" />
+            <TextInput
+              id="codigo"
+              type="text"
+              class="mt-1 block w-full"
+              v-model="form.codigo"
+              required
+            />
+            <InputError class="mt-2" :message="form.errors.codigo" />
+          </div>
+
+          <!-- Botón de Enviar -->
+          <div class="col-span-2 flex justify-between gap-2 mt-4">
+            <div class="flex pt-4 justify-end">
+              <button
+                type="button"
+                @click="prevStep(0)"
+                class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 rounded-md shadow-xl"
+              >
+                Atrás
+              </button>
+            </div>
+            <div class="flex pt-4 justify-end">
+              <PrimaryButton
+                type="button"
+                @click="submit"
+                :class="{ 'opacity-25': form.processing }"
+                :disabled="form.processing"
+              >
+                Registrarse
+              </PrimaryButton>
+            </div>
+          </div>
+        </div>
       </form>
     </div>
   </PageLayout>
@@ -561,6 +718,36 @@
 
       <div class="flex justify-center my-12">
         <ProgressSpinner aria-label="Loading" />
+      </div>
+    </template>
+  </Modal>
+
+  <!-- Modal botnes validar -->
+  <Modal :show="botonesValidarModal" :closeable="false">
+    <template #default>
+      <h2
+        class="py-4 text-2xl font-semibold text-gray-800 flex tex-center justify-center bg-azul text-white"
+      >
+        Validar por código de verificación
+      </h2>
+
+      <div class="flex justify-center gap-4 text-center h-full my-12">
+        <PrimaryButton
+          type="button"
+          class="h-full"
+          @click="validationUser(0)"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Validar con correo
+        </PrimaryButton>
+        <SecondaryButton
+          @click="validationUser(1)"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Validar con sms
+        </SecondaryButton>
       </div>
     </template>
   </Modal>
@@ -697,8 +884,11 @@ const form = useForm({
   nombre: "",
   identificacion: "",
   tipo_documento: "",
+  fecha_expedicion: "",
+  lugar_expedicion: "",
   nacimiento: "",
   cedula_front: null,
+  cedula_back: null,
   genero: "",
   etnia: "",
   condicion: "",
@@ -716,6 +906,7 @@ const form = useForm({
   firma: "",
   recaptcha_token: "",
   campoObligatorio: "",
+  codigo: "",
 });
 
 const { executeRecaptcha } = useReCaptcha();
@@ -748,6 +939,9 @@ const items = ref([
   {
     label: "Registro datos",
   },
+  {
+    label: "Verificación",
+  },
 ]);
 
 const itemsMobil = ref([
@@ -759,6 +953,9 @@ const itemsMobil = ref([
   },
   {
     label: "paso 3",
+  },
+  {
+    label: "paso 4",
   },
 ]);
 
@@ -859,25 +1056,17 @@ async function verificarCamaraONecesaria() {
 }
 
 const onFileChange = (field, event) => {
-  const file = event.target.files[0];
-  if (file) {
-    // Validar el tamaño del archivo
-    if (file.size > 2e6) {
-      swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "El archivo debe ser menor a 2MB.",
-      });
-      return;
-    }
-  }
-
   form[field] = event.target.files[0];
-
   if (field === "cedula_front") {
     const reader = new FileReader();
     reader.onload = (e) => {
       imageUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(form[field]);
+  } else if (field === "cedula_back") {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageUrl1.value = e.target.result;
     };
     reader.readAsDataURL(form[field]);
   } else if (field == "firma") {
@@ -1081,7 +1270,7 @@ const registerAndValidate = async () => {
               form.validaciones = "no_rostro";
               //poner llamado a modal de botones
               biometricoModal.value = false;
-              submit();
+              botonesValidarModal.value = true;
             } else if (result.dismiss === Swal.DismissReason.cancel) {
               // Volver a intentar
               console.log("Usuario decide volver a intentar");
@@ -1146,7 +1335,7 @@ const registerAndValidate = async () => {
                 // Continuar sin validar
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
-                submit();
+                botonesValidarModal.value = true;
                 //poner llamado a modal de botones
               } else if (result.dismiss === swal.DismissReason.cancel) {
                 // Volver a intentar
@@ -1161,7 +1350,7 @@ const registerAndValidate = async () => {
             didClose: () => {
               //poner llamado a modal de botones
               biometricoModal.value = false;
-              submit();
+              botonesValidarModal.value = true;
             },
           });
         }
@@ -1189,7 +1378,7 @@ const registerAndValidate = async () => {
               form.embedding = "";
               form.validaciones = "fallo_registro_biometrico";
               biometricoModal.value = false;
-              submit();
+              botonesValidarModal.value = true;
               //poner llamado a modal de botones
             } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
@@ -1219,7 +1408,7 @@ const registerAndValidate = async () => {
             form.validaciones = "fallo_registro";
             //poner llamado a modal de botones
             biometricoModal.value = false;
-            submit();
+            botonesValidarModal.value = true;
           } else if (result.dismiss === swal.DismissReason.cancel) {
             // Volver a intentar
             console.log("Usuario decide volver a intentar");
@@ -1271,6 +1460,8 @@ const validateStep1 = async () => {
     form.nombre &&
     form.identificacion &&
     form.tipo_documento &&
+    form.fecha_expedicion &&
+    (form.lugar_expedicion || form.tipo_documento != "Cédula Ciudadanía") &&
     form.nacimiento
   ) {
     if (!validateEdad()) return;
@@ -1308,7 +1499,13 @@ const validateStep1 = async () => {
     if (!form.tipo_documento) {
       form.errors.tipo_documento = "Este campo es requerido.";
     }
+    if (!form.fecha_expedicion) {
+      form.errors.fecha_expedicion = "Este campo es requerido.";
+    }
 
+    if (!form.lugar_expedicion) {
+      form.errors.lugar_expedicion = "Este campo es requerido.";
+    }
     if (!form.nacimiento) {
       form.errors.nacimiento = "Este campo es requerido.";
     }
@@ -1370,10 +1567,7 @@ const validarDatos2 = () => {
   if (isValidate.value) {
   } else {
     if (form.password) {
-      form.errors.password =
-        "El campo de contraseña debe contener minimo 8 caracteres. " +
-        form.password.length +
-        "/8 caracteres ingresados";
+        form.errors.password = "El campo de contraseña debe contener minimo 8 caracteres. "+form.password.length+ "/8 caracteres ingresados";
     }
     if (!form.genero) {
       form.errors.genero = "Este campo es requerido.";
@@ -1414,7 +1608,7 @@ const validarDatos2 = () => {
 
 const validarDatos3 = () => {
   isValidate.value = false;
-  if (form.cedula_front && form.firma) {
+  if (form.cedula_front && form.cedula_back && form.firma) {
     isValidate.value = true;
   }
 
@@ -1424,18 +1618,99 @@ const validarDatos3 = () => {
     if (!form.cedula_front) {
       form.errors.cedula_front = "Este campo es requerido.";
     }
-
+    if (!form.cedula_back) {
+      form.errors.cedula_back = "Este campo es requerido.";
+    }
     if (!form.firma) {
       form.errors.firma = "Este campo es requerido";
     }
   }
 };
 
-const submit = async () => {
+const validationUser = async (num) => {
+  // Mostrar el modal de carga mientras se realiza la validación
+  botonesValidarModal.value = false;
+  loadingModal.value = true;
+  console.log(form.embedding);
+
+  try {
+    // Continuar con la validación de correo o SMS
+    const formData = new FormData();
+
+    switch (num) {
+      case 0:
+        formData.append("via", "correo");
+        break;
+      case 1:
+        formData.append("via", "sms");
+        break;
+    }
+
     const recaptchaToken = await executeRecaptcha("register");
 
     // Agregar el token de reCAPTCHA al formulario
     form.recaptcha_token = recaptchaToken;
+
+    formData.append("nombre", form.nombre);
+    formData.append("identificacion", form.identificacion);
+    formData.append("tipo_documento", form.tipo_documento);
+    formData.append("fecha_expedicion", form.fecha_expedicion);
+    formData.append("lugar_expedicion", form.lugar_expedicion);
+    formData.append("nacimiento", form.nacimiento);
+    formData.append("etnia", form.etnia);
+    formData.append("condicion", form.condicion);
+    formData.append("direccion", form.direccion);
+    formData.append("genero", form.genero);
+    formData.append("comuna", form.comuna);
+    formData.append("barrio", form.barrio);
+    formData.append("email", form.email);
+    formData.append("celular", form.celular);
+    formData.append("password", form.password);
+    formData.append("recaptcha_token", recaptchaToken);
+    formData.append("campoObligatorio", form.campoObligatorio);
+
+    // Enviar la solicitud al backend
+    const response = await axios.post(route("validate-user"), formData);
+
+    loadingModal.value = false;
+
+    console.log(response);
+
+    if (response.data.isSpam) {
+      form.validaciones = "posible robot o spam";
+    }
+
+    swal({
+      title: "Código enviado",
+      text: "Revisa tu correo o SMS para el código de verificación.",
+      icon: "success",
+    });
+    active.value = 3; // Ir al paso de verificación
+  } catch (error) {
+    console.error(error);
+    let mensajes =
+      "Hubo un problema al validar tu información. Por favor, inténtalo nuevamente.";
+
+    // Si Laravel devuelve errores en error.response.data.errors
+    if (error.response && error.response.data && error.response.data.errors) {
+      const errores = error.response.data.errors;
+
+      // Convertimos el objeto de errores a un array de mensajes
+      mensajes = Object.values(errores)
+        .flat() // une arrays internos en uno solo
+        .join("\n"); // separa con salto de línea para mostrar en SweetAlert
+    }
+    swal.fire({
+      title: "Error",
+      text: mensajes,
+      icon: "error",
+    });
+  } finally {
+    loadingModal.value = false; // Ocultar el modal de carga
+  }
+};
+
+const submit = () => {
   form.post(route("create-user"), {
     onSuccess: () => {
       swal({

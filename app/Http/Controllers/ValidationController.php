@@ -33,8 +33,6 @@ class ValidationController extends Controller
                 return $query->whereNotNull('comuna')->where('comuna', '!=', 0);
             }),
             'tipo_documento' => 'required|string',
-            'fecha_expedicion' => 'required|date',
-            'lugar_expedicion' => 'required|string',
             'nacimiento' => 'required|date',
             'genero' => 'required|string',
             'etnia' => 'required|string',
@@ -117,26 +115,69 @@ class ValidationController extends Controller
 
     public function verify(Request $request)
     {
+        // $validator = Validator::make($request->all(), [
+        //     'email' => 'required|email',
+        //     'codigo' => 'required|integer',
+        //     'checked' => 'required',
+        //     'declaracion' => 'required',
+        // ]);
+
         $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
+            'identificacion' => 'required|string|max:20',
+            Rule::unique('informacion_votantes')->where(function ($query) {
+                return $query->whereNotNull('comuna')->where('comuna', '!=', 0);
+            }),
+            'tipo_documento' => 'required|string',
+            'nacimiento' => 'required|date',
+            'genero' => 'required|string',
+            'etnia' => 'required|string',
+            'condicion' => 'required|string',
+            'comuna' => 'required',
+            'barrio' => 'string',
+            'direccion' => 'string',
+            // 'email' => 'required|email|unique:users',
             'email' => 'required|email',
-            'codigo' => 'required|integer',
+            // 'celular' => 'required|string|max:15|unique:users,celular,NULL,id,estado,Activo|regex:/^\d{10,15}$/', // Validación para números de celular
+            'celular' => 'required|string|max:15|regex:/^\d{10,15}$/', // Validación para números de celular
+            'password' => 'required|string|min:8',
+            'recaptcha_token' => 'required|string',
+            'cedula_front' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'checked' => 'required',
             'declaracion' => 'required',
+
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Verificar el código
-        $verification = VerificationCode::where('email', $request->email)
-            ->where('code', $request->codigo)
-            ->where('expires_at', '>', now())
-            ->first();
+        $posibleSpam = false;
+        // Verifica el token de reCAPTCHA
+        try {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => env('RECAPTCHA_SECRET_KEY'), // Llave secreta de reCAPTCHA
+                'response' => $request->recaptcha_token,
+            ]);
 
-        if (!$verification) {
-            return back()->withErrors(['error' => 'Código de verificación inválido o expirado.']);
+            $recaptchaData = $response->json();
+
+
+
+            if (!$recaptchaData['success'] || $recaptchaData['score'] < 0.3) {
+                if ($request->campoObligatorio != null && $request->campoObligatorio != '') {
+                    return redirect()->back()->withErrors(['error' => 'La validación de reCAPTCHA falló. Inténtelo nuevamente.']);
+
+                } else {
+                    $posibleSpam = true;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al verificar reCAPTCHA: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Error al verificar reCAPTCHA. Por favor, inténtelo nuevamente. ' . $e->getMessage()]);
+
         }
+
 
 
         // Crear el usuario
@@ -144,15 +185,15 @@ class ValidationController extends Controller
 
             // Obtener la extensión original de los archivos
             $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
-            $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+            // $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
 
 
             $folderDoc = 'documentos';
             $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
-            $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
+            // $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
             // Guardar los archivos con su extensión original
             $frontPath = $request->file('cedula_front')->storeAs('uploads/' . $folderDoc, $fileNameFront, 'public');
-            $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
+            // $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
 
             //foto evidencia
             $folderPhoto = 'fotos';
@@ -197,7 +238,7 @@ class ValidationController extends Controller
 
             ]);
 
-            if ($request->embedding && ($validacion == "" || $validacion == 'posible robot o spam')) {
+            if ($request->embedding && ($validacion == "" || $posibleSpam)) {
 
                 //CREAR REGISTRO BIOMETRICO
                 $registroBiometrico = new UsuariosBiometricos([
@@ -205,15 +246,15 @@ class ValidationController extends Controller
                     'embedding' => json_encode($request->embedding), // convertir a string JSON
                     'photo' => $fileNamePhoto,
                     'cedula_front' => $fileNameFront,
-                    'cedula_back' => $fileNameBack,
+                    // 'cedula_back' => $fileNameBack,
                     'firma' => $firma,
                     'estado' => 'Validado',
 
                 ]);
 
-                if ($validacion != 'posible robot o spam') {
+                if ($posibleSpam) {
 
-                    $validacion = 'validado';
+                    $validacion = 'posible robot o spam';
                 }
             } else {
 
@@ -223,7 +264,7 @@ class ValidationController extends Controller
                     'embedding' => json_encode($request->embedding), // convertir a string JSON
                     'photo' => $fileNamePhoto,
                     'cedula_front' => $fileNameFront,
-                    'cedula_back' => $fileNameBack,
+                    // 'cedula_back' => $fileNameBack,
                     'firma' => $firma,
                     'estado' => 'Pendiente',
 
@@ -239,8 +280,6 @@ class ValidationController extends Controller
                 'id_user' => $user->id,
                 'identificacion' => $request->identificacion,
                 'tipo_documento' => $request->tipo_documento,
-                'fecha_expedicion' => $request->fecha_expedicion,
-                'lugar_expedicion' => $request->lugar_expedicion,
                 'nacimiento' => $request->nacimiento,
                 'genero' => $request->genero,
                 'etnia' => $request->etnia,
@@ -274,7 +313,7 @@ class ValidationController extends Controller
             DB::commit();
             Cache::forget('votantes');
             // Eliminar el código de verificación
-            $verification->delete();
+            // $verification->delete();
 
 
             return back();
@@ -282,7 +321,7 @@ class ValidationController extends Controller
             // Si ocurre algún error, revertir todos los cambios
             DB::rollBack();
             // Eliminar el código de verificación
-            $verification->delete();
+            // $verification->delete();
 
             // Puedes optar por lanzar el error o retornar un mensaje de error
             return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
@@ -300,7 +339,7 @@ class ValidationController extends Controller
             ->whereNotNull('comuna')
             ->exists();
 
-        if($existe && $request->registro_presencial) {
+        if ($existe && $request->registro_presencial) {
             $votante = Informacion_votantes::select('id', 'identificacion', 'id_user')
                 ->where('identificacion', $request->identificacion)
                 ->where('comuna', '!=', 0)
@@ -341,8 +380,7 @@ class ValidationController extends Controller
             'nombre' => 'required|string|max:255',
             'identificacion' => 'required|string|max:20|unique:votantes,identificacion,' . $request->id_votante . ',id',
             'tipo_documento' => 'required|string',
-            'fecha_expedicion' => 'required|date',
-            'lugar_expedicion' => 'required|string',
+
             'nacimiento' => 'required|date',
             'genero' => 'required|string',
             'etnia' => 'required|string',
@@ -351,7 +389,10 @@ class ValidationController extends Controller
             'barrio' => 'required',
             'direccion' => 'string',
 
+
         ]);
+
+
 
         $votante = Informacion_votantes::findOrFail($request->id_votante);
         $user = User::where('id', $votante->id_user)->first();
@@ -362,30 +403,34 @@ class ValidationController extends Controller
         try {
 
             $fileNameFront = 'NA';
-            $fileNameBack = 'NA';
+            // $fileNameBack = 'NA';
             $fileNamePhoto = 'NA';
             $folderDoc = 'documentos';
             $folderPhoto = 'fotos';
             // Obtener la extensión original de los archivos
             if ($request->hasFile('cedula_front')) {
+
+                $request->validate([
+                    'cedula_front' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                ]);
+
                 $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
 
                 $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
 
                 // Guardar los archivos con su extensión original
                 $frontPath = $request->file('cedula_front')->storeAs('uploads/' . $folderDoc, $fileNameFront, 'public');
-
             }
 
-            if ($request->hasFile('cedula_back')) {
+            // if ($request->hasFile('cedula_back')) {
 
-                $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+            //     $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
 
-                $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
+            //     $fileNameBack = 'cedula_back_' . $request->identificacion . '.' . $backExtension;
 
-                // Guardar los archivos con su extensión original
-                $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
-            }
+            //     // Guardar los archivos con su extensión original
+            //     $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
+            // }
 
             if ($request->hasFile('photo')) {
 
@@ -446,7 +491,7 @@ class ValidationController extends Controller
 
                 $biometrico->photo = $fileNamePhoto != 'NA' ? $fileNamePhoto : $biometrico->photo;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
-                $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
+                // $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Validado';
 
@@ -462,11 +507,9 @@ class ValidationController extends Controller
 
                 $biometrico->photo = $fileNamePhoto != 'NA' ? $fileNamePhoto : $biometrico->photo;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
-                $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
+                // $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Pendiente';
-
-
             }
 
 
@@ -479,8 +522,7 @@ class ValidationController extends Controller
             $votante->nombre = $request->nombre;
             $votante->identificacion = $request->identificacion;
             $votante->tipo_documento = $request->tipo_documento;
-            $votante->fecha_expedicion = $request->fecha_expedicion;
-            $votante->lugar_expedicion = $request->lugar_expedicion;
+
             $votante->nacimiento = $request->nacimiento;
             $votante->genero = $request->genero;
             $votante->etnia = $request->etnia;
