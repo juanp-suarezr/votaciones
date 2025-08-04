@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Eventos;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -46,12 +47,24 @@ class LoginRequest extends FormRequest
         $password = $this->input('password');
 
 
+        $origin = $this->input('origin');
+
+
+        $tipo_login = 'email';
+        if ($origin == 'login_ppt') {
+            $tipo_login = 'identificacion';
+        }
+
         // Buscar usuario por email o identificación
-        $user = User::where(function ($query) use ($login) {
-            $query->where('email', $login)
-                ->orWhere('identificacion', $login);
+        $user = User::where(function ($query) use ($login, $tipo_login) {
+            $query->where($tipo_login, $login);
+
         })
             ->first();
+
+
+
+
 
         if (! $user) {
             RateLimiter::hit($this->throttleKey());
@@ -70,7 +83,7 @@ class LoginRequest extends FormRequest
         }
 
         // Intentar autenticación usando email o identificación
-        $credentials = filter_var($login, FILTER_VALIDATE_EMAIL)
+        $credentials = $tipo_login == 'email'
             ? ['email' => $login, 'password' => $password]
             : ['identificacion' => $login, 'password' => $password];
 

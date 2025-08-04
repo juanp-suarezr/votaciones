@@ -166,9 +166,9 @@ const descargarCertificado = (ev, idVotante) => {
             proyecto de tu preferencia.
           </p>
           <Link
-            :href="eventoActivo == false ? null : route('login')"
+            :href="eventoActivo == false ? null : route('login-pp')"
             @click.prevent="
-              eventoActivo == false ? null : $inertia.visit(route('login'))
+              eventoActivo == false ? null : $inertia.visit(route('login-pp'))
             "
             class="mt-auto px-4 py-2 text-white font-semibold rounded shadow transition"
             :class="{

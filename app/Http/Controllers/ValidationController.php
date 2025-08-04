@@ -231,7 +231,7 @@ class ValidationController extends Controller
             // Crear el usuario
             $user = User::create([
                 'name' => $request->nombre,
-                'email' => $request->email,
+                'email' => 'ppt',
                 'identificacion' => $request->identificacion,
                 'password' => Hash::make($request->password),
                 'estado' => 'Activo',

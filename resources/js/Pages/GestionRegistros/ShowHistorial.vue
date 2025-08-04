@@ -24,10 +24,7 @@
             <b>Número de documento:</b>
             {{ votante.votante?.identificacion || "N/A" }}
           </div>
-          <div>
-            <b>Fecha expedición documento:</b>
-            {{ votante.votante?.fecha_expedicion || "N/A" }}
-          </div>
+
           <div>
             <b>Fecha de nacimiento:</b>
             {{ votante.votante?.nacimiento || "N/A" }}
@@ -96,24 +93,7 @@
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
 
-        <!-- Foto de cedula -->
-        <div class="flex-shrink-0 flex flex-col items-center">
-          <h2>Posterior</h2>
-          <img
-            v-if="votante.votante?.user.biometrico"
-            :src="
-              getUrlDocumentos(votante.votante?.user.biometrico.cedula_back)
-            "
-            alt="Foto del votante"
-            @click="
-              openLightbox(
-                getUrlDocumentos(votante.votante?.user.biometrico.cedula_back)
-              )
-            "
-            class="w-full h-64 cursor-pointer object-cover rounded-lg border shadow"
-          />
-          <span v-else class="text-gray-400 italic">Sin foto</span>
-        </div>
+
 
         <!-- Firma -->
         <div class="flex-shrink-0 flex flex-col items-center">
@@ -160,9 +140,7 @@
             <option value="Parte frontal del documento poco visible">
               Parte frontal del documento poco visible
             </option>
-            <option value="Parte Trasera del documento poco visible">
-              Parte Trasera del documento poco visible
-            </option>
+            
             <option value="Firma poco visible">Firma poco visible</option>
             <option
               value="Firma diferente a la presentada en el documento de identificación"

@@ -15,7 +15,7 @@ use App\Http\Controllers\ValidationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-        ->name('password.confirm');
+    ->name('password.confirm');
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -37,6 +37,9 @@ Route::middleware('guest')->group(function () {
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
+
+    Route::get('login-pp', [AuthenticatedSessionController::class, 'loginPresupuesto'])
+        ->name('login-pp');
 
     Route::post('/emergency-login', [AuthenticatedSessionController::class, 'emergencyLogin'])
         ->middleware('throttle:5,1'); // Máximo 5 intentos por minuto

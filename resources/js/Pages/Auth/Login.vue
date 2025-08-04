@@ -71,10 +71,13 @@ const form = useForm({
     email: '',
     password: '',
     remember: false,
-    origin: usePage().props.origin,
+    origin: 'login',
     identificacion: usePage().props.identificacion,
 
 });
+
+console.log(form.origin);
+
 
 const submit = () => {
     form.post(route('login'), {

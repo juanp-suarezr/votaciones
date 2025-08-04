@@ -383,7 +383,7 @@
             <!-- ejemplo de doc frontal -->
             <div class="w-full h-full mt-4">
               <div class="w-full">
-                <h4>Ejemplo parte frontal</h4>
+                <h4 class="text-2xl underline">Ejemplo parte frontal</h4>
                 <img
                   :src="frontEjemplo"
                   alt="Documento Frontal ejemplo"
@@ -1426,7 +1426,7 @@ const validarDatos3 = () => {
     }
 
     if (!form.firma) {
-      form.errors.firma = "Este campo es requerido";
+      form.errors.firma = 'Debe hacer clic en "Usar firma" para continuar';
     }
   }
 };
@@ -1440,7 +1440,7 @@ const submit = async () => {
     onSuccess: () => {
       swal({
         title: "Registro realizado",
-        text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará internamente la validación de su información, el estado del tramite sera notificado a su correo.",
+        text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará internamente la validación de su información, el estado del trámite será notificado a través del correo electrónico registrado. Recuerde que su usuario es su número de identificación y la contraseña es la que ingresó al momento del registro.",
         icon: "success",
       }).then((result) => {
         window.location.href = route("welcome");
