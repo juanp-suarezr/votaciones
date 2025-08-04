@@ -778,16 +778,7 @@ watch(IsNewGenero, (value) => {
   }
 });
 
-//WATCH DEPARTAMENTOS
-watch(departamentoSelected, (newValue) => {
-  console.log(form.lugar_expedicion);
 
-  if (newValue) {
-    ciudadesxDep.value = ciudades.find(
-      (ciudad) => ciudad.id === newValue.id
-    ).ciudades;
-  }
-});
 
 //WATCH COMUNAS
 watch(comunaSelected, (newValue) => {
