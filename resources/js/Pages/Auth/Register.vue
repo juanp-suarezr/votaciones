@@ -709,6 +709,7 @@ const form = useForm({
   email: "",
   password: "",
   embedding: "",
+  edad_estimada: null,
   photo: "",
   validaciones: "",
   checked: false,
@@ -1100,6 +1101,7 @@ const registerAndValidate = async () => {
     const descriptor = detection.descriptor;
     form.embedding = descriptor;
     const edad = detection.age;
+    form.edad_estimada = edad;
     const genero = detection.gender;
     console.log(`Edad estimada: ${edad}, Género: ${genero}`);
     console.log("emb", descriptor);

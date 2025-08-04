@@ -81,10 +81,10 @@
             @endif
 
             @if ($motivo == 'Registro duplicado')
-                <p>El registro es duplicado, por lo tanto este usuario será bloqueado por temas de seguridad</p>
+                <p>Su registro biométrico se encuentra duplicado, por lo tanto, no podrá realizar el voto de forma virtual. Deberá acercarse a un puesto de votación de su comuna o corregimiento para ejercer su derecho al voto.</p>
 
             @elseif($intentos == 3)
-                <p>Ha superado el número máximo permitido para corregir el registro, su usuario sera bloqueado. Para votar puede asistir a la votación presencial en las fechas establecidas y puntos destinados</p>
+                <p>Ha superado el número máximo permitido para corregir el registro, su usuario sera bloqueado. por lo tanto, no podrá realizar el voto de forma virtual. Deberá acercarse a un puesto de votación de su comuna o corregimiento para ejercer su derecho al voto.</p>
             @else
                 <p><b>Número  de intento:</b> {{ $intentos }}
                 <br>

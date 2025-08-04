@@ -250,6 +250,7 @@ class ValidationController extends Controller
                     'firma' => $firma,
                     'motivo' => 'Validación exitosa',
                     'estado' => 'Validado',
+                    'edad_estimada' => $request->edad_estimada,
 
                 ]);
 
@@ -269,6 +270,7 @@ class ValidationController extends Controller
                     'firma' => $firma,
                     'estado' => 'Pendiente',
                     'motivo' => $validacion,
+                    'edad_estimada' => $request->edad_estimada,
 
                 ]);
             }

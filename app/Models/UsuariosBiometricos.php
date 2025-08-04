@@ -26,6 +26,7 @@ class UsuariosBiometricos extends Model
         'firma',
         'estado',
         'motivo',
+        'edad_estimada',
         'created_at',
         'updated_at',
 
