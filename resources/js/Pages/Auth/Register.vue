@@ -792,6 +792,9 @@ const video = ref(null);
 const message = ref("");
 const isCameraReady = ref(false);
 const loadingButtonBiometric = ref(false);
+//para anti spooling
+let parpadeoDetectado = false;
+let ojoCerrado = false;
 
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
@@ -1038,6 +1041,13 @@ const registerAndValidate = async () => {
   }
 
   try {
+    await swal.fire({
+      title: "Validación en progreso",
+      text: "Mire a la cámara y parpadee naturalmente.",
+      icon: "info",
+      timer: 3000,
+      showConfirmButton: false,
+    });
     const detection = await faceapi
       .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
@@ -1100,11 +1110,11 @@ const registerAndValidate = async () => {
 
     const descriptor = detection.descriptor;
     form.embedding = descriptor;
-    const edad = detection.age;
+    const edad = Math.round(detection.age);
     form.edad_estimada = edad;
     const genero = detection.gender;
     console.log(`Edad estimada: ${edad}, Género: ${genero}`);
-    console.log("emb", descriptor);
+
 
     if (edad < 14) {
       await swal.fire({
@@ -1113,17 +1123,37 @@ const registerAndValidate = async () => {
           0
         )} años. Parece menor de la edad establecida.`,
         icon: "warning",
-        confirmButtonText: "Aceptar",
+        timer: 3000,
+        showConfirmButton: false,
       });
     } else {
-        await swal.fire({
+      await swal.fire({
         title: "Notificación",
-        text: `La edad estimada es ${edad.toFixed(
-          0
-        )} años.`,
+        text: `La edad estimada es ${edad.toFixed(0)} años.`,
         icon: "Info",
-        confirmButtonText: "Aceptar",
+        timer: 3000,
+        showConfirmButton: false,
       });
+    }
+
+    const hasMotion = checkFaceMovement(detection)
+
+    console.log(hasMotion);
+
+
+    if (!hasMotion) {
+        console.log("entro anti spooling");
+
+      await swal.fire({
+        title: "Error - Anti-spoofing",
+        text: "No se detectó parpadeo. Asegúrate de estar presente y no usar una imagen o video.",
+        icon: "error",
+        showCancelButton: true,
+        cancelButtonText: "Volver a intentar",
+      });
+
+      loadingButtonBiometric.value = false;
+      return;
     }
 
     // Capturar imagen del video
@@ -1260,6 +1290,22 @@ const registerAndValidate = async () => {
 
     //poner llamado a modal de botones
   }
+};
+
+//funcion para checkear el parpadeo y evitar fotografia como registro biometrico
+const checkFaceMovement = detection => {
+  const landmarks = detection.landmarks.positions
+  // Simple logic: check tiny variation in eye/mouth movement between intervals
+  const mouth = landmarks.slice(48, 68)
+  const eyes = landmarks.slice(36, 48)
+
+  const variation = mouth.concat(eyes).reduce((acum, p, index, array) => {
+    if (index === 0) return acum
+    const prev = array[index - 1]
+    return acum + Math.abs(p.x - prev.x) + Math.abs(p.y - prev.y)
+  }, 0)
+
+  return variation > 4 // Threshold for subtle movement
 };
 
 const validateEdad = () => {
