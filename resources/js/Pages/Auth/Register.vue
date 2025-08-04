@@ -1113,6 +1113,15 @@ const registerAndValidate = async () => {
         icon: "warning",
         confirmButtonText: "Aceptar",
       });
+    } else {
+        await swal.fire({
+        title: "Notificación",
+        text: `La edad estimada es ${edad.toFixed(
+          0
+        )} años.`,
+        icon: "Info",
+        confirmButtonText: "Aceptar",
+      });
     }
 
     // Capturar imagen del video
