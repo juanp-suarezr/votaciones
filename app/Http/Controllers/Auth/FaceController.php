@@ -47,8 +47,7 @@ class FaceController extends Controller
         foreach ($usuarios as $usuario) {
             $stored = collect(json_decode($usuario->embedding));
 
-            Log::info("registro: {$input->count()}, stored (usuario {$usuario->id}): {$stored}");
-            Log::info("registro: {$input->count()}, stored (new): {$input}");
+            
 
             // Validar que ambos embeddings tienen la misma longitud
             if ($input->count() !== $stored->count()) {

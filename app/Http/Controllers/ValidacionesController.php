@@ -100,7 +100,6 @@ class ValidacionesController extends Controller
             : null;
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
-            ->where('estado', 'Validado')
             ->where('user_id', '!=', $votante->votante->user->id)
             ->with([
                 'user:id', // solo carga el id del usuario
@@ -241,8 +240,9 @@ class ValidacionesController extends Controller
                 $user->estado = 'Bloqueado';
                 $votante->estado = 'Bloqueado';
 
+                $biometrico->estado = 'Rechazado';
                 if ($request->motivo == 'Registro duplicado') {
-                    $biometrico->estado = 'Rechazado';
+                    $biometrico->estado = 'Bloqueado';
                     $biometrico->save();
                 }
             }

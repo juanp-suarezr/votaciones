@@ -992,6 +992,8 @@ const showModalBiometrico = async () => {
       "/models/face_landmark_68"
     );
 
+    await faceapi.nets.ageGenderNet.loadFromUri("/models/age_gender");
+
     // Obtener dispositivos
     const allDevices = await navigator.mediaDevices.enumerateDevices();
     devices.value = allDevices.filter((device) => device.kind === "videoinput");
@@ -1038,7 +1040,8 @@ const registerAndValidate = async () => {
     const detection = await faceapi
       .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
-      .withFaceDescriptor();
+      .withFaceDescriptor()
+      .withAgeAndGender();
 
     console.log("entro -- validador");
 
@@ -1096,7 +1099,21 @@ const registerAndValidate = async () => {
 
     const descriptor = detection.descriptor;
     form.embedding = descriptor;
+    const edad = detection.age;
+    const genero = detection.gender;
+    console.log(`Edad estimada: ${edad}, Género: ${genero}`);
     console.log("emb", descriptor);
+
+    if (edad < 14) {
+      await swal.fire({
+        title: "Advertencia",
+        text: `La edad estimada es ${edad.toFixed(
+          0
+        )} años. Parece menor de la edad establecida.`,
+        icon: "warning",
+        confirmButtonText: "Aceptar",
+      });
+    }
 
     // Capturar imagen del video
     // Capturar imagen del video
@@ -1432,10 +1449,10 @@ const validarDatos3 = () => {
 };
 
 const submit = async () => {
-    const recaptchaToken = await executeRecaptcha("register");
+  const recaptchaToken = await executeRecaptcha("register");
 
-    // Agregar el token de reCAPTCHA al formulario
-    form.recaptcha_token = recaptchaToken;
+  // Agregar el token de reCAPTCHA al formulario
+  form.recaptcha_token = recaptchaToken;
   form.post(route("create-user"), {
     onSuccess: () => {
       swal({
