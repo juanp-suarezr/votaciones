@@ -33,7 +33,7 @@
                 <span class="mx-3">Reporte escrutinio</span>
             </nav-link>
 
-            <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Eventos</SeparadorMenu>
+            <SeparadorMenu v-if="$page.props.user.permissions.includes('eventos-editar')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"
                 :active="route().current().includes('analisis')">
                 <ChartBarIcon class="h-6 w-6 text-white" />
@@ -45,7 +45,7 @@
                 <span class="mx-3">Eventos </span>
             </nav-link>
 
-            <SeparadorMenu v-if="$page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')">Configuración</SeparadorMenu>
+            <SeparadorMenu v-if="$page.props.user.permissions.includes('usuarios-listar')">Configuración</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('gestion_registros.index')" :active="route().current().includes('gestion_registros')">
                 <CheckIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Gestión registros</span>

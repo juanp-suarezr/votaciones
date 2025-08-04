@@ -194,6 +194,7 @@ class ValidacionesController extends Controller
         DB::beginTransaction();
         try {
 
+
             $votante = Hash_votantes::query()
                 ->with('votante.user')->findOrFail($request->id);
 
@@ -201,6 +202,10 @@ class ValidacionesController extends Controller
 
             $votante->estado = 'Activo';
             $votante->save();
+
+            $biometrico = UsuariosBiometricos::where('user_id', $votante->id_user)->first();
+            $biometrico->estado = 'Validado';
+            $biometrico->save();
 
 
             Mail::to($votante->votante->user->email)->send(new InscriptionApprovedMail($votante));
@@ -431,7 +436,7 @@ class ValidacionesController extends Controller
 
 
             $votante->estado = 'Rechazado';
-            $votante->motivo = 'desbloqueado -- '.$request->motivo;
+            $votante->motivo = 'desbloqueado -- ' . $request->motivo;
 
 
             $votante->intentos = 1;

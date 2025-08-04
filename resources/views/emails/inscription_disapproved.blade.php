@@ -73,7 +73,7 @@
         </div>
         <div class="content">
             <h1>¡Hola, {{ $nombre }}!</h1>
-            <p><b>La alcaldía de Pereira</b>, a traves de la <b>Secretaria de planeación</b> te informa que tu registro, ha sido <b
+            <p><b>La alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que su registro ha sido <b
                     style="color: red">rechazado.</b></p>
             @if ($motivo != 'NA')
                 <b>El motivo de la desaprobación es el siguiente:</b>
@@ -84,13 +84,13 @@
                 <p>El registro es duplicado, por lo tanto este usuario será bloqueado por temas de seguridad</p>
 
             @elseif($intentos == 3)
-                <p>Haz superado el numero máximo permitido para corregir el registro, su usuario sera bloqueado. Para votar puede asistir a la votación presencial en las fechas establecidas y puntos destinados</p>
+                <p>Ha superado el número máximo permitido para corregir el registro, su usuario sera bloqueado. Para votar puede asistir a la votación presencial en las fechas establecidas y puntos destinados</p>
             @else
-                <p><b>numero de intento:</b> {{ $intentos }}
+                <p><b>Número  de intento:</b> {{ $intentos }}
                 <br>
-                podrás ingresar
-                al <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">software</a>
-                 para corregir lo solicitado y cambiar su estado actual
+                podrá ingresar
+                al <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">software</a> utilizando como usuario su número de identificación y la contraseña que ingresó durante el proceso de registro,
+                 con el fin de corregir la información solicitada y actualizar su estado.
                 </p>
                 <br>
                 <em>Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login</a></em>

@@ -25,6 +25,7 @@ class UsuariosBiometricos extends Model
         // 'cedula_back',
         'firma',
         'estado',
+        'motivo',
         'created_at',
         'updated_at',
 

@@ -248,6 +248,7 @@ class ValidationController extends Controller
                     'cedula_front' => $fileNameFront,
                     // 'cedula_back' => $fileNameBack,
                     'firma' => $firma,
+                    'motivo' => 'Validación exitosa',
                     'estado' => 'Validado',
 
                 ]);
@@ -267,6 +268,7 @@ class ValidationController extends Controller
                     // 'cedula_back' => $fileNameBack,
                     'firma' => $firma,
                     'estado' => 'Pendiente',
+                    'motivo' => $validacion,
 
                 ]);
             }
@@ -494,6 +496,7 @@ class ValidationController extends Controller
                 // $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Validado';
+                $biometrico->motivo = 'Validación exitosa';
 
 
                 if ($validacion != 'posible robot o spam') {
@@ -510,6 +513,7 @@ class ValidationController extends Controller
                 // $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Pendiente';
+                $biometrico->motivo = $validacion;
             }
 
 
