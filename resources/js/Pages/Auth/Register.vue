@@ -635,8 +635,7 @@
         <br />
         <p>
           Asegúrese de ingresar correctamente toda la información solicitada, ya
-          que cualquier error podría resultar en el rechazo. ¡Recuerde! solo
-          tiene tres oportunidades para registrarse.
+          que cualquier error podría resultar en el rechazo.
         </p>
         <br />
         <p>

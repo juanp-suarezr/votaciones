@@ -96,8 +96,8 @@ Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_i
 })->name('consulta.certificado.publica');
 
 //registro jurados
-Route::get('/registro-jurados-@djdo33kc', [JuradosController::class, 'create'])->name('registro.jurados');
-Route::post('/registro-jurados-@djdo33kc', [JuradosController::class, 'store'])->name('jurados.store');
+// Route::get('/registro-jurados-@djdo33kc', [JuradosController::class, 'create'])->name('registro.jurados');
+// Route::post('/registro-jurados-@djdo33kc', [JuradosController::class, 'store'])->name('jurados.store');
 
 //landing welcome
 Route::get('/welcome', function () {
@@ -269,6 +269,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('corregir-registro', ValidationController::class);
     Route::resource('votantesPresencial', VotantesPresencialController::class);
     Route::resource('actaPresencial', ActaPresencialController::class);
+    Route::resource('registro-jurados', JuradosController::class);
+
+
 });
 
 

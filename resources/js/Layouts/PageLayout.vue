@@ -1,23 +1,111 @@
 <template>
-    <div class="flex h-full min-h-screen w-full items-center justify-center bg-black px-6 py-6 relative">
-        <!-- Fondo con la palabra REGISTRO -->
-        <div class="absolute inset-0 bg-pattern h-full min-h-screen"></div>
-        <!-- Contenido del slot -->
-        <slot />
+  <div
+    class="flex h-full min-h-screen w-full items-center justify-center bg-black px-6 py-6 relative"
+  >
+    <!-- Fondo con la palabra REGISTRO -->
+    <div class="absolute inset-0 bg-pattern h-full min-h-screen"></div>
+    <!-- Contenido del slot -->
+    <slot />
+
+    <!-- Botón flotante para abrir/cerrar panel -->
+    <button
+      @click="cambiarVista"
+      class="lg:flex fixed right-4 bottom-6 z-20 p-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full shadow-lg"
+      title="Mostrar/Ocultar información"
+    >
+      <component
+        :is="mostrarPanel ? XCircleIcon : InformationCircleIcon"
+        class="w-6 h-6 lg:w-8 lg:h-8"
+      />
+    </button>
+    <!-- Panel fijo lateral -->
+    <div
+      v-show="mostrarPanel"
+      class="lg:block fixed right-4 top-[10%] lg:w-72 md:w-64 w-56 space-y-4 z-10 transition-all duration-300"
+    >
+      <!-- Tarjeta de soporte -->
+      <div class="bg-white shadow-md rounded-xl p-4 border border-red-200">
+        <h4
+          class="text-sm md:text-base font-semibold text-red-700 mb-2 flex items-center gap-1"
+        >
+          <InformationCircleIcon class="h-4 w-4" />
+          ¿Necesitas soporte?
+        </h4>
+        <p class="text-xs md:text-base text-gray-600">Escríbenos a:</p>
+        <a
+          href="mailto:mesadeayudaempleabilidad@gmail.com"
+          class="text-[10px] md:text-sm text-red-800 mt-1 break-words underline hover:text-red-600"
+        >
+          mesadeayudaempleabilidad@gmail.com
+        </a>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
-defineProps(['isRegister']);
+import {
+  HomeIcon,
+  HomeModernIcon,
+  XCircleIcon,
+  InformationCircleIcon,
+  ChatBubbleLeftRightIcon,
+} from "@heroicons/vue/24/solid";
+import { onMounted, ref, watch } from "vue";
+
+defineProps(["isRegister"]);
+
+const STORAGE_KEY = "panel_visible";
+
+// Inicializar el panel desde localStorage o por tamaño de pantalla
+const mostrarPanel = ref(false);
+
+onMounted(() => {
+  const saved = localStorage.getItem(STORAGE_KEY);
+
+  if (saved !== null) {
+    mostrarPanel.value = saved === "true";
+  } else {
+    // Default para pantallas grandes
+    mostrarPanel.value = window.innerWidth >= 768;
+  }
+});
+
+// Guardar el estado cada vez que cambia
+watch(mostrarPanel, (nuevoValor) => {
+  localStorage.setItem(STORAGE_KEY, nuevoValor);
+});
+
+const cambiarVista = () => {
+  mostrarPanel.value = !mostrarPanel.value;
+};
 </script>
 
 <style scoped>
 /* Fondo con la palabra REGISTRO repetida */
 .bg-pattern {
-    background: radial-gradient(transparent 34%, #870909 35%, #870909 45%, transparent 46%), radial-gradient(circle at left, transparent 39%, #87090980 40%, #87090980 45%, transparent 46%), radial-gradient(circle at right, transparent 39%, #87090980 40%, #87090980 45%, transparent 46%);
-        background-size: 6em 6em;
-        background-color: #E20613;
-        opacity: 0.11
-
+  background: radial-gradient(
+      transparent 34%,
+      #870909 35%,
+      #870909 45%,
+      transparent 46%
+    ),
+    radial-gradient(
+      circle at left,
+      transparent 39%,
+      #87090980 40%,
+      #87090980 45%,
+      transparent 46%
+    ),
+    radial-gradient(
+      circle at right,
+      transparent 39%,
+      #87090980 40%,
+      #87090980 45%,
+      transparent 46%
+    );
+  background-size: 6em 6em;
+  background-color: #e20613;
+  opacity: 0.11;
 }
 </style>

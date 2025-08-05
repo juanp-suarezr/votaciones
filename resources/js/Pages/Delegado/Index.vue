@@ -10,8 +10,10 @@
 
     <div class="overflow-x-scroll md:overflow-x-auto">
       <div class="text-right p-4">
-        <PrimaryLink :href="route('delegados.create')"> Agregar </PrimaryLink>
+        <PrimaryLink :href="route('delegados.create')"> Agregar delegado </PrimaryLink>
+        <PrimaryLink class="ms-2" :href="route('registro-jurados.create')"> Agregar jurado </PrimaryLink>
       </div>
+
     </div>
 
     <div class="p-4">

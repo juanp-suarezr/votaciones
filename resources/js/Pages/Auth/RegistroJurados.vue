@@ -1,5 +1,5 @@
 <template>
-  <PageLayout>
+  <AuthenticatedLayout>
     <Head title="Registro de jurados" />
 
     <div
@@ -300,7 +300,7 @@
         </div>
       </form>
     </div>
-  </PageLayout>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
@@ -322,6 +322,7 @@ import axios from "axios";
 const swal = inject("$swal");
 import { useReCaptcha } from "vue-recaptcha-v3";
 import { PhotoIcon } from "@heroicons/vue/24/solid";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
 const firmaPreview = ref(null);
 const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
