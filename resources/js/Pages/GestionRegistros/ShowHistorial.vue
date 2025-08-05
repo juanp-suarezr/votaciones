@@ -93,8 +93,6 @@
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
 
-
-
         <!-- Firma -->
         <div class="flex-shrink-0 flex flex-col items-center">
           <h2>Firma</h2>
@@ -127,6 +125,19 @@
           </div>
         </div>
 
+        <!-- edad estimada -->
+        <div class="flex flex-col gap-2 w-full md:w-1/3">
+          <b> Edad estimada: </b>
+          <p
+            :class="{
+              'text-red font-bold':
+                parseInt(votante.votante?.user.biometrico?.edad_estimada) < 14,
+            }"
+          >
+            {{ votante.votante?.user.biometrico?.edad_estimada }} años
+          </p>
+        </div>
+
         <!-- Select de motivos de rechazo -->
         <div class="flex flex-col gap-2 w-full md:w-1/3">
           <b>Motivo de rechazo:</b>
@@ -140,7 +151,7 @@
             <option value="Parte frontal del documento poco visible">
               Parte frontal del documento poco visible
             </option>
-            
+
             <option value="Firma poco visible">Firma poco visible</option>
             <option
               value="Firma diferente a la presentada en el documento de identificación"
@@ -305,8 +316,8 @@
               <h2 class="text-2xl font-semibold">Confirmar desbloqueo</h2>
             </div>
             <p class="mb-4">
-              ¿Estás seguro de que deseas desbloquear al usuario?
-              una vez desbloqueado, podrá volver a corregir los datos.
+              ¿Estás seguro de que deseas desbloquear al usuario? una vez
+              desbloqueado, podrá volver a corregir los datos.
             </p>
             <div class="flex justify-center gap-4 my-4 h-full">
               <PrimaryButton

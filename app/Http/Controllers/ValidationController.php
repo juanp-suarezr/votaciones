@@ -122,7 +122,7 @@ class ValidationController extends Controller
         //     'declaracion' => 'required',
         // ]);
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'nombre' => 'required|string|max:255',
             'identificacion' => 'required|string|max:20',
             Rule::unique('informacion_votantes')->where(function ($query) {
@@ -148,9 +148,8 @@ class ValidationController extends Controller
 
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+
+
 
         $posibleSpam = false;
         // Verifica el token de reCAPTCHA
@@ -281,6 +280,7 @@ class ValidationController extends Controller
             // Crear la información del votante asociada al usuario
             $informacionUsuario = new Informacion_votantes([
                 'nombre' => $request->nombre,
+                'email' => $request->email,
                 'id_user' => $user->id,
                 'identificacion' => $request->identificacion,
                 'tipo_documento' => $request->tipo_documento,
@@ -485,7 +485,7 @@ class ValidationController extends Controller
 
                 if ($nuevoArray !== $actualArray) {
                     $biometrico->embedding = $nuevoEmbedding; // Actualiza el embedding solo si es diferente
-
+                    $biometrico->edad_estimada = $request->edad_estimada;
                 }
             }
 
@@ -499,6 +499,7 @@ class ValidationController extends Controller
                 $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Validado';
                 $biometrico->motivo = 'Validación exitosa';
+
 
 
                 if ($validacion != 'posible robot o spam') {

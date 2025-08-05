@@ -10,11 +10,33 @@ import Modal from "@/Components/Modal.vue";
 
 import { EyeIcon } from "@heroicons/vue/24/solid";
 import Select from "primevue/select";
-import Chart from "primevue/chart";
 
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import SecondaryButtonReturn from "@/Components/SecondaryButtonReturn.vue";
+
+import Chart from "primevue/chart";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  ChartDataLabels
+);
+
 const swal = inject("$swal");
 
 const props = defineProps({
@@ -103,6 +125,14 @@ const chartOptions = ref({
         font: { size: 14 },
       },
     },
+    datalabels: {
+      color: "white",
+      formatter: (value) => value,
+      font: {
+        weight: "bold",
+        size: 16
+      },
+    },
   },
 });
 
@@ -138,6 +168,14 @@ const chartOptionsBar = ref({
   plugins: {
     legend: {
       display: false,
+    },
+    datalabels: {
+      color: "white",
+      formatter: (value) => value,
+      font: {
+        weight: "bold",
+        size: 16
+      },
     },
   },
   scales: {

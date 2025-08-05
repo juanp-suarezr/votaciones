@@ -405,13 +405,34 @@ import { Head, useForm, usePage } from "@inertiajs/vue3";
 import { ref, computed, watch, inject, onMounted } from "vue";
 import { useToast } from "vue-toast-notification";
 import Message from "primevue/message";
-import Chart from "primevue/chart";
 import Knob from "primevue/knob";
 import Tag from "primevue/tag";
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 import { info } from "autoprefixer";
 import axios from "axios";
 import TextInput from "@/Components/TextInput.vue";
+
+import Chart from "primevue/chart";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  ChartDataLabels
+);
 
 const swal = inject("$swal");
 
@@ -541,6 +562,14 @@ const setChartOptions = () => {
           color: textColorSecondary,
         },
       },
+      datalabels: {
+      color: "white",
+      formatter: (value) => value,
+      font: {
+        weight: "bold",
+        size: 12
+      },
+    },
     },
     scales: {
       x: {

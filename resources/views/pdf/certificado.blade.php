@@ -175,7 +175,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>Certificado validado por alcaldía de Pereria y secretaría de planeación</p>
+            <p>Certificado validado por la Alcaldía de Pereira y Secretaría de Planeación</p>
 
         </div>
     </div>

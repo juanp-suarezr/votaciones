@@ -18,6 +18,7 @@ class Informacion_votantes extends Model
      */
     protected $fillable = [
         'nombre',
+        'email',
         'id_user',
         'id_jurado',
         'identificacion',

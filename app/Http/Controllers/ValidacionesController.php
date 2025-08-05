@@ -167,13 +167,12 @@ class ValidacionesController extends Controller
 
                 // Si es duplicado (distancia < 0.5)
                 if ($distance < 0.5) {
-                    Log::info('duplicado');
-                    Log::info('usuario', ['usuario' => $usuario]);
+
                     $duplicados[] = $usuario; // O `$usuario->toArray()` si lo necesita como array
                 }
             }
         } else {
-            Log::info('Embedding no disponible o es NA.');
+
         }
 
 
@@ -207,7 +206,7 @@ class ValidacionesController extends Controller
             $biometrico->save();
 
 
-            Mail::to($votante->votante->user->email)->send(new InscriptionApprovedMail($votante));
+            Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
 
             DB::commit();
             return back()->with('message', 'registro aprobado con éxito.');;
@@ -250,7 +249,7 @@ class ValidacionesController extends Controller
             $votante->save();
             $user->save();
 
-            Mail::to($votante->votante->user->email)->send(new InscriptionDisapprovedMail($votante));
+            Mail::to($votante->votante->email)->send(new InscriptionDisapprovedMail($votante));
 
             DB::commit();
             return back()->with('message', 'registro rechazado exitosamente.');;
@@ -332,7 +331,6 @@ class ValidacionesController extends Controller
             : null;
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
-            ->where('estado', 'Validado')
             ->where('user_id', '!=', $votante->votante->user->id)
             ->with([
                 'user:id', // solo carga el id del usuario
@@ -343,6 +341,8 @@ class ValidacionesController extends Controller
                 }
             ])
             ->get();
+
+
 
 
 
@@ -400,13 +400,12 @@ class ValidacionesController extends Controller
 
                 // Si es duplicado (distancia < 0.5)
                 if ($distance < 0.5) {
-                    Log::info('duplicado');
-                    Log::info('usuario', ['usuario' => $usuario]);
+
                     $duplicados[] = $usuario; // O `$usuario->toArray()` si lo necesita como array
                 }
             }
         } else {
-            Log::info('Embedding no disponible o es NA.');
+            // Embedding no disponible o es NA.
         }
 
 

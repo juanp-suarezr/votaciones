@@ -76,12 +76,12 @@ const Submit = (num) => {
   if (num == 1) {
     form.get(route("resultado-proyectos"), {
       preserveState: true,
-      replace: true,
+      
     });
   } else {
     form.get(route("resultado-generales"), {
       preserveState: true,
-      replace: true,
+      
     });
   }
 };
