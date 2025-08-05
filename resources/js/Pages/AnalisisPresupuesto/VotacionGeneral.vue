@@ -77,6 +77,16 @@ const props = defineProps({
     type: String,
     default: () => "",
   },
+
+  total_votos_virtuales: {
+    type: Number,
+    default: () => [],
+  },
+  total_votos_fisicos: {
+    type: Number,
+    default: () => "",
+  },
+
 });
 
 console.log(props);
@@ -213,6 +223,16 @@ const chartOptionsBar = ref({
       >
         <h2 class="font-bold mt-2 text-2xl">Resultados de Votación</h2>
         <p class="mt-2 text-base">Comuna/corregimiento -- {{ comuna }}</p>
+        <!-- total registros voto virtual -->
+        <p class="flex gap-2 mt-2">
+          <b>Total registrados habilitados para votar virtualmente o tics: </b>
+          {{ total_votos_virtuales }}
+        </p>
+        <!-- total registros voto fisico -->
+        <p class="flex gap-2 mt-2">
+          <b>Total registrados habilitados para votar presencial físico: </b>
+          {{ total_votos_fisicos }}
+        </p>
 
         <div class="md:grid md:grid-cols-5 md:gap-16 mt-6">
           <!-- bar chart -->

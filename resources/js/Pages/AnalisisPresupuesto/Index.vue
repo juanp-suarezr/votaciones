@@ -26,7 +26,6 @@ const form = useForm({
 const submit = () => {
   form.get(route("resultado-comunas"), {
     preserveState: true,
-    replace: true,
   });
 };
 

@@ -76,12 +76,10 @@ const Submit = (num) => {
   if (num == 1) {
     form.get(route("resultado-proyectos"), {
       preserveState: true,
-      
     });
   } else {
     form.get(route("resultado-generales"), {
       preserveState: true,
-      
     });
   }
 };
@@ -97,9 +95,7 @@ const Submit = (num) => {
       <a class="sm:flex justify-start mt-2" href="/welcome">
         <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
       </a>
-      <SecondaryButtonReturn
-        class="h-full flex inline-flex mt-8 !text-base"
-      >
+      <SecondaryButtonReturn class="h-full flex inline-flex mt-8 !text-base">
         Regresar
       </SecondaryButtonReturn>
     </div>
@@ -111,6 +107,16 @@ const Submit = (num) => {
         <h2 class="font-bold mt-2 text-2xl">Resultados de Votación</h2>
         <p class="mt-2 text-base">
           {{ evento.nombre }} - Resultados por Comuna/Corregimiento
+        </p>
+        <!-- total registros voto virtual -->
+        <p class="flex gap-2 mt-2">
+          <b>Total registrados habilitados para votar virtualmente o tics: </b>
+          {{ evento.votantes_count }}
+        </p>
+        <!-- total registros voto fisico -->
+        <p class="flex gap-2 mt-2">
+          <b>Total registrados habilitados para votar presencial físico: </b>
+          {{ evento.acta_escrutinio.reduce((total, item) => total + item.total_ciudadanos, 0) }}
         </p>
         <!-- filtros -->
         <div class="mt-4 w-full flex flex-wrap">
@@ -126,7 +132,7 @@ const Submit = (num) => {
             @change="handleEnterKey"
             class="block h-full w-auto px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
           />
-          <div class="flex gap 4 p-4">
+          <div class="flex gap-4 p-4">
             <SecondaryButton class="p-2 h-full" @click="limpiar">
               Limpiar
             </SecondaryButton>

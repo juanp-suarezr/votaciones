@@ -32,6 +32,7 @@ class Acta_escrutino extends Model
         'votos_blanco',
         'votos_no_marcados',
         'total_ciudadanos',
+        'total_votantes',
         'observaciones',
         'imagen',
         'created_at',

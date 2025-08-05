@@ -63,6 +63,7 @@ class AnalisisPresupuestoController extends Controller
         $votos_fisicos = [];
 
 
+
         if (RequestFacade::input('subtipo')) {
             # code...
             $subtipo = RequestFacade::input('subtipo');
@@ -72,8 +73,13 @@ class AnalisisPresupuestoController extends Controller
             ->with(['votos' => function ($query) {
                 $query->select('id', 'id_eventos', 'isVirtual', 'subtipo', 'id_votante');
             }])
+            ->withCount(['votantes' => function ($query) {
+                $query->where('estado', 'Activo')
+                    ->orWhere('validaciones', 'voto presencial - virtual');
+            }])
+
             ->with(['acta_escrutinio' => function ($query) {
-                $query->select('id', 'id_evento', 'comuna', 'total_ciudadanos');
+                $query->select('id', 'id_evento', 'comuna', 'total_ciudadanos', 'total_votantes');
             }])
             ->first();
 
@@ -114,7 +120,7 @@ class AnalisisPresupuestoController extends Controller
             // Votos físicos: sumar total_ciudadanos de todas las actas de esa comuna
             $votos_fisicos = $evento->acta_escrutinio
                 ->where('comuna', $idComuna)
-                ->sum('total_ciudadanos');
+                ->sum('total_votantes');
 
             // Votos virtuales: contar votos con esa comuna
             $votos_virtuales = $evento->votos->where('subtipo', $idComuna)->where('isVirtual', 1)->count();
@@ -166,10 +172,21 @@ class AnalisisPresupuestoController extends Controller
             ->with(['proyecto' => function ($query) {
                 $query->select('id', 'detalle', 'subtipo');
             }])
+            ->with(['evento.votantes' => function ($query) use ($request) {
+                $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
+                    ->where(function ($q) {
+                        $q->where('estado', 'Activo')
+                            ->orWhere('validaciones', 'voto presencial - virtual');
+                    });
+            }])
             ->get();
 
+        $total_votantes_virtual = 0;
+
+
+
         //actas del evento y comuna
-        $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco')
+        $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco', 'total_ciudadanos')
             ->where('id_evento', $request->id_evento)
             ->where('comuna', $request->subtipo)
             ->get();
@@ -178,6 +195,8 @@ class AnalisisPresupuestoController extends Controller
         $votos_nulos = $actas->sum('votos_nulos');
         $votos_no_marcados = $actas->sum('votos_no_marcados');
         $votos_blanco_fisico = $actas->sum('votos_blanco'); // Voto en blanco físico en actas
+        //suma total de ciudadanos
+        $total_ciudadanos_fisico = $actas->sum('total_ciudadanos');
 
 
 
@@ -197,6 +216,9 @@ class AnalisisPresupuestoController extends Controller
 
         // Inicializar resultados con los proyectos
         foreach ($proyectos as $proyecto) {
+
+            $total_votantes_virtual += $proyecto->evento->votantes->count();
+
             $resultados[$proyecto->id_proyecto] = [
                 'id_proyecto' => $proyecto->id_proyecto,
                 'nombre' => $proyecto->proyecto->detalle,
@@ -205,6 +227,8 @@ class AnalisisPresupuestoController extends Controller
                 'total' => 0,
             ];
         }
+
+
 
         // Voto en blanco (id_proyecto = 0)
         $resultados[0] = [
@@ -269,6 +293,8 @@ class AnalisisPresupuestoController extends Controller
                 'proyectos' => $resultados,
                 'votos_nulos' => $votos_nulos,
                 'votos_no_marcados' => $votos_no_marcados,
+                'total_votos_virtuales' => $total_votantes_virtual,
+                'total_votos_fisicos' => $total_ciudadanos_fisico
 
             ]
         );
@@ -277,15 +303,31 @@ class AnalisisPresupuestoController extends Controller
     function ResultadosGenerales(Request $request)
     {
         //actas del evento y comuna
-        $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco', 'puesto_votacion')
+        $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco', 'puesto_votacion', 'total_ciudadanos')
             ->where('id_evento', $request->id_evento)
             ->where('comuna', $request->subtipo)
             ->with(['votos_fisico', 'puntos_votacion_rp'])
             ->get();
 
-        $resumen_puestos = [];
+        //evento para determinar total registros virtuales y tic
+        $evento = Eventos::where('id', $request->id_evento)
+            ->withCount(['votantes' => function ($query) use ($request) {
+                $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
+                    ->where(function ($q) {
+                        $q->where('estado', 'Activo')
+                            ->orWhere('validaciones', 'voto presencial - virtual');
+                    });
+            }])
+            ->first();
 
+
+            //suma total de ciudadanos
+        $total_registros_virtuales = $evento->votantes_count;
+
+        $resumen_puestos = [];
+        $total_registros_fisicos = 0;
         foreach ($actas as $acta) {
+            $total_registros_fisicos += $acta->total_ciudadanos;
             $puesto_id = $acta->puesto_votacion ?? 0;
 
             $puesto_nombre = $acta->puntos_votacion_rp->detalle ?? 'Sin puesto';
@@ -302,7 +344,7 @@ class AnalisisPresupuestoController extends Controller
                 ];
             }
 
-            $resumen_puestos[$puesto_id]['votos_fisicos'] += $acta->votos_nulos+$acta->votos_no_marcados+$acta->votos_blanco+$votos_fisicos;
+            $resumen_puestos[$puesto_id]['votos_fisicos'] += $acta->votos_nulos + $acta->votos_no_marcados + $acta->votos_blanco + $votos_fisicos;
         }
 
         // Si quieres un array indexado:
@@ -321,7 +363,7 @@ class AnalisisPresupuestoController extends Controller
             ->where('isVirtual', 1)
             ->get();
 
-            $total_votos_virtuales = $votos_virtuales->count();
+        $total_votos_virtuales = $votos_virtuales->count();
 
         $votos_virtuales_tic = Votos::select('id', 'id_eventos', 'id_proyecto', 'subtipo', 'isVirtual', 'id_votante')
             ->where('id_eventos', $request->id_evento)
@@ -330,7 +372,7 @@ class AnalisisPresupuestoController extends Controller
             ->with('votante.jurado')
             ->get();
 
-            $total_votos_virtuales_tic = $votos_virtuales_tic->count();
+        $total_votos_virtuales_tic = $votos_virtuales_tic->count();
 
         $votos_fisicos = Votos_fisicos::whereHas('acta', function ($query) use ($request) {
             $query->where('id_evento', $request->id_evento)
@@ -374,7 +416,7 @@ class AnalisisPresupuestoController extends Controller
         // Opcional: reindexar el array
         $resumen_puestos = array_values($resumen_puestos);
 
-        
+
 
 
         $votos_blanco_virtual = $votos_virtuales->where('id_proyecto', 0)->count();
@@ -408,6 +450,8 @@ class AnalisisPresupuestoController extends Controller
                 'votos_virtuales' => $total_votos_virtuales,
                 'votos_virtuales_tic' => $total_votos_virtuales_tic,
                 'votos_fisicos' => $total_votos_fisicos,
+                'total_votos_fisicos' => $total_registros_fisicos,
+                'total_votos_virtuales' => $total_registros_virtuales,
             ]
         );
     }
