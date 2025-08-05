@@ -201,9 +201,9 @@ class ValidacionesController extends Controller
             $votante->estado = 'Activo';
             $votante->save();
 
-            dd($votante);
+            
 
-            $biometrico = UsuariosBiometricos::where('user_id', $votante->id_user)->first();
+            $biometrico = UsuariosBiometricos::where('user_id', $votante->votante->id_user)->first();
             $biometrico->estado = 'Validado';
             $biometrico->save();
 
