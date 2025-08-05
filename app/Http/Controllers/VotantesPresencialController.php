@@ -183,9 +183,9 @@ class VotantesPresencialController extends Controller
             $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
         }
 
+
         $subtipo = RequestFacade::input('subtipo');
         $search = RequestFacade::input('search');
-
 
 
 

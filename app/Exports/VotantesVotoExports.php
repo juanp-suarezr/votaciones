@@ -41,7 +41,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
             'updated_at',
             'estado',
         )
-            ->where('id_eventos', $this->id_evento)
+            ->where('id_eventos', $this->id_evento->id)
             ->when($this->subtipo, function ($query, $subtipo) {
                 $query->where('subtipo',  $subtipo);
             })
@@ -57,7 +57,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
             ->get();
 
 
-
+            
         // Transform the collection
         $votantes->transform(function ($votante) {
 
