@@ -58,8 +58,6 @@
             v-show="mostrarPanel"
             class="lg:block fixed right-4 top-[25%] lg:w-72 md:w-64 w-56 space-y-4 z-10 transition-all duration-300"
           >
-            
-
             <!-- Tarjeta de soporte -->
             <div
               class="bg-white shadow-md rounded-xl p-4 border border-red-200"
@@ -70,16 +68,84 @@
                 <InformationCircleIcon class="h-4 w-4" />
                 ¿Necesitas soporte?
               </h4>
-              <p class="text-xs md:text-base text-gray-600">Escríbenos a:</p>
-              <a
-                href="mailto:mesadeayudaempleabilidad@gmail.com"
-                class="text-[10px] md:text-sm text-red-800 mt-1 break-words underline hover:text-red-600"
+              <!-- Formulario de solicitud de soporte -->
+              <div
+                class="bg-white shadow-md rounded-xl p-4 border border-blue-200"
               >
-                mesadeayudaempleabilidad@gmail.com
-              </a>
+                <h4
+                  class="text-sm md:text-base font-semibold text-blue-700 mb-2"
+                >
+                  Enviar solicitud
+                </h4>
+                <form @submit.prevent="enviarSolicitud">
+                  <div class="mb-2">
+                    <label class="text-xs md:text-sm text-gray-700"
+                      >Nombre</label
+                    >
+                    <input
+                      v-model="form.nombre"
+                      type="text"
+                      class="w-full p-2 rounded border border-gray-300 text-sm"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="text-xs md:text-sm text-gray-700"
+                      >Identificación</label
+                    >
+                    <input
+                      v-model="form.identificacion"
+                      type="number"
+                      class="w-full p-2 rounded border border-gray-300 text-sm"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="text-xs md:text-sm text-gray-700"
+                      >Celular</label
+                    >
+                    <input
+                      v-model="form.celular"
+                      type="tel"
+                      class="w-full p-2 rounded border border-gray-300 text-sm"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="text-xs md:text-sm text-gray-700"
+                      >Descripción</label
+                    >
+                    <Textarea
+                      v-model="form.descripcion"
+                      variant="filled"
+                      autoResize
+                      rows="3"
+                      class="mt-1 block w-full"
+                      required
+                      autocomplete="descripcion"
+                    />
+                  </div>
+                  <div class="mb-2 hidden">
+                    <label class="text-xs md:text-sm text-gray-700"
+                      >campo obligatorio</label
+                    >
+                    <input
+                      v-model="form.campo_obligatorio"
+                      rows="3"
+                      class="w-full p-2 rounded border border-gray-300 text-sm"
+                    />
+                  </div>
+                  <PrimaryButton
+                    class="mt-2"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                  >
+                    Enviar
+                  </PrimaryButton>
+                </form>
+              </div>
             </div>
           </div>
-
         </div>
       </main>
     </div>
@@ -91,10 +157,25 @@ import Header from "@/Layouts/Header.vue";
 import Navigation from "@/Layouts/Navigation.vue";
 import BreadCrumb from "@/Components/BreadCrumb.vue";
 import SecondaryButtonReturn from "@/Components/SecondaryButtonReturn.vue";
-import { onMounted, ref, watch } from "vue";
-import { HomeIcon, HomeModernIcon, XCircleIcon,
+import {
+  HomeIcon,
+  HomeModernIcon,
+  XCircleIcon,
   InformationCircleIcon,
-  ChatBubbleLeftRightIcon, } from "@heroicons/vue/24/solid";
+  ChatBubbleLeftRightIcon,
+} from "@heroicons/vue/24/solid";
+import { useForm } from "@inertiajs/vue3";
+import { Textarea } from "primevue";
+import { inject, ref, computed, watch, onMounted } from "vue";
+const swal = inject("$swal");
+
+const form = useForm({
+  nombre: "",
+  identificacion: "",
+  celular: "",
+  descripcion: "",
+  campo_obligatorio: "",
+});
 
 const props = defineProps({
   breadCrumbLinks: {
@@ -129,4 +210,25 @@ const cambiarVista = () => {
   mostrarPanel.value = !mostrarPanel.value;
 };
 
+//enviar msj
+const enviarSolicitud = () => {
+  form.post(route("enviarSolicitud"), {
+    onSuccess: function () {
+      swal({
+        title: "Solicitud enviada con éxito",
+        text: "La solicitud ha sido aprobado exitosamente, muy pronto recibirá respuesta",
+        icon: "success",
+      }).then(() => {
+        mostrarPanel.value = false;
+      });
+    },
+    onError: function () {
+      swal({
+        title: "Error al enviar la solicitud",
+        text: "Error al intentar enviar este registro, por favor vuelve a intentar",
+        icon: "error",
+      });
+    },
+  });
+};
 </script>
