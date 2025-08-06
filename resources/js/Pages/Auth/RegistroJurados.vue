@@ -1,14 +1,19 @@
 <template>
-  <AuthenticatedLayout>
+  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <Head title="Registro de jurados" />
 
     <div
-      class="w-full sm:max-w-6xl h-full mx-auto bg-white shadow-lg rounded-lg px-4 sm:px-6 py-12 z-10"
+      class="w-full h-full sm:grid sm:grid-cols-2 mx-auto bg-white shadow-lg rounded-lg px-4 sm:px-6 py-12 z-10 gap-6"
     >
-      <h1 class="text-2xl font-bold text-center text-gray-800">
-        Registro Jurados
-      </h1>
-
+      <div class="col-span-2 w-full">
+        <h1 class="text-2xl font-bold text-center text-gray-800">
+          Registro Jurados
+        </h1>
+        <SecondaryLink class="text-right" :href="route('delegados.index')">
+          Regresar
+        </SecondaryLink>
+      </div>
+      <!-- manual -->
       <form
         @submit.prevent="submit"
         enctype="multipart/form-data"
@@ -59,7 +64,10 @@
 
         <!-- comuna -->
         <div class="mb-2">
-          <InputLabel for="comuna" value="Comuna/corregimiento correspondiente" />
+          <InputLabel
+            for="comuna"
+            value="Comuna/corregimiento correspondiente"
+          />
           <Select
             id="comuna"
             v-model="form.comuna"
@@ -108,22 +116,6 @@
           </select>
           <InputError class="mt-2" :message="form.errors.id_evento" />
         </div>
-        <!-- codigo verificación -->
-        <div class="mb-2">
-          <InputLabel
-            for="codigo_verificacion"
-            value="Código de verificación"
-          />
-          <TextInput
-            id="codigo_verificacion"
-            type="text"
-            class="mt-1 block w-full"
-            v-model="form.codigo_verificacion"
-            required
-            autocomplete="off"
-          />
-          <InputError class="mt-2" :message="form.errors.codigo_verificacion" />
-        </div>
 
         <!-- Correo -->
         <div class="mb-2">
@@ -131,7 +123,7 @@
           <TextInput
             id="email"
             type="email"
-            class="mt-1 block w-full"
+            class="mt-1 block"
             v-model="form.email"
             required
           />
@@ -139,7 +131,7 @@
         </div>
 
         <!-- aviso contraseña -->
-        <div class="mb-2">
+        <div class="mb-2 col-span-2">
           <div class="bg-azul rounded-md p-2 w-full h-full">
             <p class="text-white text-base">
               Asegúrese de que la contraseña sea facil de recordar para usted,
@@ -244,51 +236,7 @@
           </div>
         </div>
 
-        <!-- ncheck tratamiento datos -->
-        <div class="my-4 col-span-2 mb-2">
-          <input
-            type="checkbox"
-            id="consentimiento1"
-            name="consentimiento1"
-            required
-            v-model="form.checked"
-          />
-          <label
-            for="consentimiento1"
-            class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-            >Conozco y Acepto la Política de Privacidad de Datos
-            <a
-              href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
-              target="_blank"
-              class="underline !text-azul cursor-pointer"
-              >politica</a
-            ></label
-          >
-          <InputError class="mt-1" :message="form.errors.checked" />
-        </div>
-        <!-- declaración juramentada -->
-        <div class="mb-4 col-span-2 mb-2">
-          <input
-            type="checkbox"
-            id="consentimiento2"
-            name="consentimiento2"
-            required
-            v-model="form.declaracion"
-          />
-          <label
-            for="consentimiento2"
-            class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-            >Manifiesto que acepto la
-            <a
-              href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
-              target="_blank"
-              class="underline !text-azul cursor-pointer"
-              >Declaración</a
-            >
-            juramentada</label
-          >
-          <InputError class="mt-1" :message="form.errors.declaracion" />
-        </div>
+
 
         <div class="mt-4 flex flex-col items-end">
           <PrimaryButton
@@ -299,6 +247,81 @@
           </PrimaryButton>
         </div>
       </form>
+      <!-- cargue masivo -->
+      <!-- cargue -->
+      <div class="w-full bg-white border shadow-sm rounded-xl">
+        <div
+          class="bg-gray-100 border-b rounded-t-xl py-3 px-4 md:py-4 md:px-5 flex"
+        >
+          <h3 class="text-gray-500 m-auto">CARGUE MASIVO</h3>
+        </div>
+
+        <div class="w-full h-full flex px-4">
+          <div class="mt-6 w-full">
+            <p class="">
+              <b>Nota:</b> Para subir masivamente la lista de jurados, debe
+              descargar la plantilla, dando clic en el siguiente botón.
+            </p>
+
+            <a
+              :href="route('plantillaJur.excel')"
+              class="flex inline-flex text-white bg-green-800 hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2 mt-4"
+            >
+              <i class="fa-solid fa-file-arrow-down m-auto me-2"></i>Descargar
+              plantilla
+            </a>
+
+            <p class="mt-4">
+              Luego de descargar la plantilla y cargar los datos, subir el mismo
+              archivo excel en el apartado de abajo.
+            </p>
+
+            <form @submit.prevent="cargueMasivo">
+              <!-- evento -->
+              <div class="mt-2">
+                <InputLabel for="id_evento" value="Asignar Evento" />
+                <select
+                  id="id_evento"
+                  v-model="form.id_evento"
+                  class="block mt-1 w-full rounded-md form-select focus:border-sky-600"
+                >
+                  <option value="" disabled selected>
+                    Seleccione un evento
+                  </option>
+                  <option
+                    v-for="evento in eventos"
+                    :key="evento.id"
+                    :value="evento.id"
+                  >
+                    {{ evento.nombre }}
+                  </option>
+                </select>
+                <InputError class="mt-2" :message="form.errors.id_evento" />
+              </div>
+
+              <TextInput
+                id="cargueMasivoJurados"
+                type="file"
+                class="mt-4 block w-full"
+                @change="validateFile($event)"
+              />
+              <InputError class="mt-2" :message="form.errors.jurados" />
+
+              <!-- boton registrar -->
+              <div>
+                <div class="mt-12 flex flex-col items-end">
+                  <PrimaryButton
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                  >
+                    Enviar
+                  </PrimaryButton>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </AuthenticatedLayout>
 </template>
@@ -323,6 +346,7 @@ const swal = inject("$swal");
 import { useReCaptcha } from "vue-recaptcha-v3";
 import { PhotoIcon } from "@heroicons/vue/24/solid";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import SecondaryLink from "@/Components/SecondaryLink.vue";
 
 const firmaPreview = ref(null);
 const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
@@ -340,6 +364,12 @@ const props = defineProps({
   },
 });
 
+// Breadcrumb
+const breadcrumbLinks = [
+  { url: route("delegados.index"), text: "Gestion de jurados" },
+  { url: "", text: "Añadir Jurado" },
+];
+
 const form = useForm({
   nombre: "",
   identificacion: "",
@@ -351,9 +381,8 @@ const form = useForm({
   firma: null,
   email: "",
   password: "",
-  codigo_verificacion: "",
-  checked: false,
-  declaracion: false,
+
+  jurados: "",
 });
 
 const onFileChange = (e) => {
@@ -447,7 +476,7 @@ const submit = () => {
           confirmButtonText: "Aceptar",
         })
         .then((result) => {
-          window.location.href = route("welcome");
+          window.history.back;
         });
     },
     onError: (errors) => {
@@ -461,4 +490,81 @@ const submit = () => {
     },
   });
 };
+
+const validateFile = (event) => {
+  const file = event.target.files[0];
+
+  // Validar si se ha seleccionado un archivo
+  if (!file) {
+    form.errors.jurados = "Por favor, selecciona un archivo.";
+    return;
+  }
+
+  // Validar el tamaño del archivo (en bytes)
+  if (file.size > 2 * 1024 * 1024) {
+    // 2 MB en bytes
+    form.errors.jurados = "El archivo no debe ser mayor a 2 MB.";
+    return;
+  }
+
+  // Reiniciar errores si la validación es exitosa
+  form.errors.jurados = null;
+  // Asignar el archivo al modelo de datos
+  form.jurados = file;
+  console.log(form.jurados);
+};
+
+const cargueMasivo = () => {
+  form.post(route("cargueJurados"), {
+    forceFormData: true,
+    onSuccess: () => {
+      // Verificar si la propiedad 'success' está presente en la respuesta
+      if (
+        props.numRegistrosInsertados !== undefined &&
+        props.numRegistrosActualizados !== undefined
+      ) {
+        swal({
+          title: "Registros Cargados",
+          text: `Se han importado ${props.numRegistrosInsertados} nuevos registros correctamente y ${props.numRegistrosActualizados} actualizados`,
+          icon: "success",
+        });
+      } else if (
+        props.numRegistrosInsertados !== undefined &&
+        props.numRegistrosActualizados == undefined
+      ) {
+        // Si 'success' no está presente en la respuesta, mostrar un mensaje de error genérico
+        swal({
+          title: "Registros Cargados",
+          text: `Se han importado ${props.numRegistrosInsertados} nuevos registros correctamente y 0 actualizados`,
+          icon: "success",
+        });
+      } else if (
+        props.numRegistrosInsertados == undefined &&
+        props.numRegistrosActualizados !== undefined
+      ) {
+        // Si 'success' no está presente en la respuesta, mostrar un mensaje de error genérico
+        swal({
+          title: "Registros Cargados",
+          text: `Se han importado 0 nuevos registros correctamente y ${props.numRegistrosActualizados} actualizados`,
+          icon: "success",
+        });
+      } else {
+        swal({
+          title: "Registros Cargados",
+          text: "Se han importado los registros de forma masiva",
+          icon: "success",
+        });
+      }
+    },
+    // Manejar el error en caso de que ocurra algún problema con la solicitud
+    onError: (error) => {
+      swal({
+        title: "Error",
+        text: "Hubo un problema al procesar la solicitud.",
+        icon: "error",
+      });
+    },
+  });
+};
+
 </script>

@@ -89,11 +89,11 @@
                 <p><b>Número  de intento:</b> {{ $intentos }}
                 <br>
                 podrá ingresar
-                al <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">software</a> utilizando como usuario su número de identificación y la contraseña que ingresó durante el proceso de registro,
+                al <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">software</a> utilizando como usuario su número de identificación y la contraseña que ingresó durante el proceso de registro,
                  con el fin de corregir la información solicitada y actualizar su estado.
                 </p>
                 <br>
-                <em>Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login</a></em>
+                <em>Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login-pp</a></em>
             @endif
 
         </div>

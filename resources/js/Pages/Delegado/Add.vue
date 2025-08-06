@@ -1,7 +1,7 @@
 <template>
   <Head title="Agregar delegado" />
 
-  <AuthenticatedLayout>
+  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header> Nuevo delegado </template>
 
     <div class="px-4 mx-auto bg-white border shadow-sm rounded-xl mt-8">
@@ -176,13 +176,17 @@ const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
 const canvas = ref(null);
 let drawing = false;
 
+const breadcrumbLinks = [
+  { url: route("delegados.index"), text: "Gestion de delegados" },
+  { url: "", text: "Añadir Delegado" },
+];
 
 const form = useForm({
   nombre: "",
 
   cargo: "",
   tipo: "secretario",
-  
+
   firma: null,
 });
 

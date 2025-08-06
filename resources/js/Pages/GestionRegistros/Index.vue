@@ -1,7 +1,7 @@
 <template>
   <Head title="gestión Usuarios registrados" />
 
-  <AuthenticatedLayout>
+  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header>
       <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold">Gestión de registros</h1>
@@ -155,6 +155,11 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
+// Breadcrumb
+const breadcrumbLinks = [
+  { url: "", text: "Gestión registros" },
+];
 
 console.log(props.votantes);
 

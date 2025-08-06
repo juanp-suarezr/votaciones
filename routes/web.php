@@ -227,10 +227,14 @@ Route::middleware('auth')->group(function () {
     //PLANTILLA EXCEL para cargue masivo
     //usuario
     Route::get('plantillaRes', [cargueMasivoController::class, 'plantillaRes'])->name('plantillaRes.excel');
+    //jurados
+    Route::get('plantillaJur', [cargueMasivoController::class, 'plantillaJur'])->name('plantillaJur.excel');
 
     //import excel carga masiva
     //usuarios
     Route::post('/cargueVotantes', [CargueMasivoController::class, 'cargueVotantes'])->name('cargueVotantes');
+    //jurados
+    Route::post('/cargueJurados', [CargueMasivoController::class, 'cargueJurados'])->name('cargueJurados');
 
     //historial registros
     Route::get('/historial_registros', [ValidacionesController::class, 'historial'])->name('historial_registros');

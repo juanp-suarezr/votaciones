@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\VotersImport;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Request as RequestFacade;
+use App\Exports\JuradosExports;
+use App\Imports\JuradosImport;
 
 class cargueMasivoController extends Controller
 {
 
-    //PLANTILLA EXCEL RESTAURANTES
+    //PLANTILLA EXCEL USUARIOS
     public function plantillaRes()
     {
         $filePath = 'excel/votantes.xls'; // Ruta del archivo Excel almacenado
@@ -27,7 +31,7 @@ class cargueMasivoController extends Controller
             'eventos' => 'required|exists:eventos,id',
         ]);
 
-        
+
 
         // Realizar la importación
         $import = new VotersImport($request->eventos, $request->tipo); // Instancia correcta de VotersImport
@@ -43,4 +47,45 @@ class cargueMasivoController extends Controller
 
         ]);
     }
+
+    //PLANTILLA EXCEL JURADOS
+    public function plantillaJur()
+    {
+        ob_end_clean();
+        ob_start();
+
+        $id_evento = 15;
+
+
+        $id_evento = RequestFacade::input('id_evento');
+
+
+
+        return Excel::download(new JuradosExports($id_evento), 'jurados.xls', \Maatwebsite\Excel\Excel::XLS);
+    }
+
+    public function cargueJurados(Request $request)
+    {
+        $request->validate([
+            'jurados' => 'required|file',
+            'id_evento' => 'required|exists:eventos,id',
+        ]);
+
+
+
+        // Realizar la importación
+        $import = new JuradosImport($request->id_evento); // Instancia correcta de VotersImport
+        Excel::import($import, $request->file('jurados'));
+
+        // Obtener el número de registros insertados correctamente
+        $numRegistrosInsertados = $import->getNumRegistrosInsertados();
+        $numRegistrosActualizados = $import->getNumRegistrosActualizados();
+
+        return Inertia::render('Auth/RegistroJurados', [
+            'numRegistrosInsertados' => $numRegistrosInsertados,
+            'numRegistrosActualizados' => $numRegistrosActualizados,
+
+        ]);
+    }
+
 }
