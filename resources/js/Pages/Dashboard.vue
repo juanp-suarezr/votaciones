@@ -364,7 +364,7 @@
           type="button"
           :href="route('votantesPresencial.create')"
         >
-          Registro presencial - virtual
+          Registro Voto Eléctronico en Mesa
         </PrimaryLink>
       </div>
       <!-- buscador de cedula para validar votacion -->

@@ -137,7 +137,7 @@ class ValidationController extends Controller
             'barrio' => 'string',
             'direccion' => 'string',
             // 'email' => 'required|email|unique:users',
-            'email' => 'required|email',
+            'email' => 'nullable|email',
             // 'celular' => 'required|string|max:15|unique:users,celular,NULL,id,estado,Activo|regex:/^\d{10,15}$/', // Validación para números de celular
             'celular' => 'required|string|max:15|regex:/^\d{10,15}$/', // Validación para números de celular
             'password' => 'required|string|min:8',

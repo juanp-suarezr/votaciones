@@ -259,13 +259,12 @@
           </div>
           <!-- Correo -->
           <div class="mb-2">
-            <InputLabel for="email" value="Correo Electrónico" />
+            <InputLabel for="email" value="Correo Electrónico (opcional)" />
             <TextInput
               id="email"
               type="email"
               class="mt-1 block w-full"
               v-model="form.email"
-              required
             />
             <InputError class="mt-2" :message="form.errors.email" />
           </div>
@@ -1389,7 +1388,6 @@ const validarDatos2 = () => {
     form.comuna &&
     form.barrio &&
     form.direccion &&
-    form.email &&
     form.password &&
     form.checked &&
     form.declaracion
@@ -1429,9 +1427,6 @@ const validarDatos2 = () => {
     }
     if (!form.direccion) {
       form.errors.direccion = "Este campo es requerido.";
-    }
-    if (!form.email) {
-      form.errors.email = "Este campo es requerido.";
     }
     if (!form.password) {
       form.errors.password = "Este campo es requerido.";
