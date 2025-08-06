@@ -74,6 +74,8 @@ Route::get('/certificado', function () {
     return Inertia::render('Certificados', []);
 });
 
+//soporte envio solicitud
+Route::post('/enviarSolicitud', [ValidacionesController::class, 'enviarSolicitud'])->name('enviarSolicitud');
 
 //Consultar por qr de carnet
 Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_id, $votante_id) {

@@ -172,7 +172,6 @@ class ValidacionesController extends Controller
                 }
             }
         } else {
-
         }
 
 
@@ -201,7 +200,7 @@ class ValidacionesController extends Controller
             $votante->estado = 'Activo';
             $votante->save();
 
-            
+
 
             $biometrico = UsuariosBiometricos::where('user_id', $votante->votante->id_user)->first();
             $biometrico->estado = 'Validado';
@@ -448,6 +447,42 @@ class ValidacionesController extends Controller
 
             DB::commit();
             return back()->with('message', 'registro rechazado exitosamente.');;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Ocurrió un error durante el proceso. Inténtelo nuevamente. ' . $e]);
+        }
+    }
+
+    //enviar solicitud
+    public function enviarSolicitud(Request $request)
+    {
+
+        if ($request->campo_obligatorio != '' || $request->campo_obligatorio != null) {
+            return back()->withErrors(['error' => 'Ocurrió un error durante el proceso. Inténtelo nuevamente.']);
+        }
+
+        DB::beginTransaction();
+        try {
+            $datos = [
+                'nombre' => $request->nombre,
+                'identificacion' => $request->identificacion,
+                'celular' => $request->celular,
+                'descripcion' => $request->descripcion,
+            ];
+
+            Mail::send([], [], function ($message) use ($datos) {
+                $message->to('soportepresupuestopart@gmail.com')
+                    ->subject('Solicitud de soporte')
+                    ->html(
+                        "<p><strong>Nombre:</strong> {$datos['nombre']}</p>" .
+                            "<p><strong>Identificación:</strong> {$datos['identificacion']}</p>" .
+                            "<p><strong>Celular:</strong> {$datos['celular']}</p>" .
+                            "<p><strong>Descripción:</strong> {$datos['descripcion']}</p>"
+                    );
+            });
+
+            DB::commit();
+            return back()->with('message', 'solicitud enviada con éxito.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Ocurrió un error durante el proceso. Inténtelo nuevamente. ' . $e]);
