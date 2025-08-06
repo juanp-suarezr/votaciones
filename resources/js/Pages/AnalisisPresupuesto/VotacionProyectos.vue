@@ -11,7 +11,6 @@ import Modal from "@/Components/Modal.vue";
 import { EyeIcon } from "@heroicons/vue/24/solid";
 import Select from "primevue/select";
 
-
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import SecondaryButtonReturn from "@/Components/SecondaryButtonReturn.vue";
@@ -39,7 +38,6 @@ ChartJS.register(
 
 const swal = inject("$swal");
 
-
 const props = defineProps({
   proyectos: {
     type: Object,
@@ -57,6 +55,14 @@ const props = defineProps({
     type: String,
     default: () => "",
   },
+  subtipo: {
+    type: Number,
+    default: () => "",
+  },
+  id_evento: {
+    type: Number,
+    default: () => "",
+  },
   total_votos_virtuales: {
     type: Number,
     default: () => [],
@@ -68,6 +74,12 @@ const props = defineProps({
 });
 
 console.log(props);
+
+const form = useForm({
+  id_evento: props.id_evento,
+  subtipo: "",
+  comuna: "",
+});
 
 const baseColors = [
   "#C20E1A", // primary
@@ -116,7 +128,7 @@ const chartOptions = ref({
       formatter: (value) => value,
       font: {
         weight: "bold",
-        size: 16
+        size: 16,
       },
     },
   },
@@ -145,7 +157,7 @@ const chartOptionsBar = ref({
       formatter: (value) => value,
       font: {
         weight: "bold",
-        size: 16
+        size: 16,
       },
     },
   },
@@ -159,6 +171,15 @@ const chartOptionsBar = ref({
     },
   },
 });
+
+const Submit = () => {
+  form.subtipo = props.subtipo;
+  form.comuna = props.comuna;
+
+  form.get(route("resultado-generales"), {
+    preserveState: true,
+  });
+};
 </script>
 
 <template>
@@ -171,9 +192,7 @@ const chartOptionsBar = ref({
       <a class="sm:flex justify-start mt-2" href="/welcome">
         <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
       </a>
-      <SecondaryButtonReturn
-        class="h-full flex inline-flex mt-8 !text-base"
-      >
+      <SecondaryButtonReturn class="h-full flex inline-flex mt-8 !text-base">
         Regresar
       </SecondaryButtonReturn>
     </div>
@@ -195,19 +214,19 @@ const chartOptionsBar = ref({
           {{ total_votos_fisicos }}
         </p>
 
-        <div class="md:grid md:grid-cols-5 gap-8 mt-6">
+        <div class="w-full mt-6">
           <!-- pie chart -->
-          <div class="w-full items-center mb-4 md:col-span-2">
+          <!-- <div class="w-full items-center mb-4 md:col-span-2">
             <Chart
               type="doughnut"
               :data="chartData"
               :options="chartOptions"
               class="h-full w-full mt-4"
             />
-          </div>
+          </div> -->
 
           <!-- bar chart -->
-          <div class="w-full mb-4 md:col-span-3">
+          <div class="w-full h-full sm:h-72 mt-4">
             <Chart
               type="bar"
               :data="chartDataBar"
@@ -313,6 +332,15 @@ const chartOptionsBar = ref({
           </div>
         </div>
       </div>
+    </div>
+    <!-- resultados generales -->
+    <div class="w-full flex justify-end text-right sm:px-16 px-4 mb-6">
+      <button
+        class="border-2 border-gray-200 bg-white shadow-md rounded-full hover:!bg-gray-200 p-4 mt-4"
+        @click="Submit"
+      >
+        Resultados Generales
+      </button>
     </div>
   </div>
 </template>

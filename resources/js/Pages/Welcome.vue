@@ -79,13 +79,13 @@ const descargarCertificado = (ev, idVotante) => {
     <div class="w-full">
       <div class="sm:flex justify-start mb-8 mt-2">
         <img src="/assets/img/logo_white.png" alt="Logo" class="h-24 w-auto" />
-        <div class="w-full flex justify-end items-center">
+        <!-- <div class="w-full flex justify-end items-center">
           <a class="text-white text-xl" href="#certificados_info">
             Consultar certificado
           </a>
-        </div>
+        </div> -->
         <div class="w-full flex justify-end items-center">
-          <a class="text-white text-xl" href="/resultado-evento">
+          <a class="text-white text-xl" href="/resultado-comunas?id_evento=15">
             Resultados votaciones
           </a>
         </div>

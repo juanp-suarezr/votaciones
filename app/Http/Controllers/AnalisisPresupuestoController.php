@@ -288,7 +288,8 @@ class AnalisisPresupuestoController extends Controller
         return Inertia::render(
             'AnalisisPresupuesto/VotacionProyectos',
             [
-
+                'id_evento' => $request->id_evento,
+                'subtipo' => $request->subtipo,
                 'comuna' => $request->comuna,
                 'proyectos' => $resultados,
                 'votos_nulos' => $votos_nulos,

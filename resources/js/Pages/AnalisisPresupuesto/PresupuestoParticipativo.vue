@@ -72,7 +72,9 @@ const openModal = (info) => {
   form.comuna = info.label;
 };
 
-const Submit = (num) => {
+const Submit = (num, info) => {
+    form.subtipo = info.value;
+  form.comuna = info.label;
   if (num == 1) {
     form.get(route("resultado-proyectos"), {
       preserveState: true,
@@ -238,7 +240,7 @@ const Submit = (num) => {
                           <button
                             class="border border-gray-400 rounded-full hover:!bg-gray-200 p-1"
                             v-tooltip.bottom="'Ver detalles'"
-                            @click="openModal(res)"
+                            @click="Submit(1, res)"
                           >
                             <EyeIcon class="h-6 w-6 text-gray-800" />
                           </button>
