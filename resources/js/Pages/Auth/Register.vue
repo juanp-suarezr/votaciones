@@ -859,33 +859,73 @@ async function verificarCamaraONecesaria() {
 
 const onFileChange = (field, event) => {
   const file = event.target.files[0];
-  if (file) {
-    // Validar el tamaño del archivo
-    if (file.size > 2e6) {
-      swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "El archivo debe ser menor a 2MB.",
-      });
-      return;
-    }
-  }
+  if (!file) return;
 
-  form[field] = event.target.files[0];
-
-  if (field === "cedula_front") {
+  const processImage = (file, callback) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      imageUrl.value = e.target.result;
-    };
-    reader.readAsDataURL(form[field]);
-  } else if (field == "firma") {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      firmaPreview.value = e.target.result;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const maxWidth = 1024;
+        const maxHeight = 1024;
+
+        let width = img.width;
+        let height = img.height;
+
+        // Redimensionar solo si excede el tamaño máximo
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convertir a JPEG comprimido
+        canvas.toBlob(
+          (blob) => {
+            if (blob.size > 2e6) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Incluso comprimida, la imagen supera los 2MB.",
+              });
+              return;
+            }
+            const compressedFile = new File([blob], file.name, {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            callback(compressedFile, URL.createObjectURL(compressedFile));
+          },
+          "image/jpeg",
+          0.8 // calidad
+        );
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
-  }
+  };
+
+  // Procesar y asignar dependiendo del campo
+  processImage(file, (finalFile, previewUrl) => {
+    form[field] = finalFile;
+
+    if (field === "cedula_front") {
+      imageUrl.value = previewUrl;
+    } else if (field === "firma") {
+      firmaPreview.value = previewUrl;
+    }
+  });
 };
 
 // Eliminar la imagen seleccionada

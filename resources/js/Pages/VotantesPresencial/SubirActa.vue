@@ -154,6 +154,24 @@
               />
               <InputError :message="form.errors.hora_cierre" class="mt-2" />
             </div>
+            <!-- total ciudadanos -->
+            <div class="mb-2 w-1/4">
+              <InputLabel
+                for="total_ciudadanos"
+                value="Total ciudadanos registrados"
+              />
+              <TextInput
+                id="total_ciudadanos"
+                v-model="form.total_ciudadanos"
+                class="mt-1 block w-full"
+                type="number"
+                required
+              />
+              <InputError
+                :message="form.errors.total_ciudadanos"
+                class="mt-2"
+              />
+            </div>
             <!-- observaciones -->
             <div class="mb-2 w-full">
               <InputLabel
@@ -177,6 +195,9 @@
                 <span v-if="isMaxPalabras">Limite de caracteres superado</span>
               </p>
               <InputError :message="form.errors.observaciones" class="mt-2" />
+            </div>
+            <div class="w-full">
+              <h2>Registro de votos</h2>
             </div>
             <!-- votos nulos -->
             <div class="mb-2 w-1/4">
@@ -240,24 +261,23 @@
                 required
               />
               <InputError
-                :message="form.errors['votos_proyectos.' + proyecto.proyecto.id]"
+                :message="
+                  form.errors['votos_proyectos.' + proyecto.proyecto.id]
+                "
                 class="mt-2"
               />
             </div>
-            <!-- total ciudadanos -->
+            <!-- total votantes -->
             <div class="mb-2 w-1/4">
-              <InputLabel for="total_ciudadanos" value="Total ciudadanos" />
+              <InputLabel for="total_votantes" value="Total votantes" />
               <TextInput
-                id="total_ciudadanos"
-                v-model="form.total_ciudadanos"
+                id="total_votantes"
+                v-model="form.total_votantes"
                 class="mt-1 block w-full"
                 type="number"
                 required
               />
-              <InputError
-                :message="form.errors.total_ciudadanos"
-                class="mt-2"
-              />
+              <InputError :message="form.errors.total_votantes" class="mt-2" />
             </div>
           </div>
         </div>
@@ -286,7 +306,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
 import TextInput from "@/Components/TextInput.vue";
-import Textarea from 'primevue/textarea';
+import Textarea from "primevue/textarea";
 const swal = inject("$swal");
 
 const props = defineProps({
@@ -315,6 +335,7 @@ const form = useForm({
   votos_blancos: 0,
   votos_no_marcados: 0,
   total_ciudadanos: 0,
+  total_votantes: 0,
   observaciones: "",
   evidencia: null,
   votos_proyectos: {},
@@ -327,41 +348,85 @@ const isMaxPalabras = ref(false);
 
 // Limite palabras
 const palabrasEnTestimonio = computed(() => {
-    const palabras = form.observaciones.trim();
-    const result = palabras.length;
+  const palabras = form.observaciones.trim();
+  const result = palabras.length;
 
-    if (result >= 250) {
-        isMaxPalabras.value = true;
-    } else {
-        isMaxPalabras.value = false;
-    }
+  if (result >= 250) {
+    isMaxPalabras.value = true;
+  } else {
+    isMaxPalabras.value = false;
+  }
 
-    return result;
+  return result;
 });
 
 watch(palabrasEnTestimonio, () => {
-    form.observaciones = form.observaciones.trim(); // Asegúrate de que no haya espacios al principio o al final
+  form.observaciones = form.observaciones.trim(); // Asegúrate de que no haya espacios al principio o al final
 });
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
-  if (file) {
-    // Validar el tamaño del archivo
-    if (file.size > 2e6) {
-      swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "El archivo debe ser menor a 2MB.",
-      });
-      return;
-    }
-
-    // Crear un objeto URL para la imagen
-    imageUrl.value = URL.createObjectURL(file);
-    form.evidencia = file; // Asignar el archivo al formulario
-  } else {
-    imageUrl.value = null; // Limpiar la imagen si no hay archivo
+  if (!file) {
+    imageUrl.value = null;
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Valores máximos permitidos
+      const maxWidth = 1024;
+      const maxHeight = 1024;
+
+      let width = img.width;
+      let height = img.height;
+
+      // Redimensionar solo si excede el tamaño máximo
+      if (width > maxWidth || height > maxHeight) {
+        if (width > height) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convertir a Blob comprimido
+      canvas.toBlob(
+        (blob) => {
+          if (blob.size > 2e6) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Incluso comprimida, la imagen supera los 2MB.",
+            });
+            return;
+          }
+
+          const compressedFile = new File([blob], file.name, {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          });
+
+          imageUrl.value = URL.createObjectURL(compressedFile);
+          form.evidencia = compressedFile;
+        },
+        "image/jpeg",
+        0.8 // Calidad
+      );
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 };
 
 // Eliminar la imagen seleccionada
@@ -376,22 +441,32 @@ const submit = () => {
     parseInt(form.votos_nulos) +
     parseInt(form.votos_no_marcados);
   const total_proyectos = Object.values(form.votos_proyectos).reduce(
-    (acc, votos) => parseInt(acc) + parseInt((votos || 0)),
+    (acc, votos) => parseInt(acc) + parseInt(votos || 0),
     0
   );
 
   console.log("Total votos:", total_votos);
   console.log("Total proyectos:", total_proyectos);
   console.log("Total ciudadanos:", form.total_ciudadanos);
+  console.log("Total votantes:", form.total_votantes);
 
-  if (
-    parseInt(form.total_ciudadanos) !=
+  //Validacion 1: total de registros ciudadano tiene que ser igual a total de votantes
+  if (parseInt(form.total_ciudadanos) != parseInt(form.total_votantes)) {
+    swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "El total de ciudadanos registrados debe ser igual al total de ciudadanos votantes",
+    });
+    return;
+    //Validaciopn 2: total de votantes == a total de votos
+  } else if (
+    parseInt(form.total_votantes) !=
     total_votos + parseInt(total_proyectos)
   ) {
     swal.fire({
       icon: "error",
       title: "Error",
-      text: "El total de ciudadanos debe ser igual a la suma de votos nulos, blancos, no marcados y votos por proyecto.",
+      text: "El total de votantes debe ser igual a la suma de votos nulos, blancos, no marcados y votos por proyecto.",
     });
     return;
   }

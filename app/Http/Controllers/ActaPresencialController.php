@@ -147,6 +147,7 @@ class ActaPresencialController extends Controller
             'votos_nulos' => 'required|integer|min:0',
             'votos_no_marcados' => 'required|integer|min:0',
             'total_ciudadanos' => 'required|integer|min:0',
+            'total_votantes' => 'required|integer|min:0',
             'votos_proyectos' => 'required|array',
             'votos_proyectos.*' => 'required|integer|min:0',
 
@@ -180,6 +181,7 @@ class ActaPresencialController extends Controller
             $acta->votos_nulos = $request->votos_nulos;
             $acta->votos_no_marcados = $request->votos_no_marcados;
             $acta->total_ciudadanos = $request->total_ciudadanos;
+            $acta->total_votantes = $request->total_votantes;
             $acta->imagen = $fileName;
             $acta->observaciones = $request->observaciones;
             $acta->save();

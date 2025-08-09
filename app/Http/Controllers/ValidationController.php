@@ -344,10 +344,10 @@ class ValidationController extends Controller
             ->exists();
 
         if ($existe && $request->registro_presencial) {
-            $votante = Informacion_votantes::select('id', 'identificacion', 'id_user')
+            $votante = Informacion_votantes::select('id', 'identificacion', 'nombre', 'id_user')
                 ->where('identificacion', $request->identificacion)
                 ->where('comuna', '!=', 0)
-                ->whereNotNull('comuna')
+                ->whereNotNull('comuna') 
                 ->with('votos')
                 ->with('hashVotantes')
                 ->first();

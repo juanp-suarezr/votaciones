@@ -342,9 +342,6 @@ const existeNoVota = ref(false);
 const comunaSelected = ref("");
 const barriosXComuna = ref([]);
 
-
-
-
 barriosXComuna.value = barrios.find(
   (barrio) => barrio.id === parseInt(usePage().props.user.jurado.comuna)
 ).barrios;
@@ -423,20 +420,60 @@ const validateStep1 = async () => {
         if (data.votante && data.votante.votos.length > 0) {
           errorMessage.value +=
             " Y el votante ya ha emitido su voto en las elecciones.";
-        } else {
-          window.location.href = route("votos.index", {
-            id_votante: data.votante.id,
-            evento: usePage().props.user.jurado.evento.id,
-            tipo_evento: usePage().props.user.jurado.evento.tipos,
-            tipo_user:
-              data.votante.hash_votantes.length != 0
-                ? data.votante.hash_votantes[0].tipo
-                : "",
-            subtipo_user:
-              data.votante.hash_votantes.length != 0
-                ? data.votante.hash_votantes[0].subtipo
-                : "",
+
+          await swal.fire({
+            title: "Registro encontrado",
+            html: errorMessage.value,
+            icon: "warning",
+            confirmButtonText: "Cerrar!",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            draggable: true,
+            customClass: {
+              title: "!text-4xl", // Título más grande
+              popup: "p-6", // Más padding al contenedor
+              confirmButton: "!text-2xl", // Botón de confirmación más grande
+              cancelButton: "!text-2xl", // Botón de cancelar más grande
+            },
           });
+        } else {
+          console.log(data);
+
+          const result = await swal.fire({
+            title: "Registro encontrado",
+            html: `
+    <p class="!text-2xl">El votante es: <strong>${data.votante.nombre}</strong></p>
+    <p class="!text-2xl">Identificación: <strong>${data.votante.identificacion}</strong></p>`,
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText: "Aceptar datos y votar!",
+            cancelButtonText: "Cancelar",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            draggable: true,
+            customClass: {
+              title: "!text-4xl", // Título más grande
+              popup: "p-6", // Más padding al contenedor
+              confirmButton: "!text-2xl", // Botón de confirmación más grande
+              cancelButton: "!text-2xl", // Botón de cancelar más grande
+            },
+          });
+
+          if (result.isConfirmed) {
+            window.location.href = route("votos.index", {
+              id_votante: data.votante.id,
+              evento: usePage().props.user.jurado.evento.id,
+              tipo_evento: usePage().props.user.jurado.evento.tipos,
+              tipo_user:
+                data.votante.hash_votantes.length !== 0
+                  ? data.votante.hash_votantes[0].tipo
+                  : "",
+              subtipo_user:
+                data.votante.hash_votantes.length !== 0
+                  ? data.votante.hash_votantes[0].subtipo
+                  : "",
+            });
+          }
 
           return;
         }
@@ -541,36 +578,82 @@ const validarDatos2 = () => {
   }
 };
 
-const submit = () => {
-  form.post(route("votantesPresencial.store"), {
-    onSuccess: () => {
-      swal({
-        title: "Registro realizado",
-        text: "Registro de votante realizado exitosamente.",
-        icon: "success",
-      }).then((result) => {
-        console.log(result);
+const submit = async() => {
+  const result = await swal.fire({
+    title: "Información de Registro",
+    html: `
+    <p class="!text-2xl">El votante es: <strong>${form.nombre}</strong></p>
+    <p class="!text-2xl">Identificación: <strong>${form.tipo_documento} - ${
+      form.identificacion
+    }</strong></p>
+    <p class="!text-2xl">Fecha nacimiento: <strong>${formatDate(
+      form.nacimiento
+    )}</strong></p>
+    <p class="!text-2xl">Identidad de genero: <strong>${
+      form.genero
+    }</strong></p>
+    <p class="!text-2xl">Grupo poblacional: <strong>${form.etnia}</strong></p>
+    <p class="!text-2xl">Condición Poblacional: <strong>${
+      form.condicion
+    }</strong></p>
+    <p class="!text-2xl">Barrio/Vereda: <strong>${form.barrio}</strong></p>
+    <p class="!text-2xl">Dirección: <strong>${form.direccion}</strong></p>`,
 
-        window.location.href = route("votos.index", {
-          id_votante: usePage().props.flash.success.id_votante,
-          evento: usePage().props.user.jurado.evento.id,
-          tipo_evento: usePage().props.user.jurado.evento.tipos,
-          tipo_user: usePage().props.flash.success.hash_votante.tipo,
-          subtipo_user: usePage().props.flash.success.hash_votante.subtipo,
-        });
-      });
-    },
-    onError: (errors) => {
-      swal({
-        title: "Error",
-        text: "Ocurrió un error al registrar el votante.",
-        icon: "error",
-      }).then((result) => {
-        active.value = 0;
-      });
-
-      console.error(errors); // Puedes ver los errores específicos aquí
+    icon: "success",
+    showCancelButton: true,
+    confirmButtonText: "Aceptar datos y continuar!",
+    cancelButtonText: "Cancelar",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    draggable: true,
+    customClass: {
+      title: "!text-4xl", // Título más grande
+      popup: "p-6", // Más padding al contenedor
+      confirmButton: "!text-2xl", // Botón de confirmación más grande
+      cancelButton: "!text-2xl", // Botón de cancelar más grande
     },
   });
+
+  if (result.isConfirmed) {
+    form.post(route("votantesPresencial.store"), {
+      onSuccess: () => {
+        swal({
+          title: "Registro realizado",
+          html: `
+    <p class="!text-2xl">El votante es: <strong>${form.nombre}</strong></p>
+    <p class="!text-2xl">Identificación: <strong>${form.identificacion}</strong></p>`,
+          icon: "success",
+          confirmButtonText: "Votar",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          draggable: true,
+          customClass: {
+            title: "!text-4xl", // Título más grande
+            popup: "p-6", // Más padding al contenedor
+            confirmButton: "!text-2xl", // Botón de confirmación más grande
+          },
+        }).then((result) => {
+          window.location.href = route("votos.index", {
+            id_votante: usePage().props.flash.success.id_votante,
+            evento: usePage().props.user.jurado.evento.id,
+            tipo_evento: usePage().props.user.jurado.evento.tipos,
+            tipo_user: usePage().props.flash.success.hash_votante.tipo,
+            subtipo_user: usePage().props.flash.success.hash_votante.subtipo,
+          });
+        });
+      },
+      onError: (errors) => {
+        swal({
+          title: "Error",
+          text: "Ocurrió un error al registrar el votante.",
+          icon: "error",
+        }).then((result) => {
+          active.value = 0;
+        });
+
+        console.error(errors); // Puedes ver los errores específicos aquí
+      },
+    });
+  }
 };
 </script>
