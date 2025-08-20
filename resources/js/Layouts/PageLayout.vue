@@ -17,6 +17,7 @@
         :is="mostrarPanel ? XCircleIcon : InformationCircleIcon"
         class="w-6 h-6 lg:w-8 lg:h-8"
       />
+      <p class="my-auto ps-2 text-lg sm:block hidden">{{  mostrarPanel ? "" : " Soporte" }}</p>
     </button>
     <!-- Panel fijo lateral -->
     <div
