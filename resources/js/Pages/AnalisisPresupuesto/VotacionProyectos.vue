@@ -91,7 +91,15 @@ const baseColors = [
 
 //VARS PARA CHART
 // Asegura nombres válidos
-const proyectosLabels = props.proyectos.map((p) => p.nombre ?? "Sin nombre");
+let proyectosLabels = props.proyectos.map((p) => p.nombre ?? "Sin nombre");
+let proyectosCantidad = props.proyectos.map((p) => p.total ?? 0);
+
+//proyectos label
+proyectosLabels.add("Votos nulos");
+proyectosLabels.add("Votos no marcados");
+//proyectos cantidad
+proyectosCantidad.push(props.votos_nulos);
+proyectosCantidad.push(props.votos_no_marcados);
 
 // Función para asignar colores a cada segmento del pie
 function getPieColors(length) {
@@ -140,7 +148,7 @@ const chartDataBar = ref({
   datasets: [
     {
       label: "Total de votos",
-      data: props.proyectos.map((p) => p.total),
+      data: proyectosCantidad,
       backgroundColor: getPieColors(props.proyectos.length),
     },
   ],
