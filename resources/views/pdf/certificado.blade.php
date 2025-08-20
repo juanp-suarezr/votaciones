@@ -116,7 +116,7 @@
     <div class="card">
         <!-- Header -->
         <div class="header">
-            <h1>Certificado de Participación {{$evento->nombre}} {{$annio_actual}}</h1>
+            <h1>Certificado de Participación {{$evento->nombre}}</h1>
         </div>
 
         <!-- Content -->
