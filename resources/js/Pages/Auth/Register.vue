@@ -72,7 +72,7 @@
           </div>
 
           <!-- Fecha de Nacimiento -->
-          <div class="mb-2">
+          <div class="mb-2 sm:block hidden">
             <InputLabel for="nacimiento" value="Fecha de Nacimiento" />
             <TextInput
               id="nacimiento"
@@ -81,6 +81,42 @@
               v-model="form.nacimiento"
               required
             />
+            <InputError class="mt-2" :message="form.errors.nacimiento" />
+            <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
+          </div>
+          <!-- fecha nacimiento mobil -->
+          <div class="mb-2 sm:hidden grid grid-cols-3 gap-2">
+            <InputLabel class="col-span-3" for="nacimiento" value="Fecha de Nacimiento" />
+            <!-- dia -->
+            <div class="w-auto mt-1">
+              <InputLabel for="nacimientoDia" value="Día" />
+              <TextInput
+                id="nacimientoDia"
+                type="number"
+                class="block"
+                v-model="diaNacimiento"
+              />
+            </div>
+            <!-- mes -->
+            <div class="w-auto mt-1">
+              <InputLabel for="nacimientoMes" value="Mes" />
+              <TextInput
+                id="nacimientoMes"
+                type="number"
+                class="block"
+                v-model="mesNacimiento"
+              />
+            </div>
+            <!-- Annio -->
+            <div class="w-auto mt-1">
+              <InputLabel for="nacimientoAnnio" value="Año" />
+              <TextInput
+                id="nacimientoAnnio"
+                type="number"
+                class="block"
+                v-model="AnnioNacimiento"
+              />
+            </div>
             <InputError class="mt-2" :message="form.errors.nacimiento" />
             <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
           </div>
@@ -724,6 +760,11 @@ const ciudadesxDep = ref([]);
 const comunaSelected = ref("");
 const barriosXComuna = ref([]);
 
+//fecha nacimiento
+const diaNacimiento = ref("");
+const mesNacimiento = ref("");
+const AnnioNacimiento = ref("");
+
 //firma
 const firmaPreview = ref(null);
 const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
@@ -793,6 +834,16 @@ const loadingButtonBiometric = ref(false);
 
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
+
+//WATCH FECHA NACIMIENTO MOBIL
+watch([diaNacimiento, mesNacimiento, AnnioNacimiento], ([dia, mes, annio]) => {
+  if (dia && mes && annio) {
+    // Formato YYYY-MM-DD
+    const diaStr = String(dia).padStart(2, "0");
+    const mesStr = String(mes).padStart(2, "0");
+    form.nacimiento = `${annio}-${mesStr}-${diaStr}`;
+  }
+});
 
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
@@ -1345,6 +1396,8 @@ const validateStep1 = async () => {
     form.tipo_documento &&
     form.nacimiento
   ) {
+    console.log(form.nacimiento);
+
     if (!validateEdad()) return;
     // Limpia mensajes previos
     errorMessage.value = "";
