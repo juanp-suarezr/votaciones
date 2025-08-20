@@ -213,10 +213,12 @@ const Submit = () => {
           <b>Total registrados habilitados para votar presencial físico: </b>
           {{ total_votos_fisicos }}
         </p>
-
-        <div class="w-full mt-6">
-          <!-- pie chart -->
-          <!-- <div class="w-full items-center mb-4 md:col-span-2">
+        <!-- contenido graficas y tabla resultados -->
+        <div class="sm:grid sm:grid-cols-2 sm:gap-4 mt-6">
+          <!-- graficas -->
+          <div class="w-full mt-6">
+            <!-- pie chart -->
+            <!-- <div class="w-full items-center mb-4 md:col-span-2">
             <Chart
               type="doughnut"
               :data="chartData"
@@ -225,110 +227,112 @@ const Submit = () => {
             />
           </div> -->
 
-          <!-- bar chart -->
-          <div class="w-full h-full sm:h-72 mt-4">
-            <Chart
-              type="bar"
-              :data="chartDataBar"
-              :options="chartOptionsBar"
-              class="h-full w-full mt-4"
-            />
+            <!-- bar chart -->
+            <div class="w-full h-full sm:h-72 mt-4">
+              <Chart
+                type="bar"
+                :data="chartDataBar"
+                :options="chartOptionsBar"
+                class="h-full w-full mt-4"
+              />
+            </div>
           </div>
-        </div>
-        <div class="w-full mb-4">
-          <!-- table -->
-          <div
-            class="flex flex-col overflow-x-auto mt-6"
-            v-if="proyectos.length > 0"
-          >
-            <div class="inline-block rounded-lg shadow">
-              <div class="inline-block min-w-full py-2">
-                <div class="overflow-x-auto">
-                  <table class="min-w-full whitespace-no-wrap">
-                    <thead>
-                      <tr
-                        class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                      >
-                        <th
-                          class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+          <!-- tabla resultados -->
+          <div class="w-full mb-4">
+            <!-- table -->
+            <div
+              class="flex flex-col overflow-x-auto mt-6"
+              v-if="proyectos.length > 0"
+            >
+              <div class="inline-block rounded-lg shadow">
+                <div class="inline-block min-w-full py-2">
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full whitespace-no-wrap">
+                      <thead>
+                        <tr
+                          class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
                         >
-                          Proyectos
-                        </th>
+                          <th
+                            class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                          >
+                            Proyectos
+                          </th>
 
-                        <th
-                          class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                          <th
+                            class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                          >
+                            Votos
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="res in proyectos"
+                          :key="res.id"
+                          class="text-gray-700"
                         >
-                          Votos
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr
-                        v-for="res in proyectos"
-                        :key="res.id"
-                        class="text-gray-700"
-                      >
-                        <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                        >
-                          <p class="text-gray-900 whitespace-no-wrap">
-                            {{ res.nombre }}
-                          </p>
-                        </td>
-                        <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                        >
-                          <p class="text-gray-900 whitespace-no-wrap">
-                            {{ res.total }}
-                          </p>
-                        </td>
-                      </tr>
-                      <!-- voto nulo -->
-                      <tr class="text-gray-700">
-                        <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                        >
-                          <p class="text-gray-900 whitespace-no-wrap">
-                            Votos nulos
-                          </p>
-                        </td>
-                        <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                        >
-                          <p class="text-gray-900 whitespace-no-wrap">
-                            {{ votos_nulos }}
-                          </p>
-                        </td>
-                      </tr>
-                      <!-- votos no marcados -->
-                      <tr class="text-gray-700">
-                        <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                        >
-                          <p class="text-gray-900 whitespace-no-wrap">
-                            Votos no marcados
-                          </p>
-                        </td>
-                        <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                        >
-                          <p class="text-gray-900 whitespace-no-wrap">
-                            {{ votos_no_marcados }}
-                          </p>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              {{ res.nombre }}
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              {{ res.total }}
+                            </p>
+                          </td>
+                        </tr>
+                        <!-- voto nulo -->
+                        <tr class="text-gray-700">
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              Votos nulos
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              {{ votos_nulos }}
+                            </p>
+                          </td>
+                        </tr>
+                        <!-- votos no marcados -->
+                        <tr class="text-gray-700">
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              Votos no marcados
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              {{ votos_no_marcados }}
+                            </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <!-- no hay datos -->
-          <div
-            v-else
-            class="flex flex-col overflow-x-auto justify-center items-center"
-          >
-            <em> No hay datos con votaciones realizadas </em>
+            <!-- no hay datos -->
+            <div
+              v-else
+              class="flex flex-col overflow-x-auto justify-center items-center"
+            >
+              <em> No hay datos con votaciones realizadas </em>
+            </div>
           </div>
         </div>
       </div>

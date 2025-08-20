@@ -1076,7 +1076,7 @@ const registerAndValidate = async () => {
   }
 
   try {
-    await swal.fire({
+    swal.fire({
       title: "Validación en progreso",
       text: "Mire a la cámara hasta que finalice la validación.",
       icon: "info",
