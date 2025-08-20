@@ -93,10 +93,11 @@ const baseColors = [
 // Asegura nombres válidos
 let proyectosLabels = props.proyectos.map((p) => p.nombre ?? "Sin nombre");
 let proyectosCantidad = props.proyectos.map((p) => p.total ?? 0);
-
+console.log(proyectosLabels);
+console.log(proyectosCantidad);
 //proyectos label
-proyectosLabels.add("Votos nulos");
-proyectosLabels.add("Votos no marcados");
+proyectosLabels.push("Votos nulos");
+proyectosLabels.push("Votos no marcados");
 //proyectos cantidad
 proyectosCantidad.push(props.votos_nulos);
 proyectosCantidad.push(props.votos_no_marcados);
