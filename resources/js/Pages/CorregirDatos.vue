@@ -741,8 +741,7 @@ const botonesValidarModal = ref(false);
 //imagenes documentos
 //variable de imagen frontal
 const imageUrl = ref(null);
-//variable de imagen documento posterior
-const imageUrl1 = ref(null);
+
 
 //face api js
 const devices = ref([]);
@@ -1365,7 +1364,11 @@ const validarDatos2 = () => {
 
 const validarDatos3 = () => {
   isValidate.value = false;
+  console.log("Validando datos del paso 3", imageUrl.value);
+
   if ((form.cedula_front || imageUrl) && (form.firma || firmaPreview)) {
+    console.log("Datos del paso 3 son válidos");
+
     isValidate.value = true;
   }
 
