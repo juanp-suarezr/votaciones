@@ -277,6 +277,8 @@ class ValidacionesController extends Controller
                 $nombre = RequestFacade::input('nombre');
                 $estado = RequestFacade::input('estado');
 
+                $query->where('id_user', '!=', null);
+
                 if ($identificacion) {
                     $query->where('identificacion', $identificacion);
                 }
