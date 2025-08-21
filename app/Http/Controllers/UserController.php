@@ -57,15 +57,21 @@ class UserController extends Controller
                     ->paginate(5)
                     ->withQueryString()
                     ->through(function ($user) {
-                        // Concatenar los `tipo` de `hashVotantes` para cada usuario
-
-                        $user->tipos = optional($user->votantes) // Aseguramos que votantes exista
-                            ->hashVotantes->pluck('tipo')
-                            ->flatMap(function ($tipo) {
-                                return explode('|', $tipo); // Dividir cada `tipo` en subtipos separados por '|'
-                            })
-                            ->unique() // Elimina valores duplicados
-                            ->implode('|');
+                        // Verifica si el usuario tiene votantes y hashVotantes
+                        if (
+                            isset($user->votantes) &&
+                            isset($user->votantes->hashVotantes) &&
+                            $user->votantes->hashVotantes->count() > 0
+                        ) {
+                            $user->tipos = $user->votantes->hashVotantes->pluck('tipo')
+                                ->flatMap(function ($tipo) {
+                                    return explode('|', $tipo);
+                                })
+                                ->unique()
+                                ->implode('|');
+                        } else {
+                            $user->tipos = '';
+                        }
                         return $user;
                     }),
 
@@ -101,7 +107,7 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'roles_user' => 'required',
             'candidato' => 'required',
-            
+
         ]);
 
         DB::beginTransaction(); // Iniciar la transacción
@@ -237,16 +243,16 @@ class UserController extends Controller
             // 1. Verificar los eventos nuevos y agregar los que no estén presentes
             foreach ($newEventos as $evento) {
                 $existingHash = Hash_votantes::where('id_votante', $hv->id_votante)
-                        ->where('id_evento', $evento)
-                        ->first();
+                    ->where('id_evento', $evento)
+                    ->first();
 
 
-                        if($existingHash) {
+                if ($existingHash) {
 
-                            $existingHash->tipo = $request->tipo;  // Asigna el tipo recibido
-                            $existingHash->subtipo = $request->subtipo;  // Asigna el subtipo recibido
-                            $existingHash->save();
-                        }
+                    $existingHash->tipo = $request->tipo;  // Asigna el tipo recibido
+                    $existingHash->subtipo = $request->subtipo;  // Asigna el subtipo recibido
+                    $existingHash->save();
+                }
 
                 // Verificamos si el evento no está en los eventos actuales
                 if (!in_array($evento, $currentEventos)) {
