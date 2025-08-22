@@ -872,6 +872,19 @@ watch(comunaSelected, (newValue) => {
   }
 });
 
+// Observa todos los campos del formulario y elimina errores automáticamente
+watch(
+  () => form.data(),
+  (nuevoValor) => {
+    Object.keys(form.errors).forEach((campo) => {
+      if (nuevoValor[campo]) {
+        form.errors[campo] = null;
+      }
+    });
+  },
+  { deep: true }
+);
+
 async function verificarCamaraONecesaria() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
     swal.fire({
@@ -1216,7 +1229,7 @@ const registerAndValidate = async () => {
         title: "Notificación",
         text: `La edad estimada es ${edad.toFixed(0)} años.`,
         icon: "info",
-        timer: 1000,
+        timer: 3000,
         showConfirmButton: false,
       });
     }
