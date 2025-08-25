@@ -167,6 +167,7 @@ import {
 import { useForm } from "@inertiajs/vue3";
 import { Textarea } from "primevue";
 import { inject, ref, computed, watch, onMounted } from "vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
 const swal = inject("$swal");
 
 const form = useForm({

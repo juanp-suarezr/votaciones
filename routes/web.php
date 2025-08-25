@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActaPresencialController;
 use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\AnalisisPresupuestoController;
+use App\Http\Controllers\auditoriasController;
 use App\Http\Controllers\Auth\FaceController;
 use App\Http\Controllers\CandidatosController;
 use App\Http\Controllers\cargueMasivoController;
@@ -247,10 +248,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/rechazar-registro', [ValidacionesController::class, 'rechazarRegistro'])->name('rechazarRegistro');
     Route::post('/desbloquear-registro', [ValidacionesController::class, 'desbloquearRegistro'])->name('desbloquearRegistro');
 
+
     //validar identificacion
     Route::post('/validar-identificacion-presencial', [ValidationController::class, 'verificar']);
     //actualizacion de datos con imgs
     Route::post('/corregir-datos', [ValidationController::class, 'corregirDatos'])->name('corregirDatos');
+
+    //AUDITORIAS
+    Route::get('/auditorias', [auditoriasController::class, 'index'])->name('auditorias');
+    Route::get('/auditoria-validaciones', [auditoriasController::class, 'auditoriaValidaciones'])->name('auditoria-validaciones');
 
 
     //descargar excel
@@ -276,6 +282,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('votantesPresencial', VotantesPresencialController::class);
     Route::resource('actaPresencial', ActaPresencialController::class);
     Route::resource('registro-jurados', JuradosController::class);
+
 
 
 });

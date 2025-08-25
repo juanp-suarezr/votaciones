@@ -20,6 +20,7 @@ use Inertia\Inertia;
 use DB;
 use Illuminate\Support\Facades\Cache;
 
+use function PHPUnit\Framework\isEmpty;
 
 class UserController extends Controller
 
@@ -103,12 +104,17 @@ class UserController extends Controller
             'tipo' => 'required|string|max:60',
             'subtipo' => '',
             'eventos' => 'required',
-            'identificacion' => 'required|string|max:20|unique:' . Informacion_votantes::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'roles_user' => 'required',
             'candidato' => 'required',
 
         ]);
+
+        if(!$request->identificacion.isEmpty()) {
+            $request->validate([
+                'identificacion' => 'required|string|max:20|unique:' . Informacion_votantes::class,
+            ]);
+        }
 
         DB::beginTransaction(); // Iniciar la transacción
 
@@ -136,6 +142,8 @@ class UserController extends Controller
                 'subtipo' => $request->subtipo,
                 'id_evento' => $request->eventos,
                 'candidato' => $request->candidato,
+                'estado' => 'Activo',
+                'intentos' => 0,
             ]);
             $informacionUsuario->hashVotantes()->save($hash_votante);
 

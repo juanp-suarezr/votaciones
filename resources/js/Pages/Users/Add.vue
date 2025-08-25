@@ -41,7 +41,6 @@
                 type="number"
                 class="mt-1 block w-full"
                 v-model="form.identificacion"
-                required
                 autofocus
                 autocomplete="identificacion"
               />
@@ -460,7 +459,7 @@ const submit = () => {
 
 
     form.subtipo = typeof form.subtipo != 'object' ? form.subtipo : form.subtipo.id;
-    
+
   form.post(route("users.store"), {
     onSuccess: function () {
       form.reset("password", "password_confirmation");

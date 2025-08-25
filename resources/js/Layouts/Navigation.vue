@@ -32,6 +32,15 @@
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Reporte escrutinio</span>
             </nav-link>
+            <SeparadorMenu v-if="$page.props.user.permissions.includes('auditoria')">Auditorias</SeparadorMenu>
+            <nav-link v-if="$page.props.user.permissions.includes('auditoria')" :href="route('auditorias')" :active="route().current('auditorias')">
+                <MagnifyingGlassIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Auditoria votos</span>
+            </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('auditoria')" :href="route('auditoria-validaciones')" :active="route().current('auditoria-validaciones')">
+                <MagnifyingGlassIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Auditoria/historial validaciones</span>
+            </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.permissions.includes('eventos-editar')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"
@@ -74,12 +83,12 @@
                 <FireIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Tipos</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('parametros.index')"
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-editar')" :href="route('parametros.index')"
                 :active="route().current().includes('parametros')">
                 <AdjustmentsHorizontalIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Parametros</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('users.index')"
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-editar')" :href="route('users.index')"
                 :active="route().current().includes('users')">
                 <UserGroupIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Usuarios</span>
@@ -102,7 +111,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -121,6 +130,7 @@ export default {
         CircleStackIcon,
         ArchiveBoxArrowDownIcon,
         DocumentTextIcon,
+        MagnifyingGlassIcon,
         SeparadorMenu
     },
 
