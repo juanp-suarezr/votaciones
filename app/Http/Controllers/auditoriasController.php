@@ -33,9 +33,9 @@ class auditoriasController extends Controller
             $id_evento = RequestFacade::input('id_evento');
         }
 
-        $voto_auditoria = AuditoriaVotos::select('id_evento', 'accion', 'tipo_voto', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
+        $voto_auditoria = AuditoriaVotos::select('id_evento', 'voto_id', 'accion', 'tipo_voto', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
         ->where('id_evento', $id_evento)
-        ->with('usuario:id,name,identificacion')
+        ->with('usuario:id,name,identificacion', 'voto:id_votante,id', 'voto.votante:id,nombre,identificacion')
             ->orderBy('created_at', 'desc')
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL

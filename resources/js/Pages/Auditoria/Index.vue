@@ -95,7 +95,7 @@
                         user.tipo_voto == "virtual" ? "Usuario:" : "Jurado:"
                       }}
                       {{ user.usuario.name }} -
-                      {{ user.usuario.identificacion }}
+                      {{ user.usuario.identificacion || "" }} {{ user.tipo_voto !== 'virtual' ? user.voto ? "Votante: " + user.voto.votante.nombre + " - " + user.voto.votante.identificacion : "" : "" }}
                     </p>
                   </td>
                   <td
