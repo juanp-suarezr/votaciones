@@ -86,7 +86,11 @@
           </div>
           <!-- fecha nacimiento mobil -->
           <div class="mb-2 sm:hidden grid grid-cols-3 gap-2">
-            <InputLabel class="col-span-3" for="nacimiento" value="Fecha de Nacimiento" />
+            <InputLabel
+              class="col-span-3"
+              for="nacimiento"
+              value="Fecha de Nacimiento"
+            />
             <!-- dia -->
             <div class="w-auto mt-1">
               <InputLabel for="nacimientoDia" value="Día" />
@@ -1127,8 +1131,8 @@ const showModalBiometrico = async () => {
 
 //validar registro biometrico
 const registerAndValidate = async () => {
-  message.value = "";
   loadingButtonBiometric.value = true;
+  message.value = "";
 
   // Inicializar contadores si no existen
   const getCounter = (key) => parseInt(sessionStorage.getItem(key) || "0");
@@ -1160,27 +1164,28 @@ const registerAndValidate = async () => {
 
     console.log("entro -- validador");
 
+    //capturar foto de rostro
+    const canvas = document.createElement("canvas");
+    canvas.width = video.value.videoWidth;
+    canvas.height = video.value.videoHeight;
+    const context = canvas.getContext("2d");
+    context.drawImage(video.value, 0, 0, canvas.width, canvas.height);
+
+    const imageBlob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg")
+    );
+
+    // Convertir Blob a un File para enviarlo como si fuera un archivo subido
+    const file = new File([imageBlob], "photo.jpg", { type: "image/jpeg" });
+
+    form.photo = file;
+    //fin
+
     if (!detection) {
       loadingButtonBiometric.value = false;
       message.value = "No se detectó un rostro.";
 
       counterCamera.value += 1;
-
-      // Capturar imagen del video
-      const canvas = document.createElement("canvas");
-      canvas.width = video.value.videoWidth;
-      canvas.height = video.value.videoHeight;
-      const context = canvas.getContext("2d");
-      context.drawImage(video.value, 0, 0, canvas.width, canvas.height);
-
-      const imageBlob = await new Promise((resolve) =>
-        canvas.toBlob(resolve, "image/jpeg")
-      );
-
-      // Convertir Blob a un File para enviarlo como si fuera un archivo subido
-      const file = new File([imageBlob], "photo.jpg", { type: "image/jpeg" });
-
-      form.photo = file;
 
       if (counterCamera.value == 3) {
         swal
@@ -1200,7 +1205,7 @@ const registerAndValidate = async () => {
               //poner llamado a modal de botones
               biometricoModal.value = false;
               submit();
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
+            } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
               console.log("Usuario decide volver a intentar");
               message.value = "";
@@ -1226,7 +1231,7 @@ const registerAndValidate = async () => {
           0
         )} años. Parece menor de la edad permitida para votar.`,
         icon: "warning",
-        timer: 3000,
+        timer: 2000,
         showConfirmButton: false,
       });
     } else {
@@ -1234,27 +1239,10 @@ const registerAndValidate = async () => {
         title: "Notificación",
         text: `La edad estimada es ${edad.toFixed(0)} años.`,
         icon: "info",
-        timer: 3000,
+        timer: 2000,
         showConfirmButton: false,
       });
     }
-
-    // Capturar imagen del video
-    // Capturar imagen del video
-    const canvas = document.createElement("canvas");
-    canvas.width = video.value.videoWidth;
-    canvas.height = video.value.videoHeight;
-    const context = canvas.getContext("2d");
-    context.drawImage(video.value, 0, 0, canvas.width, canvas.height);
-
-    const imageBlob = await new Promise((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg")
-    );
-
-    // Convertir Blob a un File para enviarlo como si fuera un archivo subido
-    const file = new File([imageBlob], "photo.jpg", { type: "image/jpeg" });
-
-    form.photo = file;
 
     const formData = new FormData();
     formData.append("embedding", descriptor);

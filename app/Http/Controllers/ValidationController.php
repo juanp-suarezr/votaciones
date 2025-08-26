@@ -24,6 +24,7 @@ use Twilio\Rest\Client;
 
 class ValidationController extends Controller
 {
+    //con codigo de verificacion -- no usado actualmente
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -347,7 +348,7 @@ class ValidationController extends Controller
             $votante = Informacion_votantes::select('id', 'identificacion', 'nombre', 'id_user')
                 ->where('identificacion', $request->identificacion)
                 ->where('comuna', '!=', 0)
-                ->whereNotNull('comuna') 
+                ->whereNotNull('comuna')
                 ->with('votos')
                 ->with('hashVotantes')
                 ->first();
