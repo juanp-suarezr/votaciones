@@ -643,7 +643,7 @@
         <button
           type="button"
           :disabled="loadingButtonBiometric"
-          class="bg-secondary hover:bg-primary text-sm sm:text-base text-white p-2 rounded-md shadow-xl flex mx-auto mt-4 disabled:bg-gray-500"
+          class="bg-secondary hover:bg-primary z-1000 text-base sm:text-base text-white p-2 rounded-md shadow-xl flex mx-auto mt-4 disabled:bg-gray-500"
           @click="registerAndValidate()"
         >
           Validar
