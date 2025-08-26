@@ -120,7 +120,7 @@
       </div>
 
       <!-- botones -->
-      <div class="flex justify-between mt-8">
+      <!-- <div class="flex justify-between mt-8">
         <PrimaryButton
           :disabled="selectedCard2 == 0"
           type="button"
@@ -129,7 +129,7 @@
         >
           Enviar votación
         </PrimaryButton>
-      </div>
+      </div> -->
     </div>
 
     <!-- Modal para mostrar la descripción completa -->
@@ -348,6 +348,7 @@ const proyecto = (proyecto) => {
 
   // Establecer el ID del candidato seleccionado
   selectedCard2.value = proyecto ? proyecto.id : null;
+  ModalConfirmacion = true;
 };
 
 const votar = () => {
