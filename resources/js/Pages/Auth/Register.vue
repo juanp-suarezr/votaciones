@@ -1115,6 +1115,11 @@ const showModalBiometrico = async () => {
     loadingModal.value = false;
     if (counterCamera.value == 3) {
     }
+    swal.fire({
+      icon: "error",
+      title: "Error al acceder a la cámara",
+      text: "No se pudo acceder a la cámara. Por favor, asegúrese de que su dispositivo tenga una cámara y que haya otorgado los permisos necesarios.",
+    });
     console.error("Error al iniciar:", error);
     message.value = "No se pudo acceder a la cámara.";
   }
