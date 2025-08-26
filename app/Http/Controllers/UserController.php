@@ -110,7 +110,7 @@ class UserController extends Controller
 
         ]);
 
-        if(!$request->identificacion.isEmpty()) {
+        if($request->identificacion !== null && $request->identificacion !== ""){ {
             $request->validate([
                 'identificacion' => 'required|string|max:20|unique:' . Informacion_votantes::class,
             ]);
