@@ -348,7 +348,7 @@ const proyecto = (proyecto) => {
 
   // Establecer el ID del candidato seleccionado
   selectedCard2.value = proyecto ? proyecto.id : null;
-  ModalConfirmacion = true;
+  ModalConfirmacion.value = true;
 };
 
 const votar = () => {

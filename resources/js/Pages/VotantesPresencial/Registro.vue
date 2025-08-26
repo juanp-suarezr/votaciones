@@ -442,8 +442,9 @@ const validateStep1 = async () => {
           const result = await swal.fire({
             title: "Registro encontrado",
             html: `
-    <p class="!text-2xl">El votante es: <strong>${data.votante.nombre}</strong></p>
-    <p class="!text-2xl">Identificación: <strong>${data.votante.identificacion}</strong></p>`,
+    <p class="!text-2xl">Votante: <strong>${data.votante.nombre}</strong></p>
+    <p class="!text-2xl">Identificación: <strong>${data.votante.identificacion}</strong></p>
+        <p class="!text-2xl">Es tu momento de votar</p>`,
             icon: "success",
             showCancelButton: true,
             confirmButtonText: "Aceptar datos y votar!",
@@ -620,8 +621,7 @@ const submit = async() => {
         swal({
           title: "Registro realizado",
           html: `
-    <p class="!text-2xl">El votante es: <strong>${form.nombre}</strong></p>
-    <p class="!text-2xl">Identificación: <strong>${form.identificacion}</strong></p>`,
+    <p class="!text-2xl"><strong>${form.nombre}</strong> Ahora es tu turno de votar</p>`,
           icon: "success",
           confirmButtonText: "Votar",
           allowOutsideClick: false,
