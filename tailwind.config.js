@@ -29,6 +29,7 @@ export default {
                 option2: '#F2F2F2', //Fondo secciones 2
                 parrafo: '#585857', //Párrafo, fondo dropdowns en HOVER, tab laterales, encabezados tablas
                 azul: '#004884',
+                naranja: '#FF6200',
 
             },
         },

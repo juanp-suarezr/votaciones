@@ -14,6 +14,27 @@
     @tailwind utilities;
 }
 
+/* Omnes Regular */
+@font-face {
+    font-family: 'Omnes';
+    src: url('../fonts/omnes-regular_bigfontsite.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Omnes Bold */
+@font-face {
+    font-family: 'Omnes';
+    src: url('../fonts/Omnes Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Aplica Omnes a todo el software */
+.body-landing {
+    font-family: 'Omnes', Arial, Helvetica, sans-serif;
+}
+
 /* Estilo para el scrollbar */
 ::-webkit-scrollbar {
     /* Ancho del scrollbar vertical */

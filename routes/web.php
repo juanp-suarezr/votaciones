@@ -19,6 +19,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProyectosController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RutasController;
 use App\Http\Controllers\TiposController;
 use App\Http\Controllers\ValidacionesController;
 use App\Http\Controllers\ValidationController;
@@ -282,6 +283,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('votantesPresencial', VotantesPresencialController::class);
     Route::resource('actaPresencial', ActaPresencialController::class);
     Route::resource('registro-jurados', JuradosController::class);
+    Route::resource('rutas',RutasController::class);
 
 
 

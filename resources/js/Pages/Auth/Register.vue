@@ -1491,6 +1491,8 @@ const validarDatos2 = () => {
     form.checked &&
     form.declaracion
   ) {
+    console.log(form.password.length);
+    
     if (form.password.length >= 8) {
       isValidate.value = true;
       active.value = 2;

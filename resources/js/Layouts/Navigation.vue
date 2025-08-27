@@ -88,6 +88,11 @@
                 <AdjustmentsHorizontalIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Parametros</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('rutas-listar')" :href="route('rutas.index')"
+                :active="route().current().includes('rutas')">
+                <LinkIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Rutas/path </span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('usuarios-editar')" :href="route('users.index')"
                 :active="route().current().includes('users')">
                 <UserGroupIcon class="h-6 w-6 text-white" />
@@ -111,7 +116,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon, LinkIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -131,6 +136,7 @@ export default {
         ArchiveBoxArrowDownIcon,
         DocumentTextIcon,
         MagnifyingGlassIcon,
+        LinkIcon,
         SeparadorMenu
     },
 
