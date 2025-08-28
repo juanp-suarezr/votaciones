@@ -239,8 +239,10 @@ const enviarSolicitud = () => {
 
     <div class="w-full">
       <div class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4">
-        <div class="">
-        <img src="/assets/img/logo1.png" alt="Logo" class="h-32 w-auto" />
+        <div class="flex gap-4 items-center">
+        <img src="/assets/img/logo1.png" alt="Logo" class="h-32 w-auto border-r border-black" />
+        <img src="/assets/img/voto_electronico.png" alt="Logo" class="h-32 w-auto" />
+        
 
 
         </div>
