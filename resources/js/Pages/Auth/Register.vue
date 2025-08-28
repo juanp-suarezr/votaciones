@@ -48,10 +48,12 @@
               v-model="form.identificacion"
               required
             />
-            <p v-if="form.errors.identificacion" class="mt-2 text-sm md:text-base text-red-600">
+            <p
+              v-if="form.errors.identificacion"
+              class="mt-2 text-sm md:text-base text-red-600"
+            >
               {{ form.errors.identificacion }}
             </p>
-            
           </div>
 
           <!-- Tipo de Documento -->
@@ -286,6 +288,15 @@
               :highlightOnSelect="false"
               class="w-full"
             />
+            <div class="w-full mt-2" v-if="isOtroBarrio">
+              <InputLabel for="barrio_otro" value="Cual?" />
+              <TextInput
+                id="barrio_otro"
+                type="text"
+                class="mt-1 block w-full"
+                v-model="form.barrio"
+              />
+            </div>
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
           <!-- Dirección -->
@@ -315,7 +326,8 @@
           <div class="mb-2">
             <div class="bg-azul rounded-md p-2 w-full h-full">
               <p class="text-white text-base">
-                Digite una contraseña fácil de recordar para luego acceder a votar.
+                Digite una contraseña fácil de recordar para luego acceder a
+                votar.
               </p>
             </div>
           </div>
@@ -330,6 +342,7 @@
               v-model="form.password"
               required
               toggleMask
+              autocomplete="current-password"
             />
 
             <InputError class="mt-2" :message="form.errors.password" />
@@ -840,6 +853,9 @@ const loadingButtonBiometric = ref(false);
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
 
+//verificar si el barrio es otro
+const isOtroBarrio = ref(false);
+
 //WATCH FECHA NACIMIENTO MOBIL
 watch([diaNacimiento, mesNacimiento, AnnioNacimiento], ([dia, mes, annio]) => {
   if (dia && mes && annio) {
@@ -856,6 +872,7 @@ watch(IsNewGenero, (value) => {
     form.genero = "";
   }
 });
+
 
 //WATCH DEPARTAMENTOS
 watch(departamentoSelected, (newValue) => {
@@ -876,6 +893,19 @@ watch(comunaSelected, (newValue) => {
     console.log(barriosXComuna.value);
   }
 });
+
+//WATCH BARRIO -- OTROS
+watch(
+  () => form.barrio,
+  (value) => {
+    console.log(value);
+
+    if (value == "Otro") {
+      form.barrio = "";
+      isOtroBarrio.value = true;
+    }
+  }
+);
 
 // Observa todos los campos del formulario y elimina errores automáticamente
 watch(
@@ -1386,8 +1416,7 @@ const validateEdad = () => {
     edad--;
   }
   if (edad < 14) {
-    errorEdad.value =
-      "Edad minima para participar: 14 años.";
+    errorEdad.value = "Edad minima para participar: 14 años.";
     return false;
   }
   errorEdad.value = "";

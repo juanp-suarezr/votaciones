@@ -12,7 +12,8 @@
             "Guadualito",
             "La Linda",
             "La Una",
-            "Tinajas"
+            "Tinajas",
+            "Otro"
         ]
     },
     {
@@ -28,7 +29,8 @@
             "Perez Bajo",
             "Santa Cruz de Barba",
             "Tres Esquinas",
-            "Yarumal"
+            "Yarumal",
+            "Otro"
         ]
     },
     {
@@ -73,13 +75,14 @@
             "Ciudad Pereira",
             "La Arboleda",
             "Guaduales de Canaan",
-            "Caminos de Canaan"
+            "Caminos de Canaan",
+            "Otro"
         ]
     },
     {
         "id": 23,
         "comuna": "Caimalito",
-        "barrios": ["Azufral", "Caimalito", "La Carbonera", "La Paz"]
+        "barrios": ["Azufral", "Caimalito", "La Carbonera", "La Paz", "Otro"]
     },
     {
         "id": 1,
@@ -102,7 +105,9 @@
             "Las Garzas",
             "La Paz",
             "Sector 30 de Agosto",
-            "Los Nogales"
+            "Los Nogales",
+            "Otro"
+
         ]
     },
     {
@@ -114,7 +119,8 @@
             "Esperanza Galicia",
             "Estacion Villegas",
             "Galicia Alta",
-            "Quimbayita"
+            "Quimbayita",
+            "Otro"
         ]
     },
     {
@@ -131,7 +137,8 @@
             "Minas del Socorro",
             "Pital de Combia",
             "San Luis",
-            "San Vicente"
+            "San Vicente",
+            "Otro"
         ]
     },
     {
@@ -150,7 +157,8 @@
             "La Suecia",
             "Maracaibo",
             "San Marino",
-            "Santander"
+            "Santander",
+            "Otro"
         ]
     },
     {
@@ -190,7 +198,8 @@
             "Miraflores *4",
             "Mirador de Bella Sardi",
             "Mirador de Naranjito",
-            "La Idalia II"
+            "La Idalia II",
+            "Otro"
         ]
     },
     {
@@ -205,7 +214,8 @@
             "La Union",
             "La Independencia *1",
             "Rafael Uribe I",
-            "Barberos"
+            "Barberos",
+            "Otro"
         ]
     },
     {
@@ -231,7 +241,8 @@
             "Comfamiliar Boquia",
             "Alameda del Cafe",
             "Luis Alberto Duque",
-            "Portal de Llano Grande"
+            "Portal de Llano Grande",
+            "Otro"
         ]
     },
     {
@@ -271,7 +282,8 @@
             "Arco Iris de la Colina",
             "La Castellana",
             "Paseo de la Castellana",
-            "Conjunto Residencial Tisu"
+            "Conjunto Residencial Tisu",
+            "Otro"
         ]
     },
     {
@@ -289,13 +301,14 @@
             "Cachipay",
             "Samaria I",
             "Samaria II",
-            "Portal de San Jacinto"
+            "Portal de San Jacinto",
+            "Otro"
         ]
     },
     {
         "id": 19,
         "comuna": "El Rocío",
-        "barrios": ["Rocio Alto *3", "Caracol La Curva *4"]
+        "barrios": ["Rocio Alto *3", "Caracol La Curva *4", "Otro"]
     },
     {
         "id": 7,
@@ -317,7 +330,8 @@
             "Catalan",
             "Portal de La Villa",
             "La Hacienda",
-            "Nueva Esperanza"
+            "Nueva Esperanza",
+            "Otro"
         ]
     },
     {
@@ -330,7 +344,8 @@
             "La Estrella",
             "La Mecenia",
             "La Palmilla",
-            "La Selva"
+            "La Selva",
+            "Otro"
         ]
     },
     {
@@ -345,7 +360,8 @@
             "La Estrella Morron",
             "Morron",
             "Mundo Nuevo",
-            "Vista Hermosa"
+            "Vista Hermosa",
+            "Otro"
         ]
     },
     {
@@ -360,7 +376,8 @@
             "Libare",
             "Plan el Manzano",
             "Porvenir",
-            "San Jose"
+            "San Jose",
+            "Otro"
         ]
     },
     {
@@ -377,7 +394,8 @@
             "Morelia",
             "San Joaquin",
             "Santa Teresa",
-            "Tres Puertas"
+            "Tres Puertas",
+            "Otro"
         ]
     },
     {
@@ -438,7 +456,8 @@
             "Canaveral II",
             "Canaveral",
             "Belmonte B",
-            "Bosques de Cantabria"
+            "Bosques de Cantabria",
+            "Otro"
         ]
     },
     {
@@ -465,7 +484,8 @@
             "San Gregorio",
             "La Rivera",
             "Pimpollo - Libare",
-            "Altos Del Otun"
+            "Altos Del Otun",
+            "Otro"
         ]
     },
     {
@@ -490,13 +510,14 @@
             "La Policia",
             "Villa Rocio",
             "Los Almendros",
-            "Independientes"
+            "Independientes",
+            "Otro"
         ]
     },
     {
         "id": 32,
         "comuna": "Puerto Caldas",
-        "barrios": ["Puerto Caldas"]
+        "barrios": ["Puerto Caldas", "Otro"]
     },
     {
         "id": 13,
@@ -537,7 +558,8 @@
             "San Antonio",
             "Bavaria",
             "La Palmera",
-            "Los Alcazares"
+            "Los Alcazares",
+            "Otro"
         ]
     },
     {
@@ -593,7 +615,8 @@
             "Bulevar de las Villas",
             "Bulevar del Cafe",
             "Quintas de Corazal",
-            "EL Nogal Club Residencial"
+            "EL Nogal Club Residencial",
+            "Otro"
         ]
     },
     {
@@ -607,7 +630,8 @@
             "Brisas de Las Americas",
             "Villa Nohemy",
             "San Martin de Loba",
-            "La Dulcera"
+            "La Dulcera",
+            "Otro"
         ]
     },
     {
@@ -630,7 +654,8 @@
             "Naranjito",
             "Tribunas Consota",
             "Tribunas Corcega",
-            "Yarumito"
+            "Yarumito",
+            "Otro"
         ]
     },
     {
@@ -659,7 +684,8 @@
             "La Parcela",
             "Puerta de Abacanto",
             "El Bosque",
-            "Altos de Canaan"
+            "Altos de Canaan",
+            "Otro"
         ]
     },
     {
@@ -680,7 +706,8 @@
             "El Danubio",
             "Ciudadela Tokio",
             "Las Brisas",
-            "Remanso"
+            "Remanso",
+            "Otro"
         ]
     },
     {
@@ -691,7 +718,8 @@
             "Villavicencio",
             "Corocito",
             "Berlin",
-            "Los Andes"
+            "Los Andes",
+            "Otro"
         ]
     },
     {
@@ -748,7 +776,8 @@
             "Porto Alegre",
             "Porto Alegre Etp 2",
             "Ciudadela Villa de Leyva",
-            "Guadacanal"
+            "Guadacanal",
+            "Otro"
         ]
     }
 ]
