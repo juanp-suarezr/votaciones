@@ -315,9 +315,7 @@
           <div class="mb-2">
             <div class="bg-azul rounded-md p-2 w-full h-full">
               <p class="text-white text-base">
-                Asegúrese de que la contraseña sea facil de recordar para usted,
-                ya que la necesitará para acceder a su cuenta en el momento de
-                la votación.
+                Digite una contraseña fácil de recordar para luego acceder a votar.
               </p>
             </div>
           </div>
@@ -354,7 +352,7 @@
                 href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
                 target="_blank"
                 class="underline !text-azul cursor-pointer"
-                >politica</a
+                >Política</a
               ></label
             >
             <InputError class="mt-1" :message="form.errors.checked" />

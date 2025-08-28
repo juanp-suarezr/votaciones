@@ -301,11 +301,12 @@ const enviarSolicitud = () => {
           class="md:grid md:grid-cols-3 gap-8 items-stretch bg-gray-200/70 rounded-xl shadow-lg p-8 mb-12"
         >
           <!-- info general -->
-          <div class="flex justify-center items-center col-span-3 mb-4">
+          <div class="flex flex-col justify-center items-center col-span-3 mb-4">
             <h2 class="text-2xl sm:text-5xl text-center font-bold text-black">
-              Pasos para participar en las votaciones del <br/><span class="bg-primary px-2 py-1 text-white">Presupuesto
-              Participativo</span>
+              Pasos para participar en las votaciones del
             </h2>
+            <h2 class="bg-primary px-2 !py-0 text-white text-2xl sm:text-5xl text-center font-bold">Presupuesto
+              Participativo</h2>
           </div>
           <!-- Paso 1 -->
           <div
