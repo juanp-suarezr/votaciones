@@ -48,7 +48,10 @@
               v-model="form.identificacion"
               required
             />
-            <InputError class="mt-2" :message="form.errors.identificacion" />
+            <p v-if="form.errors.identificacion" class="mt-2 text-sm md:text-base text-red-600">
+              {{ form.errors.identificacion }}
+            </p>
+            
           </div>
 
           <!-- Tipo de Documento -->
@@ -299,7 +302,7 @@
           </div>
           <!-- Correo -->
           <div class="mb-2">
-            <InputLabel for="email" value="Correo Electrónico (opcional)" />
+            <InputLabel for="email" value="Correo Electrónico" />
             <TextInput
               id="email"
               type="email"
@@ -1386,7 +1389,7 @@ const validateEdad = () => {
   }
   if (edad < 14) {
     errorEdad.value =
-      "No cumple con el requisito de edad mínima (14 años), por lo tanto, no puede ejercer el derecho al voto.";
+      "Edad minima para participar: 14 años.";
     return false;
   }
   errorEdad.value = "";
@@ -1413,7 +1416,7 @@ const validateStep1 = async () => {
       const existe = await checkIdentificacionService(form.identificacion);
       console.log("Identificación existe:", existe);
       if (existe) {
-        errorMessage.value = "La identificación ya está registrada.";
+        errorMessage.value = "Tu documento de identidad ya está registrado.";
         isValidate.value = false;
       } else {
         errorMessage.value = "";
@@ -1492,7 +1495,7 @@ const validarDatos2 = () => {
     form.declaracion
   ) {
     console.log(form.password.length);
-    
+
     if (form.password.length >= 8) {
       isValidate.value = true;
       active.value = 2;

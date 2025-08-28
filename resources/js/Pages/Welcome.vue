@@ -280,10 +280,8 @@ const enviarSolicitud = () => {
               <span class="text-black">Tu voz, tu decisión</span>
             </h1>
             <p class="text-xl md:text-3xl text-gray-800 mb-4">
-              Plataforma de votaciones más segura y fácil para votar de forma
+              Plataforma de votaciones de elecciones de Presupuesto Participativo más segura y fácil para votar de forma
               digital.
-              <br />
-              Elige, opina y haz parte del cambio desde cualquier lugar.
             </p>
           </div>
           <!-- imagen lado derecho -->
@@ -305,8 +303,8 @@ const enviarSolicitud = () => {
           <!-- info general -->
           <div class="flex justify-center items-center col-span-3 mb-4">
             <h2 class="text-2xl sm:text-5xl text-center font-bold text-black">
-              Pasos para participar en las votaciones del presupuesto
-              participativo
+              Pasos para participar en las votaciones del <span class="bg-primary px-2 py-1 text-white">Presupuesto
+              Participativo</span>
             </h2>
           </div>
           <!-- Paso 1 -->
@@ -330,7 +328,7 @@ const enviarSolicitud = () => {
               :href="route('register')"
               class="mt-2 px-4 py-2 bg-blue-600 text-white text-lg md:text-xl rounded-lg shadow hover:bg-red-700 transition"
             >
-              ¡Regístrate -- presupuesto participativo!
+              ¡Regístrate -- Presupuesto Participativo!
             </Link>
           </div>
           <!-- Paso 2 -->
@@ -345,7 +343,7 @@ const enviarSolicitud = () => {
               2. Vota por tu proyecto
             </h2>
             <p class="text-lg md:text-xl text-parrafo mb-4">
-              En las fechas estipuladas, ingresa al software y vota por el
+              En las fechas estipuladas, ingresa al aplicativo de Presupuesto Participativo y vota por el
               proyecto de tu preferencia.
             </p>
             <Link
@@ -370,7 +368,7 @@ const enviarSolicitud = () => {
               3. Descarga tu certificado
             </h2>
             <p class="text-lg md:text-xl md:text-lg text-parrafo mb-4">
-              Descarga tu certificado de participación en el software o accede a
+              Descarga tu certificado de participación en el aplicativo de Presupuesto Participativo o accede a
               la sección específica para obtenerlo.
             </p>
             <Link
@@ -421,7 +419,7 @@ const enviarSolicitud = () => {
               class="text-4xl md:text-5xl font-extrabold text-red-600 mb-6 leading-tight"
             >
               ¡Registro! <br />
-              <span class="text-black">Presupuesto participativo</span>
+              <span class="text-black">Presupuesto Participativo</span>
             </h1>
             <p class="text-lg md:text-2xl text-gray-300 mb-4 text-parrafo">
               Participa y vota por los proyectos que más beneficien a tu
@@ -433,7 +431,7 @@ const enviarSolicitud = () => {
               :href="route('register')"
               class="mt-4 px-6 py-3 bg-red-600 text-white text-lg md:text-xl rounded-lg shadow hover:bg-red-700 transition"
             >
-              ¡Regístrate -- presupuesto participativo!
+              ¡Regístrate -- Presupuesto Participativo!
             </Link>
           </div>
         </div>
@@ -447,7 +445,7 @@ const enviarSolicitud = () => {
             <div class="bg-gray-400/40 shadow-md rounded-lg p-4">
               <span class="sm:text-3xl text-xl text-center font-semibold text-black mb-6">
                 Ingresar número de identificación para consultar los
-                certificados registrados a su nombre
+                certificados registrados a tu nombre
               </span>
               <div class="sm:flex items-center gap-4 mt-2 h-full w-auto">
                 <TextInput
@@ -575,7 +573,7 @@ const enviarSolicitud = () => {
                 <div class="w-1/2 flex justify-center items-center" v-else>
                   <div class="bg-azul rounded-md shadow-lg p-4">
                     <h3 class="text-white sm:text-2xl text-xl text-center">
-                      certificado votaciones
+                      Certificado votaciones
                     </h3>
                   </div>
                 </div>

@@ -1,9 +1,12 @@
 <template>
   <div
-    class="flex h-full min-h-screen w-full items-center justify-center bg-black px-6 py-6 relative"
+    class="flex flex-wrap h-full min-h-screen w-full justify-center bg-black px-6 py-6 relative"
   >
     <!-- Fondo con la palabra REGISTRO -->
     <div class="absolute inset-0 bg-pattern h-full min-h-screen"></div>
+    <div class="w-full relative flex justify-center mb-2">
+        <img class="sm:h-44 w-full sm:max-w-6xl rounded-lg shadow-md" src="/assets/img/logo_votaciones.jpeg" />
+    </div>
     <!-- Contenido del slot -->
     <slot />
 
@@ -117,6 +120,7 @@ import {
 import { useForm } from "@inertiajs/vue3";
 import { Textarea } from "primevue";
 import { inject, ref, computed, watch, onMounted } from "vue";
+
 const swal = inject("$swal");
 
 const form = useForm({
@@ -182,26 +186,26 @@ const enviarSolicitud = () => {
 .bg-pattern {
   background: radial-gradient(
       transparent 34%,
-      #870909 35%,
-      #870909 45%,
+      #ffffff 35%,
+      #ffffff 45%,
       transparent 46%
     ),
     radial-gradient(
       circle at left,
       transparent 39%,
-      #87090980 40%,
-      #87090980 45%,
+      #ffffff 40%,
+      #ffffff 45%,
       transparent 46%
     ),
     radial-gradient(
       circle at right,
       transparent 39%,
-      #87090980 40%,
-      #87090980 45%,
+      #ffffff 40%,
+      #ffffff 45%,
       transparent 46%
     );
   background-size: 6em 6em;
-  background-color: #e20613;
-  opacity: 0.11;
+  background-color: #F2F2F2;
+  
 }
 </style>
