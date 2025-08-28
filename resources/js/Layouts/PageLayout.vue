@@ -5,7 +5,7 @@
     <!-- Fondo con la palabra REGISTRO -->
     <div class="absolute inset-0 bg-pattern h-full min-h-screen"></div>
     <div class="w-full relative flex justify-center mb-2">
-        <img class="sm:h-44 w-full sm:max-w-6xl rounded-lg shadow-md" src="/assets/img/logo_votaciones.jpeg" />
+        <img class="w-full sm:max-w-6xl rounded-lg shadow-md" src="/assets/img/logo_votaciones.jpeg" />
     </div>
     <!-- Contenido del slot -->
     <slot />
