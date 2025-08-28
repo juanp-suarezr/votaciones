@@ -43,11 +43,11 @@
           <!-- proyectos -->
           <div class="mt-4 mx-auto">
             <h2 class="sm:text-4xl text-2xl font-bold capitalize text-justify">
-              Numero tarjeton -- {{ pro.proyecto.numero_tarjeton }}
+              Proyecto -- {{ pro.proyecto.numero_tarjeton }}
             </h2>
 
             <p class="sm:text-2xl text-xl text-justify">
-              <b>Detalle:</b> <br />
+              <b>Nombre Proyecto:</b> <br />
               {{ pro.proyecto.detalle }}
             </p>
 
@@ -76,7 +76,7 @@
               @click="proyecto(pro)"
               class="sm:text-2xl text-xl"
             >
-              Seleccionar
+              Votar
             </PrimaryButton>
           </div>
         </div>
@@ -113,7 +113,7 @@
               @click="proyecto(null)"
               class="sm:text-2xl text-xl"
             >
-              Seleccionar
+              Votar
             </PrimaryButton>
           </div>
         </div>
@@ -174,7 +174,7 @@
         </p>
         <div class="flex flex-wrap gap-8 mt-4 text-base sm:text-4xl">
           <div class="w-auto border-r pr-2 border-gray-600">
-            <span class="text-gray-600">Número de tarjetón:</span>
+            <span class="text-gray-600">numero Proyecto:</span>
             {{
               selectedProject ? selectedProject.proyecto.numero_tarjeton : "Elecciones presupuesto participativo 2025"
             }}
@@ -189,7 +189,7 @@
           </div>
         </div>
         <div class="mt-6 text-base sm:text-4xl">
-          <span class="text-gray-600">Detalle:</span>
+          <span class="text-gray-600">Nombre Proyecto:</span>
           {{
             selectedProject
               ? selectedProject.proyecto.detalle
@@ -225,9 +225,7 @@
 
         <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
           <p>
-            Es responsabilidad del votante verificar que cumple con todos los
-            requisitos y condiciones antes de emitir su voto, ya que no se
-            permitirá una segunda oportunidad para realizar esta acción.
+            Revise bien su elección antes de votar, ya que no se permitirá una segunda oportunidad para realizar esta acción.
           </p>
         </div>
 

@@ -206,8 +206,10 @@ class ValidacionesController extends Controller
             $biometrico->estado = 'Validado';
             $biometrico->save();
 
-
-            Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
+            if ($votante->votante->email !== null || $votante->votante->email !== '') {
+                Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
+            }
+            
 
             DB::commit();
             return back()->with('message', 'registro aprobado con éxito.');;
