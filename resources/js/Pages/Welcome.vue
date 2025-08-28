@@ -303,7 +303,7 @@ const enviarSolicitud = () => {
           <!-- info general -->
           <div class="flex justify-center items-center col-span-3 mb-4">
             <h2 class="text-2xl sm:text-5xl text-center font-bold text-black">
-              Pasos para participar en las votaciones del <span class="bg-primary px-2 py-1 text-white">Presupuesto
+              Pasos para participar en las votaciones del <br/><span class="bg-primary px-2 py-1 text-white">Presupuesto
               Participativo</span>
             </h2>
           </div>
