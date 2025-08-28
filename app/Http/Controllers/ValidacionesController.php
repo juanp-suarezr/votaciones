@@ -252,7 +252,9 @@ class ValidacionesController extends Controller
             $votante->save();
             $user->save();
 
-            Mail::to($votante->votante->email)->send(new InscriptionDisapprovedMail($votante));
+            if ($votante->votante->email !== null || $votante->votante->email !== '') {
+                Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
+            }
 
             DB::commit();
             return back()->with('message', 'registro rechazado exitosamente.');;
