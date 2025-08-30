@@ -59,6 +59,7 @@ const buscarCertificados = async () => {
       `/validar-certificado/${identificacion.value}`
     );
     registro.value = response.data.registro; // Aquí recibes el paginado
+
   } catch (error) {
     registro.value = [];
     swal.fire({
@@ -68,7 +69,7 @@ const buscarCertificados = async () => {
     });
     // Puedes mostrar un swal de error aquí si lo deseas
   } finally {
-    console.log(registro.value);
+
 
     loading.value = false;
     IsSecondTime.value = true;
@@ -82,9 +83,11 @@ const clearAll = () => {
 };
 
 //dercargar certificado
-const descargarCertificado = (ev, idVotante) => {
+const descargarCertificado = (ev, idVotante, id_padre) => {
+
+
   window.open(
-    route("certificados.descargar", { id: ev, idVotante: idVotante }),
+    route("certificados.descargar", { id: ev, idVotante: idVotante, id_padre: id_padre }),
     "_blank"
   );
 };
@@ -242,7 +245,7 @@ const enviarSolicitud = () => {
         <div class="flex gap-4 items-center">
         <img src="/assets/img/logo1.png" alt="Logo" class="h-32 w-auto border-r border-black" />
         <img src="/assets/img/voto_electronico.png" alt="Logo" class="h-32 w-auto" />
-        
+
 
 
         </div>
@@ -251,8 +254,9 @@ const enviarSolicitud = () => {
             Consultar certificado
           </a>
         </div> -->
+        
         <div class="w-full flex justify-end items-center">
-          <a class="text-black sm:text-2xl text-xl" href="/resultado-comunas?id_evento=15">
+          <a class="text-black sm:text-2xl text-xl" href="/resultado-seleccionar-comuna">
             Resultados votaciones
           </a>
         </div>
@@ -508,7 +512,8 @@ const enviarSolicitud = () => {
                           @click="
                             descargarCertificado(
                               info.evento.id,
-                              info.votante.id
+                              info.votante.id,
+                              info.evento.evento_hijo[0]?.evento_padre?.id
                             )
                           "
                         >
@@ -545,7 +550,7 @@ const enviarSolicitud = () => {
                     <div class="px-4 py-2 text-parrafo">
                       <PrimaryButton
                         @click="
-                          descargarCertificado(info.evento.id, info.votante.id)
+                          descargarCertificado(info.evento.id, info.votante.id, info.evento.evento_hijo[0]?.evento_padre?.id)
                         "
                       >
                         Descargar certificado
@@ -591,7 +596,7 @@ const enviarSolicitud = () => {
             </div>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>

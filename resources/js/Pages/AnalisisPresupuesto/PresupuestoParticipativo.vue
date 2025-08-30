@@ -24,6 +24,10 @@ const props = defineProps({
     type: Object,
     default: () => [],
   },
+  eventos_hijos: {
+    type: Object,
+    default: () => [],
+  },
 });
 
 console.log(props);
@@ -35,6 +39,8 @@ const form = useForm({
 });
 
 const comuna = ref("");
+const evento_hijo = ref(props.evento.id);
+
 const comunas = props.resultados.data;
 //modales
 const showModal = ref(false);
@@ -43,8 +49,9 @@ const handleEnterKey = () => {
   router.get(
     "/resultado-comunas",
     {
-      id_evento: props.evento.id,
+      id_evento: props.evento.evento_hijo[0]?.id_evento_padre,
       subtipo: comuna.value.value,
+      id_evento_hijo: evento_hijo.value,
     },
     {
       preserveState: true,
@@ -55,10 +62,14 @@ const handleEnterKey = () => {
 
 const limpiar = () => {
   comuna.value = "";
+  evento_hijo.value = 16;
 
   router.get(
     "/resultado-comunas",
-    { id_evento: props.evento.id, subtipo: comuna.value },
+    {
+      id_evento: props.evento.evento_hijo[0]?.id_evento_padre,
+      subtipo: comuna.value,
+    },
     {
       preserveState: true,
       replace: true,
@@ -73,7 +84,7 @@ const openModal = (info) => {
 };
 
 const Submit = (num, info) => {
-    form.subtipo = info.value;
+  form.subtipo = info.value;
   form.comuna = info.label;
   if (num == 1) {
     form.get(route("resultado-proyectos"), {
@@ -94,9 +105,20 @@ const Submit = (num, info) => {
     class="relative min-h-screen bg-center bg-option2 selection:bg-red-500 selection:text-white flex flex-col justify-center"
   >
     <div class="w-full flex justify-between sm:px-16 px-4">
-      <a class="sm:flex justify-start mt-2" href="/welcome">
-        <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
-      </a>
+      <div class="flex gap-4 items-center">
+        <a
+          class="sm:flex justify-start mt-2 pe-4 border-r border-black"
+          href="/welcome"
+        >
+          <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
+        </a>
+        <img
+          src="/assets/img/voto_electronico.png"
+          alt="Logo"
+          class="h-32 w-auto"
+        />
+      </div>
+
       <SecondaryButtonReturn class="h-full flex inline-flex mt-8 !text-base">
         Regresar
       </SecondaryButtonReturn>
@@ -113,15 +135,20 @@ const Submit = (num, info) => {
         <!-- total registros voto virtual -->
         <p class="flex gap-2 mt-2">
           <b>Total registrados habilitados para votar virtualmente o tics: </b>
-          {{ evento.votantes_count }}
+          {{ evento.evento_hijo[0]?.evento_padre?.votantes_activos_count }}
         </p>
         <!-- total registros voto fisico -->
         <p class="flex gap-2 mt-2">
           <b>Total registrados habilitados para votar presencial físico: </b>
-          {{ evento.acta_escrutinio.reduce((total, item) => total + item.total_ciudadanos, 0) }}
+          {{
+            evento.acta_escrutinio.reduce(
+              (total, item) => total + item.total_ciudadanos,
+              0
+            )
+          }}
         </p>
         <!-- filtros -->
-        <div class="mt-4 w-full flex flex-wrap">
+        <div class="mt-4 w-full flex flex-wrap gap-4">
           <Select
             id="comuna"
             v-model="comuna"
@@ -134,6 +161,21 @@ const Submit = (num, info) => {
             @change="handleEnterKey"
             class="block h-full w-auto px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
           />
+          <select
+            id="evento_padre"
+            v-model="evento_hijo"
+            @change="handleEnterKey"
+            class="block h-full w-auto px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">-- Seleccione un evento --</option>
+            <option
+              v-for="evento in eventos_hijos"
+              :key="evento.id"
+              :value="evento.id"
+            >
+              {{ evento.nombre }}
+            </option>
+          </select>
           <div class="flex gap-4 p-4">
             <SecondaryButton class="p-2 h-full" @click="limpiar">
               Limpiar

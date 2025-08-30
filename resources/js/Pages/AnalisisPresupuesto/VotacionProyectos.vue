@@ -56,11 +56,11 @@ const props = defineProps({
     default: () => "",
   },
   subtipo: {
-    type: Number,
+    type: String,
     default: () => "",
   },
   id_evento: {
-    type: Number,
+    type: String,
     default: () => "",
   },
   total_votos_virtuales: {

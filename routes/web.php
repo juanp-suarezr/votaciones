@@ -122,7 +122,12 @@ Route::get('/certificados/descargar/{id}/{idVotante?}/{id_padre?}', [Certificado
 //ver eventos a los que voto el votante segun identificacion
 Route::get('/validar-certificado/{identificacion}', [VotosController::class, 'verificar']);
 
-//pagina de resultados
+//pagina de resultados presupuesto participativo inicial sencilla
+Route::get('/resultado-seleccionar-comuna', [AnalisisPresupuestoController::class, 'indexComuna']);
+//pagina resultado para el ciudadano
+Route::get('/resultado-presupuesto', [AnalisisPresupuestoController::class, 'ResultadosPresupuesto'])->name('resultado-presupuesto');
+
+//pagina de resultados presupuesto participativo mas detallada
 Route::get('/resultado-evento', [AnalisisPresupuestoController::class, 'index']);
 Route::get('/resultado-comunas', [AnalisisPresupuestoController::class, 'ResultadosComunas'])->name('resultado-comunas');
 Route::get('/resultado-proyectos', [AnalisisPresupuestoController::class, 'ResultadosProyectos'])->name('resultado-proyectos');

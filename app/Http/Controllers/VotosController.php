@@ -140,7 +140,8 @@ class VotosController extends Controller
             })
             ->with([
             'votante:id,nombre,tipo_documento,identificacion,genero',
-            'evento:id,nombre'
+            'evento:id,nombre',
+            'evento.evento_hijo.evento_padre:id',
         ])
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL

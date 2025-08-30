@@ -9,6 +9,7 @@ use App\Models\Eventos;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
+use App\Models\ParametrosDetalle;
 use App\Models\Tipos;
 use App\Models\Votos;
 use App\Models\Votos_fisicos;
@@ -27,6 +28,168 @@ class AnalisisPresupuestoController extends Controller
      * @return \Illuminate\Http\Response
      */
     function __construct() {}
+    //funcion para mostrar primera pantalla de seleccion de comuna
+    function indexComuna()
+    {
+
+
+        return Inertia::render(
+            'AnalisisPresupuestoCiudadano/Index',
+            []
+        );
+    }
+
+    //funcion para mostrar pantalla de resultados a la ciudadania
+
+    public function ResultadosPresupuesto(Request $request)
+    {
+        $id_evento_padre = 15;
+        $subtipo = $request->id_comuna;
+
+        $evento_padre = Eventos::where('id', $id_evento_padre)
+            ->select('id')
+            ->with('eventos_hijos:id,id_evento_hijo,id_evento_padre', 'eventos_hijos.eventos:id,nombre')
+            ->first();
+
+        $eventos_hijos = [];
+        if ($evento_padre && $evento_padre->eventos_hijos) {
+            foreach ($evento_padre->eventos_hijos as $hijo) {
+                if (isset($hijo->eventos)) {
+                    $eventos_hijos[] = $hijo->eventos;
+                }
+            }
+        }
+
+        $resultados_eventos = [];
+
+        foreach ($eventos_hijos as $evento) {
+            // Proyectos del evento y subtipo
+            $proyectos = Hash_proyectos::where('id_evento', $evento->id)
+                ->whereHas('proyecto', function ($query) use ($subtipo) {
+                    $query->where('subtipo', $subtipo);
+                })
+                ->with(['proyecto' => function ($query) {
+                    $query->select('id', 'detalle', 'subtipo');
+                }])
+
+                ->get();
+
+                if ($proyectos->isEmpty()) {
+                    // Si no hay proyectos para este evento y comuna, saltar al siguiente evento
+                    continue;
+                }
+
+            // Actas del evento y comuna
+            $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco', 'total_ciudadanos')
+                ->where('id_evento', $evento->id)
+                ->where('comuna', $subtipo)
+                ->get();
+
+            // Sumar votos nulos, no marcados, blanco y total
+            $votos_nulos = $actas->sum('votos_nulos');
+            $votos_no_marcados = $actas->sum('votos_no_marcados');
+            $votos_blanco_fisico = $actas->sum('votos_blanco');
+            $total_ciudadanos_fisico = $actas->sum('total_ciudadanos');
+
+            // Votos virtuales y físicos
+            $votos_virtuales = Votos::select('id', 'id_eventos', 'id_proyecto', 'subtipo')
+                ->where('id_eventos', $evento->id)
+                ->where('subtipo', $subtipo)
+                ->get();
+
+            $votos_fisicos = Votos_fisicos::whereHas('acta', function ($query) use ($subtipo, $evento) {
+                $query->where('id_evento', $evento->id)
+                    ->where('comuna', $subtipo);
+            })
+                ->get();
+
+            // Agrupar y sumar votos por proyecto
+            $resultados = [];
+
+            foreach ($proyectos as $proyecto) {
+                $resultados[$proyecto->id_proyecto] = [
+                    'id_proyecto' => $proyecto->id_proyecto,
+                    'nombre' => $proyecto->proyecto->detalle,
+                    'votos_virtuales' => 0,
+                    'votos_fisicos' => 0,
+                    'total' => 0,
+                ];
+            }
+
+            // Voto en blanco (id_proyecto = 0)
+            $resultados[0] = [
+                'id_proyecto' => 0,
+                'nombre' => 'Voto en blanco',
+                'votos_virtuales' => 0,
+                'votos_fisicos' => 0,
+                'total' => 0,
+            ];
+
+            // Sumar votos virtuales
+            foreach ($votos_virtuales as $voto) {
+                $id = $voto->id_proyecto ?? 0;
+                if (!isset($resultados[$id])) {
+                    $resultados[$id] = [
+                        'id_proyecto' => $id,
+                        'nombre' => $id == 0 ? 'Voto en blanco' : 'Proyecto desconocido',
+                        'votos_virtuales' => 0,
+                        'votos_fisicos' => 0,
+                        'total' => 0,
+                    ];
+                }
+                $resultados[$id]['votos_virtuales']++;
+            }
+
+            // Sumar votos físicos
+            foreach ($votos_fisicos as $votoFisico) {
+                $id = $votoFisico->id_proyecto ?? 0;
+                if (!isset($resultados[$id])) {
+                    $resultados[$id] = [
+                        'id_proyecto' => $id,
+                        'nombre' => $id == 0 ? 'Voto en blanco' : 'Proyecto desconocido',
+                        'votos_virtuales' => 0,
+                        'votos_fisicos' => 0,
+                        'total' => 0,
+                    ];
+                }
+                $resultados[$id]['votos_fisicos'] += $votoFisico->cantidad;
+            }
+
+            // Sumar el voto en blanco físico al resultado del voto en blanco
+            $resultados[0]['votos_fisicos'] += $votos_blanco_fisico;
+
+            // Calcular total por proyecto
+            foreach ($resultados as &$res) {
+                $res['total'] = $res['votos_virtuales'] + $res['votos_fisicos'];
+            }
+            unset($res);
+
+            // Ordenar de mayor a menor por total (excepto el total general)
+            $resultados_ordenados = collect($resultados)
+                ->sortByDesc('total')
+                ->values()
+                ->all();
+
+            // Guardar resultado por evento hijo
+            $resultados_eventos[] = [
+                'evento_id' => $evento->id,
+                'evento_nombre' => $evento->nombre,
+                'resultados' => $resultados_ordenados,
+                'votos_nulos' => $votos_nulos,
+                'votos_no_marcados' => $votos_no_marcados,
+                'total_votos' => $total_ciudadanos_fisico+count($votos_virtuales),
+            ];
+        }
+
+        return Inertia::render(
+            'AnalisisPresupuestoCiudadano/VotacionPresupuesto',
+            [
+
+                'comuna' => ParametrosDetalle::where('id', $subtipo)->value('detalle'),
+                'resultados_eventos' => $resultados_eventos,
+            ]
+        );
+    }
 
     function index()
     {
@@ -59,6 +222,7 @@ class AnalisisPresupuestoController extends Controller
 
         //variables
         $subtipo = null;
+        $id_evento_hijo = 16;
         $votos_virtuales = [];
         $votos_fisicos = [];
 
@@ -69,19 +233,29 @@ class AnalisisPresupuestoController extends Controller
             $subtipo = RequestFacade::input('subtipo');
         }
 
-        $evento = Eventos::where('id', $request->id_evento)
-            ->with(['votos' => function ($query) {
-                $query->select('id', 'id_eventos', 'isVirtual', 'subtipo', 'id_votante');
-            }])
-            ->withCount(['votantes' => function ($query) {
-                $query->where('estado', 'Activo')
-                    ->orWhere('validaciones', 'voto presencial - virtual');
-            }])
+        if (RequestFacade::input('id_evento_hijo')) {
+            # code...
+            $id_evento_hijo = RequestFacade::input('id_evento_hijo');
+        }
 
-            ->with(['acta_escrutinio' => function ($query) {
-                $query->select('id', 'id_evento', 'comuna', 'total_ciudadanos', 'total_votantes');
-            }])
+        $evento = Eventos::where('id', $id_evento_hijo)
+            ->with([
+                'votos:id,id_eventos,isVirtual,subtipo,id_votante',
+                'acta_escrutinio:id,id_evento,comuna,total_ciudadanos,total_votantes',
+                'evento_hijo' => function ($query) use ($request) {
+                    $query->select('id', 'id_evento_padre', 'id_evento_hijo')
+                        ->with(['evento_padre' => function ($q) {
+                            $q->withCount(['votantes as votantes_activos_count' => function ($q2) {
+                                $q2->where('estado', 'Activo')
+                                    ->orWhere('validaciones', 'voto presencial - virtual');
+                            }]);
+                        }]);
+                }
+            ])
             ->first();
+
+
+
 
         // Leer comunas completas desde el JSON
         $comunas_completas = json_decode(file_get_contents(resource_path('js/shared/comunas_completas.json')), true);
@@ -149,6 +323,24 @@ class AnalisisPresupuestoController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
+        $evento_padre = Eventos::where('id', $request->id_evento)
+            ->select('id')
+            ->with('eventos_hijos:id,id_evento_hijo,id_evento_padre', 'eventos_hijos.eventos:id,nombre')
+            ->first();
+
+        // Extraer la lista de hijos (solo el objeto 'eventos' de cada hijo)
+        $eventos_hijos = [];
+        if ($evento_padre && $evento_padre->eventos_hijos) {
+            foreach ($evento_padre->eventos_hijos as $hijo) {
+                if (isset($hijo->eventos)) {
+                    $eventos_hijos[] = $hijo->eventos;
+                }
+            }
+        }
+
+
+
+
 
         return Inertia::render(
             'AnalisisPresupuesto/PresupuestoParticipativo',
@@ -156,6 +348,7 @@ class AnalisisPresupuestoController extends Controller
 
                 'evento' => $evento,
                 'resultados' => $paginated,
+                'eventos_hijos' => $eventos_hijos,
 
             ]
         );
@@ -217,7 +410,7 @@ class AnalisisPresupuestoController extends Controller
         // Inicializar resultados con los proyectos
         foreach ($proyectos as $proyecto) {
 
-            $total_votantes_virtual += $proyecto->evento->votantes->count();
+            $total_votantes_virtual += $proyecto->evento->evento_hijo->evento_padre->votantes->count();
 
             $resultados[$proyecto->id_proyecto] = [
                 'id_proyecto' => $proyecto->id_proyecto,
@@ -322,7 +515,7 @@ class AnalisisPresupuestoController extends Controller
             ->first();
 
 
-            //suma total de ciudadanos
+        //suma total de ciudadanos
         $total_registros_virtuales = $evento->votantes_count;
 
         $resumen_puestos = [];
