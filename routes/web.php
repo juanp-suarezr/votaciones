@@ -118,7 +118,7 @@ Route::get('/welcome', function () {
 
 //GESTION CERTIFICADOS
 //descargar
-Route::get('/certificados/descargar/{id}/{idVotante?}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
+Route::get('/certificados/descargar/{id}/{idVotante?}/{id_padre?}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
 //ver eventos a los que voto el votante segun identificacion
 Route::get('/validar-certificado/{identificacion}', [VotosController::class, 'verificar']);
 
@@ -151,7 +151,9 @@ Route::get('/dashboard', function () {
         $eventos = Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
                 $query->where('id_votante', Auth::user()->votantes->id);
-            }, 'evento_padre'])
+            }, 'eventos_hijos.eventos' => function ($q) {
+                $q->withCount('hash_proyectos'); // trae hash_proyectos_count en cada hijo
+            }])
             ->get();
 
         $votos = Votos::where('id_votante', Auth::user()->votantes->id)
@@ -283,10 +285,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('votantesPresencial', VotantesPresencialController::class);
     Route::resource('actaPresencial', ActaPresencialController::class);
     Route::resource('registro-jurados', JuradosController::class);
-    Route::resource('rutas',RutasController::class);
-
-
-
+    Route::resource('rutas', RutasController::class);
 });
 
 

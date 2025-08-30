@@ -253,6 +253,7 @@ import { PhotoIcon } from "@heroicons/vue/24/solid";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import Dropdown from "primevue/dropdown";
 import Select from "primevue/select";
+import { Textarea } from "primevue";
 
 const swal = inject("$swal");
 
@@ -385,6 +386,8 @@ const removeImage = () => {
 };
 
 const submit = () => {
+    console.log(form);
+    
   form.subtipo = form.subtipo.id;
 
   form.post(route("proyectos.store"), {
@@ -402,7 +405,7 @@ const submit = () => {
     },
     onError: function (errors) {
       console.log(errors);
-      form.reset();
+      
       swal({
         title: "Error",
         text: "Ha ocurrido un error al intentar guardar el proyecto",

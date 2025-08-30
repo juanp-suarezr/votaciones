@@ -41,7 +41,8 @@
           <div
             v-if="
               ev.votantes[0].estado == 'Activo' &&
-              !ev.tipos.includes('withBanner')
+              !ev.tipos.includes('withBanner') &&
+              (ev.hash_proyectos_count > 0 || !ev.tipos.includes('Proyecto'))
             "
             class="border-2 border-gray-400 px-1 py-2 border-dashed flex flex-wrap"
           >
@@ -113,7 +114,8 @@
           <div
             v-if="
               ev.votantes[0].estado == 'Activo' &&
-              ev.tipos.includes('withBanner')
+              ev.tipos.includes('withBanner') &&
+              (ev.hash_proyectos_count > 0 || !ev.tipos.includes('Proyecto'))
             "
             class="border-2 border-gray-400 px-1 py-2 border-dashed flex flex-wrap"
           >
@@ -138,12 +140,17 @@
               "
             >
               <img
-                :src="getBannerImg('banner_' + ev.id)"
+                :src="
+                  getBannerImg('banner_' + (ev.is_hijo ? ev.id_padre : ev.id))
+                "
                 alt="Imagen de evento"
                 class="w-full h-full object-cover"
               />
             </a>
-            <p class="m-auto sm:text-4xl text-xl">
+            <h4 class="m-auto sm:text-4xl text-xl">
+              {{ ev.nombre }}
+            </h4>
+            <p class="m-auto">
               <span class="sm:text-xl text-sm text-gray-600"
                 >{{ ev.fecha_inicio }} - {{ ev.fecha_fin }}</span
               >
@@ -184,11 +191,14 @@
               <br />
             </p>
             <div
-              v-if="votos.find((item) => item.id_eventos == ev.id)"
+              v-if="
+                votos.find((item) => item.id_eventos == ev.id) &&
+                ev.tipos.includes('Proyecto')
+              "
               class="sm:text-2xl text-base text-gray-800 mt-4"
             >
-              <PrimaryButton @click="descargarCertificado(ev.id)">
-                Descargar certificado
+              <PrimaryButton @click="descargarCertificado(ev.id, ev.id_padre)">
+                Descargar certificado {{ ev.id_padre }}
               </PrimaryButton>
             </div>
 
@@ -223,7 +233,10 @@
           v-for="ev in eventosCerrados"
           :key="ev.id"
         >
-          <div class="border-2 border-gray-400 px-1 py-2 border-dashed">
+          <div
+            v-if="!ev.tipos.includes('Proyecto') || ev.hash_proyectos_count > 0"
+            class="border-2 border-gray-400 px-1 py-2 border-dashed"
+          >
             <p class="m-auto sm:text-4xl text-xl pe-2">
               {{ ev.nombre }}
               <br />
@@ -350,7 +363,7 @@
         >
       </div>
     </div>
-
+    <!-- JURADO -->
     <div class="" v-if="$page.props.user.roles.includes('Jurado')">
       <h2 class="text-gray-600 text-2xl inline-flex">
         Gestión de registro presencial - virtual
@@ -457,15 +470,75 @@ const eventosCerrados = ref([]);
 const cedulaVotante = ref("");
 
 onMounted(() => {
-  eventosPendientes.value = props.eventos.filter(
+  // Lista final solo de hijos
+  let pendientesHijos = [];
+  let cerradosHijos = [];
+
+    //EVENTOS PENDIENTES LOGICA
+    pendientesHijos = props.eventos.filter(
     (item) =>
       item.estado != "Cerrado" &&
       item.votantes.length > 0 &&
-      item.evento_padre == null
+      (!item.eventos_hijos || item.eventos_hijos.length === 0)
   );
-  eventosCerrados.value = props.eventos.filter(
-    (item) => item.estado == "Cerrado" && item.votantes.length > 0
+
+  props.eventos.forEach((eventoPadre) => {
+    
+    // Si tiene hijos
+    if (
+      eventoPadre.estado != "Cerrado" &&
+      eventoPadre.votantes.length > 0 &&
+      Array.isArray(eventoPadre.eventos_hijos) &&
+      eventoPadre.eventos_hijos.length > 0
+    ) {
+      eventoPadre.eventos_hijos.forEach((hijoObj) => {
+        if (hijoObj.eventos) {
+          // Copia el hijo y asigna el votante del padre
+          const hijo = { ...hijoObj.eventos };
+          hijo.votantes = eventoPadre.votantes ? [...eventoPadre.votantes] : [];
+          hijo.id_padre = eventoPadre.id; // Opcional: para referencia al padre
+          hijo.is_hijo = true; // Marca que es un hijo
+          pendientesHijos.push(hijo);
+        }
+      });
+    }
+  });
+
+  eventosPendientes.value = pendientesHijos;
+
+  //EVENTOS CERRADOS LOGICA
+  // Si no hay hijos, muestra los eventos que no son padres
+
+  pendientesHijos = props.eventos.filter(
+    (item) =>
+      item.estado == "Cerrado" &&
+      item.votantes.length > 0 &&
+      (!item.eventos_hijos || item.eventos_hijos.length === 0)
   );
+    // Recorre los eventos padres para encontrar y agregar sus hijos
+  props.eventos.forEach((eventoPadre) => {
+    // Si tiene hijos
+    if (
+      eventoPadre.estado == "Cerrado" &&
+      eventoPadre.votantes.length > 0 &&
+      Array.isArray(eventoPadre.eventos_hijos) &&
+      eventoPadre.eventos_hijos.length > 0
+    ) {
+      eventoPadre.eventos_hijos.forEach((hijoObj) => {
+        if (hijoObj.eventos) {
+          // Copia el hijo y asigna el votante del padre
+          const hijo = { ...hijoObj.eventos };
+          hijo.votantes = eventoPadre.votantes ? [...eventoPadre.votantes] : [];
+          hijo.id_padre = eventoPadre.id; // Opcional: para referencia al padre
+          hijo.is_hijo = true; // Marca que es un hijo
+          cerradosHijos.push(hijo);
+        }
+      });
+    }
+  });
+
+  
+  eventosCerrados.value = cerradosHijos;
 
   chartData.value = setChartData();
   chartOptions.value = setChartOptions();
@@ -563,13 +636,13 @@ const setChartOptions = () => {
         },
       },
       datalabels: {
-      color: "white",
-      formatter: (value) => value,
-      font: {
-        weight: "bold",
-        size: 12
+        color: "white",
+        formatter: (value) => value,
+        font: {
+          weight: "bold",
+          size: 12,
+        },
       },
-    },
     },
     scales: {
       x: {
@@ -655,8 +728,8 @@ const handleEnterKey = () => {
 };
 
 //dercargar certificado
-const descargarCertificado = (ev) => {
-  window.open(route("certificados.descargar", ev), "_blank");
+const descargarCertificado = (ev, id_padre) => {
+  window.open(route("certificados.descargar", { id: ev, idVotante: 0, id_padre: id_padre }), "_blank");
 };
 
 //buscar votante por cedula

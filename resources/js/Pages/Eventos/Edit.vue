@@ -72,47 +72,68 @@
             <InputError class="mt-2" :message="form.errors.descripcion" />
           </div>
 
-          <!-- tipos y evento padre -->
-          <div class="col-span-2 mb-2 flex gap-4">
+          <!-- tipos -->
+          <div class="mb-2 flex flex-wrap gap-4">
             <!-- tipos -->
-            <div class="flex flex-wrap gap-4">
-              <InputLabel for="tipos" value="Tipos" />
+            <InputLabel for="tipos" value="Tipos" />
 
-              <div class="card flex justify-content-center">
-                <MultiSelect
-                  id="tipos"
-                  v-model="form.tipos"
-                  display="chip"
-                  :options="Object.values(tipos)"
-                  placeholder="Seleccione los tipos"
-                  :maxSelectedLabels="6"
-                  class="w-full md:w-20rem"
-                />
-              </div>
-              <InputError class="mt-2" :message="form.errors.tipos" />
+            <div class="card flex justify-content-center">
+              <MultiSelect
+                id="tipos"
+                v-model="form.tipos"
+                display="chip"
+                :options="Object.values(tipos)"
+                placeholder="Seleccione los tipos"
+                :maxSelectedLabels="6"
+                class="w-full"
+              />
             </div>
-            <!-- evento padre -->
-            <div class="flex flex-wrap gap-4">
+            <InputError class="mt-2" :message="form.errors.tipos" />
+          </div>
+          <!-- is evento padre -- eventos padre-hijo -->
+          <div class="mb-2 w-full flex flex-wrap gap-4">
+            <!-- is evento padre -->
+            <div class="">
+              <InputLabel for="is_evento_padre" value="¿Es un evento padre?" />
+              <select
+                id="is_evento_padre"
+                v-model="form.is_evento_padre"
+                class="mt-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-auto p-2. px-4"
+              >
+                <option :value="1">Si</option>
+                <option :value="0">No</option>
+              </select>
+              <InputError class="mt-2" :message="form.errors.is_evento_padre" />
+            </div>
+            <!-- asignar evento padre -->
+            <div class="" v-if="form.is_evento_padre == 0">
               <InputLabel for="tipos" value="Asignar evento padre" />
 
-              <div class="card flex gap-2 justify-content-center">
-                <Select
-                  v-if="form.evento_padre || isAsignarPadre == true"
-                  id="evento_padre"
-                  v-model="form.evento_padre"
-                  display="chip"
-                  :options="props.eventos"
-                  option-label="nombre"
-                  option-value="id"
-                  placeholder="Asignar un evento padre"
-                  :maxSelectedLabels="1"
-                  class="w-full md:w-20rem"
-                />
+              <div class="card mt-1 flex gap-2 justify-content-center">
+                <select
+                v-if="form.evento_padre || isAsignarPadre == true"
+                id="evento_padre"
+                v-model="form.evento_padre"
+                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+              >
+                <option value="">-- Seleccione un evento padre --</option>
+                <option
+                  v-for="evento in eventos"
+                  :key="evento.id"
+                  :value="evento.id"
+                >
+                  {{ evento.nombre }}
+                </option>
+                </select>
                 <SecondaryButton
                   type="button"
                   @click="CancelarEventoPadre"
                   class="w-full md:w-20rem"
-                  >{{ isAsignarPadre || form.evento_padre != null ? "Cancelar" : "Asignar evento padre" }}
+                  >{{
+                    isAsignarPadre || form.evento_padre != null
+                      ? "Cancelar"
+                      : "Asignar evento padre"
+                  }}
                 </SecondaryButton>
               </div>
               <InputError class="mt-2" :message="form.errors.tipos" />
@@ -206,8 +227,7 @@ const swal = inject("$swal");
 const imageUrl = ref(null);
 //max palabras
 const isMaxPalabras = ref(false);
-//variable para asignar evento padre boolean
-const isAsignarPadre = ref(false);
+
 
 const props = defineProps({
   evento: {
@@ -231,10 +251,15 @@ const form = useForm({
   fecha_fin: props.evento.fecha_fin || "",
   dependencias: props.evento.dependencias || "",
   tipos: props.evento.tipos != "NA" ? props.evento.tipos.split("|") : "" || "",
-  evento_padre: props.evento.evento_padre || null,
+  is_evento_padre: props.evento.evento_padre,
+  evento_padre: props.evento.evento_hijo[0].id_evento_padre || null,
   estado: props.evento.estado || "",
   id: props.evento.id,
 });
+
+//variable para asignar evento padre boolean
+const isAsignarPadre = ref(props.evento.evento_hijo[0].id_evento_padre ? true: false);
+
 
 console.log(props.evento);
 
@@ -275,11 +300,11 @@ const formatearFecha = (fecha) => {
 };
 
 const CancelarEventoPadre = () => {
-    isAsignarPadre.value = !isAsignarPadre.value;
-    if (isAsignarPadre) {
-        form.evento_padre = null;
-    }
-}
+  isAsignarPadre.value = !isAsignarPadre.value;
+  if (isAsignarPadre) {
+    form.evento_padre = null;
+  }
+};
 
 const submit = () => {
   form.fecha_inicio = formatearFecha(new Date(form.fecha_inicio));

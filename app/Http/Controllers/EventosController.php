@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Eventos;
+use App\Models\Hash_eventos_hijos;
 use App\Models\Puntos;
 use App\Models\Tipos;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -31,7 +33,7 @@ class EventosController extends Controller
             'Eventos/Index',
 
             [
-                'eventos' => Eventos::whereNot('nombre', 'Admin')->with('evento_padre')->paginate(5),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->paginate(5),
             ]
         );
     }
@@ -44,7 +46,7 @@ class EventosController extends Controller
 
             [
                 'tipos' => Tipos::pluck('nombre', 'nombre')->all(),
-                'eventos' => Eventos::whereNot('nombre', 'Admin')->get(),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->where('evento_padre', 1)->get(),
             ]
         );
     }
@@ -70,12 +72,21 @@ class EventosController extends Controller
                 'descripcion' => $request->input('descripcion'),
                 'dependencias' => $request->input('dependencias'),
                 'tipos' => $request->input('tipos'),
-                'evento_padre' => $request->input('evento_padre'),
+                'evento_padre' => $request->input('is_evento_padre'),
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'estado' => $request->input('estado'),
             ]
         );
+
+        if ($request->evento_padre) {
+            Hash_eventos_hijos::create([
+                'id_evento_padre' => $request->evento_padre,
+                'id_evento_hijo' => $eventos->id,
+            ]);
+
+        }
+
         $eventos->save();
 
         Cache::forget('eventos_admin');
@@ -86,8 +97,8 @@ class EventosController extends Controller
     public function edit(Request $request,$id_user)
     {
         $tipos = Tipos::pluck('nombre', 'nombre')->all();
-        $evento = Eventos::findOrFail($id_user);
-        $eventos = Eventos::whereNot('nombre', 'Admin')->whereNot('id', $id_user)->get();
+        $evento = Eventos::with('evento_hijo')->findOrFail($id_user);
+        $eventos = Eventos::whereNot('nombre', 'Admin')->whereNot('id', $id_user)->where('evento_padre', 1)->get();
 
         return Inertia::render('Eventos/Edit', compact('tipos', 'evento', 'eventos'));
     }
@@ -112,9 +123,27 @@ class EventosController extends Controller
         $eventos->fecha_inicio = $request->fecha_inicio;
         $eventos->fecha_fin = $request->fecha_fin;
         $eventos->tipos = $request->tipos;
-        $eventos->evento_padre = $request->evento_padre;
+        $eventos->evento_padre = $request->is_evento_padre;
         $eventos->estado = $request->estado;
         $eventos->save();
+
+        if ($request->evento_padre) {
+            $hash_evento = Hash_eventos_hijos::where('id_evento_hijo', $eventos->id)->first();
+
+            if ($hash_evento) {
+                $hash_evento->id_evento_padre = $request->evento_padre;
+                $hash_evento->save();
+            } else {
+                Hash_eventos_hijos::create([
+                    'id_evento_padre' => $request->evento_padre,
+                    'id_evento_hijo' => $eventos->id,
+                ]);
+            }
+
+        } else {
+            // Si no se selecciona un evento padre, eliminar cualquier registro existente en la tabla hash_eventos_hijos
+            Hash_eventos_hijos::where('id_evento_hijo', $eventos->id)->delete();
+        }
 
 
         return Redirect::route('eventos.edit',$eventos->id);

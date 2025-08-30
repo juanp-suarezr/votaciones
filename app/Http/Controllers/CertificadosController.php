@@ -53,18 +53,23 @@ class CertificadosController extends Controller
 
 
     //generar certificado
-    public function descargarCertificado($id, $idVotante = null)
+    public function descargarCertificado($id, $idVotante = null, $id_padre = null)
     {
 
         ini_set('memory_limit', '1024M'); // 1 GB, puedes ajustar el valor
         ini_set('max_execution_time', 180); // 180 segundos (3 minutos)
 
+        $idVotante = $idVotante == 0 ? null : $idVotante;
+
         $idVotante = Auth::user()->votantes->id ?? $idVotante;
+        
         
 
         if (!$idVotante) {
             abort(403, 'No se puede generar el certificado sin un votante válido.');
         }
+
+        
 
         // Obtener el evento y cargar solo al votante relacionado
         $evento = Eventos::select('id', 'nombre', 'fecha_inicio')
@@ -79,6 +84,23 @@ class CertificadosController extends Controller
             ])
             ->findOrFail($id);
 
+            $votante = $evento->votantes->first()->votante ?? null;
+        if($id_padre){
+            $evento_padre = Eventos::select('id', 'nombre', 'fecha_inicio')
+            ->with([
+                'votantes' => function ($query) use ($idVotante) {
+                    $query->where('id_votante', $idVotante)
+                        ->select('id_votante', 'id_evento')
+                        ->with([
+                            'votante:id,nombre,tipo_documento,identificacion,comuna'
+                        ]);
+                }
+            ])
+            ->findOrFail($id_padre);
+
+            $votante = $evento_padre->votantes->first()->votante ?? null;
+        }
+
 
         // Generar nombre único para el PDF
 
@@ -87,29 +109,20 @@ class CertificadosController extends Controller
 
 
 
-        $qr = 'data:image/svg+xml;base64,' . base64_encode(QrCode::format('svg')->size(120)->generate(url('/consulta-certificado/' . $evento->id . '/' . $evento->votantes->first()?->id_votante)));
+        $qr = 'data:image/svg+xml;base64,' . base64_encode(QrCode::format('svg')->size(120)->generate(url('/consulta-certificado/' . $evento->id . '/' . $votante->id)));
 
-        $votante = $evento->votantes->first()->votante;
+        
         $comuna = ParametrosDetalle::select('id', 'detalle')->findOrFail($votante->comuna);
         $voto = Votos::select('id', 'id_votante', 'id_eventos', 'isVirtual', 'created_at')
             ->where('id_eventos', $evento->id)
             ->where('id_votante', $votante->id)
             ->firstOrFail();
 
-        if ($voto && $voto->isVirtual) {
-            $delegado = Delegados::select('nombre', 'firma', 'cargo')
+        $delegado = Delegados::select('nombre', 'firma', 'cargo')
                 ->where('estado', 1)
                 ->where('tipo', 'secretario')
 
                 ->first();
-        } else {
-            $delegado = Delegados::select('nombre', 'firma', 'cargo', 'comuna')
-                ->where('estado', 1)
-                ->where('comuna', $votante->comuna)
-                ->where('tipo', 'jurado')
-
-                ->first();
-        }
 
 
         $pdf = Pdf::loadView('pdf.certificado', [

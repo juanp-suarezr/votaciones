@@ -67,7 +67,7 @@
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.dependencias }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
-                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.evento_padre ? ev.evento_padre.nombre : 'No tiene' }}</p>
+                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.evento_padre ? 'Si' : 'No' }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.fecha_inicio }}</p>
