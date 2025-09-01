@@ -4,12 +4,25 @@
   >
     <!-- Fondo con la palabra REGISTRO -->
     <div class="absolute inset-0 bg-pattern h-full min-h-screen"></div>
-    <Link class="w-full relative flex justify-center mb-2 cursor-pointer" href="/welcome">
-        <img class="w-full sm:max-w-6xl rounded-lg shadow-md" src="/assets/img/logo_votaciones.jpeg" />
+    <Link
+      class="w-full relative flex justify-center mb-2 cursor-pointer"
+      href="/welcome"
+    >
+      <img
+        class="w-full sm:max-w-6xl rounded-lg shadow-md"
+        src="/assets/img/logo_votaciones.jpeg"
+      />
     </Link>
     <!-- Contenido del slot -->
     <slot />
-
+    <!-- aviso en construccion -->
+    <div
+      class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg"
+    >
+      <h4 class="sm:text-5xl text-3xl">
+        Pagina en construcción, pronto nuevas actualizaciones
+      </h4>
+    </div>
     <!-- Botón flotante para abrir/cerrar panel -->
     <button
       @click="cambiarVista"
@@ -20,7 +33,9 @@
         :is="mostrarPanel ? XCircleIcon : InformationCircleIcon"
         class="w-6 h-6 lg:w-8 lg:h-8"
       />
-      <p class="my-auto ps-2 text-lg sm:block hidden">{{  mostrarPanel ? "" : " Soporte" }}</p>
+      <p class="my-auto ps-2 text-lg sm:block hidden">
+        {{ mostrarPanel ? "" : " Soporte" }}
+      </p>
     </button>
     <!-- Panel fijo lateral -->
     <div
@@ -205,7 +220,6 @@ const enviarSolicitud = () => {
       transparent 46%
     );
   background-size: 6em 6em;
-  background-color: #F2F2F2;
-  
+  background-color: #f2f2f2;
 }
 </style>

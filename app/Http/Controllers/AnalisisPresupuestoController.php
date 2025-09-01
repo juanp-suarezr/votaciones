@@ -365,7 +365,7 @@ class AnalisisPresupuestoController extends Controller
             ->with(['proyecto' => function ($query) {
                 $query->select('id', 'detalle', 'subtipo');
             }])
-            ->with(['evento.votantes' => function ($query) use ($request) {
+            ->with(['evento.evento_hijo.evento_padre.votantes' => function ($query) use ($request) {
                 $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
                     ->where(function ($q) {
                         $q->where('estado', 'Activo')

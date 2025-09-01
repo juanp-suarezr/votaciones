@@ -142,6 +142,12 @@ const enviarSolicitud = () => {
   <div
     class="relative min-h-screen bg-dots-darker bg-option2 bg-center selection:bg-red-500 selection:text-white flex items-center justify-center body-landing"
   >
+  <!-- aviso en construccion -->
+  <div class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg">
+        <h4 class="sm:text-5xl text-3xl">
+            Pagina en construcción, pronto nuevas actualizaciones
+        </h4>
+  </div>
     <!-- Botón flotante para abrir/cerrar panel -->
     <button
       @click="cambiarVista"
@@ -243,8 +249,8 @@ const enviarSolicitud = () => {
     <div class="w-full">
       <div class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4">
         <div class="flex gap-4 items-center">
-        <img src="/assets/img/logo1.png" alt="Logo" class="h-32 w-auto border-r border-black" />
-        <img src="/assets/img/voto_electronico.png" alt="Logo" class="h-32 w-auto" />
+        <img src="/assets/img/logo1.png" alt="Logo" class="sm:h-32 h-24 w-auto border-r border-black" />
+        <img src="/assets/img/voto_electronico.png" alt="Logo" class="sm:h-32 h-24 w-auto" />
 
 
 
@@ -254,7 +260,7 @@ const enviarSolicitud = () => {
             Consultar certificado
           </a>
         </div> -->
-        
+
         <div class="w-full flex justify-end items-center">
           <a class="text-black sm:text-2xl text-xl" href="/resultado-seleccionar-comuna">
             Resultados votaciones
