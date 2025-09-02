@@ -23,19 +23,19 @@ class UpdateEventStatus extends Command
         Log::info("Running event status update at {$now}");
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
-        $eventsToUpdate = Eventos::where('fecha_inicio', '>=', $now)
+        $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
             ->where('estado', 'Pendiente')
             ->get();
 
-        $eventsToClose = Eventos::where('fecha_fin', '>=', $now)
+        $eventsToClose = Eventos::where('fecha_fin', '<=', $now)
             ->where('estado', 'Activo')
             ->get();
 
         $this->info($eventsToUpdate);
         $this->info($eventsToClose);
 
-        Log::info("Events to update: " . $eventsToUpdate->count());
-        Log::info("Events to close: " . $eventsToClose->count());
+        Log::info("Events to update: " . $eventsToUpdate);
+        Log::info("Events to close: " . $eventsToClose);
 
         // Actualiza el estado de los eventos encontrados
         foreach ($eventsToUpdate as $event) {
