@@ -47,6 +47,11 @@ class UpdateEventStatus extends Command
         foreach ($eventsToUpdate as $event) {
             $event->estado = 'Activo';
             $event->save();
+
+            if($event->evento_padre) {
+                $this->info('es evento padre');
+                continue; // Si es un evento padre, salta a la siguiente iteración
+            }
             // Crear un acta_inicio asociado al evento
             $acta_inicio = new Acta_inicio();
             $acta_inicio->modalidad = 'virtual';
@@ -64,6 +69,11 @@ class UpdateEventStatus extends Command
         foreach ($eventsToClose as $event) {
             $event->estado = 'Cerrado';
             $event->save();
+
+            if($event->evento_padre) {
+                $this->info('es evento padre');
+                continue; // Si es un evento padre, salta a la siguiente iteración
+            }
 
             // Crear un acta_fin asociado al evento
             $acta_fin = new Acta_fin();
