@@ -483,7 +483,7 @@ onMounted(() => {
   );
 
   props.eventos.forEach((eventoPadre) => {
-    
+
     // Si tiene hijos
     if (
       eventoPadre.estado != "Cerrado" &&
@@ -537,7 +537,7 @@ onMounted(() => {
     }
   });
 
-  
+
   eventosCerrados.value = cerradosHijos;
 
   chartData.value = setChartData();
@@ -691,7 +691,7 @@ if (errorMessage) {
   if (usePage().props.auth.user.jurado) {
     let instance = $toast.open({
       message:
-        "Ya se ha registrado un acta para este jurado, comuna y puesto de votación.",
+        "Ya se ha registrado las actas para este jurado, comuna y puesto de votación, en las vigencias correspondientes",
       type: "error",
       position: "top-right",
       duration: 8000,

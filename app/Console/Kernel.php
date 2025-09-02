@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
     --OPCION que requiera valor: {--opcion=}
     - OPCION con valor default: {--opcion=valor}
     -Abreviatura: {--0|opcion}
-    - Multiple value (array): {param*} 
+    - Multiple value (array): {param*}
      */
 
 
@@ -25,8 +25,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('sanctum:prune-expired --hours=24')->daily();
-        $schedule->command('events:update-status')->everyMinute()->sendOutputTo("file.txt");
+        // $schedule->command('sanctum:prune-expired --hours=24')->daily();
+        $schedule->command('events:update-status')->everyMinute()->sendOutputTo(storage_path('logs/events-status.log'));
     }
 
     /**

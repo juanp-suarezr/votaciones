@@ -6,7 +6,10 @@
 
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
       <div class="p-6 border-b border-gray-200">
-        <h1>Proceso de votación presencial física</h1>
+        <h1 class="sm:text-xl text-lg font-bold">Proceso de votación presencial física - {{ eventos_hijos_vigentes[0].nombre }}</h1>
+        <p class="mt-2">
+            {{ faltan_actas }} actas por enviar
+        </p>
       </div>
 
       <!-- contenido en grid -->
@@ -240,7 +243,7 @@
             </div>
             <!-- bucle for para proyectos -->
             <div
-              v-for="proyecto in props.proyectos"
+              v-for="proyecto in proyectosPorEvento(eventos_hijos_vigentes[0].id)"
               :key="proyecto.id"
               class="mb-2 w-full"
             >
@@ -248,21 +251,21 @@
                 :for="'votos_proyecto_' + proyecto.id"
                 :value="
                   'Votos proyecto --' +
-                  proyecto.proyecto.numero_tarjeton +
+                  proyecto.numero_tarjeton +
                   ' ' +
-                  proyecto.proyecto.detalle
+                  proyecto.nombre
                 "
               />
               <TextInput
                 :id="'votos_proyecto_' + proyecto.id"
-                v-model="form.votos_proyectos[proyecto.proyecto.id]"
+                v-model="form.votos_proyectos[proyecto.id]"
                 class="mt-1 block w-full"
                 type="number"
                 required
               />
               <InputError
                 :message="
-                  form.errors['votos_proyectos.' + proyecto.proyecto.id]
+                  form.errors['votos_proyectos.' + proyecto.id]
                 "
                 class="mt-2"
               />
@@ -310,17 +313,20 @@ import Textarea from "primevue/textarea";
 const swal = inject("$swal");
 
 const props = defineProps({
-  proyectos: Array,
+  proyectos: Object,
   evento: Object,
   comuna: Number,
   puesto_votacion: Number,
   id_jurado: Number,
+  eventos_hijos_vigentes: Object,
+  actas_enviadas :Object,
+  faltan_actas: Number,
 });
 
 console.log(props);
 
 const form = useForm({
-  id_evento: props.evento.id,
+  id_evento: props.eventos_hijos_vigentes[0].id,
   id_jurado: props.id_jurado,
   comuna: props.comuna,
   puesto_votacion: props.puesto_votacion,
@@ -346,6 +352,7 @@ const imageUrl = ref(null);
 //max palabras
 const isMaxPalabras = ref(false);
 
+
 // Limite palabras
 const palabrasEnTestimonio = computed(() => {
   const palabras = form.observaciones.trim();
@@ -363,6 +370,13 @@ const palabrasEnTestimonio = computed(() => {
 watch(palabrasEnTestimonio, () => {
   form.observaciones = form.observaciones.trim(); // Asegúrate de que no haya espacios al principio o al final
 });
+
+// Asignar proyectos al evento actual
+const proyectosPorEvento = id_evento => {
+    console.log(id_evento);
+
+    return props.proyectos[id_evento] || [];
+}
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -482,10 +496,14 @@ const submit = () => {
       });
       form.reset();
       imageUrl.value = null; // Limpiar la imagen después del envío
-      window.location.href = route("dashboard");
     },
     onError: (errors) => {
       console.error(errors);
+        swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Hubo un error al enviar el formulario. Por favor, verifica los datos e intenta nuevamente.",
+        });
     },
   });
 };

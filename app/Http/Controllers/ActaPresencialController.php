@@ -78,11 +78,12 @@ class ActaPresencialController extends Controller
         ]);
     }
 
-    public function show(Request $request, $id) {
+    public function show(Request $request, $id)
+    {
 
         $acta = Acta_escrutino::with('jurado')
-        ->with('votos_fisico.proyecto')
-        ->findOrFail($id);
+            ->with('votos_fisico.proyecto')
+            ->findOrFail($id);
 
         return Inertia::render('VotantesPresencial/Show', [
             'acta' => $acta,
@@ -94,32 +95,83 @@ class ActaPresencialController extends Controller
     //register
     public function create(Request $request)
     {
-        //validacion si ya subio el acta
-        $actaExistente = Acta_escrutino::where('id_jurado', Auth::user()->jurado->id)
-            ->where('comuna', Auth::user()->jurado->comuna)
-            ->where('puesto_votacion', Auth::user()->jurado->puntos_votacion)
-            ->first();
+        $jurado = Auth::user()->jurado;
+        $id_evento_padre = $jurado->id_evento;
 
-        if ($actaExistente) {
-            return redirect()->route('dashboard', [
-                'error' => true,
-            ])->with('error', 'Ya se ha registrado un acta para este jurado, comuna y puesto de votación.');
+        // 1. Obtener eventos hijos con proyectos vigentes
+        $eventos_hijos = Eventos::whereHas('eventos_hijos', function ($query) use ($id_evento_padre) {
+            $query->where('id_evento_padre', $id_evento_padre);
+        })
+            ->with(['eventos_hijos.eventos' => function ($query) {
+                $query->whereHas('hash_proyectos');
+            }])
+            ->find($id_evento_padre);
+
+        // Extraer los hijos que tienen proyectos vigentes
+        $hijos_con_proyectos = collect();
+        if ($eventos_hijos && $eventos_hijos->eventos_hijos) {
+            foreach ($eventos_hijos->eventos_hijos as $hijo) {
+                if (
+                    isset($hijo->eventos) &&
+                    $hijo->eventos->hash_proyectos &&
+                    $hijo->eventos->hash_proyectos->count() > 0
+                ) {
+                    $hijos_con_proyectos->push($hijo->eventos);
+                }
+            }
         }
 
-        //proyectos
-        $proyectos = Hash_proyectos::where('id_evento', Auth::user()->jurado->id_evento)
-            ->whereHas('proyecto', function ($query) {
-                $query->where('subtipo', Auth::user()->jurado->comuna);
-            })
-            ->with(['proyecto'])
+        // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
+        $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'id_jurado')
+        ->where('id_jurado', $jurado->id)
+            ->whereIn('id_evento', collect($hijos_con_proyectos)->pluck('id')->toArray())
             ->get();
 
+        // 3. Comparar la cantidad
+        $cantidad_eventos_hijos = count($hijos_con_proyectos);
+        $cantidad_actas_enviadas = $actas_enviadas->count();
+
+        // Puedes usar estos datos para mostrar advertencias o controlar el flujo
+        // Ejemplo: Si faltan actas por enviar
+        $faltan_actas = $cantidad_eventos_hijos - $cantidad_actas_enviadas;
+
+
+        if ($faltan_actas == 0) {
+            return redirect()->route('dashboard', [
+                'error' => true,
+            ])->with('error', 'Ya se ha registrado las actas para este jurado, comuna y puesto de votación, en las diferentes vigencias');
+        }
+
+        $hijos_sin_actas = $hijos_con_proyectos->filter(function ($hijo) use ($actas_enviadas) {
+            return !$actas_enviadas->contains('id_evento', $hijo->id);
+        })->values();
+
+        $proyectos_por_evento = Hash_proyectos::whereIn('id_evento', $hijos_sin_actas->pluck('id')->toArray())
+    ->whereHas('proyecto', function ($query) use ($jurado) {
+        $query->where('subtipo', $jurado->comuna);
+    })
+    ->with('proyecto')
+    ->get()
+    ->groupBy('id_evento')
+    ->map(function ($proyectos) {
+        return $proyectos->map(function ($proyecto) {
+            return [
+                'id' => $proyecto->id_proyecto,
+                'nombre' => $proyecto->proyecto->detalle ?? '',
+                'numero_tarjeton' => $proyecto->proyecto->numero_tarjeton ?? '',
+            ];
+        })->values();
+    });
+
         return Inertia::render('VotantesPresencial/SubirActa', [
-            'proyectos' => $proyectos,
-            'evento' => Eventos::select('id')->find(Auth::user()->jurado->id_evento),
-            'comuna' => Auth::user()->jurado->comuna,
-            'puesto_votacion' => Auth::user()->jurado->puntos_votacion,
-            'id_jurado' => Auth::user()->jurado->id,
+            'proyectos' => $proyectos_por_evento,
+            'evento' => Eventos::select('id')->find($jurado->id_evento),
+            'comuna' => $jurado->comuna,
+            'puesto_votacion' => $jurado->puntos_votacion,
+            'id_jurado' => $jurado->id,
+            'eventos_hijos_vigentes' => $hijos_sin_actas,
+            'actas_enviadas' => $actas_enviadas,
+            'faltan_actas' => $faltan_actas,
         ]);
     }
 
@@ -211,17 +263,17 @@ class ActaPresencialController extends Controller
     }
 
     //editar
-    public function edit(Request $request, $id) {
+    public function edit(Request $request, $id)
+    {
 
         $acta = Acta_escrutino::with('jurado')
-        ->with('votos_fisico.proyecto')
-        ->findOrFail($id);
+            ->with('votos_fisico.proyecto')
+            ->findOrFail($id);
 
         return Inertia::render('VotantesPresencial/Show', [
             'acta' => $acta,
             'parametros' => ParametrosDetalle::where('estado', 1)->get(),
 
         ]);
-
     }
 }

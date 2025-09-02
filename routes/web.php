@@ -29,6 +29,7 @@ use App\Models\Eventos;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
+use App\Models\Parametros;
 use App\Models\ParametrosDetalle;
 use App\Models\Votos;
 use Carbon\Carbon;
@@ -153,13 +154,24 @@ Route::get('/dashboard', function () {
     if (Auth::user()->votantes) {
         $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->get();
 
+        $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
+        ->where('estado', 1)
+        ->pluck('id')
+        ->toArray();
+
         $eventos = Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
                 $query->where('id_votante', Auth::user()->votantes->id);
             }, 'eventos_hijos.eventos' => function ($q) {
-                $q->withCount('hash_proyectos'); // trae hash_proyectos_count en cada hijo
+                $q->withCount('hash_proyectos') // trae hash_proyectos_count en cada hijo
+                    ->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
             }])
-            ->get();
+            ->get()
+            ->filter(function ($evento) use ($info_votante, $comunas_activas) {
+                // Verifica si el usuario tiene comuna activa
+                $comuna_usuario = Auth::user()->votantes->comuna ?? null;
+                return in_array($comuna_usuario, $comunas_activas);
+            });
 
         $votos = Votos::where('id_votante', Auth::user()->votantes->id)
             ->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')
