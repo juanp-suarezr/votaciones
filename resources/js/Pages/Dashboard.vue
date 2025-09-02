@@ -364,12 +364,15 @@
       </div>
     </div>
     <!-- JURADO -->
-    <div class="" v-if="$page.props.user.roles.includes('Jurado')">
+    <div
+      class=""
+      v-if="$page.props.user.roles.includes('Jurado') && cierre == false"
+    >
       <h2 class="text-gray-600 text-2xl inline-flex">
         Gestión de registro presencial - virtual
       </h2>
       <!-- boton registros -->
-      <div>
+      <div v-if="existe_acta" class="sm:flex justify-between gap-4">
         <PrimaryLink
           class="md:text-base mt-4"
           :class="{ 'opacity-25': isLoading }"
@@ -377,7 +380,27 @@
           type="button"
           :href="route('votantesPresencial.create')"
         >
-          Registro Voto Eléctronico en Mesa
+          Registro Voto Electrónico en Mesa
+        </PrimaryLink>
+        <DangerButton
+          class="md:text-base mt-4"
+          :class="{ 'opacity-25': isLoading }"
+          :disabled="isLoading"
+          type="button"
+          @click="cerrarEventoModal = true"
+        >
+          Cerrar votaciones en mesa
+        </DangerButton>
+      </div>
+      <div v-else>
+        <PrimaryLink
+          class="md:text-base mt-4"
+          :class="{ 'opacity-25': isLoading }"
+          :disabled="isLoading"
+          type="button"
+          :href="route('ActaInicial.create')"
+        >
+          Iniciar votación en mesa electrónico
         </PrimaryLink>
       </div>
       <!-- buscador de cedula para validar votacion -->
@@ -407,7 +430,51 @@
         </form>
       </div>
     </div>
+    <div class="px-4 flex justify-center items-center" v-else-if="cierre">
+        <div class="w-full max-w-4xl p-6 shadow-md rounded-md flex items-center justify-center bg-secondary hover:bg-primary hover:scale-105 text-white sm:text-4xl text-xl text-center">
+            Votaciones en mesa Cerradas
+            <br/>
+            Acta de cierre generadas
+        </div>
+    </div>
   </AuthenticatedLayout>
+
+  <!-- Modal para mostrar mensaje de confirmación -->
+  <div
+    v-if="cerrarEventoModal"
+    class="fixed inset-0 bg-black px-4 sm:px-8 bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white p-4 rounded-lg max-w-xl w-full">
+      <h2
+        class="sm:text-4xl text-xl font-bold mb-8 pb-4 sm:py-8 border-b border-gray-300 text-center"
+      >
+        🟥 Confirmar acción 🟥
+      </h2>
+      <p class="mb-4 text-base sm:text-4xl">
+        <span class="text-base sm:text-2xl font-bold"
+          >Está a punto de cerrar las elecciones presenciales tic, si esta
+          seguro darle a confirmar:</span
+        >
+      </p>
+
+      <div class="w-full flex flex-wrap justify-center gap-4 sm:gap-6 mt-6">
+        <button
+          @click="cerrarEventoModal = false"
+          class="bg-red-600 text-white px-4 py-2 rounded sm:text-2xl"
+        >
+          Cancelar
+        </button>
+        <button
+          :class="{ 'opacity-25': isLoading }"
+          :disabled="isLoading"
+          @click="ActaCierre()"
+          class="bg-indigo-600 text-white px-4 py-2 rounded sm:text-2xl"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -436,6 +503,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import DangerButton from "@/Components/DangerButton.vue";
 
 ChartJS.register(
   ArcElement,
@@ -457,6 +525,8 @@ const props = defineProps({
   eventos_admin: Object,
   votantes: Object,
   info_votante: Object,
+  existe_acta: Boolean,
+  cierre: Boolean,
 });
 
 console.log(props);
@@ -469,13 +539,18 @@ const eventosCerrados = ref([]);
 //variable de cedula votante
 const cedulaVotante = ref("");
 
+//modal cerrar evento
+const cerrarEventoModal = ref(false);
+//acta cierre?
+const actaCerrada = ref(props.cierre);
+
 onMounted(() => {
   // Lista final solo de hijos
   let pendientesHijos = [];
   let cerradosHijos = [];
 
-    //EVENTOS PENDIENTES LOGICA
-    pendientesHijos = props.eventos.filter(
+  //EVENTOS PENDIENTES LOGICA
+  pendientesHijos = props.eventos.filter(
     (item) =>
       item.estado != "Cerrado" &&
       item.votantes.length > 0 &&
@@ -483,7 +558,6 @@ onMounted(() => {
   );
 
   props.eventos.forEach((eventoPadre) => {
-
     // Si tiene hijos
     if (
       eventoPadre.estado != "Cerrado" &&
@@ -515,7 +589,7 @@ onMounted(() => {
       item.votantes.length > 0 &&
       (!item.eventos_hijos || item.eventos_hijos.length === 0)
   );
-    // Recorre los eventos padres para encontrar y agregar sus hijos
+  // Recorre los eventos padres para encontrar y agregar sus hijos
   props.eventos.forEach((eventoPadre) => {
     // Si tiene hijos
     if (
@@ -537,7 +611,6 @@ onMounted(() => {
     }
   });
 
-
   eventosCerrados.value = cerradosHijos;
 
   chartData.value = setChartData();
@@ -553,6 +626,13 @@ const chartOptions = ref();
 //para identificar routeo con error
 const searchParams = new URLSearchParams(window.location.search);
 const errorMessage = searchParams.get("error");
+
+let inicioVotacion = localStorage.getItem("inicioVotacion");
+
+if (props.existe_acta && inicioVotacion == null && actaCerrada == false) {
+  inicioVotacion = true;
+  localStorage.setItem("inicioVotacion", true);
+}
 
 //var de event select
 const evento_selected = ref(
@@ -685,6 +765,21 @@ const info_events = useForm({
   ).length,
 });
 
+if (
+  props.existe_acta == true &&
+  inicioVotacion == true &&
+  actaCerrada == false
+) {
+  localStorage.setItem("inicioVotacion", false);
+  let instance = $toast.open({
+    message: "Votación iniciada, actas de inicio registradas",
+    type: "success",
+    position: "top-right",
+    duration: 8000,
+    pauseOnHover: true,
+  });
+}
+
 if (errorMessage) {
   console.log(usePage().props);
 
@@ -708,6 +803,34 @@ if (errorMessage) {
   }
 }
 
+//abrir modal de confirmar cerrar votaciones
+const ActaCierre = async () => {
+  isLoading.value = true;
+  try {
+    const response = await axios.get("/ActaCerrar");
+
+    isLoading.value = false;
+    actaCerrada.value = true;
+    cerrarEventoModal.value = false;
+    swal.fire({
+      icon: "success",
+      title: "Acta cierre generada",
+      text: "votaciones en mesa presencial cerradas, no puede ingresar mas votantes, ni votos",
+    });
+
+    return response.data;
+  } catch (error) {
+    isLoading.value = false;
+    swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Ocurrió un error al cerrar la votación. Intenta de nuevo.",
+      confirmButtonColor: "#d33",
+    });
+    return false;
+  }
+};
+
 const handleEnterKey = () => {
   evento_info.value = props.eventos_admin.length
     ? props.eventos_admin.find((item) => item.id == evento_selected.value)
@@ -729,7 +852,14 @@ const handleEnterKey = () => {
 
 //dercargar certificado
 const descargarCertificado = (ev, id_padre) => {
-  window.open(route("certificados.descargar", { id: ev, idVotante: 0, id_padre: id_padre }), "_blank");
+  window.open(
+    route("certificados.descargar", {
+      id: ev,
+      idVotante: 0,
+      id_padre: id_padre,
+    }),
+    "_blank"
+  );
 };
 
 //buscar votante por cedula

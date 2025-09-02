@@ -4,6 +4,8 @@
 namespace App\Http\Controllers;
 
 use App\Exports\VotantesVotoExports;
+use App\Models\Acta_fin;
+use App\Models\Acta_inicio;
 use App\Models\Caninos;
 use App\Models\InformacionUsuario;
 use App\Models\PageView;
@@ -93,6 +95,39 @@ class VotantesPresencialController extends Controller
     //register
     public function create(Request $request)
     {
+        $existeActa = null;
+        $cierre = null;
+        $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
+            ->with(['eventos_hijos.eventos' => function ($q) {
+                $q->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
+            }])
+            ->first();
+
+            foreach ($evento_padre->eventos_hijos as $event) {
+
+                if ($existeActa === false) {
+                    continue;
+                }
+                if ($cierre === false) {
+                    continue;
+                }
+                $existeActa = Acta_inicio::where('id_jurado', Auth::user()->jurado->id)
+                ->where('id_evento', $event->id_evento_hijo)
+                ->exists();
+
+
+                $cierre = Acta_fin::where('id_jurado', Auth::user()->jurado->id)
+                ->where('id_evento', $event->id_evento_hijo)
+                ->exists();
+        }
+
+        if ($existeActa === false) {
+            return redirect()->back()->withErrors('error', 'Error al registrar el votante.');
+        }
+
+        if ($cierre === true) {
+            return redirect()->back()->withErrors('error', 'Error al registrar el votante.');
+        }
 
 
 

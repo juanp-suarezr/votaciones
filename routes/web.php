@@ -25,6 +25,8 @@ use App\Http\Controllers\ValidacionesController;
 use App\Http\Controllers\ValidationController;
 use App\Http\Controllers\VotantesPresencialController;
 use App\Http\Controllers\VotosController;
+use App\Models\Acta_fin;
+use App\Models\Acta_inicio;
 use App\Models\Eventos;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
@@ -179,6 +181,40 @@ Route::get('/dashboard', function () {
     }
 
 
+    if (Auth::user()->jurado) {
+
+        $existeActa = null;
+        $cierre = null;
+        $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
+            ->with(['eventos_hijos.eventos' => function ($q) {
+                $q->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
+            }])
+            ->first();
+
+            foreach ($evento_padre->eventos_hijos as $event) {
+
+                if ($existeActa === false) {
+                    continue;
+                }
+                if ($cierre === false) {
+                    continue;
+                }
+                $existeActa = Acta_inicio::where('id_jurado', Auth::user()->jurado->id)
+                ->where('id_evento', $event->id_evento_hijo)
+                ->exists();
+
+
+                $cierre = Acta_fin::where('id_jurado', Auth::user()->jurado->id)
+                ->where('id_evento', $event->id_evento_hijo)
+                ->exists();
+        }
+
+
+
+
+    }
+
+
 
     // Obtén todos los tipos de los objetos en $info_votante
     $tipos = collect($info_votante)->pluck('tipo')->unique()->toArray();
@@ -191,6 +227,8 @@ Route::get('/dashboard', function () {
         'eventos_admin' => $eventos_admin,
         'votantes' => $votantes,
         'info_votante' => $info_votante ? $info_votante->where('subtipo', '!=', 0)->values() : 0,
+        'existe_acta' => $existeActa,
+        'cierre' => $cierre,
 
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -278,6 +316,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/auditorias', [auditoriasController::class, 'index'])->name('auditorias');
     Route::get('/auditoria-validaciones', [auditoriasController::class, 'auditoriaValidaciones'])->name('auditoria-validaciones');
 
+    //iniciar acta presencial tic
+    Route::get('/ActaInicial', [ActaPresencialController::class, 'actaInicial_create'])->name('ActaInicial.create');
+    //cerrar acta presencial tic
+    Route::get('/ActaCerrar', [ActaPresencialController::class, 'actaCerrar_create'])->name('ActaCerrar.create');
 
     //descargar excel
     Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');

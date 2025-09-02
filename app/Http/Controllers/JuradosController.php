@@ -70,33 +70,10 @@ class JuradosController extends Controller
             'punto_votacion' => 'required|exists:parametros_detalle,id',
             'id_evento' => 'required|exists:eventos,id',
             'comuna' => 'required|exists:parametros_detalle,id',
-            'firma' => 'nullable|image|mimes:pg,png,jpeg,jpg,gif,bmp,tiff,svg,web,webp|max:2048',
         ]);
 
         DB::beginTransaction();
         try {
-            $fileName = 'NA';
-
-            if ($request->hasFile('firma')) {
-                $folder = 'delegado';
-                $original = $request->file('firma');
-                $extension = strtolower($original->getClientOriginalExtension());
-                $fileName = time() . '_delegado_' . $request->nombre . '_' . $request->tipo . '.' . $extension;
-
-                $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $fileName);
-
-                if (in_array($extension, ['jpg', 'jpeg'])) {
-                    $img = imagecreatefromjpeg($original->getPathname());
-                    imagejpeg($img, $rutaDestino, 60);
-                    imagedestroy($img);
-                } elseif ($extension === 'png') {
-                    $img = imagecreatefrompng($original->getPathname());
-                    imagepng($img, $rutaDestino, 7);
-                    imagedestroy($img);
-                } else {
-                    $original->move(storage_path('app/public/uploads/' . $folder), $fileName);
-                }
-            }
 
             $user = User::create([
                 'name' => $request->nombre,
@@ -114,7 +91,7 @@ class JuradosController extends Controller
                 'cargo' => 'Jurado',
                 'comuna' => $request->comuna,
                 'puntos_votacion' => $request->punto_votacion,
-                'firma' => $fileName,
+
             ]);
 
             // Asignar el rol de jurado al usuario

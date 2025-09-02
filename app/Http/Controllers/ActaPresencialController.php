@@ -4,6 +4,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Acta_escrutino;
+use App\Models\Acta_fin;
+use App\Models\Acta_inicio;
 use App\Models\Caninos;
 use App\Models\InformacionUsuario;
 use App\Models\PageView;
@@ -123,7 +125,7 @@ class ActaPresencialController extends Controller
 
         // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
         $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'id_jurado')
-        ->where('id_jurado', $jurado->id)
+            ->where('id_jurado', $jurado->id)
             ->whereIn('id_evento', collect($hijos_con_proyectos)->pluck('id')->toArray())
             ->get();
 
@@ -147,21 +149,21 @@ class ActaPresencialController extends Controller
         })->values();
 
         $proyectos_por_evento = Hash_proyectos::whereIn('id_evento', $hijos_sin_actas->pluck('id')->toArray())
-    ->whereHas('proyecto', function ($query) use ($jurado) {
-        $query->where('subtipo', $jurado->comuna);
-    })
-    ->with('proyecto')
-    ->get()
-    ->groupBy('id_evento')
-    ->map(function ($proyectos) {
-        return $proyectos->map(function ($proyecto) {
-            return [
-                'id' => $proyecto->id_proyecto,
-                'nombre' => $proyecto->proyecto->detalle ?? '',
-                'numero_tarjeton' => $proyecto->proyecto->numero_tarjeton ?? '',
-            ];
-        })->values();
-    });
+            ->whereHas('proyecto', function ($query) use ($jurado) {
+                $query->where('subtipo', $jurado->comuna);
+            })
+            ->with('proyecto')
+            ->get()
+            ->groupBy('id_evento')
+            ->map(function ($proyectos) {
+                return $proyectos->map(function ($proyecto) {
+                    return [
+                        'id' => $proyecto->id_proyecto,
+                        'nombre' => $proyecto->proyecto->detalle ?? '',
+                        'numero_tarjeton' => $proyecto->proyecto->numero_tarjeton ?? '',
+                    ];
+                })->values();
+            });
 
         return Inertia::render('VotantesPresencial/SubirActa', [
             'proyectos' => $proyectos_por_evento,
@@ -274,6 +276,60 @@ class ActaPresencialController extends Controller
             'acta' => $acta,
             'parametros' => ParametrosDetalle::where('estado', 1)->get(),
 
+        ]);
+    }
+
+    public function actaInicial_create()
+    {
+
+        $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
+            ->with(['eventos_hijos.eventos' => function ($q) {
+                $q->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
+            }])
+            ->first();
+
+
+        foreach ($evento_padre->eventos_hijos as $event) {
+
+            $acta_inicio = new Acta_inicio();
+            $acta_inicio->modalidad = 'presencial';
+            $acta_inicio->fecha_inicio = Carbon::now();
+            $acta_inicio->id_evento = $event->id_evento_hijo;
+            $acta_inicio->id_jurado = Auth::user()->jurado->id; // Asigna el ID del jurado si es necesario
+            $acta_inicio->comunas = Auth::user()->jurado->comuna; // IDs separados por |
+            $acta_inicio->puesto_votacion = Auth::user()->jurado->puntos_votacion; // Asigna el puesto de votación si es necesario
+            $acta_inicio->save();
+        }
+
+        return redirect()->back()->with('success', [
+            'message' => 'Acta de inicio registrada exitosamente.',
+        ]);
+    }
+
+    public function actaCerrar_create()
+    {
+
+        $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
+            ->with(['eventos_hijos.eventos' => function ($q) {
+                $q->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
+            }])
+            ->first();
+
+
+        foreach ($evento_padre->eventos_hijos as $event) {
+
+            $acta_fin = new Acta_fin();
+            $acta_fin->modalidad = 'presencial';
+            $acta_fin->fecha_cierre = Carbon::now();
+            $acta_fin->id_evento = $event->id_evento_hijo;
+            $acta_fin->id_jurado = Auth::user()->jurado->id; // Asigna el ID del jurado si es necesario
+            $acta_fin->comunas = Auth::user()->jurado->comuna; // IDs separados por |
+            $acta_fin->puesto_votacion = Auth::user()->jurado->puntos_votacion; // Asigna el puesto de votación si es necesario
+            $acta_fin->save();
+        }
+
+        return redirect()->back()->with('success', [
+            'message' => 'Acta de fin registrada exitosamente.',
         ]);
     }
 }
