@@ -431,11 +431,13 @@
       </div>
     </div>
     <div class="px-4 flex justify-center items-center" v-else-if="cierre">
-        <div class="w-full max-w-4xl p-6 shadow-md rounded-md flex items-center justify-center bg-secondary hover:bg-primary hover:scale-105 text-white sm:text-4xl text-xl text-center">
-            Votaciones en mesa Cerradas
-            <br/>
-            Acta de cierre generadas
-        </div>
+      <div
+        class="w-full max-w-4xl p-6 shadow-md rounded-md flex items-center justify-center bg-secondary hover:bg-primary hover:scale-105 text-white sm:text-4xl text-xl text-center"
+      >
+        Votaciones en mesa Cerradas
+        <br />
+        Acta de cierre generadas
+      </div>
     </div>
   </AuthenticatedLayout>
 
@@ -816,6 +818,10 @@ const ActaCierre = async () => {
       icon: "success",
       title: "Acta cierre generada",
       text: "votaciones en mesa presencial cerradas, no puede ingresar mas votantes, ni votos",
+      didClose: () => {
+        //poner llamado a modal de botones
+        window.location.reload();
+      },
     });
 
     return response.data;

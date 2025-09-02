@@ -157,9 +157,9 @@ Route::get('/dashboard', function () {
         $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->get();
 
         $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
-        ->where('estado', 1)
-        ->pluck('id')
-        ->toArray();
+            ->where('estado', 1)
+            ->pluck('id')
+            ->toArray();
 
         $eventos = Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
@@ -180,8 +180,8 @@ Route::get('/dashboard', function () {
             ->get();
     }
 
-$existeActa = null;
-        $cierre = null;
+    $existeActa = null;
+    $cierre = null;
     if (Auth::user()->jurado) {
 
 
@@ -191,27 +191,23 @@ $existeActa = null;
             }])
             ->first();
 
-            foreach ($evento_padre->eventos_hijos as $event) {
+        foreach ($evento_padre->eventos_hijos as $event) {
 
-                if ($existeActa === false) {
-                    continue;
-                }
-                if ($cierre === false) {
-                    continue;
-                }
-                $existeActa = Acta_inicio::where('id_jurado', Auth::user()->jurado->id)
+            if ($existeActa === false) {
+                continue;
+            }
+            if ($cierre === false) {
+                continue;
+            }
+            $existeActa = Acta_inicio::where('id_jurado', Auth::user()->jurado->id)
                 ->where('id_evento', $event->id_evento_hijo)
                 ->exists();
 
 
-                $cierre = Acta_fin::where('id_jurado', Auth::user()->jurado->id)
+            $cierre = Acta_fin::where('id_jurado', Auth::user()->jurado->id)
                 ->where('id_evento', $event->id_evento_hijo)
                 ->exists();
         }
-
-
-
-
     }
 
 
