@@ -180,11 +180,11 @@ Route::get('/dashboard', function () {
             ->get();
     }
 
-
+$existeActa = null;
+        $cierre = null;
     if (Auth::user()->jurado) {
 
-        $existeActa = null;
-        $cierre = null;
+
         $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
             ->with(['eventos_hijos.eventos' => function ($q) {
                 $q->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
