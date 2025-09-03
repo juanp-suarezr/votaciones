@@ -80,16 +80,16 @@ class VotantesPresencialController extends Controller
                 });
             })
             ->with('votante')->with(['votante' => function ($query) {
-                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'created_at' ); // agrega aquí solo los campos necesarios
+                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'created_at'); // agrega aquí solo los campos necesarios
             }])
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL
 
-            return Inertia::render('ReporteVotantes/Index', [
-                'votantes_voto' => $votantes,
-                'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
-                'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo']),
-            ]);
+        return Inertia::render('ReporteVotantes/Index', [
+            'votantes_voto' => $votantes,
+            'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
+            'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo']),
+        ]);
     }
 
     //register
@@ -103,20 +103,20 @@ class VotantesPresencialController extends Controller
             }])
             ->first();
 
-            foreach ($evento_padre->eventos_hijos as $event) {
+        foreach ($evento_padre->eventos_hijos as $event) {
 
-                if ($existeActa === false) {
-                    continue;
-                }
-                if ($cierre === false) {
-                    continue;
-                }
-                $existeActa = Acta_inicio::where('id_jurado', Auth::user()->jurado->id)
+            if ($existeActa === false) {
+                continue;
+            }
+            if ($cierre === false) {
+                continue;
+            }
+            $existeActa = Acta_inicio::where('id_jurado', Auth::user()->jurado->id)
                 ->where('id_evento', $event->id_evento_hijo)
                 ->exists();
 
 
-                $cierre = Acta_fin::where('id_jurado', Auth::user()->jurado->id)
+            $cierre = Acta_fin::where('id_jurado', Auth::user()->jurado->id)
                 ->where('id_evento', $event->id_evento_hijo)
                 ->exists();
         }
@@ -132,6 +132,59 @@ class VotantesPresencialController extends Controller
 
 
         return Inertia::render('VotantesPresencial/Registro', []);
+    }
+
+    //mostrar eventos de votacion
+    public function showEventos(Request $request)
+    {
+
+        $id_evento_padre = Auth::user()->jurado->id_evento;
+        $id_votante = $request->id_votante;
+
+        // Traer evento padre con hijos activos y proyectos vigentes
+        $evento_padre = Eventos::where('id', $id_evento_padre)
+            ->with(['eventos_hijos' => function ($q) {
+                $q->whereHas('eventos', function ($q2) {
+                    $q2->whereHas('hash_proyectos') // hijos con proyectos
+                        ->where('estado', 'Activo'); // hijos activos
+                })->with(['eventos' => function ($q2) {
+                    $q2->whereHas('hash_proyectos')
+                        ->where('estado', 'Activo');
+                }]);
+            }])
+            ->first();
+
+        // Filtrar hijos que NO tengan votaciones realizadas por este votante
+        $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
+            ->filter(function ($hijo) use ($id_votante) {
+                if ($hijo->id_evento_hijo) {
+                    $ya_voto = Votos::where('id_eventos', $hijo->id_evento_hijo)
+                        ->where('id_votante', $id_votante)
+                        ->exists();
+                    return !$ya_voto;
+                }
+                return false;
+            })
+            ->values();
+
+
+
+
+
+
+
+
+        $votante = Informacion_votantes::select('id', 'identificacion', 'nombre', 'id_user')
+            ->where('id', $id_votante)
+            ->where('comuna', '!=', 0)
+            ->whereNotNull('comuna')
+            ->with('hashVotantes')
+            ->first();
+
+        return Inertia::render('VotantesPresencial/Eventos', [
+            'eventos_hijos' => $eventos_hijos_sin_voto,
+            'votante' => $votante
+        ]);
     }
 
 

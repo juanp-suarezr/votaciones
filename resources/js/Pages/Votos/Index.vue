@@ -69,7 +69,6 @@ const form = useForm({
     id_eventos: 0,
     tipo: '',
     estado: 'Activo',
-
 });
 
 const breadcrumbLinks = [

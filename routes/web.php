@@ -317,6 +317,11 @@ Route::middleware('auth')->group(function () {
     //cerrar acta presencial tic
     Route::get('/ActaCerrar', [ActaPresencialController::class, 'actaCerrar_create'])->name('ActaCerrar.create');
 
+    //Listar votaciones para jurado y votar
+    Route::get('/votacionPresencial/eventos', [VotantesPresencialController::class, 'ShowEventos'])->name('votacionPresencial.eventos');
+    //voto presencial electronico
+    Route::get('/votos-jurados', [VotosController::class, 'indexJurado'])->name('votos-jurados.index');
+
     //descargar excel
     Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\VotoCreado;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Http\Controllers\Controller;
+use App\Models\Eventos;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
@@ -88,7 +89,8 @@ class VotosController extends Controller
                             $evento = RequestFacade::input('evento');
                             $subtipo_user = RequestFacade::input('subtipo_user');
 
-                            $query->whereHas('proyecto', function ($query) use ($subtipo_user) {
+                            $query->where('id_evento', $evento)
+                            ->whereHas('proyecto', function ($query) use ($subtipo_user) {
                                 $query->where('subtipo', 'like', '%' . $subtipo_user . '%')
                                     ->where('estado', 1);
                             });
@@ -96,6 +98,7 @@ class VotosController extends Controller
 
 
                     'votante' => $infoVotante,
+                    'last_vote' => RequestFacade::input('last_vote'),
 
                 ]
 
@@ -121,6 +124,54 @@ class VotosController extends Controller
         );
     }
 
+    public function indexJurado()
+    {
+
+
+
+        $infoVotante = [];
+        if (Auth::user()->jurado) {
+
+            $infoVotante = Informacion_votantes::where('id', RequestFacade::input('id_votante'))->get();
+        }
+        $id_evento_padre = RequestFacade::input('id_evento_padre');
+        $subtipo = RequestFacade::input('subtipo_user');
+
+        $votos = Votos::where('id_votante', $infoVotante[0]->id)->where('id_eventos', RequestFacade::input('evento'))->first();
+
+        if ($votos) {
+            return redirect()->back()->with('error', 'Voto realizado');
+        };
+
+
+
+        return Inertia::render(
+
+            'Votos/ProyectosJurados',
+
+            [
+
+                'proyectos' => Hash_proyectos::query()
+                    ->when(RequestFacade::input('evento') || RequestFacade::input('subtipo_user'), function ($query) {
+                        $evento = RequestFacade::input('evento');
+                        $subtipo_user = RequestFacade::input('subtipo_user');
+
+                        $query->where('id_evento', $evento)
+                        ->whereHas('proyecto', function ($query) use ($subtipo_user) {
+                            $query->where('subtipo', 'like', '%' . $subtipo_user . '%')
+                                ->where('estado', 1);
+                        });
+                    })->with('proyecto')->get(),
+
+
+                'votante' => $infoVotante,
+                'last_vote' => RequestFacade::input('last_vote'),
+
+            ]
+
+        );
+    }
+
     //consultar votacion segun identificacion
     public function verificar($identificacion)
     {
@@ -139,10 +190,10 @@ class VotosController extends Controller
                 }
             })
             ->with([
-            'votante:id,nombre,tipo_documento,identificacion,genero',
-            'evento:id,nombre',
-            'evento.evento_hijo.evento_padre:id',
-        ])
+                'votante:id,nombre,tipo_documento,identificacion,genero',
+                'evento:id,nombre',
+                'evento.evento_hijo.evento_padre:id',
+            ])
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL
 
@@ -155,6 +206,7 @@ class VotosController extends Controller
     public function store(Request $request)
     {
         try {
+
             // Validación de los datos
             $request->validate([
                 'id_votante' => 'required',
@@ -176,7 +228,7 @@ class VotosController extends Controller
                     'isVirtual' => Auth::user()->jurado ? 0 : 1,
                 ]);
 
-                if(Auth::user()->jurado) {
+                if (Auth::user()->jurado) {
                     $votante = Informacion_votantes::find($request->id_votante);
                     $votante->id_jurado = Auth::user()->jurado->id;
                     $votante->save();
@@ -204,8 +256,17 @@ class VotosController extends Controller
 
 
             if (Auth::user()->jurado) {
-                // Redirige con mensaje de éxito
-                return redirect()->route('dashboard', [])->with('success', 'Recurso almacenado exitosamente');
+
+                if ($request->last_vote <= 0) {
+
+                    // Redirige con mensaje de éxito
+                    return redirect()->route('dashboard', [])->with('success', 'Recurso almacenado exitosamente');
+                } else {
+
+                    return redirect()->route('votacionPresencial.eventos', [
+                        'id_votante' => $request->id_votante,
+                    ])->with('success', 'Recurso almacenado exitosamente');
+                }
             }
 
             // Redirige con mensaje de éxito

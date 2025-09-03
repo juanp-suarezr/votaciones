@@ -261,6 +261,7 @@ import Modal from "@/Components/Modal.vue";
 const props = defineProps({
   proyectos: Object,
   votante: Object,
+  last_vote: Number
 });
 
 console.log(props);
@@ -273,6 +274,7 @@ const form = useForm({
   tipo: "",
   subtipo: 0,
   estado: "Activo",
+  last_vote: props.last_vote ? parseInt(props.last_vote): 0,
 });
 
 const breadcrumbLinks = [{ url: "", text: "Votaciones" }];
@@ -357,6 +359,7 @@ const votar = () => {
         text: "Su voto ha sido registrado",
         icon: "success",
       }).then((result) => {
+        
         router.get("dashboard");
       }),
     onError: () =>

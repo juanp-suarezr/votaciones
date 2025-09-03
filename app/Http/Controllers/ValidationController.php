@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\UsuariosBiometricos;
 use App\Models\VerificationCode;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -167,7 +168,6 @@ class ValidationController extends Controller
             if (!$recaptchaData['success'] || $recaptchaData['score'] < 0.3) {
                 if ($request->campoObligatorio != null && $request->campoObligatorio != '') {
                     return redirect()->back()->withErrors(['error' => 'La validación de reCAPTCHA falló. Inténtelo nuevamente.']);
-
                 } else {
                     $posibleSpam = true;
                 }
@@ -175,7 +175,6 @@ class ValidationController extends Controller
         } catch (\Exception $e) {
             Log::error('Error al verificar reCAPTCHA: ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Error al verificar reCAPTCHA. Por favor, inténtelo nuevamente. ' . $e->getMessage()]);
-
         }
 
 
@@ -339,6 +338,8 @@ class ValidationController extends Controller
             'identificacion' => 'required'
         ]);
 
+        $anio_actual = Carbon::now()->year;
+
         $existe = Informacion_votantes::where('identificacion', $request->identificacion)
             ->where('comuna', '!=', 0)
             ->whereNotNull('comuna')
@@ -349,8 +350,12 @@ class ValidationController extends Controller
                 ->where('identificacion', $request->identificacion)
                 ->where('comuna', '!=', 0)
                 ->whereNotNull('comuna')
-                ->with('votos')
-                ->with('hashVotantes')
+                ->with([
+                    'votos' => function ($query) use ($anio_actual) {
+                        $query->whereYear('created_at', $anio_actual);
+                    },
+                    'hashVotantes'
+                ])
                 ->first();
             return response()->json(['existe' => $existe, 'votante' => $votante]);
         }

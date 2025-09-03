@@ -461,18 +461,8 @@ const validateStep1 = async () => {
           });
 
           if (result.isConfirmed) {
-            window.location.href = route("votos.index", {
+            window.location.href = route("votacionPresencial.eventos", {
               id_votante: data.votante.id,
-              evento: usePage().props.user.jurado.evento.id,
-              tipo_evento: usePage().props.user.jurado.evento.tipos,
-              tipo_user:
-                data.votante.hash_votantes.length !== 0
-                  ? data.votante.hash_votantes[0].tipo
-                  : "",
-              subtipo_user:
-                data.votante.hash_votantes.length !== 0
-                  ? data.votante.hash_votantes[0].subtipo
-                  : "",
             });
           }
 
@@ -579,7 +569,7 @@ const validarDatos2 = () => {
   }
 };
 
-const submit = async() => {
+const submit = async () => {
   const result = await swal.fire({
     title: "Información de Registro",
     html: `
@@ -633,12 +623,8 @@ const submit = async() => {
             confirmButton: "!text-2xl", // Botón de confirmación más grande
           },
         }).then((result) => {
-          window.location.href = route("votos.index", {
+          window.location.href = route("votacionPresencial.eventos", {
             id_votante: usePage().props.flash.success.id_votante,
-            evento: usePage().props.user.jurado.evento.id,
-            tipo_evento: usePage().props.user.jurado.evento.tipos,
-            tipo_user: usePage().props.flash.success.hash_votante.tipo,
-            subtipo_user: usePage().props.flash.success.hash_votante.subtipo,
           });
         });
       },
