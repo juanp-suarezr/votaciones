@@ -274,6 +274,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/validar-identificacion-presencial', [ValidationController::class, 'verificar']);
     //actualizacion de datos con imgs
     Route::post('/corregir-datos', [ValidationController::class, 'corregirDatos'])->name('corregirDatos');
+    //actualizacion de datos delegado o jurado
+    Route::post('/delegados-update', [DelegadosController::class, 'updateDelegados'])->name('delegados.updateDelegados');
 
     //AUDITORIAS
     Route::get('/auditorias', [auditoriasController::class, 'index'])->name('auditorias');

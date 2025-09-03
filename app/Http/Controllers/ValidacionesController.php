@@ -206,10 +206,10 @@ class ValidacionesController extends Controller
             $biometrico->estado = 'Validado';
             $biometrico->save();
 
-            if ($votante->votante->email !== null || $votante->votante->email !== '') {
+            if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
                 Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
             }
-            
+
 
             DB::commit();
             return back()->with('message', 'registro aprobado con éxito.');;
@@ -252,7 +252,7 @@ class ValidacionesController extends Controller
             $votante->save();
             $user->save();
 
-            if ($votante->votante->email !== null || $votante->votante->email !== '') {
+            if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
                 Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
             }
 

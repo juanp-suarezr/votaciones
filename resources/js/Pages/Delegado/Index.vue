@@ -88,14 +88,14 @@
                 <SecondaryButton
                   class="border-blue-800 hover:!bg-blue-200"
                   v-tooltip.bottom="'Editar'"
-                  @click="editCanino(slotProps.data.id)"
+                  @click="editDelegado(slotProps.data.id)"
                 >
                   <PencilIcon class="h-6 w-6 text-blue-800" />
                 </SecondaryButton>
                 <SecondaryButton
                   class="border-red-800 hover:!bg-red-200"
                   v-tooltip.bottom="'Eliminar'"
-                  @click="deleteCanino(slotProps.data.id)"
+                  @click="deleteDelegado(slotProps.data.id)"
                 >
                   <TrashIcon class="h-6 w-6 text-red-800" />
                 </SecondaryButton>
@@ -162,12 +162,12 @@ const getComuna = (idComuna) => {
   return comunas.find((item) => item.value == idComuna)?.label;
 };
 
-const editCanino = (id) => {
-  router.visit(`/caninos/${id}/edit`);
+const editDelegado = (id) => {
+  router.visit(`/delegados/${id}/edit`);
 };
 
-const deleteCanino = (id) => {
-  if (confirm("¿Estás seguro de que deseas eliminar este canino?")) {
+const deleteDelegado = (id) => {
+  if (confirm("¿Estás seguro de que deseas eliminar el delegado?")) {
     router.delete(`/caninos/${id}`);
   }
 };

@@ -105,27 +105,59 @@ class DelegadosController extends Controller
         return to_route('delegados.index');
     }
 
-    public function edit(Request $request, $id_user)
+    public function edit(Request $request, $id)
     {
-        $usuario = User::findOrFail($id_user);
-        $roles = Role::pluck('name', 'name')->all();
-        $userRole = $usuario->roles->pluck('name', 'name')->all();
-        return Inertia::render('Users/Edit', compact('usuario', 'roles', 'userRole'));
+        $delegado = Delegados::findOrFail($id);
+
+        return Inertia::render('Delegado/Edit', compact('delegado'));
     }
 
-    public function update(Request $request, User $user)
+    public function updateDelegados(Request $request)
     {
-        // Validar los datos de entrada
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'string', 'max:255', Rule::unique('users')->ignore($user)],
-            'estado' => ['required'],
-            'roles_user' => 'required'
+
+        $request->validate([
+            'nombre' => 'required|string|max:200',
+            'cargo' => 'required|string|max:150',
+
         ]);
-        // Actualizar el modelo de usuario con los datos validados
-        $user->fill($data)->save();
-        $user->syncRoles($request->input('roles_user'));
-        return Redirect::route('users.edit', $user->id);
+
+        $delegados = Delegados::findOrFail($request->id);
+        dd($delegados);
+
+        $fileName = 'NA';
+
+
+        if ($request->hasFile('firma') && $delegados->tipo == "secretario") {
+            $request->validate([
+                'firma' => 'required|image|mimes:pg,png,jpeg,jpg,gif,bmp,tiff,svg,web,webp|max:2048',
+            ]);
+            $folder = 'delegado';
+            $original = $request->file('firma');
+            $extension = strtolower($original->getClientOriginalExtension());
+            $fileName = time() . '_delegado_' . $request->nombre . '_' . $request->cargo . '.' . $extension;
+
+            $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $fileName);
+
+            if (in_array($extension, ['jpg', 'jpeg'])) {
+                $img = imagecreatefromjpeg($original->getPathname());
+                imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
+                imagedestroy($img);
+            } elseif ($extension === 'png') {
+                $img = imagecreatefrompng($original->getPathname());
+                imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
+                imagedestroy($img);
+            } else {
+                // Otros formatos, solo mover
+                $original->move(storage_path('app/public/uploads/' . $folder), $fileName);
+            }
+        }
+
+        $delegados->nombre = $request->nombre;
+        $delegados->cargo = $request->cargo;
+        $delegados->firma = $fileName != 'NA' ? $firma : $delegados->firma;
+        $delegados->save();
+
+        return Redirect::back();
     }
 
     public function destroy(Request $request, $id)
