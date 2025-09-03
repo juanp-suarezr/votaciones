@@ -33,6 +33,20 @@
             />
             <InputError class="mt-2" :message="form.errors.nombre" />
           </div>
+          <!-- identificacion -->
+          <div class="mb-2">
+            <InputLabel for="identificacion" value="Identificación(*)" />
+            <TextInput
+              id="identificacion"
+              type="text"
+              class="mt-1 block w-full"
+              v-model="form.identificacion"
+              required
+              autofocus
+              autocomplete="off"
+            />
+            <InputError class="mt-2" :message="form.errors.identificacion" />
+          </div>
 
           <!-- cargo -->
           <div class="mb-2">
@@ -57,7 +71,7 @@
             >
               <option value="" disabled selected>Seleccione un tipo</option>
               <option value="secretario">Secretario</option>
-              
+
             </select>
             <InputError class="mt-2" :message="form.errors.tipo" />
           </div>
@@ -170,6 +184,7 @@ import SecondaryLink from "@/Components/SecondaryLink.vue";
 import { ref } from "vue";
 import comunas from "@/shared/comunas.json";
 import Select from "primevue/select";
+import { IdentificationIcon } from "@heroicons/vue/24/solid";
 
 const firmaPreview = ref(null);
 const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
@@ -183,7 +198,7 @@ const breadcrumbLinks = [
 
 const form = useForm({
   nombre: "",
-
+  identificacion: "",
   cargo: "",
   tipo: "secretario",
 

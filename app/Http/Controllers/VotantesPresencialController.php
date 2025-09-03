@@ -45,7 +45,8 @@ class VotantesPresencialController extends Controller
     public function index()
     {
 
-        $id_evento = 15;
+        $id_evento = 16;
+        $anio_actual = Carbon::now()->year;
 
         if (Auth::user()->jurado) {
 
@@ -69,6 +70,7 @@ class VotantesPresencialController extends Controller
             'updated_at',
             'estado',
         )
+            ->whereYear('created_at', $anio_actual)
             ->where('id_eventos', $id_evento)
             ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) {
                 $query->where('subtipo',  $subtipo);
@@ -260,7 +262,7 @@ class VotantesPresencialController extends Controller
         ob_end_clean();
         ob_start();
 
-        $id_evento = 15;
+        $id_evento = 16;
 
 
         if (Auth::user()->jurado) {

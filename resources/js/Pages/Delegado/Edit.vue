@@ -35,6 +35,20 @@
             />
             <InputError class="mt-2" :message="form.errors.nombre" />
           </div>
+          <!-- identificacion -->
+          <div class="mb-2">
+            <InputLabel for="identificacion" value="Identificación(*)" />
+            <TextInput
+              id="identificacion"
+              type="text"
+              class="mt-1 block w-full"
+              v-model="form.identificacion"
+              required
+              autofocus
+              autocomplete="off"
+            />
+            <InputError class="mt-2" :message="form.errors.identificacion" />
+          </div>
 
           <!-- cargo -->
           <div class="mb-2">
@@ -180,9 +194,12 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import comunas from "@/shared/comunas.json";
 import Select from "primevue/select";
+import { IdentificationIcon } from "@heroicons/vue/24/solid";
+
+const swal = inject("$swal");
 
 const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
 const canvas = ref(null);
@@ -201,6 +218,7 @@ const breadcrumbLinks = [
 const form = useForm({
   id: props.delegado.id,
   nombre: props.delegado.nombre || "",
+  Identificacion: props.delegado.Identificacion || "",
   cargo: props.delegado.cargo || "",
   firma: null,
 });
@@ -270,10 +288,17 @@ const submit = () => {
   form.post(route("delegados.updateDelegados"), {
     forceFormData: true,
     onSuccess: () => {
-      form.reset();
+        form.reset();
       firmaPreview.value = null;
       clearCanvas();
       actualizarFirma.value = false;
+      swal({
+        title: "Registro Actualizado",
+        text: "El delegado se ha actualizado exitosamente",
+        icon: "success",
+      }).then((result) => {
+        window.location.reload();
+      });
     },
   });
 };

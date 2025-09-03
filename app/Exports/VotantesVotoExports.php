@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Empresa;
 use App\Models\Votos;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -31,7 +32,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
     public function collection()
     {
 
-
+        $anio_actual = Carbon::now()->year;
 
         $votantes = Votos::select(
             'id_votante',
@@ -41,6 +42,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
             'updated_at',
             'estado',
         )
+            ->whereYear('created_at', $anio_actual)
             ->where('id_eventos', $this->id_evento->id)
             ->when($this->subtipo, function ($query, $subtipo) {
                 $query->where('subtipo',  $subtipo);
@@ -57,7 +59,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
             ->get();
 
 
-            
+
         // Transform the collection
         $votantes->transform(function ($votante) {
 

@@ -245,7 +245,7 @@ const breadcrumbLinks = [{ url: "", text: "reporte de votantes x evento" }];
 let search = ref(props.filters.search);
 let comuna = ref(props.filters.comuna ?? "");
 
-let id_evento = ref(props.eventos.find(item => item.id == 15));
+let id_evento = ref(props.eventos.find(item => item.id == 16));
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -269,7 +269,7 @@ const handleEnterKey = () => {
 const limpiar = () => {
 
     search.value = "";
-    id_evento.value = props.eventos.find(item => item.id == 15);
+    id_evento.value = props.eventos.find(item => item.id == 16);
     comuna.value = "";
 
     router.get(

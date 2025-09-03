@@ -8,7 +8,9 @@
 
     <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8 mt-8">
       <div class="mb-6">
-        <h2 class="text-lg font-bold mb-2">Información general</h2>
+        <div class="w-full mb-4 border-b-2 border-secondary pb-4">
+            <ApplicationLogo class="h-24 !w-full object-contain" />
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- id -->
           <div><span class="font-semibold">ID acta:</span> {{ acta.id }}</div>
@@ -95,8 +97,26 @@
           </div>
 
           <!-- firmas delegados -->
-          <div class="w-full col-span-2 mt-4">
-
+          <div class="w-full col-span-2 flex flex-wrap justify-between mt-4" v-if="delegados.length">
+            <!-- delegados -->
+            <div v-for="delegado in delegados" :key="delegado.id" class="w-auto p-4">
+                <!-- imagen de firma -->
+                <div class="shadow-md border-b border-black mb-2 p-2">
+                    <img class="w-auto h-44 object-contain" :src="getFirma(delegado.firma)" />
+                </div>
+                <!-- informacion -->
+                <div class="w-auto">
+                    <p>
+                        {{ delegado.nombre }}
+                    </p>
+                    <p>
+                        {{ delegado.identificacion }}
+                    </p>
+                    <p>
+                        {{ delegado.cargo }}
+                    </p>
+                </div>
+            </div>
           </div>
         </div>
       </div>
@@ -108,6 +128,7 @@
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { computed } from "vue";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 
 const props = defineProps({
   acta: Object,
@@ -128,6 +149,9 @@ const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleString();
 };
+
+const getFirma = (url) => `/storage/uploads/delegados/${url}`;
+const getUrlBiometrico = (url) => `/storage/uploads/fotos/${url}`;
 
 // Buscar el detalle de la comuna en los parámetros
 const comunasDetalles = computed(() => {
