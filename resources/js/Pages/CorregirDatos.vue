@@ -363,92 +363,7 @@
             </div>
           </div>
 
-          <!-- firma -->
-          <div class="w-full gap-2 h-full sm:px-16 px-4 mt-4">
-            <InputLabel for="firma" value="Firma" />
-            <div class="flex gap-4 mb-2">
-              <button
-                type="button"
-                :class="[
-                  'px-2 py-1 rounded',
-                  firmaModo === 'imagen'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200',
-                ]"
-                @click="firmaModo = 'imagen'"
-              >
-                Cargar imagen
-              </button>
-              <button
-                type="button"
-                :class="[
-                  'px-2 py-1 rounded',
-                  firmaModo === 'canvas'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200',
-                ]"
-                @click="firmaModo = 'canvas'"
-              >
-                Dibujar firma
-              </button>
-            </div>
-            <div v-if="firmaModo === 'imagen'">
-              <TextInput
-                id="firma"
-                type="file"
-                class="mt-1 block w-full"
-                accept="image/*"
-                @change="onFileChange('firma', $event)"
-                :maxFileSize="2e6"
-              />
-              <InputError class="mt-2" :message="form.errors.firma" />
-              <div v-if="firmaPreview" class="mt-2">
-                <img
-                  :src="getUrlFirma(firmaPreview)"
-                  alt="Vista previa de la firma"
-                  class="h-24 border rounded"
-                />
-              </div>
-            </div>
-            <div v-else>
-              <canvas
-                ref="canvas"
-                height="150"
-                class="border border-gray-400 rounded-md bg-white cursor-crosshair sm:w-[300px] w-[250px]"
-                @mousedown="startDrawing"
-                @mousemove="draw"
-                @mouseup="stopDrawing"
-                @mouseleave="stopDrawing"
-                @touchstart.prevent="startDrawing"
-                @touchmove.prevent="draw"
-                @touchend="stopDrawing"
-              ></canvas>
-              <div class="flex gap-2 mt-1">
-                <button
-                  type="button"
-                  @click="clearCanvas"
-                  class="text-xl sm:text-2xl text-blue-600 underline"
-                >
-                  Limpiar canvas
-                </button>
-                <button
-                  type="button"
-                  @click="saveCanvas"
-                  class="text-xl sm:text-2xl text-green-600 underline"
-                >
-                  Guardar firma
-                </button>
-              </div>
-              <InputError class="mt-2" :message="form.errors.firma" />
-              <div v-if="firmaPreview" class="mt-2">
-                <img
-                  :src="firmaPreview"
-                  alt="Vista previa de la firma"
-                  class="h-24 border rounded"
-                />
-              </div>
-            </div>
-          </div>
+          
           <!-- CAMPO OBLIGATORIO PARA EL USUARIO -->
           <div class="w-full">
             <TextInput
@@ -678,18 +593,12 @@ const form = useForm({
   validaciones: props.votante.hash_votantes[0].validaciones || "",
   checked: true,
   declaracion: true,
-  firma: null,
   campoObligatorio: "",
 });
 
 const comunaSelected = ref("");
 const barriosXComuna = ref([]);
 
-//firma
-const firmaPreview = ref(null);
-const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
-const canvas = ref(null);
-let drawing = false;
 
 //modal loading
 const loadingModal = ref(false);
@@ -763,12 +672,7 @@ const getUrlDocumentos = (url, num) => {
   return url;
 };
 
-const getUrlFirma = (url) => {
-  if (form.firma === null) {
-    return `/storage/uploads/firmas/${url}`;
-  }
-  return url;
-};
+
 
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
@@ -853,8 +757,6 @@ const onFileChange = (field, event) => {
 
     if (field === "cedula_front") {
       imageUrl.value = previewUrl;
-    } else if (field === "firma") {
-      firmaPreview.value = previewUrl;
     }
   });
 };
@@ -876,63 +778,7 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-//PARTE DE FIRMA
-// Canvas firma
-const startDrawing = (e) => {
-  drawing = true;
-  const ctx = canvas.value.getContext("2d");
-  const pos = getCoordinates(e);
-  ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
-};
 
-const draw = (e) => {
-  if (!drawing) return;
-  const ctx = canvas.value.getContext("2d");
-  const pos = getCoordinates(e);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-};
-
-const stopDrawing = () => {
-  drawing = false;
-};
-
-const clearCanvas = () => {
-  const ctx = canvas.value.getContext("2d");
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-  firmaPreview.value = null;
-  form.firma = null;
-};
-
-const saveCanvas = () => {
-  canvas.value.toBlob((blob) => {
-    form.firma = new File([blob], "firma.webp", { type: "image/webp" });
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      firmaPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(form.firma);
-  }, "image/webp");
-};
-
-// 🔧 Función para obtener coordenadas, sea touch o mouse
-const getCoordinates = (e) => {
-  const rect = canvas.value.getBoundingClientRect();
-  if (e.touches && e.touches.length > 0) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top,
-    };
-  } else {
-    return {
-      x: e.offsetX,
-      y: e.offsetY,
-    };
-  }
-};
 
 //STEP PART
 //prev
@@ -1364,7 +1210,7 @@ const validarDatos3 = () => {
   isValidate.value = false;
   console.log("Validando datos del paso 3", imageUrl.value);
 
-  if ((form.cedula_front || imageUrl) && (form.firma || firmaPreview)) {
+  if ((form.cedula_front || imageUrl)) {
     console.log("Datos del paso 3 son válidos");
 
     isValidate.value = true;
@@ -1384,10 +1230,6 @@ const validarDatos3 = () => {
   } else {
     if (!form.cedula_front) {
       form.errors.cedula_front = "Este campo es requerido.";
-    }
-
-    if (!form.firma) {
-      form.errors.firma = 'Debe hacer clic en "Usar firma" para continuar';
     }
   }
 };
@@ -1468,9 +1310,6 @@ onMounted(() => {
     imageUrl.value = props.votante.user.biometrico.cedula_front;
   }
 
-  if (props.votante.user.biometrico.firma) {
-    firmaPreview.value = props.votante.user.biometrico.firma;
-  }
 
   if (props.votante.hash_votantes[0].subtipo) {
     form.comuna = getComuna(props.votante.hash_votantes[0].subtipo);

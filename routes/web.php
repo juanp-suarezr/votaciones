@@ -33,6 +33,7 @@ use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Parametros;
 use App\Models\ParametrosDetalle;
+use App\Models\UsuariosBiometricos;
 use App\Models\Votos;
 use Carbon\Carbon;
 use Illuminate\Foundation\Application;
@@ -182,7 +183,11 @@ Route::get('/dashboard', function () {
 
     $existeActa = null;
     $cierre = null;
+    $registro_biometrico = UsuariosBiometricos::where('user_id', Auth::user()->id)
+    ->exists();
     if (Auth::user()->jurado) {
+
+
 
 
         $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
@@ -225,50 +230,11 @@ Route::get('/dashboard', function () {
         'info_votante' => $info_votante ? $info_votante->where('subtipo', '!=', 0)->values() : 0,
         'existe_acta' => $existeActa,
         'cierre' => $cierre,
+        'registro_biometrico' => $registro_biometrico,
 
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route::get('/sse', function ()  {
-//     $startTime = time();
-//     return response()->stream(function () use ($startTime) {
-//         $eventos_admin = Cache::remember('eventos_admin', 2, function () {
-//             return Eventos::whereNot('estado', 'Pendiente')->whereNot('nombre', 'Admin')->with('votos')->get();
-//         });
-
-//         $votantes = Cache::remember('votantes', 5, function () {
-//             return Informacion_votantes::select('id_eventos', 'nombre', 'tipo')->get();
-//         });
-
-//         foreach ($eventos_admin as $evento) {
-//             echo "event: evento\n";
-//             echo "data: " . json_encode($evento) . "\n\n";
-//             ob_flush();
-//             flush();
-//         };
-
-//         foreach ($votantes as $votante) {
-//             echo "event: votante\n";
-//             echo "data: " . json_encode($votante) . "\n\n";
-//             ob_flush();
-//             flush();
-//         };
-
-
-//         // Cerrar la conexión después de 30 segundos
-//         if (time() - $startTime >= 30) {
-//             return false; // Salir del bucle y cerrar la conexión
-//         };
-
-//         // Esperar antes de la próxima actualización
-//         sleep(1); // Dormir durante 1 segundo para evitar la CPU en uso intensivo
-
-//     }, 200, [
-//         'Content-Type' => 'text/event-stream',
-//         'Cache-Control' => 'no-cache',
-//         'Connection' => 'keep-alive',
-//     ]);
-// });
 
 Route::middleware('auth')->group(function () {
     Route::get('/about', fn() => Inertia::render('About'))->name('about');
@@ -316,6 +282,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/ActaInicial', [ActaPresencialController::class, 'actaInicial_create'])->name('ActaInicial.create');
     //cerrar acta presencial tic
     Route::get('/ActaCerrar', [ActaPresencialController::class, 'actaCerrar_create'])->name('ActaCerrar.create');
+
+    //registro biometrico jurado
+    Route::get('/registro-biometrico-jurado', [JuradosController::class, 'registroBiometrico'])->name('registro-biometrico-jurado');
+    //validar face ia jurado
+    Route::post('/face-validate-jurado', [FaceController::class, 'validateFaceJurado'])->name('face-validate-jurado');
+    //Registrar biometricamente jurado
+    Route::post('/registro-biometrico-jurado', [JuradosController::class, 'storeBiometrico'])->name('registro-biometrico-jurado');
+
 
     //Listar votaciones para jurado y votar
     Route::get('/votacionPresencial/eventos', [VotantesPresencialController::class, 'ShowEventos'])->name('votacionPresencial.eventos');

@@ -200,29 +200,6 @@ class ValidationController extends Controller
 
             $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
 
-            //gestion firma
-            $firma = 'NA';
-            if ($request->hasFile('firma')) {
-                $folder = 'firmas';
-                $original = $request->file('firma');
-                $extension = strtolower($original->getClientOriginalExtension());
-                $firma = time() . '_votante_' . $request->identificacion . '.' . $extension;
-
-                $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $firma);
-
-                if (in_array($extension, ['jpg', 'jpeg'])) {
-                    $img = imagecreatefromjpeg($original->getPathname());
-                    imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
-                    imagedestroy($img);
-                } elseif ($extension === 'png') {
-                    $img = imagecreatefrompng($original->getPathname());
-                    imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
-                    imagedestroy($img);
-                } else {
-                    // Otros formatos, solo mover
-                    $original->move(storage_path('app/public/uploads/' . $folder), $firma);
-                }
-            }
 
             $validacion = $request->validaciones;
             // Log::info('embedding', ['embedding' => json_encode($request->embedding)]);
@@ -246,7 +223,6 @@ class ValidationController extends Controller
                     'photo' => $fileNamePhoto,
                     'cedula_front' => $fileNameFront,
                     // 'cedula_back' => $fileNameBack,
-                    'firma' => $firma,
                     'motivo' => 'Validación exitosa',
                     'estado' => 'Validado',
                     'edad_estimada' => $request->edad_estimada,
@@ -266,7 +242,6 @@ class ValidationController extends Controller
                     'photo' => $fileNamePhoto,
                     'cedula_front' => $fileNameFront,
                     // 'cedula_back' => $fileNameBack,
-                    'firma' => $firma,
                     'estado' => 'Pendiente',
                     'motivo' => $validacion,
                     'edad_estimada' => $request->edad_estimada,
@@ -452,30 +427,6 @@ class ValidationController extends Controller
             }
 
 
-            //gestion firma
-            $firma = 'NA';
-            if ($request->hasFile('firma')) {
-                $folder = 'firmas';
-                $original = $request->file('firma');
-                $extension = strtolower($original->getClientOriginalExtension());
-                $firma = time() . '_votante_' . $request->identificacion . '.' . $extension;
-
-                $rutaDestino = storage_path('app/public/uploads/' . $folder . '/' . $firma);
-
-                if (in_array($extension, ['jpg', 'jpeg'])) {
-                    $img = imagecreatefromjpeg($original->getPathname());
-                    imagejpeg($img, $rutaDestino, 60); // 70 es la calidad, puedes bajarla más si quieres
-                    imagedestroy($img);
-                } elseif ($extension === 'png') {
-                    $img = imagecreatefrompng($original->getPathname());
-                    imagepng($img, $rutaDestino, 7); // 0 (sin compresión) a 9 (máxima compresión)
-                    imagedestroy($img);
-                } else {
-                    // Otros formatos, solo mover
-                    $original->move(storage_path('app/public/uploads/' . $folder), $firma);
-                }
-            }
-
             $validacion = $request->validaciones;
 
             if ($request->has('embedding')) {
@@ -520,7 +471,7 @@ class ValidationController extends Controller
                 $biometrico->photo = $fileNamePhoto != 'NA' ? $fileNamePhoto : $biometrico->photo;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
                 // $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
-                $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
+                // $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Pendiente';
                 $biometrico->motivo = $validacion;
             }

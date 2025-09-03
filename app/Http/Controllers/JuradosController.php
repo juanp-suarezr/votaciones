@@ -18,6 +18,7 @@ use App\Models\Delegados;
 use App\Models\Eventos;
 use App\Models\ParametrosDetalle;
 use App\Models\User;
+use App\Models\UsuariosBiometricos;
 use App\Models\Votos;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -103,6 +104,110 @@ class JuradosController extends Controller
             DB::rollBack();
             Log::error('Error al registrar jurado: ' . $e->getMessage());
             return redirect()->back()->withErrors('error', 'Error al registrar el jurado.');
+        }
+    }
+
+    //registro biometrico
+    public function registroBiometrico()
+    {
+
+        return Inertia::render('Delegado/RegistroBiometricoJurados', []);
+    }
+
+    //registrar biometrico jurado
+    public function storeBiometrico(Request $request)
+    {
+
+        $request->validate([
+
+            'cedula_front' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'checked' => 'required',
+            'declaracion' => 'required',
+
+        ]);
+
+
+
+
+
+        // Verificacion sencilla campo obligatorio
+        if ($request->campoObligatorio != null && $request->campoObligatorio != '') {
+                return redirect()->back()->withErrors(['error' => 'Seguro no eres un robot. Inténtelo nuevamente.']);
+            }
+
+
+        // Crear el usuario
+        try {
+
+            // Obtener la extensión original de los archivos
+            $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
+            // $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+
+
+            $folderDoc = 'documentos';
+            $fileNameFront = 'cedula_front_' . Auth::user()->jurado->identificacion . '.' . $frontExtension;
+
+            // Guardar los archivos con su extensión original
+            $frontPath = $request->file('cedula_front')->storeAs('uploads/' . $folderDoc, $fileNameFront, 'public');
+            // $backPath = $request->file('cedula_back')->storeAs('uploads/' . $folderDoc, $fileNameBack, 'public');
+
+            //foto evidencia
+            $folderPhoto = 'fotos';
+            $fileNamePhoto = 'foto' . Auth::user()->jurado->identificacion . '.' . $request->file('photo')->getClientOriginalExtension();
+
+            $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
+
+
+            $validacion = $request->validaciones;
+            // Log::info('embedding', ['embedding' => json_encode($request->embedding)]);
+
+
+
+            if ($request->embedding && ($validacion == "")) {
+
+                //CREAR REGISTRO BIOMETRICO
+                $registroBiometrico = new UsuariosBiometricos([
+                    'user_id' => Auth::user()->id,
+                    'embedding' => json_encode($request->embedding), // convertir a string JSON
+                    'photo' => $fileNamePhoto,
+                    'cedula_front' => $fileNameFront,
+                    'motivo' => 'Validación exitosa',
+                    'estado' => 'Validado',
+                    'edad_estimada' => $request->edad_estimada,
+
+                ]);
+                $registroBiometrico->save();
+
+
+            } else {
+
+                //CREAR REGISTRO BIOMETRICO no validado
+                $registroBiometrico = new UsuariosBiometricos([
+                    'user_id' => Auth::user()->id,
+                    'embedding' => json_encode($request->embedding), // convertir a string JSON
+                    'photo' => $fileNamePhoto,
+                    'cedula_front' => $fileNameFront,
+                    'estado' => 'Pendiente',
+                    'motivo' => $validacion,
+                    'edad_estimada' => $request->edad_estimada,
+
+                ]);
+                $registroBiometrico->save();
+            }
+
+
+            // Confirmar la transacción
+            DB::commit();
+            
+            return back();
+        } catch (\Exception $e) {
+            // Si ocurre algún error, revertir todos los cambios
+            DB::rollBack();
+            // Eliminar el código de verificación
+            // $verification->delete();
+
+            // Puedes optar por lanzar el error o retornar un mensaje de error
+            return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
     }
 }

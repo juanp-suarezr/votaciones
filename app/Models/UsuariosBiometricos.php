@@ -22,8 +22,6 @@ class UsuariosBiometricos extends Model
         'embedding',
         'photo',
         'cedula_front',
-        // 'cedula_back',
-        'firma',
         'estado',
         'motivo',
         'edad_estimada',

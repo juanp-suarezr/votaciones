@@ -368,11 +368,27 @@
       class=""
       v-if="$page.props.user.roles.includes('Jurado') && cierre == false"
     >
+      <div class="w-full sm:px-8 px-4 mb-4" v-if="!props.registro_biometrico">
+        <div class="border-2 border-gray-400 p-2 border-dashed sm:flex">
+          <p class="m-auto">
+            Recuerde registrar su biometrico para poder empezar las votaciones.
+          </p>
+          <PrimaryLink
+            class="md:text-base mt-4"
+            :class="{ 'opacity-25': isLoading }"
+            :disabled="isLoading"
+            type="button"
+            :href="route('registro-biometrico-jurado')"
+          >
+            Registro Biometrico
+          </PrimaryLink>
+        </div>
+      </div>
       <h2 class="text-gray-600 text-2xl inline-flex">
         Gestión de registro presencial - virtual
       </h2>
       <!-- boton registros -->
-      <div v-if="existe_acta" class="sm:flex justify-between gap-4">
+      <div v-if="existe_acta && props.registro_biometrico" class="sm:flex justify-between gap-4">
         <PrimaryLink
           class="md:text-base mt-4"
           :class="{ 'opacity-25': isLoading }"
@@ -392,7 +408,7 @@
           Cerrar votaciones en mesa
         </DangerButton>
       </div>
-      <div v-else>
+      <div v-else-if="props.registro_biometrico">
         <PrimaryLink
           class="md:text-base mt-4"
           :class="{ 'opacity-25': isLoading }"
@@ -529,6 +545,7 @@ const props = defineProps({
   info_votante: Object,
   existe_acta: Boolean,
   cierre: Boolean,
+  registro_biometrico: Boolean,
 });
 
 console.log(props);

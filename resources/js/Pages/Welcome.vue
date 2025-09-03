@@ -144,7 +144,7 @@ const enviarSolicitud = () => {
   >
   <!-- aviso en construccion -->
   <div class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg">
-        <h4 class="sm:text-5xl text-3xl">
+        <h4 class="sm:text-5xl text-xl">
             Pagina en construcción, pronto nuevas actualizaciones
         </h4>
   </div>
@@ -247,8 +247,8 @@ const enviarSolicitud = () => {
     </div>
 
     <div class="w-full">
-      <div class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4">
-        <div class="flex gap-4 items-center">
+      <div class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4 overflow-x-hidden">
+        <div class="flex flex-col sm:flex-row gap-4 items-center">
         <img src="/assets/img/logo1.png" alt="Logo" class="sm:h-32 h-24 w-auto border-r border-black" />
         <img src="/assets/img/voto_electronico.png" alt="Logo" class="sm:h-32 h-24 w-auto" />
 
