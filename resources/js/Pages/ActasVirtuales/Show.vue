@@ -150,7 +150,7 @@ const formatDate = (date) => {
   return d.toLocaleString();
 };
 
-const getFirma = (url) => `/storage/uploads/delegados/${url}`;
+const getFirma = (url) => `/storage/uploads/delegado/${url}`;
 const getUrlBiometrico = (url) => `/storage/uploads/fotos/${url}`;
 
 // Buscar el detalle de la comuna en los parámetros
