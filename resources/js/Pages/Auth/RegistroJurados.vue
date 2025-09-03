@@ -150,91 +150,7 @@
 
           <InputError class="mt-2" :message="form.errors.password" />
         </div>
-        <!-- firma -->
-        <div>
-          <InputLabel for="firma" value="Firma" />
-          <div class="flex gap-4 mb-2">
-            <button
-              type="button"
-              :class="[
-                'px-2 py-1 rounded',
-                firmaModo === 'imagen'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200',
-              ]"
-              @click="firmaModo = 'imagen'"
-            >
-              Cargar imagen
-            </button>
-            <button
-              type="button"
-              :class="[
-                'px-2 py-1 rounded',
-                firmaModo === 'canvas'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200',
-              ]"
-              @click="firmaModo = 'canvas'"
-            >
-              Dibujar firma
-            </button>
-          </div>
-          <div v-if="firmaModo === 'imagen'">
-            <TextInput
-              id="firma"
-              type="file"
-              class="mt-1 block w-full"
-              accept="image/*"
-              @change="onFileChange"
-            />
-            <InputError class="mt-2" :message="form.errors.firma" />
-            <div v-if="firmaPreview" class="mt-2">
-              <img
-                :src="firmaPreview"
-                alt="Vista previa de la firma"
-                class="h-24 border rounded"
-              />
-            </div>
-          </div>
-          <div v-else>
-            <canvas
-              ref="canvas"
-              height="150"
-              class="border border-gray-400 rounded-md bg-white cursor-crosshair sm:w-[300px] w-[250px]"
-              @mousedown="startDrawing"
-              @mousemove="draw"
-              @mouseup="stopDrawing"
-              @mouseleave="stopDrawing"
-              @touchstart.prevent="startDrawing"
-              @touchmove.prevent="draw"
-              @touchend="stopDrawing"
-            ></canvas>
-            <div class="flex gap-2 mt-1">
-              <button
-                type="button"
-                @click="clearCanvas"
-                class="text-xl text-blue-600 underline"
-              >
-                Limpiar
-              </button>
-              <button
-                type="button"
-                @click="saveCanvas"
-                class="text-xl text-green-600 underline"
-              >
-                Usar firma
-              </button>
-            </div>
-            <InputError class="mt-2" :message="form.errors.firma" />
-            <div v-if="firmaPreview" class="mt-2">
-              <img
-                :src="firmaPreview"
-                alt="Vista previa de la firma"
-                class="h-24 border rounded"
-              />
-            </div>
-          </div>
-        </div>
+
 
 
 
@@ -378,84 +294,12 @@ const form = useForm({
   punto_votacion: "",
   id_evento: "",
   tipo: "jurado",
-  firma: null,
   email: "",
   password: "",
 
   jurados: "",
 });
 
-const onFileChange = (e) => {
-  const file = e.target.files[0];
-  form.firma = file;
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      firmaPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  } else {
-    firmaPreview.value = null;
-  }
-};
-
-//PARTE DE FIRMA
-// Canvas firma
-const startDrawing = (e) => {
-  drawing = true;
-  const ctx = canvas.value.getContext("2d");
-  const pos = getCoordinates(e);
-  ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
-};
-
-const draw = (e) => {
-  if (!drawing) return;
-  const ctx = canvas.value.getContext("2d");
-  const pos = getCoordinates(e);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-};
-
-const stopDrawing = () => {
-  drawing = false;
-};
-
-const clearCanvas = () => {
-  const ctx = canvas.value.getContext("2d");
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-  firmaPreview.value = null;
-  form.firma = null;
-};
-
-const saveCanvas = () => {
-  canvas.value.toBlob((blob) => {
-    form.firma = new File([blob], "firma.webp", { type: "image/webp" });
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      firmaPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(form.firma);
-  }, "image/webp");
-};
-
-// 🔧 Función para obtener coordenadas, sea touch o mouse
-const getCoordinates = (e) => {
-  const rect = canvas.value.getBoundingClientRect();
-  if (e.touches && e.touches.length > 0) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top,
-    };
-  } else {
-    return {
-      x: e.offsetX,
-      y: e.offsetY,
-    };
-  }
-};
 
 const submit = () => {
   console.log(form);
@@ -466,8 +310,7 @@ const submit = () => {
     forceFormData: true,
     onSuccess: () => {
       form.reset();
-      firmaPreview.value = null;
-      clearCanvas();
+
       swal
         .fire({
           title: "Registro exitoso",
