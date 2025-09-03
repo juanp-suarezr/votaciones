@@ -1,1 +1,0 @@
-import{c as o,o as s,u as c}from"./app-BHqMkuYd.js";const t="/build/assets/logo-DPSLwjp9.png",e=["src"],_={__name:"ApplicationLogo",setup(n){return(a,r)=>(s(),o("img",{src:c(t),class:"w-1/2",alt:""},null,8,e))}};export{_};

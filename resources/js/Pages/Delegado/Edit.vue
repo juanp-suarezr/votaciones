@@ -218,7 +218,7 @@ const breadcrumbLinks = [
 const form = useForm({
   id: props.delegado.id,
   nombre: props.delegado.nombre || "",
-  Identificacion: props.delegado.Identificacion || "",
+  identificacion: props.delegado.identificacion || "",
   cargo: props.delegado.cargo || "",
   firma: null,
 });
