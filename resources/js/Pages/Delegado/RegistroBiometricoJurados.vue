@@ -81,6 +81,51 @@
               v-model="form.campoObligatorio"
             />
           </div>
+          <!-- ncheck tratamiento datos -->
+          <div class="my-4 col-span-2 mb-2">
+            <input
+              type="checkbox"
+              id="consentimiento1"
+              name="consentimiento1"
+              required
+              v-model="form.checked"
+            />
+            <label
+              for="consentimiento1"
+              class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
+              >Conozco y Acepto la Política de Privacidad de Datos
+              <a
+                href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
+                target="_blank"
+                class="underline !text-azul cursor-pointer"
+                >Política</a
+              ></label
+            >
+            <InputError class="mt-1" :message="form.errors.checked" />
+          </div>
+          <!-- declaración juramentada -->
+          <div class="mb-4 col-span-2 mb-2">
+            <input
+              type="checkbox"
+              id="consentimiento2"
+              name="consentimiento2"
+              required
+              v-model="form.declaracion"
+            />
+            <label
+              for="consentimiento2"
+              class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
+              >Manifiesto que acepto, bajo juramento, la
+              <a
+                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
+                target="_blank"
+                class="underline !text-azul cursor-pointer"
+                >Declaración</a
+              >
+              sobre la veracidad de la información registrada</label
+            >
+            <InputError class="mt-1" :message="form.errors.declaracion" />
+          </div>
         </div>
 
         <div class="flex justify-end mt-6">
