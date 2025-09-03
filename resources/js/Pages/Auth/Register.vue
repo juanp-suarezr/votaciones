@@ -481,7 +481,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- CAMPO OBLIGATORIO PARA EL USUARIO -->
           <div class="w-full">
             <TextInput
@@ -676,7 +676,6 @@ const form = useForm({
   email: "",
   password: "",
   embedding: "",
-  edad_estimada: null,
   photo: "",
   validaciones: "",
   checked: false,
@@ -1031,8 +1030,12 @@ const registerAndValidate = async () => {
       title: "Validación en progreso",
       text: "Mire a la cámara hasta que finalice la validación.",
       icon: "info",
-      timer: 1000,
+      timer: 2000,
       showConfirmButton: false,
+      didClose: () => {
+        //poner llamado a loading modal
+        loadingModal.value = true;
+      },
     });
     const detection = await faceapi
       .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
@@ -1060,6 +1063,7 @@ const registerAndValidate = async () => {
     //fin
 
     if (!detection) {
+        loadingModal.value = false;
       loadingButtonBiometric.value = false;
       message.value = "No se detectó un rostro.";
 
@@ -1097,36 +1101,12 @@ const registerAndValidate = async () => {
 
     const descriptor = detection.descriptor;
     form.embedding = descriptor;
-    const edad = Math.round(detection.age);
-    form.edad_estimada = edad;
-    const genero = detection.gender;
-    console.log(`Edad estimada: ${edad}, Género: ${genero}`);
-
-    if (edad < 14) {
-      await swal.fire({
-        title: "Advertencia",
-        text: `La edad estimada es ${edad.toFixed(
-          0
-        )} años. Parece menor de la edad permitida para votar.`,
-        icon: "warning",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } else {
-      await swal.fire({
-        title: "Notificación",
-        text: `La edad estimada es ${edad.toFixed(0)} años.`,
-        icon: "info",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    }
 
     const formData = new FormData();
     formData.append("embedding", descriptor);
     loadingButtonBiometric.value = false;
     biometricoModal.value = false;
-    loadingModal.value = true;
+
     axios
       .post(route("face-validate"), formData, {
         headers: {

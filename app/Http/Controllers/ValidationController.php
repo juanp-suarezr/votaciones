@@ -225,7 +225,6 @@ class ValidationController extends Controller
                     // 'cedula_back' => $fileNameBack,
                     'motivo' => 'Validación exitosa',
                     'estado' => 'Validado',
-                    'edad_estimada' => $request->edad_estimada,
 
                 ]);
 
@@ -244,7 +243,6 @@ class ValidationController extends Controller
                     // 'cedula_back' => $fileNameBack,
                     'estado' => 'Pendiente',
                     'motivo' => $validacion,
-                    'edad_estimada' => $request->edad_estimada,
 
                 ]);
             }
@@ -442,7 +440,6 @@ class ValidationController extends Controller
 
                 if ($nuevoArray !== $actualArray) {
                     $biometrico->embedding = $nuevoEmbedding; // Actualiza el embedding solo si es diferente
-                    $biometrico->edad_estimada = $request->edad_estimada;
                 }
             }
 
@@ -453,7 +450,6 @@ class ValidationController extends Controller
                 $biometrico->photo = $fileNamePhoto != 'NA' ? $fileNamePhoto : $biometrico->photo;
                 $biometrico->cedula_front = $fileNameFront != 'NA' ? $fileNameFront : $biometrico->cedula_front;
                 // $biometrico->cedula_back = $fileNameBack != 'NA' ? $fileNameBack : $biometrico->cedula_back;
-                $biometrico->firma = $firma != 'NA' ? $firma : $biometrico->firma;
                 $biometrico->estado = 'Validado';
                 $biometrico->motivo = 'Validación exitosa';
 

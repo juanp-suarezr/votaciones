@@ -173,7 +173,6 @@ class JuradosController extends Controller
                     'cedula_front' => $fileNameFront,
                     'motivo' => 'Validación exitosa',
                     'estado' => 'Validado',
-                    'edad_estimada' => $request->edad_estimada,
 
                 ]);
                 $registroBiometrico->save();
@@ -189,7 +188,6 @@ class JuradosController extends Controller
                     'cedula_front' => $fileNameFront,
                     'estado' => 'Pendiente',
                     'motivo' => $validacion,
-                    'edad_estimada' => $request->edad_estimada,
 
                 ]);
                 $registroBiometrico->save();
@@ -198,7 +196,7 @@ class JuradosController extends Controller
 
             // Confirmar la transacción
             DB::commit();
-            
+
             return back();
         } catch (\Exception $e) {
             // Si ocurre algún error, revertir todos los cambios

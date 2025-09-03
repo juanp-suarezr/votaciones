@@ -120,18 +120,7 @@
             </button>
           </div>
         </div>
-        <!-- edad estimada -->
-        <div class="flex flex-col gap-2 w-full md:w-1/3">
-          <b> Edad estimada: </b>
-          <p
-            :class="{
-              'text-red font-bold':
-                parseInt(votante.votante?.user.biometrico?.edad_estimada) < 14,
-            }"
-          >
-            {{ votante.votante?.user.biometrico?.edad_estimada }} años
-          </p>
-        </div>
+        
 
         <!-- Select de motivos de rechazo -->
         <div class="flex flex-col gap-2 w-full md:w-1/3">

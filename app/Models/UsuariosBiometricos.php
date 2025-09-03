@@ -24,7 +24,6 @@ class UsuariosBiometricos extends Model
         'cedula_front',
         'estado',
         'motivo',
-        'edad_estimada',
         'created_at',
         'updated_at',
 

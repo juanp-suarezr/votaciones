@@ -22,7 +22,9 @@ class FaceController extends Controller
         $distancias = [];
 
         // 1. Comparar contra TODOS los embeddings existentes
-        $usuarios = UsuariosBiometricos::select('id', 'embedding')->get();
+        $usuarios = UsuariosBiometricos::select('id', 'embedding')
+        ->whereDoesntHave('user.jurado') // filtra solo los biometricos cuyo usuario no tiene jurado
+        ->get();
         $raw = $request->embedding;
 
         // Si viene como string tipo CSV (coma separada), conviértalo
@@ -109,7 +111,7 @@ class FaceController extends Controller
         $usuarios = UsuariosBiometricos::select('id', 'embedding')
             ->whereHas('user.jurado') // filtra solo los biometricos cuyo usuario tiene jurado
             ->get();
-            
+
         $raw = $request->embedding;
 
         // Si viene como string tipo CSV (coma separada), conviértalo
