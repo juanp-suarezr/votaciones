@@ -59,18 +59,38 @@
               <div class="md:col-span-2 mt-4 mb-2">
                 <h2 class="font-bold text-lg">Información Jurado</h2>
               </div>
-              <div>
-                <b>Nombre:</b>
-                {{ acta.jurado.nombre || "N/A" }}
+              <!-- imagen jurado -->
+              <div
+                class="card shadow-lg rounded-md p-4 mb-4"
+                v-if="acta.jurado.user.biometrico"
+              >
+                <img
+                  :src="getUrlBiometrico(acta.jurado.user.biometrico.photo)"
+                  class="w-full sm:h-36 sm:object-cover"
+                />
               </div>
-              <div>
-                <b>identificacion:</b>
-                cc. {{ acta.jurado.identificacion || "N/A" }}
+              <div
+                class="card shadow-lg rounded-md p-4 sm:h-36 h-full flex items-center justify-center"
+                v-else
+              >
+                Img jurado
               </div>
-              <div>
-                <b>contacto:</b>
-                {{ acta.jurado.contacto || "N/A" }}
+              <!-- informacion jurado -->
+              <div class="flex flex-wrap my-auto">
+                <div>
+                  <b>Nombre:</b>
+                  {{ acta.jurado.nombre || "N/A" }}
+                </div>
+                <div>
+                  <b>identificacion:</b>
+                  cc. {{ acta.jurado.identificacion || "N/A" }}
+                </div>
+                <div>
+                  <b>contacto:</b>
+                  {{ acta.jurado.contacto || "N/A" }}
+                </div>
               </div>
+
               <!-- Info testigo -->
               <div class="md:col-span-2 mt-4 mb-2">
                 <h2 class="font-bold text-lg">Información Testigo</h2>
@@ -210,6 +230,11 @@ const props = defineProps({
   },
 });
 
+const breadcrumbLinks = [
+  { url: "/actaPresencial", text: "Actas de escrutinio" },
+  { url: "", text: "Detalles Acta escrutinio" },
+];
+
 // Lightbox
 const previewImage = ref("");
 const showLightbox = ref(false);
@@ -230,6 +255,7 @@ const getParametros = (id) => {
 };
 
 const getUrlActa = (url) => `/storage/uploads/actas/${url}`;
+const getUrlBiometrico = (url) => `/storage/uploads/fotos/${url}`;
 
 const formatDate = (date) => {
   const d = new Date(date);

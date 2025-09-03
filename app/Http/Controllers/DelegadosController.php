@@ -102,7 +102,7 @@ class DelegadosController extends Controller
         ]);
 
 
-        return to_route('delegado.index');
+        return to_route('delegados.index');
     }
 
     public function edit(Request $request, $id_user)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActaPresencialController;
+use App\Http\Controllers\ActasVirtualesController;
 use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\AnalisisPresupuestoController;
 use App\Http\Controllers\auditoriasController;
@@ -318,6 +319,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('corregir-registro', ValidationController::class);
     Route::resource('votantesPresencial', VotantesPresencialController::class);
     Route::resource('actaPresencial', ActaPresencialController::class);
+    Route::resource('actasVirtuales', ActasVirtualesController::class);
     Route::resource('registro-jurados', JuradosController::class);
     Route::resource('rutas', RutasController::class);
 });

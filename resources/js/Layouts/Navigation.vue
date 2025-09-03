@@ -32,6 +32,10 @@
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Reporte escrutinio</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('actas-virtuales-listar')" :href="route('actasVirtuales.index')" :active="route().current('actasVirtuales')">
+                <DocumentTextIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Actas virtuales</span>
+            </nav-link>
             <SeparadorMenu v-if="$page.props.user.permissions.includes('auditoria')">Auditorias</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('auditoria')" :href="route('auditorias')" :active="route().current('auditorias')">
                 <MagnifyingGlassIcon class="h-6 w-6 text-white" />

@@ -15,7 +15,7 @@ defineProps({
 });
 
 const breadcrumbLinks = [
-  { url: "/users", text: "Actas de escrutinio" },
+  { url: "/actaPresencial", text: "Actas de escrutinio" },
   { url: "", text: "Editar Acta escrutinio" },
 ];
 </script>

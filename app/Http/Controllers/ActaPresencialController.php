@@ -46,7 +46,7 @@ class ActaPresencialController extends Controller
     //index
     public function index(Request $request)
     {
-        $id_evento = 15;
+        $id_evento = 16;
 
 
         if (RequestFacade::input('id_evento')) {
@@ -64,7 +64,7 @@ class ActaPresencialController extends Controller
             })
             ->whereHas('jurado', function ($query) {
                 $query->when(RequestFacade::input('search'), function ($query, $search) {
-                    $query->where('nombre',  $search)
+                    $query->where('nombre',  'like', '%' . $search . '%')
                         ->orWhere('identificacion', $search);
                 });
             })
@@ -83,7 +83,7 @@ class ActaPresencialController extends Controller
     public function show(Request $request, $id)
     {
 
-        $acta = Acta_escrutino::with('jurado')
+        $acta = Acta_escrutino::with('jurado.user.biometrico')
             ->with('votos_fisico.proyecto')
             ->findOrFail($id);
 
@@ -177,7 +177,7 @@ class ActaPresencialController extends Controller
         ]);
     }
 
-    
+
 
     /**
      * Store a newly created resource in storage.

@@ -1,15 +1,14 @@
 <template>
-  <Head title="Reporte escrutinio" />
+  <Head title="Actas virtuales" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
-    <template #header> Reporte de escrutinios </template>
+    <template #header> Actas virtuales </template>
 
     <div
       class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4"
     >
       <div>
         <Select
-          v-if="!$page.props.user.roles.includes('Jurado')"
           id="eventos"
           v-model="id_evento"
           :options="eventos"
@@ -36,6 +35,20 @@
           class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
+      <div>
+        <select
+          id="modalidad"
+          name="modalidad"
+          v-model="modalidad"
+          @change="handleEnterKey"
+          class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option selected value="">Filtrar por modalidad</option>
+          <option value="virtual">Virtual</option>
+          <option value="presencial">Presencial</option>
+        </select>
+      </div>
+
       <div class="...">
         <label
           for="default-search"
@@ -99,7 +112,7 @@
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
-                    Comuna
+                    Comunas
                   </th>
 
                   <th
@@ -112,36 +125,23 @@
                   >
                     Jurado
                   </th>
+
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
-                    Testigo
+                    Tipo acta
                   </th>
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
-                    Personas registradas
+                    Modalidad
                   </th>
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
-                    Votos nulos
+                    Fecha registrada
                   </th>
-                  <th
-                    class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
-                  >
-                    Votos en blanco
-                  </th>
-                  <th
-                    class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
-                  >
-                    Votos no marcados
-                  </th>
-                  <th
-                    class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
-                  >
-                    Votos por proyectos
-                  </th>
+
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
@@ -160,7 +160,10 @@
                   >
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{
-                        getParametros(acta.comuna) || "no se encuentra el dato"
+                        acta.modalidad == "virtual"
+                          ? "Virtual"
+                          : getParametros(acta.comunas) ||
+                            "no se encuentra el dato"
                       }}
                     </p>
                   </td>
@@ -169,79 +172,59 @@
                   >
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{
-                        getParametros(acta.puesto_votacion) ||
-                        "no se encuentra el dato"
+                        acta.modalidad == "virtual"
+                          ? "Virtual"
+                          : getParametros(acta.puesto_votacion) ||
+                            "no se encuentra el dato"
                       }}
                     </p>
                   </td>
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <p class="text-gray-900 whitespace-no-wrap">
+                    <p
+                      class="text-gray-900 whitespace-no-wrap"
+                      v-if="acta.modalidad == 'presencial'"
+                    >
                       {{ acta.jurado.nombre }}
                       <br />
                       <b>cc:</b> {{ acta.jurado.identificacion }}
                     </p>
-                  </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
-                    <p class="text-gray-900 whitespace-no-wrap">
-                      {{ acta.nombre_testigo }}
-                      <br />
-                      <b>cc:</b> {{ acta.identificacion_testigo }}
-                    </p>
-                  </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
-                    <p class="text-gray-900 whitespace-no-wrap">
-                      {{ acta.total_ciudadanos }}
-                    </p>
-                  </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
-                    <p class="text-gray-900 whitespace-no-wrap">
-                      {{ acta.votos_nulos }}
-                    </p>
+                    <p v-else>Virtual</p>
                   </td>
 
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <p class="text-gray-900 whitespace-no-wrap">
-                      {{ acta.votos_blanco }}
+                    <p
+                      class="text-white font-bold whitespace-no-wrap inline-flex px-2 rounded-md bg-red-200"
+                      :class="{ '!bg-green-600': acta.tipo === 'inicial' }"
+                    >
+                      {{ acta.tipo }}
                     </p>
                   </td>
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <p class="text-gray-900 whitespace-no-wrap">
-                      {{ acta.votos_no_marcados }}
+                    <p
+                      class="text-white whitespace-no-wrap inline-flex px-2 rounded-md bg-naranja"
+                      :class="{ '!bg-blue-600': acta.modalidad === 'virtual' }"
+                    >
+                      {{ acta.modalidad }}
                     </p>
                   </td>
                   <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                    class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs"
                   >
-                    <div v-if="acta.votos_fisico && acta.votos_fisico.length">
-                      <p
-                        v-for="(voto, idx) in acta.votos_fisico"
-                        :key="idx"
-                        class="mb-1"
-                      >
-                        <b
-                          >{{
-                            voto.proyecto?.detalle ?? "Proyecto desconocido"
-                          }}:</b
-                        >
-                        {{ voto.cantidad }}
-                      </p>
-                    </div>
-                    <div v-else>
-                      <p>No hay votos por proyectos</p>
-                    </div>
+                    <p class="text-gray-900 whitespace-no-wrap">
+                      {{
+                        acta.tipo == "inicial"
+                          ? formatDate(acta.fecha_inicio)
+                          : formatDate(acta.fecha_cierre)
+                      }}
+                    </p>
                   </td>
+
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
@@ -250,23 +233,12 @@
                         class="border border-gray-400 rounded-full hover:!bg-gray-200 p-1"
                         v-tooltip.bottom="'Ver detalles'"
                         :href="
-                          route('actaPresencial.show', {
+                          route('actasVirtuales.show', {
                             id: acta.id,
-                          })
+                          })+ '?tipo=' + acta.tipo
                         "
                       >
                         <EyeIcon class="h-6 w-6 text-gray-800" />
-                      </Link>
-                      <Link v-if="$page.props.user.roles.includes('Administrador')"
-                        class="bg-yellow-400/60 rounded-full hover:!bg-yellow-400/80 p-1"
-                        v-tooltip.bottom="'Editar'"
-                        :href="
-                          route('actaPresencial.edit', {
-                            id: acta.id,
-                          })
-                        "
-                      >
-                        <PencilSquareIcon class="h-6 w-6 text-gray-800" />
                       </Link>
                     </div>
                   </td>
@@ -303,7 +275,11 @@ import Pagination from "@/Components/Pagination.vue";
 import { Head, Link } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import Select from "primevue/select";
-import { DocumentArrowDownIcon, EyeIcon, PencilSquareIcon } from "@heroicons/vue/24/solid";
+import {
+  DocumentArrowDownIcon,
+  EyeIcon,
+  PencilSquareIcon,
+} from "@heroicons/vue/24/solid";
 
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 
@@ -333,11 +309,12 @@ const breadcrumbLinks = [{ url: "", text: "reporte de escrutinios" }];
 // pass filters in search
 let search = ref(props.filters.search);
 let comuna = ref(props.filters.comuna ?? "");
+let modalidad = ref(props.filters.modalidad ?? "");
 
 let id_evento = ref(props.eventos.find((item) => item.id == 16));
 
 const getParametros = (id) => {
-  return props.parametros.find((item) => item.id === id).detalle;
+  return props.parametros.find((item) => item.id === parseInt(id)).detalle;
 };
 
 const formatDate = (date) => {
@@ -345,16 +322,20 @@ const formatDate = (date) => {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
 const handleEnterKey = () => {
   router.get(
-    "/actaPresencial",
+    "/actasVirtuales",
     {
       search: search.value,
       id_evento: id_evento.value.id,
       subtipo: comuna.value.value,
+      modalidad: modalidad.value,
     },
     {
       preserveState: true,
@@ -367,10 +348,16 @@ const limpiar = () => {
   search.value = "";
   id_evento.value = props.eventos.find((item) => item.id == 16);
   comuna.value = "";
+  modalidad.value = "";
 
   router.get(
-    "/actaPresencial",
-    { search: search.value, id_evento: id_evento.value, subtipo: comuna.value },
+    "/actasVirtuales",
+    {
+      search: search.value,
+      id_evento: id_evento.value,
+      subtipo: comuna.value,
+      modalidad: modalidad.value,
+    },
     {
       preserveState: true,
       replace: true,
