@@ -122,7 +122,7 @@ class DelegadosController extends Controller
         ]);
 
         $delegados = Delegados::findOrFail($request->id);
-        dd($delegados);
+        
 
         $fileName = 'NA';
 
