@@ -122,7 +122,7 @@ class DelegadosController extends Controller
         ]);
 
         $delegados = Delegados::findOrFail($request->id);
-        
+
 
         $fileName = 'NA';
 
@@ -154,7 +154,7 @@ class DelegadosController extends Controller
 
         $delegados->nombre = $request->nombre;
         $delegados->cargo = $request->cargo;
-        $delegados->firma = $fileName != 'NA' ? $firma : $delegados->firma;
+        $delegados->firma = $fileName != 'NA' ? $fileName : $delegados->firma;
         $delegados->save();
 
         return Redirect::back();
