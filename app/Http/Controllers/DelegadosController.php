@@ -159,7 +159,7 @@ class DelegadosController extends Controller
         $delegados->firma = $fileName != 'NA' ? $fileName : $delegados->firma;
         $delegados->save();
 
-        return Redirect::back();
+        return redirect()->back();
     }
 
     public function destroy(Request $request, $id)
