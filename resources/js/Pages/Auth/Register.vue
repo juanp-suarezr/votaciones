@@ -1008,6 +1008,7 @@ const showModalBiometrico = async () => {
 
 //validar registro biometrico
 const registerAndValidate = async () => {
+  loadingModal.value = true;
   loadingButtonBiometric.value = true;
   message.value = "";
 
@@ -1021,6 +1022,7 @@ const registerAndValidate = async () => {
 
     message.value = "La cámara no está lista.";
     loadingButtonBiometric.value = false;
+    loadingModal.value = false;
 
     return;
   }
@@ -1034,14 +1036,12 @@ const registerAndValidate = async () => {
       showConfirmButton: false,
       didClose: () => {
         //poner llamado a loading modal
-        loadingModal.value = true;
       },
     });
     const detection = await faceapi
       .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
-      .withFaceDescriptor()
-      .withAgeAndGender();
+      .withFaceDescriptor();
 
     console.log("entro -- validador");
 
@@ -1063,7 +1063,7 @@ const registerAndValidate = async () => {
     //fin
 
     if (!detection) {
-        loadingModal.value = false;
+      loadingModal.value = false;
       loadingButtonBiometric.value = false;
       message.value = "No se detectó un rostro.";
 

@@ -93,20 +93,7 @@
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
 
-        <!-- Firma -->
-        <div class="flex-shrink-0 flex flex-col items-center">
-          <h2>Firma</h2>
-          <img
-            v-if="votante.votante?.user.biometrico"
-            :src="getUrlFirma(votante.votante?.user.biometrico.firma)"
-            alt="Foto del votante"
-            @click="
-              openLightbox(getUrlFirma(votante.votante?.user.biometrico.firma))
-            "
-            class="w-full h-64 cursor-pointer object-cover rounded-lg border shadow"
-          />
-          <span v-else class="text-gray-400 italic">Sin foto</span>
-        </div>
+        
       </div>
 
       <!-- Botones para ver PDFs -->
@@ -125,7 +112,7 @@
           </div>
         </div>
 
-        
+
 
         <!-- Select de motivos de rechazo -->
         <div class="flex flex-col gap-2 w-full md:w-1/3">
