@@ -141,7 +141,7 @@ class JuradosController extends Controller
 
             // Obtener la extensión original de los archivos
             $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
-            // $backExtension = $request->file('cedula_back')->getClientOriginalExtension();
+            
 
 
             $folderDoc = 'documentos';

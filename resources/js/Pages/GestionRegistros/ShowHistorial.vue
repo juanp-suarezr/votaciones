@@ -93,7 +93,7 @@
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
 
-        
+
       </div>
 
       <!-- Botones para ver PDFs -->
@@ -121,19 +121,14 @@
             <option value="" disabled>Seleccione un motivo</option>
             <option value="aprobado">No hay motivos (aprobado)</option>
             <option value="Documentos incorrectos">
-              Documentos incorrectos
+              Documento incorrecto
             </option>
             <option value="Identidad no validada">Identidad no validada</option>
             <option value="Parte frontal del documento poco visible">
               Parte frontal del documento poco visible
             </option>
 
-            <option value="Firma poco visible">Firma poco visible</option>
-            <option
-              value="Firma diferente a la presentada en el documento de identificación"
-            >
-              Firma diferente a la presentada en el documento de identificación
-            </option>
+            
             <option value="Registro duplicado">Registro duplicado</option>
             <option
               value="Información errónea, en comparación con la documentación"

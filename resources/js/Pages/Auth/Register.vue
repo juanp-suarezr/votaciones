@@ -1008,8 +1008,9 @@ const showModalBiometrico = async () => {
 
 //validar registro biometrico
 const registerAndValidate = async () => {
-  loadingModal.value = true;
   loadingButtonBiometric.value = true;
+  loadingModal.value = true;
+
   message.value = "";
 
   // Inicializar contadores si no existen
@@ -1028,6 +1029,13 @@ const registerAndValidate = async () => {
   }
 
   try {
+    const detection = await faceapi
+      .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    console.log("entro -- validador");
+    
     swal.fire({
       title: "Validación en progreso",
       text: "Mire a la cámara hasta que finalice la validación.",
@@ -1038,12 +1046,7 @@ const registerAndValidate = async () => {
         //poner llamado a loading modal
       },
     });
-    const detection = await faceapi
-      .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks()
-      .withFaceDescriptor();
 
-    console.log("entro -- validador");
 
     //capturar foto de rostro
     const canvas = document.createElement("canvas");
