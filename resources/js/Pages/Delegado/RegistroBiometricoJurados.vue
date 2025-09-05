@@ -7,7 +7,7 @@
     </template>
 
     <div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-8 mt-8">
-      <form @submit.prevent="submit">
+      <form @submit.prevent="validarDatos">
         <!-- parte 1 -- registro datos -->
         <div class="gap-6">
           <!-- parte frontal documento -->
@@ -129,7 +129,7 @@
         </div>
 
         <div class="flex justify-end mt-6">
-          <PrimaryButton :disabled="form.processing" @click="validarDatos">
+          <PrimaryButton :disabled="form.processing">
             Registrar jurado
           </PrimaryButton>
         </div>
@@ -205,6 +205,8 @@
       </div>
     </template>
   </Modal>
+
+  
 </template>
 
 <script setup>
@@ -225,6 +227,7 @@ import { PhotoIcon } from "@heroicons/vue/24/solid";
 import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp";
 
 import * as faceapi from "face-api.js";
+import { ProgressSpinner } from "primevue";
 const swal = inject("$swal");
 
 const breadcrumbLinks = [{ url: "", text: "Registro biometrico" }];
@@ -254,6 +257,8 @@ const video = ref(null);
 const message = ref("");
 const isCameraReady = ref(false);
 const loadingButtonBiometric = ref(false);
+//loading modal
+const loadingModal = ref(false);
 
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
@@ -388,6 +393,7 @@ const showModalBiometrico = async () => {
 
 //validar registro biometrico
 const registerAndValidate = async () => {
+  loadingModal.value = true;
   message.value = "";
   loadingButtonBiometric.value = true;
 
@@ -401,6 +407,7 @@ const registerAndValidate = async () => {
 
     message.value = "La cámara no está lista.";
     loadingButtonBiometric.value = false;
+    loadingModal.value = false;
 
     return;
   }
@@ -414,6 +421,7 @@ const registerAndValidate = async () => {
     console.log("entro -- validador");
 
     if (!detection) {
+      loadingModal.value = false;
       loadingButtonBiometric.value = false;
       message.value = "No se detectó un rostro.";
 
@@ -450,6 +458,7 @@ const registerAndValidate = async () => {
               console.log("Usuario decide volver a intentar");
               message.value = "";
               counterCamera.value = 0;
+              loadingModal.value = false;
             }
           });
       }
@@ -480,9 +489,7 @@ const registerAndValidate = async () => {
 
     const formData = new FormData();
     formData.append("embedding", descriptor);
-    loadingButtonBiometric.value = false;
-    biometricoModal.value = false;
-    loadingModal.value = true;
+
     axios
       .post(route("face-validate-jurado"), formData, {
         headers: {
@@ -494,6 +501,7 @@ const registerAndValidate = async () => {
         console.log(response);
         loadingButtonBiometric.value = false;
         loadingModal.value = false;
+        biometricoModal.value = false;
         if (response.data.match) {
           swal
             .fire({
@@ -509,7 +517,7 @@ const registerAndValidate = async () => {
                 // Continuar sin validar
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
-                submit();
+                saveRegister();
                 //poner llamado a modal de botones
               } else if (result.dismiss === swal.DismissReason.cancel) {
                 // Volver a intentar
@@ -525,7 +533,7 @@ const registerAndValidate = async () => {
               //poner llamado a modal de botones
               biometricoModal.value = false;
               loadingModal.value = true;
-              submit();
+              saveRegister();
             },
           });
         }
@@ -553,7 +561,7 @@ const registerAndValidate = async () => {
               form.embedding = "";
               form.validaciones = "fallo_registro_biometrico";
               biometricoModal.value = false;
-              submit();
+              saveRegister();
               //poner llamado a modal de botones
             } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
@@ -583,7 +591,7 @@ const registerAndValidate = async () => {
             form.validaciones = "fallo_registro";
             //poner llamado a modal de botones
             biometricoModal.value = false;
-            submit();
+            saveRegister();
           } else if (result.dismiss === swal.DismissReason.cancel) {
             // Volver a intentar
             console.log("Usuario decide volver a intentar");
@@ -618,7 +626,7 @@ const validarDatos = () => {
   }
 };
 
-const submit = () => {
+const saveRegister = () => {
   form.post(route("registro-biometrico-jurado"), {
     onSuccess: () => {
       swal({
