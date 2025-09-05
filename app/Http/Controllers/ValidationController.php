@@ -316,8 +316,10 @@ class ValidationController extends Controller
         $existe = Informacion_votantes::where('identificacion', $request->identificacion)
             ->where('comuna', '!=', 0)
             ->whereNotNull('comuna')
+            ->whereHas('users')
             ->exists();
 
+        $votante = [];
         if ($existe && $request->registro_presencial) {
             $votante = Informacion_votantes::select('id', 'identificacion', 'nombre', 'id_user')
                 ->where('identificacion', $request->identificacion)
@@ -330,10 +332,17 @@ class ValidationController extends Controller
                     'hashVotantes'
                 ])
                 ->first();
-            return response()->json(['existe' => $existe, 'votante' => $votante]);
+        } else if ($existe) {
+            $votante = Informacion_votantes::where('identificacion', $request->identificacion)
+                ->where('comuna', '!=', 0)
+                ->whereNotNull('comuna')
+                ->with([
+                    'hashVotantes:id,id_votante,subtipo'
+                ])
+                ->first();
         }
 
-        return response()->json(['existe' => $existe]);
+        return response()->json(['existe' => $existe, 'votante' => $votante]);
     }
 
     //editar registro corrección
