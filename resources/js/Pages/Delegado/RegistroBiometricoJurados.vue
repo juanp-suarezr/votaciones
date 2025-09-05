@@ -206,7 +206,7 @@
     </template>
   </Modal>
 
-  
+
 </template>
 
 <script setup>
@@ -532,7 +532,7 @@ const registerAndValidate = async () => {
             didClose: () => {
               //poner llamado a modal de botones
               biometricoModal.value = false;
-              loadingModal.value = true;
+              loadingModal.value = false;
               saveRegister();
             },
           });
