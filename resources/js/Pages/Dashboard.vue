@@ -985,6 +985,8 @@ const validarVotante = async (identificacion) => {
         confirmButtonColor: "#3085d6",
       });
     } else {
+        console.log("entro");
+
       router.get("/registro-gestion-administrativa", {
         identificacion: cedulaVotante,
         id_votante: response.data.votante.id,
@@ -992,6 +994,8 @@ const validarVotante = async (identificacion) => {
     }
     return response.data;
   } catch (error) {
+    console.log(error);
+
     isLoading.value = false;
     swal.fire({
       icon: "error",
