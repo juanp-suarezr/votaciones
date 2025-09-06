@@ -194,7 +194,13 @@ class ValidacionesController extends Controller
         ];
         if ($request->id_votante) {
 
-            $info = Informacion_votantes::findOrFail($request->id_votante);
+            $info = Informacion_votantes::with('user.biometrico')
+                ->with([
+                    'hashVotantes' => function ($query) {
+                        $query->where('subtipo', '!=', 0);
+                    }
+                ])
+                ->findOrFail($request->id_votante);
         }
 
         return Inertia::render(
