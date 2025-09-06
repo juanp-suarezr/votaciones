@@ -491,6 +491,7 @@ import Steps from "primevue/steps";
 import Select from "primevue/select";
 import ProgressSpinner from "primevue/progressspinner";
 import axios from "axios";
+import { useReCaptcha } from "vue-recaptcha-v3";
 import { PhotoIcon } from "@heroicons/vue/24/solid";
 
 //imagen
@@ -1237,7 +1238,7 @@ async function verificarCamaraONecesaria() {
 }
 
 onMounted(() => {
-  if (props.info.hash_votantes[0].subtipo) {
+  if (props.info.hash_votantes[0]?.subtipo) {
     form.comuna = getComuna(props.info.hash_votantes[0].subtipo);
   }
 
