@@ -193,7 +193,7 @@ class ValidacionesController extends Controller
             'identificacion' => $request->identificacion,
         ];
         if ($request->id_votante) {
-
+            dd($request->id_votante);
             $info = Informacion_votantes::with([
                     'hashVotantes' => function ($query) {
                         $query->where('subtipo', '!=', 0);
