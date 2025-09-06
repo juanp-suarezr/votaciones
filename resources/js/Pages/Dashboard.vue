@@ -29,7 +29,33 @@
 
     <!-- VISTA GESTOR -->
     <div v-if="$page.props.user.roles.includes('Gestor')" class="">
-        <h2>Registrar usuario</h2>
+      <h2>Registrar usuario</h2>
+      <!-- buscador de cedula para validar votacion -->
+      <div class="mt-4 sm:w-1/2">
+        <h2 class="text-gray-600 text-2xl inline-flex">
+          Validar numero de identificación
+        </h2>
+        <form
+          @submit.prevent="validarVotante(cedulaVotante)"
+          @keydown.enter="validarVotante(cedulaVotante)"
+          class="flex items-center mt-2"
+        >
+          <TextInput
+            v-model="cedulaVotante"
+            type="number"
+            placeholder="Ingrese numero de identificación"
+            class="block w-auto"
+          />
+          <PrimaryButton
+            type="submit"
+            class="ml-2 flex h-full justify-center items-center"
+            :class="{ 'opacity-25': isLoading }"
+            :disabled="isLoading"
+          >
+            Validar
+          </PrimaryButton>
+        </form>
+      </div>
     </div>
 
     <!-- votantes -->
@@ -393,7 +419,10 @@
         Gestión de registro presencial - virtual
       </h2>
       <!-- boton registros -->
-      <div v-if="existe_acta && props.registro_biometrico" class="sm:flex justify-between gap-4">
+      <div
+        v-if="existe_acta && props.registro_biometrico"
+        class="sm:flex justify-between gap-4"
+      >
         <PrimaryLink
           class="md:text-base mt-4"
           :class="{ 'opacity-25': isLoading }"
@@ -504,7 +533,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryLink from "@/Components/PrimaryLink.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { Head, useForm, usePage } from "@inertiajs/vue3";
+import { Head, router, useForm, usePage } from "@inertiajs/vue3";
 import { ref, computed, watch, inject, onMounted } from "vue";
 import { useToast } from "vue-toast-notification";
 import Message from "primevue/message";
@@ -933,6 +962,41 @@ const buscarVotante = async (identificacion) => {
       icon: "error",
       title: "Error",
       text: "Ocurrió un error al validar la identificación del votante. Intenta de nuevo.",
+      confirmButtonColor: "#d33",
+    });
+    return false;
+  }
+};
+
+const validarVotante = async (identificacion) => {
+  isLoading.value = true;
+  try {
+    const response = await axios.post("/validar-identificacion-presencial", {
+      identificacion,
+    });
+
+    isLoading.value = false;
+
+    if (response.data.existe) {
+      swal.fire({
+        icon: "success",
+        title: "Votante encontrado",
+        text: "La persona ya cuenta con registro realizado virtualmente.",
+        confirmButtonColor: "#3085d6",
+      });
+    } else {
+      router.get("/registro-gestion-administrativa", {
+        identificacion: cedulaVotante,
+        id_votante: response.data.votante.id,
+      });
+    }
+    return response.data;
+  } catch (error) {
+    isLoading.value = false;
+    swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Ocurrió un error al validar la identificación de la persona. Intenta de nuevo.",
       confirmButtonColor: "#d33",
     });
     return false;

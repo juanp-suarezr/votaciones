@@ -260,6 +260,8 @@ Route::middleware('auth')->group(function () {
     //jurados
     Route::post('/cargueJurados', [CargueMasivoController::class, 'cargueJurados'])->name('cargueJurados');
 
+    //gestion registros desde gestor
+    Route::get('/registro-gestion-administrativa', [ValidacionesController::class, 'registroGestion']);
     //historial registros
     Route::get('/historial_registros', [ValidacionesController::class, 'historial'])->name('historial_registros');
     //show registros segun historial

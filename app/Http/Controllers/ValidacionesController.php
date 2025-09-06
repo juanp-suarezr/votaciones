@@ -184,6 +184,20 @@ class ValidacionesController extends Controller
         );
     }
 
+    //gestion registro persona por gestor
+    public function registroGestion(Request $request) {
+        dd($request);
+
+        return Inertia::render(
+            'GestionRegistros/registroVotante',
+            [
+                'votantes' => $votantes,
+
+                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo']),
+            ]
+        );
+    }
+
     //aprobar registro
     public function aprobarRegistro(Request $request)
     {

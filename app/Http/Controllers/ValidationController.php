@@ -332,7 +332,7 @@ class ValidationController extends Controller
                     'hashVotantes'
                 ])
                 ->first();
-        } else if ($existe) {
+        } else if(!$existe) {
             $votante = Informacion_votantes::where('identificacion', $request->identificacion)
                 ->where('comuna', '!=', 0)
                 ->whereNotNull('comuna')
