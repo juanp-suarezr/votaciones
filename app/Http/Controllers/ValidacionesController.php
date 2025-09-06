@@ -194,8 +194,7 @@ class ValidacionesController extends Controller
         ];
         if ($request->id_votante) {
 
-            $info = Informacion_votantes::with('user.biometrico')
-                ->with([
+            $info = Informacion_votantes::with([
                     'hashVotantes' => function ($query) {
                         $query->where('subtipo', '!=', 0);
                     }
