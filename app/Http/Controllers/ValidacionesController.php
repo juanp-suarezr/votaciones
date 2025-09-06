@@ -8,6 +8,7 @@ use App\Models\Caninos;
 use App\Models\Certificados;
 use App\Models\Delegado;
 use App\Models\Hash_votantes;
+use App\Models\Informacion_votantes;
 use App\Models\InformacionUsuario;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Http\Request;
@@ -185,13 +186,25 @@ class ValidacionesController extends Controller
     }
 
     //gestion registro persona por gestor
-    public function registroGestion(Request $request) {
-        dd($request);
+    public function registroGestion(Request $request)
+    {
+
+        $info = [
+            [
+                'identificacion' => $request->identificacion,
+            ]
+        ];
+        if ($request->id_votante) {
+
+            $info = Informacion_votantes::findOrFail($request->id_votante);
+        }
+        dd($info);
+
 
         return Inertia::render(
             'GestionRegistros/registroVotante',
             [
-                'votantes' => $votantes,
+                'info' => $info,
 
                 'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo']),
             ]
