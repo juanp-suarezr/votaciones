@@ -989,7 +989,7 @@ const validarVotante = async (identificacion) => {
 
       router.get("/registro-gestion-administrativa", {
         identificacion: identificacion,
-        id_votante: response.data.votante.id,
+        id_votante: response.data?.votante.id || null,
       });
     }
     return response.data;
