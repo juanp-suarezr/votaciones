@@ -988,7 +988,7 @@ const validarVotante = async (identificacion) => {
         console.log("entro");
 
       router.get("/registro-gestion-administrativa", {
-        identificacion: cedulaVotante,
+        identificacion: identificacion,
         id_votante: response.data.votante.id,
       });
     }
