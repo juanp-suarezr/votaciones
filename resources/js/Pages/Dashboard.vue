@@ -27,6 +27,11 @@
       </div>
     </div>
 
+    <!-- VISTA GESTOR -->
+    <div v-if="$page.props.user.roles.includes('Gestor')" class="">
+        <h2>Registrar usuario</h2>
+    </div>
+
     <!-- votantes -->
     <div v-if="$page.props.user.roles.includes('Usuarios')" class="">
       <h2 class="text-gray-600 text-2xl inline-flex">Votaciones pendientes</h2>

@@ -131,6 +131,10 @@ import SecondaryLink from '@/Components/SecondaryLink.vue';
 const props = defineProps({
     proyectos: Object
 })
+
+console.log(props);
+
+
 const swal = inject('$swal');
 
 // Modal de eliminacion
