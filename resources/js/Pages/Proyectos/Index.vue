@@ -57,7 +57,7 @@
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.tipo }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
-                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.parametro_detalle.detalle }}</p>
+                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.parametro_detalle?.detalle }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.numero_tarjeton }}</p>
@@ -131,8 +131,6 @@ import SecondaryLink from '@/Components/SecondaryLink.vue';
 const props = defineProps({
     proyectos: Object
 })
-
-console.log(props);
 
 
 const swal = inject('$swal');
