@@ -198,7 +198,7 @@ class ValidacionesController extends Controller
         }
 
         return Inertia::render(
-            'GestionRegistros/registroVotante',
+            'GestionRegistros/RegistroVotante',
             [
                 'info' => $info,
 

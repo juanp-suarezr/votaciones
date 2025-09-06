@@ -1,13 +1,13 @@
 <template>
-  <PageLayout>
-    <Head title="Registro de Usuario" />
+  <Head title="Registrar datos" />
 
-    <div
-      class="w-full sm:max-w-6xl h-full mx-auto bg-white shadow-lg rounded-lg px-4 sm:px-6 py-12 z-10"
-    >
-      <h1 class="text-2xl font-bold text-center text-gray-800">
-        Registro votante
-      </h1>
+  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
+    <template #header> Registrar datos </template>
+
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6 border-b border-gray-200">
+        <h1>Registrar registro</h1>
+      </div>
 
       <div class="mt-4 justify-center">
         <Steps
@@ -22,7 +22,7 @@
         />
       </div>
 
-      <form class="m-auto py-4">
+      <form class="m-auto py-4 px-4">
         <!-- parte 1 -- validación -->
         <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
           <!-- Nombre -->
@@ -48,12 +48,7 @@
               v-model="form.identificacion"
               required
             />
-            <p
-              v-if="form.errors.identificacion"
-              class="mt-2 text-sm md:text-base text-red-600"
-            >
-              {{ form.errors.identificacion }}
-            </p>
+            <InputError class="mt-2" :message="form.errors.identificacion" />
           </div>
 
           <!-- Tipo de Documento -->
@@ -77,7 +72,7 @@
           </div>
 
           <!-- Fecha de Nacimiento -->
-          <div class="mb-2 sm:block hidden">
+          <div class="mb-2">
             <InputLabel for="nacimiento" value="Fecha de Nacimiento" />
             <TextInput
               id="nacimiento"
@@ -86,46 +81,6 @@
               v-model="form.nacimiento"
               required
             />
-            <InputError class="mt-2" :message="form.errors.nacimiento" />
-            <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
-          </div>
-          <!-- fecha nacimiento mobil -->
-          <div class="mb-2 sm:hidden grid grid-cols-3 gap-2">
-            <InputLabel
-              class="col-span-3"
-              for="nacimiento"
-              value="Fecha de Nacimiento"
-            />
-            <!-- dia -->
-            <div class="w-auto mt-1">
-              <InputLabel for="nacimientoDia" value="Día" />
-              <TextInput
-                id="nacimientoDia"
-                type="number"
-                class="block"
-                v-model="diaNacimiento"
-              />
-            </div>
-            <!-- mes -->
-            <div class="w-auto mt-1">
-              <InputLabel for="nacimientoMes" value="Mes" />
-              <TextInput
-                id="nacimientoMes"
-                type="number"
-                class="block"
-                v-model="mesNacimiento"
-              />
-            </div>
-            <!-- Annio -->
-            <div class="w-auto mt-1">
-              <InputLabel for="nacimientoAnnio" value="Año" />
-              <TextInput
-                id="nacimientoAnnio"
-                type="number"
-                class="block"
-                v-model="AnnioNacimiento"
-              />
-            </div>
             <InputError class="mt-2" :message="form.errors.nacimiento" />
             <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
           </div>
@@ -232,32 +187,6 @@
             <InputError class="mt-2" :message="form.errors.condicion" />
           </div>
 
-          <!-- Celular -->
-          <div class="w-full mb-2">
-            <!-- celular -->
-            <div>
-              <InputLabel for="celular" value="Celular" />
-              <div class="w-full flex flex-wrap gap-2 mt-1">
-                <!-- indicativo bloqueado -->
-                <div
-                  class="flex items-center w-auto[20%] block p-2 border border-gray-400 bg-gray-100 rounded-md"
-                >
-                  <p>+57</p>
-                </div>
-                <!-- celular -->
-                <TextInput
-                  id="celular"
-                  type="number"
-                  class="w-[80%] flex"
-                  v-model="form.celular"
-                  required
-                />
-              </div>
-
-              <InputError class="mt-2" :message="form.errors.celular" />
-            </div>
-          </div>
-
           <!-- Comuna -->
           <div class="mb-2">
             <InputLabel for="comuna" value="Comuna/Corregimiento" />
@@ -267,7 +196,7 @@
               :options="comunas"
               filter
               optionLabel="label"
-              placeholder="Seleccione comuna/corregimiento de dirección"
+              placeholder="Seleccione comuna/corregimiento del proyecto"
               checkmark
               :highlightOnSelect="false"
               class="w-full"
@@ -288,15 +217,6 @@
               :highlightOnSelect="false"
               class="w-full"
             />
-            <div class="w-full mt-2" v-if="isOtroBarrio">
-              <InputLabel for="barrio_otro" value="Cual?" />
-              <TextInput
-                id="barrio_otro"
-                type="text"
-                class="mt-1 block w-full"
-                v-model="form.barrio"
-              />
-            </div>
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
           <!-- Dirección -->
@@ -310,42 +230,6 @@
               required
             />
             <InputError class="mt-2" :message="form.errors.direccion" />
-          </div>
-          <!-- Correo -->
-          <div class="mb-2">
-            <InputLabel for="email" value="Correo Electrónico" />
-            <TextInput
-              id="email"
-              type="email"
-              class="mt-1 block w-full"
-              v-model="form.email"
-            />
-            <InputError class="mt-2" :message="form.errors.email" />
-          </div>
-          <!-- aviso contraseña -->
-          <div class="mb-2">
-            <div class="bg-azul rounded-md p-2 w-full h-full">
-              <p class="text-white text-base">
-                Digite una contraseña fácil de recordar para luego acceder a
-                votar.
-              </p>
-            </div>
-          </div>
-          <!-- Contraseña -->
-          <div class="mb-2">
-            <InputLabel
-              for="password"
-              value="Contraseña (mínimo: 8 caracteres)"
-            />
-            <Password
-              id="password"
-              v-model="form.password"
-              required
-              toggleMask
-              autocomplete="current-password"
-            />
-
-            <InputError class="mt-2" :message="form.errors.password" />
           </div>
 
           <!-- ncheck tratamiento datos -->
@@ -365,7 +249,7 @@
                 href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
                 target="_blank"
                 class="underline !text-azul cursor-pointer"
-                >Política</a
+                >politica</a
               ></label
             >
             <InputError class="mt-1" :message="form.errors.checked" />
@@ -382,14 +266,11 @@
             <label
               for="consentimiento2"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Manifiesto que acepto, bajo juramento, la
-              <a
-                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
-                target="_blank"
-                class="underline !text-azul cursor-pointer"
-                >Declaración</a
-              >
-              sobre la veracidad de la información registrada</label
+              >Declaro bajo la gravedad de juramento que toda la información
+              suministrada en este formulario es verídica, completa y
+              corresponde a la realidad. Entiendo que proporcionar información
+              falsa puede acarrear sanciones legales conforme a la normativa
+              vigente.</label
             >
             <InputError class="mt-1" :message="form.errors.declaracion" />
           </div>
@@ -460,7 +341,7 @@
                 <div class="flex justify-center">
                   <img
                     v-if="imageUrl"
-                    :src="imageUrl"
+                    :src="getUrlDocumentos(imageUrl, 1)"
                     :alt="form.cedula_front"
                     class="w-4/6 h-full object-contain"
                   />
@@ -516,7 +397,7 @@
         </div>
       </form>
     </div>
-  </PageLayout>
+  </AuthenticatedLayout>
 
   <!-- Modal loading -->
   <Modal :show="loadingModal" :closeable="false">
@@ -585,116 +466,73 @@
       </div>
     </template>
   </Modal>
-
-  <!-- Modal inicio -->
-  <Modal :show="InicioModal" :closeable="true">
-    <template #default>
-      <h2
-        class="p-4 sm:text-4xl text-2x font-bold text-gray-800 text-justify flex tex-center justify-center bg-azul text-white"
-      >
-        Aviso Importante para el proceso de registro
-      </h2>
-
-      <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
-        <p>
-          El dispositivo que utilice para registrarse debe contar con cámara, ya
-          que es un requisito indispensable para la validación de identidad.
-        </p>
-        <br />
-        <p>
-          Asegúrese de ingresar correctamente toda la información solicitada, ya
-          que cualquier error podría resultar en el rechazo.
-        </p>
-        <br />
-        <p>
-          Al momento de seleccionar su comuna o corregimiento, hágalo con
-          precisión. Recuerde que el derecho al voto solo podrá ejercerse una
-          única vez y no habrá posibilidad de repetir el proceso.
-        </p>
-      </div>
-
-      <div class="flex justify-center gap-4 text-center h-full my-6">
-        <PrimaryButton
-          type="button"
-          class="h-full text-xl sm:text-2xl"
-          @click="InicioModal = false"
-          :class="{ 'opacity-25': form.processing }"
-          :disabled="form.processing"
-        >
-          Continuar
-        </PrimaryButton>
-      </div>
-    </template>
-  </Modal>
 </template>
 
 <script setup>
-import PageLayout from "@/Layouts/PageLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Head, useForm } from "@inertiajs/vue3";
+import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
+
+import comunas from "@/shared/comunas.json"; // Importa el JSON
+import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
+
+import barrios from "@/shared/barrios.json"; // Importa el JSON
+import condicion from "@/shared/condicion.json"; // Importa el JSON
+import etnia from "@/shared/etnia.json"; // Importa el JSON
+
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { useForm, Head } from "@inertiajs/vue3";
+
 import Steps from "primevue/steps";
 import Select from "primevue/select";
 import ProgressSpinner from "primevue/progressspinner";
-import Password from "primevue/password";
-import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
-import departamentos from "@/shared/departamentos.json"; // Importa el JSON
-import ciudades from "@/shared/ciudades.json"; // Importa el JSON
-import comunas from "@/shared/comunas.json"; // Importa el JSON
-import barrios from "@/shared/barrios.json"; // Importa el JSON
-import condicion from "@/shared/condicion.json"; // Importa el JSON
-import etnia from "@/shared/etnia.json"; // Importa el JSON
-import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
 import axios from "axios";
-const swal = inject("$swal");
-import { useReCaptcha } from "vue-recaptcha-v3";
 import { PhotoIcon } from "@heroicons/vue/24/solid";
 
 //imagen
 import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp";
-import backEjemplo from "../../../../public/assets/img/cedulaBackEjemplo.webp";
 
 import * as faceapi from "face-api.js";
+const swal = inject("$swal");
 
-const form = useForm({
-  nombre: "",
-  identificacion: "",
-  tipo_documento: "",
-  nacimiento: "",
-  cedula_front: null,
-  genero: "",
-  etnia: "",
-  condicion: "",
-  direccion: "",
-  celular: "",
-  comuna: "",
-  barrio: "",
-  email: "",
-  password: "",
-  embedding: "",
-  photo: "",
-  validaciones: "",
-  checked: false,
-  declaracion: false,
-  recaptcha_token: "",
-  campoObligatorio: "",
+const breadcrumbLinks = [{ url: "", text: "Corregir datos" }];
+
+const props = defineProps({
+  info: {
+    type: Object,
+  },
 });
 
-const { executeRecaptcha } = useReCaptcha();
+console.log("info data:", props.info);
 
-const departamentoSelected = ref("");
-const ciudadesxDep = ref([]);
+const form = useForm({
+  id_votante: props.info.id || "",
+  nombre: props.info.nombre || "",
+  identificacion: props.info.identificacion || "",
+  tipo_documento: props.info.tipo_documento || "",
+  nacimiento: props.info.nacimiento || "",
+  cedula_front: null,
+  genero: props.info.genero || "",
+  etnia: props.info.etnia || "",
+  condicion: props.info.condicion || "",
+  direccion: props.info.direccion || "",
+  comuna: props.info.hash_votantes[0].subtipo || "",
+  barrio: props.info.barrio || "",
+
+  embedding: null,
+  photo: null,
+  checked: false,
+  declaracion: false,
+  campoObligatorio: "",
+  recaptcha_token: "",
+});
+
 const comunaSelected = ref("");
 const barriosXComuna = ref([]);
-
-//fecha nacimiento
-const diaNacimiento = ref("");
-const mesNacimiento = ref("");
-const AnnioNacimiento = ref("");
 
 //modal loading
 const loadingModal = ref(false);
@@ -740,14 +578,9 @@ const biometricoModal = ref(false);
 //SABER SI SE ACTIVA EL INPUT DE OTROS
 const IsNewGenero = ref(false);
 
-//Modal botones de validar
-const botonesValidarModal = ref(false);
-
 //imagenes documentos
 //variable de imagen frontal
 const imageUrl = ref(null);
-//variable de imagen documento posterior
-const imageUrl1 = ref(null);
 
 //face api js
 const devices = ref([]);
@@ -760,32 +593,19 @@ const loadingButtonBiometric = ref(false);
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
 
-//verificar si el barrio es otro
-const isOtroBarrio = ref(false);
-
-//WATCH FECHA NACIMIENTO MOBIL
-watch([diaNacimiento, mesNacimiento, AnnioNacimiento], ([dia, mes, annio]) => {
-  if (dia && mes && annio) {
-    // Formato YYYY-MM-DD
-    const diaStr = String(dia).padStart(2, "0");
-    const mesStr = String(mes).padStart(2, "0");
-    form.nacimiento = `${annio}-${mesStr}-${diaStr}`;
+const getUrlDocumentos = (url, num) => {
+  if (num === 1) {
+    if (form.cedula_front === null) {
+      return `/storage/uploads/documentos/${url}`;
+    }
   }
-});
+  return url;
+};
 
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
   if (value) {
     form.genero = "";
-  }
-});
-
-//WATCH DEPARTAMENTOS
-watch(departamentoSelected, (newValue) => {
-  if (newValue) {
-    ciudadesxDep.value = ciudades.find(
-      (ciudad) => ciudad.id === newValue.id
-    ).ciudades;
   }
 });
 
@@ -800,73 +620,12 @@ watch(comunaSelected, (newValue) => {
   }
 });
 
-//WATCH BARRIO -- OTROS
-watch(
-  () => form.barrio,
-  (value) => {
-    console.log(value);
-
-    if (value == "Otro") {
-      form.barrio = "";
-      isOtroBarrio.value = true;
-    }
-  }
-);
-
-// Observa todos los campos del formulario y elimina errores automáticamente
-watch(
-  () => form.data(),
-  (nuevoValor) => {
-    Object.keys(form.errors).forEach((campo) => {
-      if (nuevoValor[campo]) {
-        form.errors[campo] = null;
-      }
-    });
-  },
-  { deep: true }
-);
-
-async function verificarCamaraONecesaria() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-    swal.fire({
-      icon: "warning",
-      title: "Navegador no compatible",
-      text: "Tu navegador no permite acceder a los dispositivos multimedia.",
-    });
-    return;
-  }
-
-  try {
-    const dispositivos = await navigator.mediaDevices.enumerateDevices();
-    const camaras = dispositivos.filter(
-      (dispositivo) => dispositivo.kind === "videoinput"
-    );
-
-    if (camaras.length === 0) {
-      swal.fire({
-        icon: "warning",
-        title: "Cámara no detectada",
-        text: "Es necesario que el dispositivo tenga una cámara para continuar con el proceso.",
-      });
-    } else {
-      console.log("Cámara detectada, puede continuar.");
-      // Aquí puede continuar con su proceso
-    }
-  } catch (error) {
-    console.error("Error al verificar dispositivos:", error);
-    swal.fire({
-      icon: "error",
-      title: "Error al verificar la cámara",
-      text: "Ocurrió un problema al intentar detectar la cámara.",
-    });
-  }
-}
-
 const onFileChange = (field, event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  const processImage = (file, callback) => {
+  // Función para comprimir/redimensionar
+  const compressImage = (file, callback) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -876,11 +635,10 @@ const onFileChange = (field, event) => {
 
         const maxWidth = 1024;
         const maxHeight = 1024;
-
         let width = img.width;
         let height = img.height;
 
-        // Redimensionar solo si excede el tamaño máximo
+        // Redimensionar manteniendo proporción
         if (width > maxWidth || height > maxHeight) {
           if (width > height) {
             height = Math.round((height * maxWidth) / width);
@@ -913,7 +671,7 @@ const onFileChange = (field, event) => {
             callback(compressedFile, URL.createObjectURL(compressedFile));
           },
           "image/jpeg",
-          0.8 // calidad
+          0.8
         );
       };
       img.src = e.target.result;
@@ -921,8 +679,8 @@ const onFileChange = (field, event) => {
     reader.readAsDataURL(file);
   };
 
-  // Procesar y asignar dependiendo del campo
-  processImage(file, (finalFile, previewUrl) => {
+  // Procesar la imagen
+  compressImage(file, (finalFile, previewUrl) => {
     form[field] = finalFile;
 
     if (field === "cedula_front") {
@@ -936,13 +694,11 @@ const removeImage = (num) => {
   if (num === 1) {
     form.cedula_front = null;
     imageUrl.value = null;
-  } else if (num === 2) {
-    form.cedula_back = null;
-    imageUrl1.value = null;
   }
 };
 
 const formatDate = (date) => {
+  if (!date) return "";
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -1044,7 +800,6 @@ const registerAndValidate = async () => {
         //poner llamado a loading modal
       },
     });
-
 
     //capturar foto de rostro
     const canvas = document.createElement("canvas");
@@ -1228,23 +983,15 @@ const validateEdad = () => {
     return false;
   }
   const hoy = new Date();
-
-  const nacimiento = form.nacimiento;
-  const [anioNac, mesNac, diaNac] = nacimiento.split("-").map(Number);
-
-  let edad = hoy.getFullYear() - anioNac;
-
-  const m = hoy.getMonth() - (mesNac - 1);
-  console.log(hoy.getMonth());
-
-  console.log(m);
-
-  console.log(hoy.getDate());
-  if (m < 0 || (m === 0 && hoy.getDate() < diaNac)) {
+  const nacimiento = new Date(form.nacimiento);
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
     edad--;
   }
   if (edad < 14) {
-    errorEdad.value = "Edad minima para participar: 14 años.";
+    errorEdad.value =
+      "No cumple con el requisito de edad mínima (14 años), por lo tanto, no puede ejercer el derecho al voto.";
     return false;
   }
   errorEdad.value = "";
@@ -1254,34 +1001,12 @@ const validateEdad = () => {
 //validar datos step1
 const validateStep1 = async () => {
   isValidate.value = false;
-  if (
-    form.nombre &&
-    form.identificacion &&
-    form.tipo_documento &&
-    form.nacimiento
-  ) {
-    console.log(form.nacimiento);
-
+  if (form.nombre && form.tipo_documento && form.nacimiento) {
     if (!validateEdad()) return;
     // Limpia mensajes previos
     errorMessage.value = "";
 
-    // Llama al servicio para comprobar la identificación
-    try {
-      const existe = await checkIdentificacionService(form.identificacion);
-      console.log("Identificación existe:", existe);
-      if (existe) {
-        errorMessage.value = "Tu documento de identidad ya está registrado.";
-        isValidate.value = false;
-      } else {
-        errorMessage.value = "";
-        isValidate.value = true;
-      }
-    } catch (error) {
-      errorMessage.value =
-        "Error al validar la identificación. Intenta de nuevo.";
-      isValidate.value = false;
-    }
+    isValidate.value = true;
   }
 
   if (isValidate.value) {
@@ -1297,20 +1022,17 @@ const validateStep1 = async () => {
     if (!form.tipo_documento) {
       form.errors.tipo_documento = "Este campo es requerido.";
     }
+    if (!form.fecha_expedicion) {
+      form.errors.fecha_expedicion = "Este campo es requerido.";
+    }
 
+    if (!form.lugar_expedicion) {
+      form.errors.lugar_expedicion = "Este campo es requerido.";
+    }
     if (!form.nacimiento) {
       form.errors.nacimiento = "Este campo es requerido.";
     }
   }
-};
-
-//llamado validador identificacion
-const checkIdentificacionService = async (identificacion) => {
-  const response = await axios.post("/validar-identificacion", {
-    identificacion,
-  });
-
-  return response.data.existe; // true si existe, false si no
 };
 
 //next
@@ -1341,30 +1063,18 @@ const validarDatos2 = () => {
     form.genero &&
     form.etnia &&
     form.condicion &&
-    form.celular &&
     form.comuna &&
     form.barrio &&
     form.direccion &&
-    form.password &&
     form.checked &&
     form.declaracion
   ) {
-    console.log(form.password.length);
-
-    if (form.password.length >= 8) {
-      isValidate.value = true;
-      active.value = 2;
-    }
+    isValidate.value = true;
+    active.value = 2;
   }
 
   if (isValidate.value) {
   } else {
-    if (form.password) {
-      form.errors.password =
-        "El campo de contraseña debe contener minimo 8 caracteres. " +
-        form.password.length +
-        "/8 caracteres ingresados";
-    }
     if (!form.genero) {
       form.errors.genero = "Este campo es requerido.";
     }
@@ -1374,9 +1084,7 @@ const validarDatos2 = () => {
     if (!form.condicion) {
       form.errors.condicion = "Este campo es requerido.";
     }
-    if (!form.celular) {
-      form.errors.celular = "Este campo es requerido.";
-    }
+
     if (!form.comuna) {
       form.errors.comuna = "Este campo es requerido.";
     }
@@ -1387,9 +1095,7 @@ const validarDatos2 = () => {
     if (!form.direccion) {
       form.errors.direccion = "Este campo es requerido.";
     }
-    if (!form.password) {
-      form.errors.password = "Este campo es requerido.";
-    }
+
     if (!form.checked) {
       form.errors.checked = "Este campo es requerido.";
     }
@@ -1401,7 +1107,11 @@ const validarDatos2 = () => {
 
 const validarDatos3 = () => {
   isValidate.value = false;
-  if (form.cedula_front) {
+  console.log("Validando datos del paso 3", imageUrl.value);
+
+  if (form.cedula_front || imageUrl) {
+    console.log("Datos del paso 3 son válidos");
+
     isValidate.value = true;
   }
 
@@ -1471,15 +1181,11 @@ watch(selectedDeviceId, async (newDeviceId) => {
 });
 
 const stopCamera = () => {
-  try {
-    if (video.value && video.value.srcObject) {
-      const stream = video.value.srcObject;
-      stream.getTracks().forEach((track) => track.stop());
-      video.value.srcObject = null;
-    }
-  } catch (error) {
-    console.error("Error al detener la cámara:", error);
+  const stream = video.value?.srcObject;
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
   }
+  video.value.srcObject = null;
 };
 
 watch(biometricoModal, (newVal) => {
@@ -1488,7 +1194,56 @@ watch(biometricoModal, (newVal) => {
   }
 });
 
+const getComuna = (idComuna) => {
+  console.log(idComuna);
+
+  return comunas.find((item) => item.value == idComuna);
+};
+
+async function verificarCamaraONecesaria() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    swal.fire({
+      icon: "warning",
+      title: "Navegador no compatible",
+      text: "Tu navegador no permite acceder a los dispositivos multimedia.",
+    });
+    return;
+  }
+
+  try {
+    const dispositivos = await navigator.mediaDevices.enumerateDevices();
+    const camaras = dispositivos.filter(
+      (dispositivo) => dispositivo.kind === "videoinput"
+    );
+
+    if (camaras.length === 0) {
+      swal.fire({
+        icon: "warning",
+        title: "Cámara no detectada",
+        text: "Es necesario que el dispositivo tenga una cámara para continuar con el proceso.",
+      });
+    } else {
+      console.log("Cámara detectada, puede continuar.");
+      // Aquí puede continuar con su proceso
+    }
+  } catch (error) {
+    console.error("Error al verificar dispositivos:", error);
+    swal.fire({
+      icon: "error",
+      title: "Error al verificar la cámara",
+      text: "Ocurrió un problema al intentar detectar la cámara.",
+    });
+  }
+}
+
 onMounted(() => {
+  if (props.info.hash_votantes[0].subtipo) {
+    form.comuna = getComuna(props.info.hash_votantes[0].subtipo);
+  }
+
+  form.fecha_expedicion = formatDate(props.info.fecha_expedicion);
+  form.nacimiento = formatDate(props.info.nacimiento);
+
   verificarCamaraONecesaria();
 });
 </script>
