@@ -10,6 +10,9 @@
 
     <div class="p-4">
       <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div class="w-full mb-4 border-b-2 border-secondary pb-4">
+            <ApplicationLogo class="h-24 !w-full object-contain" />
+        </div>
         <h2 class="text-lg font-bold mb-4 text-blue-900">
           Datos del reporte de escrutinio
         </h2>
@@ -198,6 +201,38 @@
             </div>
           </div>
         </div>
+        <!-- firmas delegados -->
+        <div
+          class="w-full col-span-2 flex flex-wrap justify-between mt-4"
+          v-if="delegados.length"
+        >
+          <!-- delegados -->
+          <div
+            v-for="delegado in delegados"
+            :key="delegado.id"
+            class="w-auto p-4"
+          >
+            <!-- imagen de firma -->
+            <div class="shadow-md border-b border-black mb-2 p-2">
+              <img
+                class="w-auto h-44 object-contain"
+                :src="getFirma(delegado.firma)"
+              />
+            </div>
+            <!-- informacion -->
+            <div class="w-auto">
+              <p>
+                {{ delegado.nombre }}
+              </p>
+              <p>
+                {{ delegado.identificacion }}
+              </p>
+              <p>
+                {{ delegado.cargo }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </AuthenticatedLayout>
@@ -217,6 +252,8 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 
 import { ref, inject, computed } from "vue";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+
 
 const swal = inject("$swal");
 
@@ -226,6 +263,10 @@ const props = defineProps({
     required: true,
   },
   parametros: {
+    type: Object,
+  },
+
+  delegados: {
     type: Object,
   },
 });
@@ -256,6 +297,7 @@ const getParametros = (id) => {
 
 const getUrlActa = (url) => `/storage/uploads/actas/${url}`;
 const getUrlBiometrico = (url) => `/storage/uploads/fotos/${url}`;
+const getFirma = (url) => `/storage/uploads/delegado/${url}`;
 
 const formatDate = (date) => {
   const d = new Date(date);

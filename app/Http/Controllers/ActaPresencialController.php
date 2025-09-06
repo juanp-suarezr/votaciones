@@ -87,9 +87,12 @@ class ActaPresencialController extends Controller
             ->with('votos_fisico.proyecto')
             ->findOrFail($id);
 
+            $delegados = Delegados::where('tipo', 'secretario')->get();
+
         return Inertia::render('VotantesPresencial/Show', [
             'acta' => $acta,
             'parametros' => ParametrosDetalle::where('estado', 1)->get(),
+            'delegados' => $delegados,
 
         ]);
     }

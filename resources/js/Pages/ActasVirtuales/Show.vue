@@ -52,7 +52,7 @@
             </template>
             <span v-else> No hay comunas asignadas </span>
           </div>
-
+          
           <!-- Info jurado -->
           <div
             class="md:col-span-2 mt-4 sm:grid sm:grid-cols-2 gap-6"
@@ -71,6 +71,7 @@
                 class="w-full sm:h-36 sm:object-cover"
               />
             </div>
+
             <div
               class="card shadow-lg rounded-md p-4 sm:h-36 h-full flex items-center justify-center"
               v-else
