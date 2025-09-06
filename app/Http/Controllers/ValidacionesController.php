@@ -190,23 +190,18 @@ class ValidacionesController extends Controller
     {
 
         $info = [
-            [
-                'identificacion' => $request->identificacion,
-            ]
+            'identificacion' => $request->identificacion,
         ];
         if ($request->id_votante) {
 
             $info = Informacion_votantes::findOrFail($request->id_votante);
         }
-        dd($info);
-
 
         return Inertia::render(
             'GestionRegistros/registroVotante',
             [
                 'info' => $info,
 
-                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo']),
             ]
         );
     }
