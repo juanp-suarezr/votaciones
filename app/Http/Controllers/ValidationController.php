@@ -316,7 +316,7 @@ class ValidationController extends Controller
         $existe = Informacion_votantes::where('identificacion', $request->identificacion)
             ->where('comuna', '!=', 0)
             ->whereNotNull('comuna')
-            ->whereHas('users')
+            ->whereHas('user')
             ->exists();
 
         $votante = [];
