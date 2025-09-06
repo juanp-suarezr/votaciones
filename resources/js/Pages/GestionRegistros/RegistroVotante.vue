@@ -521,7 +521,7 @@ const form = useForm({
   etnia: props.info.etnia || "",
   condicion: props.info.condicion || "",
   direccion: props.info.direccion || "",
-  comuna: props.info.hash_votantes[0]?.subtipo || "",
+  comuna: props.info.hash_votantes ? props.info.hash_votantes[0].subtipo : null,
   barrio: props.info.barrio || "",
 
   embedding: null,
@@ -1238,7 +1238,7 @@ async function verificarCamaraONecesaria() {
 }
 
 onMounted(() => {
-  if (props.info.hash_votantes[0]?.subtipo) {
+  if (props.info.hash_votantes && props.info.hash_votantes[0]?.subtipo) {
     form.comuna = getComuna(props.info.hash_votantes[0].subtipo);
   }
 
