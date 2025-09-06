@@ -520,7 +520,7 @@ const form = useForm({
   etnia: props.info.etnia || "",
   condicion: props.info.condicion || "",
   direccion: props.info.direccion || "",
-  comuna: props.info.hash_votantes[0].subtipo || "",
+  comuna: props.info.hash_votantes[0]?.subtipo || "",
   barrio: props.info.barrio || "",
 
   embedding: null,
