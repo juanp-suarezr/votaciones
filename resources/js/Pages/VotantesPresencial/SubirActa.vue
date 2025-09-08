@@ -273,14 +273,8 @@
             <!-- total votantes -->
             <div class="mb-2 w-1/4">
               <InputLabel for="total_votantes" value="Total votantes" />
-              <TextInput
-                id="total_votantes"
-                v-model="form.total_votantes"
-                class="mt-1 block w-full"
-                type="number"
-                required
-              />
-              <InputError :message="form.errors.total_votantes" class="mt-2" />
+              <b>{{form.total_votantes}}</b>
+
             </div>
           </div>
         </div>

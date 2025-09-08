@@ -936,14 +936,14 @@ const buscarVotante = async (identificacion) => {
         swal.fire({
           icon: "warning",
           title: "Votante con voto",
-          text: "El votante ya ha votado virtualmente.",
+          text: "El votante ya ha votado.",
           confirmButtonColor: "#d33",
         });
       } else {
         swal.fire({
           icon: "success",
           title: "Votante encontrado",
-          text: "El votante, se registro pero no voto virtualmente.",
+          text: "El votante, se registro pero no ha votado.",
           confirmButtonColor: "#3085d6",
         });
       }
