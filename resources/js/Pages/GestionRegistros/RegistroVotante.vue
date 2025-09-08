@@ -1232,7 +1232,7 @@ const submit = async () => {
         text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará internamente la validación de su información, el estado del trámite será notificado a través del correo electrónico registrado. Recuerde que su usuario es su número de identificación y la contraseña es la que ingresó al momento del registro.",
         icon: "success",
       }).then((result) => {
-        window.location.href = route("welcome");
+        window.location.href = route("/dashboard");
       });
       sessionStorage.removeItem("fallo_camara");
       sessionStorage.removeItem("fallo_registro");
