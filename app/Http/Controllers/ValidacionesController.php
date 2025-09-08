@@ -102,6 +102,7 @@ class ValidacionesController extends Controller
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('user_id', '!=', $votante->votante->user->id)
+            ->whereDoesntHave('user.jurado') // filtra solo los biometricos cuyo usuario no tiene jurado
             ->with([
                 'user:id', // solo carga el id del usuario
                 'user.votantes:id,id_user,nombre,identificacion', // solo carga el id del votante y su user_id
@@ -193,7 +194,7 @@ class ValidacionesController extends Controller
             'identificacion' => $request->identificacion,
         ];
         if ($request->id_votante) {
-            
+
             $info = Informacion_votantes::with([
                     'hashVotantes' => function ($query) {
                         $query->where('subtipo', '!=', 0);
@@ -366,6 +367,7 @@ class ValidacionesController extends Controller
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('user_id', '!=', $votante->votante->user->id)
+            ->whereDoesntHave('user.jurado') // filtra solo los biometricos cuyo usuario no tiene jurado
             ->with([
                 'user:id', // solo carga el id del usuario
                 'user.votantes:id,id_user,nombre,identificacion', // solo carga el id del votante y su user_id
