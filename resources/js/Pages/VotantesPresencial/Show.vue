@@ -69,7 +69,7 @@
               >
                 <img
                   :src="getUrlBiometrico(acta.jurado.user.biometrico.photo)"
-                  class="w-full sm:h-36 sm:object-cover"
+                  class="w-full sm:h-48 sm:object-cover"
                 />
               </div>
               <div
@@ -79,7 +79,7 @@
                 Img jurado
               </div>
               <!-- informacion jurado -->
-              <div class="flex flex-wrap my-auto">
+              <div class="flex flex-col my-auto">
                 <div>
                   <b>Nombre:</b>
                   {{ acta.jurado.nombre || "N/A" }}
