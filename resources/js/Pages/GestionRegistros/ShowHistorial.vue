@@ -60,7 +60,7 @@
         class="bg-white shadow-md rounded-lg p-6 flex flex-wrap gap-8 items-start"
       >
         <!-- Foto del votante -->
-        <div class="flex-shrink-0 flex flex-col items-center">
+        <div class="sm:flex-shrink-0 flex flex-col items-center">
           <h2>Fotografía</h2>
           <img
             v-if="votante.votante?.user.biometrico"
@@ -69,13 +69,13 @@
             @click="
               openLightbox(getUrlPhoto(votante.votante?.user.biometrico.photo))
             "
-            class="w-64 h-64 cursor-pointer object-cover rounded-lg border shadow"
+            class="sm:w-64 sm:h-64 w-full cursor-pointer sm:object-cover object-contain rounded-lg border shadow"
           />
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
 
         <!-- Foto de cedula -->
-        <div class="flex-shrink-0 flex flex-col items-center">
+        <div class="sm:flex-shrink-0 flex flex-col items-center">
           <h2>frontal</h2>
           <img
             v-if="votante.votante?.user.biometrico"
@@ -88,7 +88,7 @@
                 getUrlDocumentos(votante.votante?.user.biometrico.cedula_front)
               )
             "
-            class="w-full h-64 cursor-pointer object-cover rounded-lg border shadow"
+            class="w-full sm:h-64 cursor-pointer sm:object-cover object-contain rounded-lg border shadow"
           />
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
@@ -128,7 +128,7 @@
               Parte frontal del documento poco visible
             </option>
 
-            
+
             <option value="Registro duplicado">Registro duplicado</option>
             <option
               value="Información errónea, en comparación con la documentación"
