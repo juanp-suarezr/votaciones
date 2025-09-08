@@ -5,7 +5,7 @@
     <template #header> Parámetros detalle </template>
 
     <div
-      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4"
+      class="inline-block min-w-full overflow-hidden grid md:grid-cols-3 gap-4"
     >
       <div>
         <select
@@ -68,8 +68,21 @@
       <div class="text-right p-4 gap-2 flex flex-wrap">
         <SecondaryButton @click="clearFilters"> Limpiar </SecondaryButton>
         <PrimaryButton @click="Actualizar('new')"> Agregar </PrimaryButton>
+
       </div>
     </div>
+
+    <!-- Input de carga masiva -->
+  <div class="w-auto mb-4">
+    <label for="carga-masiva" class="text-base font-semibold mb-1">Carga masiva</label>
+    <input
+      id="carga-masiva"
+      type="file"
+      class="block w-auto py-2 text-base text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+      @change="onCargaMasiva"
+      accept=".xlsx"
+    />
+  </div>
 
     <div class="w-full overflow-x-scroll md:overflow-x-auto rounded-lg shadow">
       <table class="w-full whitespace-no-wrap overflow-x-auto">
@@ -305,12 +318,18 @@ const form = useForm({
   detalle: "",
   codParametro: props.filters.codParametro,
   estado: "1",
+  file: null,
 });
 
 const breadcrumbLinks = [
   { url: "/parametros", text: "listado de parámetros generales" },
   { url: "", text: "listado de parámetros detalle" },
 ];
+
+const onCargaMasiva = (e) => {
+  form.file = e.target.files[0];
+  form.post(route("parametrosDetalle.cargaMasiva"));
+};
 
 const closeModal = () => {
   confirmingDeletion.value = false;
@@ -333,7 +352,7 @@ const Actualizar = (id) => {
 //Añadir o actualizar
 const EventoTipo = (num) => {
   if (num == "new") {
-    
+
 
     form.post(route("parametrosDetalle.store"), {
       preserveScroll: true,

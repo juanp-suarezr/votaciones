@@ -12,6 +12,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Exports\JuradosExports;
 use App\Imports\JuradosImport;
+use App\Imports\ParametrosDetalleImport;
 
 class cargueMasivoController extends Controller
 {
@@ -86,6 +87,30 @@ class cargueMasivoController extends Controller
             'numRegistrosActualizados' => $numRegistrosActualizados,
 
         ]);
+    }
+
+    //CARGUE MASIVO PARAMETROS DETALLE
+    public function cargueParametrosDetalle(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file',
+            'codParametro' => 'required',
+        ]);
+
+
+
+        // Realizar la importación
+        $import = new ParametrosDetalleImport($request->codParametro); // Instancia correcta de VotersImport
+        Excel::import($import, $request->file('file'));
+
+        // Obtener el número de registros insertados correctamente
+        $numRegistrosInsertados = $import->getNumRegistrosInsertados();
+        $numRegistrosActualizados = $import->getNumRegistrosActualizados();
+
+        return back()->with([
+        'numRegistrosInsertados' => $numRegistrosInsertados,
+        'numRegistrosActualizados' => $numRegistrosActualizados,
+    ]);
     }
 
 }

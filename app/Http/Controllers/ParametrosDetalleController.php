@@ -274,4 +274,6 @@ class ParametrosDetalleController extends Controller
         return back()
             ->with('success', 'Recurso eliminado exitosamente');
     }
+
+   
 }
