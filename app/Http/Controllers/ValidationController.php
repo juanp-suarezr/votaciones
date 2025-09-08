@@ -255,6 +255,7 @@ class ValidationController extends Controller
                 ->first();
 
             if ($Informacion_votantes) {
+                dd($Informacion_votantes);
                 $Informacion_votantes->nombre = $request->nombre;
                 $Informacion_votantes->email = $request->email;
                 $Informacion_votantes->id_user = $user->id;
