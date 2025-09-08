@@ -72,7 +72,7 @@
           </div>
 
           <!-- Fecha de Nacimiento -->
-          <div class="mb-2">
+          <div class="mb-2 sm:block hidden">
             <InputLabel for="nacimiento" value="Fecha de Nacimiento" />
             <TextInput
               id="nacimiento"
@@ -81,6 +81,46 @@
               v-model="form.nacimiento"
               required
             />
+            <InputError class="mt-2" :message="form.errors.nacimiento" />
+            <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
+          </div>
+          <!-- fecha nacimiento mobil -->
+          <div class="mb-2 sm:hidden grid grid-cols-3 gap-2">
+            <InputLabel
+              class="col-span-3"
+              for="nacimiento"
+              value="Fecha de Nacimiento"
+            />
+            <!-- dia -->
+            <div class="w-auto mt-1">
+              <InputLabel for="nacimientoDia" value="Día" />
+              <TextInput
+                id="nacimientoDia"
+                type="number"
+                class="block"
+                v-model="diaNacimiento"
+              />
+            </div>
+            <!-- mes -->
+            <div class="w-auto mt-1">
+              <InputLabel for="nacimientoMes" value="Mes" />
+              <TextInput
+                id="nacimientoMes"
+                type="number"
+                class="block"
+                v-model="mesNacimiento"
+              />
+            </div>
+            <!-- Annio -->
+            <div class="w-auto mt-1">
+              <InputLabel for="nacimientoAnnio" value="Año" />
+              <TextInput
+                id="nacimientoAnnio"
+                type="number"
+                class="block"
+                v-model="AnnioNacimiento"
+              />
+            </div>
             <InputError class="mt-2" :message="form.errors.nacimiento" />
             <p v-if="errorEdad" class="text-red-500">{{ errorEdad }}</p>
           </div>
@@ -217,6 +257,15 @@
               :highlightOnSelect="false"
               class="w-full"
             />
+            <div class="w-full mt-2" v-if="isOtroBarrio">
+              <InputLabel for="barrio_otro" value="Cual?" />
+              <TextInput
+                id="barrio_otro"
+                type="text"
+                class="mt-1 block w-full"
+                v-model="form.barrio"
+              />
+            </div>
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
           <!-- Dirección -->
@@ -594,6 +643,14 @@ const loadingButtonBiometric = ref(false);
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
 
+//verificar si el barrio es otro
+const isOtroBarrio = ref(false);
+
+//fecha nacimiento
+const diaNacimiento = ref("");
+const mesNacimiento = ref("");
+const AnnioNacimiento = ref("");
+
 const getUrlDocumentos = (url, num) => {
   if (num === 1) {
     if (form.cedula_front === null) {
@@ -602,6 +659,16 @@ const getUrlDocumentos = (url, num) => {
   }
   return url;
 };
+
+//WATCH FECHA NACIMIENTO MOBIL
+watch([diaNacimiento, mesNacimiento, AnnioNacimiento], ([dia, mes, annio]) => {
+  if (dia && mes && annio) {
+    // Formato YYYY-MM-DD
+    const diaStr = String(dia).padStart(2, "0");
+    const mesStr = String(mes).padStart(2, "0");
+    form.nacimiento = `${annio}-${mesStr}-${diaStr}`;
+  }
+});
 
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
@@ -620,6 +687,32 @@ watch(comunaSelected, (newValue) => {
     console.log(barriosXComuna.value);
   }
 });
+
+//WATCH BARRIO -- OTROS
+watch(
+  () => form.barrio,
+  (value) => {
+    console.log(value);
+
+    if (value == "Otro") {
+      form.barrio = "";
+      isOtroBarrio.value = true;
+    }
+  }
+);
+
+// Observa todos los campos del formulario y elimina errores automáticamente
+watch(
+  () => form.data(),
+  (nuevoValor) => {
+    Object.keys(form.errors).forEach((campo) => {
+      if (nuevoValor[campo]) {
+        form.errors[campo] = null;
+      }
+    });
+  },
+  { deep: true }
+);
 
 const onFileChange = (field, event) => {
   const file = event.target.files[0];
@@ -1243,7 +1336,16 @@ onMounted(() => {
   }
 
   form.fecha_expedicion = formatDate(props.info.fecha_expedicion);
-  form.nacimiento = formatDate(props.info.nacimiento);
+
+
+  // Si el prop nacimiento trae algo, asigna a los refs de día, mes y año
+  if (props.info.nacimiento) {
+    const fecha = new Date(props.info.nacimiento);
+    diaNacimiento.value = fecha.getDate();
+    mesNacimiento.value = fecha.getMonth() + 1;
+    AnnioNacimiento.value = fecha.getFullYear();
+    form.nacimiento = formatDate(props.info.nacimiento);
+  }
 
   verificarCamaraONecesaria();
 });
