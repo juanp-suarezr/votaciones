@@ -8,7 +8,7 @@
       </div>
     </template>
 
-    <div class="p-4">
+    <div class="p-4 overflow-x-hidden w-full">
       <div class="bg-white shadow-md rounded-lg p-6 mb-6">
         <h2 class="text-lg font-bold mb-4 text-blue-900">Datos del votante</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -65,7 +65,7 @@
             @click="
               openLightbox(getUrlPhoto(votante.votante?.user.biometrico.photo))
             "
-            class="w-64 h-64 cursor-pointer object-cover rounded-lg border shadow"
+            class="sm:w-64 sm:h-64 w-full cursor-pointer object-cover rounded-lg border shadow"
           />
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
@@ -84,7 +84,7 @@
                 getUrlDocumentos(votante.votante?.user.biometrico.cedula_front)
               )
             "
-            class="w-full h-64 cursor-pointer object-cover rounded-lg border shadow"
+            class="w-full sm:h-64 cursor-pointer object-cover rounded-lg border shadow"
           />
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
@@ -123,7 +123,7 @@
               Parte frontal del documento poco visible
             </option>
 
-            
+
             <option value="Registro duplicado">Registro duplicado</option>
             <option
               value="Información errónea, en comparación con la documentación"
