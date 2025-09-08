@@ -226,6 +226,7 @@ class ValidacionesController extends Controller
 
 
             $votante->estado = 'Activo';
+            $votante->validaciones = 'Validado';
             $votante->save();
 
 
