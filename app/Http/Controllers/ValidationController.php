@@ -250,38 +250,70 @@ class ValidationController extends Controller
 
             $user->biometrico()->save($registroBiometrico);
 
-            // Crear la información del votante asociada al usuario
-            $informacionUsuario = new Informacion_votantes([
-                'nombre' => $request->nombre,
-                'email' => $request->email,
-                'id_user' => $user->id,
-                'identificacion' => $request->identificacion,
-                'tipo_documento' => $request->tipo_documento,
-                'nacimiento' => $request->nacimiento,
-                'genero' => $request->genero,
-                'etnia' => $request->etnia,
-                'condicion' => $request->condicion,
-                'comuna' => $request->input('comuna.value'),
-                'barrio' => $request->barrio,
-                'direccion' => $request->direccion,
-                'celular' => $request->celular,
+            $Informacion_votantes = Informacion_votantes::where('identificacion', $request->identificacion)
+                ->whereHas('jurado')
+                ->first();
 
-            ]);
-            $user->votantes()->save($informacionUsuario);
+            if ($Informacion_votantes) {
+                $Informacion_votantes->nombre = $request->nombre;
+                $Informacion_votantes->email = $request->email;
+                $Informacion_votantes->id_user = $user->id;
+                $Informacion_votantes->identificacion = $request->identificacion;
+                $Informacion_votantes->tipo_documento = $request->tipo_documento;
+                $Informacion_votantes->nacimiento = $request->nacimiento;
+                $Informacion_votantes->genero = $request->genero;
+                $Informacion_votantes->etnia = $request->etnia;
+                $Informacion_votantes->condicion = $request->condicion;
+                $Informacion_votantes->comuna = $request->input('comuna.value');
+                $Informacion_votantes->barrio = $request->barrio;
+                $Informacion_votantes->direccion = $request->direccion;
+                $Informacion_votantes->celular = $request->celular;
+                $Informacion_votantes->save();
 
 
-            // Crear el registro de hash_votantes asociado a la información del votante
-            $hash_votante = new Hash_votantes([
-                'id_votante' => $informacionUsuario->id,
-                'tipo' => 'votante',
-                'subtipo' => $request->input('comuna.value'),
-                'id_evento' => 15,
-                'candidato' => 0,
-                'validaciones' => $validacion,
-                'estado' => 'Pendiente',
-                'intentos' => 1,
-            ]);
-            $informacionUsuario->hashVotantes()->save($hash_votante);
+                $hashVotante = Hash_votantes::where('id_votante', $Informacion_votantes->id)->first();
+
+                    $hashVotante->tipo = 'votante';
+                    $hashVotante->subtipo = $request->input('comuna.value');
+                    $hashVotante->validaciones = $validacion;
+                    $hashVotante->estado = 'Pendiente';
+                    $hashVotante->intentos = 1;
+                    $hashVotante->save();
+
+
+            } else {
+                // Crear la información del votante asociada al usuario
+                $informacionUsuario = new Informacion_votantes([
+                    'nombre' => $request->nombre,
+                    'email' => $request->email,
+                    'id_user' => $user->id,
+                    'identificacion' => $request->identificacion,
+                    'tipo_documento' => $request->tipo_documento,
+                    'nacimiento' => $request->nacimiento,
+                    'genero' => $request->genero,
+                    'etnia' => $request->etnia,
+                    'condicion' => $request->condicion,
+                    'comuna' => $request->input('comuna.value'),
+                    'barrio' => $request->barrio,
+                    'direccion' => $request->direccion,
+                    'celular' => $request->celular,
+
+                ]);
+                $user->votantes()->save($informacionUsuario);
+
+                // Crear el registro de hash_votantes asociado a la información del votante
+                $hash_votante = new Hash_votantes([
+                    'id_votante' => $informacionUsuario->id,
+                    'tipo' => 'votante',
+                    'subtipo' => $request->input('comuna.value'),
+                    'id_evento' => 15,
+                    'candidato' => 0,
+                    'validaciones' => $validacion,
+                    'estado' => 'Pendiente',
+                    'intentos' => 1,
+                ]);
+                $informacionUsuario->hashVotantes()->save($hash_votante);
+            }
 
             // Asignar roles al usuario
             $user->syncRoles('Usuarios');
@@ -327,8 +359,6 @@ class ValidationController extends Controller
                     ->where('comuna', '!=', 0)
                     ->whereNotNull('comuna')
                     ->exists();
-
-
             }
 
             $votante = Informacion_votantes::select('id', 'identificacion', 'nombre', 'id_user')
@@ -348,6 +378,9 @@ class ValidationController extends Controller
                 ->where('comuna', '!=', 0)
                 ->whereNotNull('comuna')
                 ->with([
+                    'votos' => function ($query) use ($anio_actual) {
+                        $query->whereYear('created_at', $anio_actual);
+                    },
                     'hashVotantes:id,id_votante,subtipo'
                 ])
                 ->first();

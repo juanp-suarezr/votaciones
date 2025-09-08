@@ -985,12 +985,21 @@ const validarVotante = async (identificacion) => {
         confirmButtonColor: "#3085d6",
       });
     } else {
+      if (response.data.votante && response.data.votante.votos.length > 0) {
+        swal.fire({
+          icon: "warning",
+          title: "Votante con voto",
+          text: "El votante ya ha realizado su registro y voto en mesa, en esta vigencia.",
+          confirmButtonColor: "#d33",
+        });
+      } else {
         console.log("entro");
 
-      router.get("/registro-gestion-administrativa", {
-        identificacion: identificacion,
-        id_votante: response.data.votante ? response.data.votante.id : null,
-      });
+        router.get("/registro-gestion-administrativa", {
+          identificacion: identificacion,
+          id_votante: response.data.votante ? response.data.votante.id : null,
+        });
+      }
     }
     return response.data;
   } catch (error) {
