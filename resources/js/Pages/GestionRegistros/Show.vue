@@ -71,7 +71,7 @@
         </div>
 
         <!-- Foto de cedula -->
-        <div class="flex-shrink-0 flex flex-col items-center">
+        <div class="sm:flex-shrink-0 flex flex-col items-center">
           <h2>frontal</h2>
           <img
             v-if="votante.votante?.user.biometrico"
@@ -84,7 +84,7 @@
                 getUrlDocumentos(votante.votante?.user.biometrico.cedula_front)
               )
             "
-            class="w-full sm:h-64 cursor-pointer object-cover rounded-lg border shadow"
+            class="w-full sm:h-64 cursor-pointer sm:object-cover object-contain rounded-lg border shadow"
           />
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
