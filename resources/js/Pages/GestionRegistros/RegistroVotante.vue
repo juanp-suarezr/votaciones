@@ -581,6 +581,8 @@ const form = useForm({
   recaptcha_token: "",
 });
 
+const { executeRecaptcha } = useReCaptcha();
+
 const comunaSelected = ref("");
 const barriosXComuna = ref([]);
 
