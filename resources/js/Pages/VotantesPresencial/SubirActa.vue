@@ -365,6 +365,29 @@ watch(palabrasEnTestimonio, () => {
   form.observaciones = form.observaciones.trim(); // Asegúrate de que no haya espacios al principio o al final
 });
 
+watch(
+  [
+    () => form.votos_blancos,
+    () => form.votos_nulos,
+    () => form.votos_no_marcados,
+    () => form.votos_proyectos,
+  ],
+  () => {
+    const total_votos_especiales =
+      parseInt(form.votos_blancos) +
+      parseInt(form.votos_nulos) +
+      parseInt(form.votos_no_marcados);
+
+    const total_proyectos = Object.values(form.votos_proyectos).reduce(
+      (acc, votos) => parseInt(acc) + parseInt(votos || 0),
+      0
+    );
+
+    form.total_votantes = total_votos_especiales + total_proyectos;
+  },
+  { deep: true }
+);
+
 // Asignar proyectos al evento actual
 const proyectosPorEvento = id_evento => {
     console.log(id_evento);
