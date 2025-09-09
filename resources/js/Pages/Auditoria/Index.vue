@@ -192,7 +192,7 @@ const formatDate = (date) => {
 
 const handleEnterKey = () => {
   router.get(
-    "/auditoria",
+    "/auditorias",
     {
       id_evento: id_evento.value.id,
     },
@@ -209,7 +209,7 @@ const limpiar = () => {
 
 
   router.get(
-    "/auditoria",
+    "/auditorias",
     { id_evento: id_evento.value },
     {
       preserveState: true,
