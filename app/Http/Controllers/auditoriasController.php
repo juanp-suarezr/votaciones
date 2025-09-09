@@ -32,6 +32,7 @@ class auditoriasController extends Controller
         if(RequestFacade::input('id_evento')){
             $id_evento = RequestFacade::input('id_evento');
         }
+        dd($id_evento);
 
         $voto_auditoria = AuditoriaVotos::select('id_evento', 'voto_id', 'accion', 'tipo_voto', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
         ->where('id_evento', $id_evento)
