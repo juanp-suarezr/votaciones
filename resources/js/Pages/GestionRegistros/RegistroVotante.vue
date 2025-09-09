@@ -1071,6 +1071,7 @@ const registerAndValidate = async () => {
         message.value = response.data.message;
         const id_user = response.data.id;
         console.log(response.data);
+        console.log(response.data.id);
         loadingButtonBiometric.value = false;
         loadingModal.value = false;
         if (response.data.match) {
