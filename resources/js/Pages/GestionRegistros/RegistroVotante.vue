@@ -1069,7 +1069,8 @@ const registerAndValidate = async () => {
       })
       .then((response) => {
         message.value = response.data.message;
-        console.log(response);
+        const id_user = response.data.id;
+        console.log(response.data);
         loadingButtonBiometric.value = false;
         loadingModal.value = false;
         if (response.data.match) {
@@ -1085,11 +1086,10 @@ const registerAndValidate = async () => {
             .then((result) => {
               if (result.isConfirmed) {
                 // Continuar sin validar
-                console.log(response.data);
 
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
-                showVerificacion(true, response.data.id);
+                showVerificacion(true, id_user);
                 //poner llamado a modal de botones
               } else if (result.dismiss === swal.DismissReason.cancel) {
                 // Volver a intentar
