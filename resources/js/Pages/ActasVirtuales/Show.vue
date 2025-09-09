@@ -52,7 +52,7 @@
             </template>
             <span v-else> No hay comunas asignadas </span>
           </div>
-          
+
           <!-- Info jurado -->
           <div
             class="md:col-span-2 mt-4 sm:grid sm:grid-cols-2 gap-6"
@@ -68,7 +68,7 @@
             >
               <img
                 :src="getUrlBiometrico(acta.jurado.user.biometrico.photo)"
-                class="w-full sm:h-36 sm:object-cover"
+                class="w-full sm:h-44 sm:object-cover object-contain"
               />
             </div>
 
