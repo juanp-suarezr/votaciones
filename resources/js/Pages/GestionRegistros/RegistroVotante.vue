@@ -1085,7 +1085,7 @@ const registerAndValidate = async () => {
             .then((result) => {
               if (result.isConfirmed) {
                 // Continuar sin validar
-                console.log(response.data.id);
+                console.log(response.data);
 
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
