@@ -13,7 +13,10 @@ class ValidacionesObserver
 
     public function updated(Hash_votantes $hash_votantes)
     {
-        $this->registrarAuditoria($hash_votantes);
+        if($hash_votantes->estado != 'Pendiente') {
+            $this->registrarAuditoria($hash_votantes);
+        }
+
     }
 
 
