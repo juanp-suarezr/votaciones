@@ -74,7 +74,7 @@ class FaceController extends Controller
             }, 0));
 
 
-            Log::Info($distance);
+            
 
             // Guardar la distancia calculada
             $distancias[] = [
