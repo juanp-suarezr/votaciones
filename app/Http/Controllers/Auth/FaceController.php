@@ -74,7 +74,7 @@ class FaceController extends Controller
             }, 0));
 
 
-            
+
 
             // Guardar la distancia calculada
             $distancias[] = [
@@ -84,6 +84,7 @@ class FaceController extends Controller
 
             // Si la distancia es menor que el umbral (0.5), es un rostro duplicado
             if ($distance < 0.5) {
+                dd($usuario->id);
                 return response()->json([
                     'match' => true,
                     'duplicado' => true,
