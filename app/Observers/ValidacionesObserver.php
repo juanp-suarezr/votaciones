@@ -23,7 +23,7 @@ class ValidacionesObserver
             'votante_id' => $registro->id,
             'accion' => $registro->estado,
             'id_evento' => $registro->id_evento,
-            'usuario_id' => Auth::id(),
+            'usuario_id' => Auth::id() || null,
             'ip_address' => Request::ip(),
             'user_agent' => Request::header('User-Agent'),
         ]);
