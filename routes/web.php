@@ -274,6 +274,10 @@ Route::middleware('auth')->group(function () {
 
     //validar identificacion
     Route::post('/validar-identificacion-presencial', [ValidationController::class, 'verificar']);
+    //recibir y crear usuario
+    Route::post('/CreateUser', [ValidationController::class, 'verify'])->name('create-user');
+    //usuarios duplicados
+    Route::get('/usuarios-duplicados/{id_user}', [ValidationController::class, 'usuariosDuplicados'])->name('usuarios-duplicados');
     //actualizacion de datos con imgs
     Route::post('/corregir-datos', [ValidationController::class, 'corregirDatos'])->name('corregirDatos');
     //actualizacion de datos delegado o jurado

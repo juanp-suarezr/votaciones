@@ -280,6 +280,42 @@
             />
             <InputError class="mt-2" :message="form.errors.direccion" />
           </div>
+          <!-- Correo -->
+          <div class="mb-2">
+            <InputLabel for="email" value="Correo Electrónico" />
+            <TextInput
+              id="email"
+              type="email"
+              class="mt-1 block w-full"
+              v-model="form.email"
+            />
+            <InputError class="mt-2" :message="form.errors.email" />
+          </div>
+          <!-- aviso contraseña -->
+          <div class="mb-2">
+            <div class="bg-azul rounded-md p-2 w-full h-full">
+              <p class="text-white text-base">
+                Digite una contraseña fácil de recordar para luego acceder a
+                votar.
+              </p>
+            </div>
+          </div>
+          <!-- Contraseña -->
+          <div class="mb-2">
+            <InputLabel
+              for="password"
+              value="Contraseña (mínimo: 8 caracteres)"
+            />
+            <Password
+              id="password"
+              v-model="form.password"
+              required
+              toggleMask
+              autocomplete="current-password"
+            />
+
+            <InputError class="mt-2" :message="form.errors.password" />
+          </div>
 
           <!-- ncheck tratamiento datos -->
           <div class="my-4 col-span-2 mb-2">
@@ -315,11 +351,14 @@
             <label
               for="consentimiento2"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Declaro bajo la gravedad de juramento que toda la información
-              suministrada en este formulario es verídica, completa y
-              corresponde a la realidad. Entiendo que proporcionar información
-              falsa puede acarrear sanciones legales conforme a la normativa
-              vigente.</label
+              >Manifiesto que acepto, bajo juramento, la
+              <a
+                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
+                target="_blank"
+                class="underline !text-azul cursor-pointer"
+                >Declaración</a
+              >
+              sobre la veracidad de la información registrada</label
             >
             <InputError class="mt-1" :message="form.errors.declaracion" />
           </div>
@@ -515,6 +554,60 @@
       </div>
     </template>
   </Modal>
+
+  <!-- Modal ver duplicados -->
+  <Modal :show="verDuplicados" :closeable="true">
+    <template #default>
+      <!-- Encabezado con botón de cierre -->
+      <div
+        class="flex justify-between items-center bg-azul text-white px-4 py-4"
+      >
+        <h2 class="text-2xl font-semibold text-center">
+          Registros duplicados o similares
+        </h2>
+      </div>
+
+      <!-- Contenido dinámico -->
+      <div class="px-6 py-4">
+        <div
+          v-for="item in usuarios"
+          :key="item.id"
+          class="flex gap-4 items-center mb-4 border-b pb-2"
+        >
+          <img
+            :src="getUrlPhoto(item.biometrico.photo)"
+            alt="Foto"
+            class="w-36 h-full object-cover rounded"
+          />
+          <div>
+            <p class="text-gray-800 font-medium">
+              Nombre: {{ item.nombre }}
+            </p>
+            <p class="text-gray-800 font-medium">
+              Identificación: {{ item.identificacion }}
+            </p>
+
+            <p class="text-gray-800 font-medium">Estado: {{ item.biometrico.estado }}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="bg-secondary hover:bg-primary z-1000 text-base sm:text-base text-white p-2 rounded-md shadow-xl flex mx-auto mt-4 disabled:bg-gray-500"
+          @click="verDuplicados = false"
+        >
+          Cancelar registro
+        </button>
+        <button
+          type="button"
+          class="bg-blue-600 hover:bg-blue-400 z-1000 text-base sm:text-base text-white p-2 rounded-md shadow-xl flex mx-auto mt-4 disabled:bg-gray-500"
+          @click="registroValidado = true"
+        >
+          aprobar registro
+        </button>
+      </div>
+
+    </template>
+  </Modal>
 </template>
 
 <script setup>
@@ -547,6 +640,7 @@ import { PhotoIcon } from "@heroicons/vue/24/solid";
 import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp";
 
 import * as faceapi from "face-api.js";
+import { Password } from "primevue";
 const swal = inject("$swal");
 
 const breadcrumbLinks = [{ url: "", text: "Corregir datos" }];
@@ -558,6 +652,12 @@ const props = defineProps({
 });
 
 console.log("info data:", props.info);
+//VER DUPLICADOS MODALS
+const verDuplicados = ref(false);
+//duplicados
+const usuariosDuplicados = ref([]);
+//validador de registro para continuar
+const registroValidado = ref(false);
 
 const form = useForm({
   id_votante: props.info.id || "",
@@ -572,13 +672,15 @@ const form = useForm({
   direccion: props.info.direccion || "",
   comuna: props.info.hash_votantes ? props.info.hash_votantes[0].subtipo : null,
   barrio: props.info.barrio || "",
-
+  email: "",
+  password: "",
   embedding: null,
   photo: null,
   checked: false,
   declaracion: false,
   campoObligatorio: "",
   recaptcha_token: "",
+  validaciones: "",
 });
 
 const { executeRecaptcha } = useReCaptcha();
@@ -938,7 +1040,7 @@ const registerAndValidate = async () => {
               form.validaciones = "no_rostro";
               //poner llamado a modal de botones
               biometricoModal.value = false;
-              submit();
+              showVerificacion(false);
             } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
               console.log("Usuario decide volver a intentar");
@@ -985,7 +1087,7 @@ const registerAndValidate = async () => {
                 // Continuar sin validar
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
-                submit();
+                showVerificacion(true);
                 //poner llamado a modal de botones
               } else if (result.dismiss === swal.DismissReason.cancel) {
                 // Volver a intentar
@@ -1000,7 +1102,7 @@ const registerAndValidate = async () => {
             didClose: () => {
               //poner llamado a modal de botones
               biometricoModal.value = false;
-              submit();
+              showVerificacion(false);
             },
           });
         }
@@ -1028,7 +1130,7 @@ const registerAndValidate = async () => {
               form.embedding = "";
               form.validaciones = "fallo_registro_biometrico";
               biometricoModal.value = false;
-              submit();
+              showVerificacion(false);
               //poner llamado a modal de botones
             } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
@@ -1058,7 +1160,7 @@ const registerAndValidate = async () => {
             form.validaciones = "fallo_registro";
             //poner llamado a modal de botones
             biometricoModal.value = false;
-            submit();
+            showVerificacion(false);
           } else if (result.dismiss === swal.DismissReason.cancel) {
             // Volver a intentar
             console.log("Usuario decide volver a intentar");
@@ -1070,6 +1172,65 @@ const registerAndValidate = async () => {
     message.value = "Error al procesar el rostro.";
 
     //poner llamado a modal de botones
+  }
+};
+
+const showVerificacion = async (isDuplicate) => {
+  if (isDuplicate) {
+    try {
+      const response = await axios.get(`/usuarios-duplicados/${id_user}`);
+      usuariosDuplicados.value = response.data.usuario;
+      verDuplicados.value = true;
+
+
+      // Puedes usar usuario.value en tu componente
+    } catch (error) {
+      console.error("Error al consultar usuario:", error);
+      verDuplicados.value = false;
+      usuario.value = null;
+    }
+  } else {
+    registroValidado.value = true;
+  }
+
+  if (registroValidado) {
+    verDuplicados.value = false;
+    swal
+      .fire({
+        title: "Confirmar registro",
+        html: `
+            <p class="!text-xl">VALIDACIÓN: <strong>${form.validaciones}</strong></p>
+    <p class="!text-xl">Votante: <strong>${form.nombre}</strong></p>
+    <p class="!text-xl">Identificación: <strong>${form.tipo_documento} - ${form.identificacion}</strong></p>
+    <p class="!text-xl">Fecha nacimiento: <strong>${form.nacimiento}</strong></p>
+    <p class="!text-xl">Genero: <strong>${form.genero}</strong></p>
+    <p class="!text-xl">Etnia: <strong>${form.etnia}</strong></p>
+    <p class="!text-xl">Condición: <strong>${form.condicion}</strong></p>
+    <p class="!text-xl">Dirección: <strong>${form.direccion}</strong></p>
+    <p class="!text-xl">Celular: <strong>${form.celular}</strong></p>
+    <p class="!text-xl">Comuna: <strong>${form.comuna.label}</strong></p>
+    <p class="!text-xl">Barrio: <strong>${form.barrio}</strong></p>
+    <p class="!text-xl">Email: <strong>${form.email}</strong></p>
+        <p class="!text-2xl">Es tu momento de votar</p>`,
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonText: "Aceptar datos y votar!",
+        cancelButtonText: "Cancelar",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        draggable: true,
+        customClass: {
+          title: "!text-2xl", // Título más grande
+          popup: "p-6", // Más padding al contenedor
+          confirmButton: "!text-2xl", // Botón de confirmación más grande
+          cancelButton: "!text-2xl", // Botón de cancelar más grande
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          submit();
+        }
+      });
   }
 };
 
@@ -1118,13 +1279,7 @@ const validateStep1 = async () => {
     if (!form.tipo_documento) {
       form.errors.tipo_documento = "Este campo es requerido.";
     }
-    if (!form.fecha_expedicion) {
-      form.errors.fecha_expedicion = "Este campo es requerido.";
-    }
 
-    if (!form.lugar_expedicion) {
-      form.errors.lugar_expedicion = "Este campo es requerido.";
-    }
     if (!form.nacimiento) {
       form.errors.nacimiento = "Este campo es requerido.";
     }
@@ -1338,7 +1493,6 @@ onMounted(() => {
   }
 
   form.fecha_expedicion = formatDate(props.info.fecha_expedicion);
-
 
   // Si el prop nacimiento trae algo, asigna a los refs de día, mes y año
   if (props.info.nacimiento) {

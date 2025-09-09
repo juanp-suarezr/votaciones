@@ -255,7 +255,7 @@ class ValidationController extends Controller
                 ->first();
 
             if ($Informacion_votantes) {
-                dd($Informacion_votantes);
+
                 $Informacion_votantes->nombre = $request->nombre;
                 $Informacion_votantes->email = $request->email;
                 $Informacion_votantes->id_user = $user->id;
@@ -336,6 +336,18 @@ class ValidationController extends Controller
             // Puedes optar por lanzar el error o retornar un mensaje de error
             return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
+    }
+
+    public function usuariosDuplicados($id_user) {
+        // Busca el usuario por el id recibido
+    $usuario = User::with('votantes', 'biometrico')
+        ->find($id_user);
+
+    if (!$usuario) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+
+    return response()->json(['usuario' => $usuario]);
     }
 
     public function verificar(Request $request)

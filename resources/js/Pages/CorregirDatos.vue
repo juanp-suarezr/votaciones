@@ -266,11 +266,14 @@
             <label
               for="consentimiento2"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Declaro bajo la gravedad de juramento que toda la información
-              suministrada en este formulario es verídica, completa y
-              corresponde a la realidad. Entiendo que proporcionar información
-              falsa puede acarrear sanciones legales conforme a la normativa
-              vigente.</label
+              >Manifiesto que acepto, bajo juramento, la
+              <a
+                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
+                target="_blank"
+                class="underline !text-azul cursor-pointer"
+                >Declaración</a
+              >
+              sobre la veracidad de la información registrada</label
             >
             <InputError class="mt-1" :message="form.errors.declaracion" />
           </div>
@@ -363,7 +366,6 @@
             </div>
           </div>
 
-          
           <!-- CAMPO OBLIGATORIO PARA EL USUARIO -->
           <div class="w-full">
             <TextInput
@@ -599,7 +601,6 @@ const form = useForm({
 const comunaSelected = ref("");
 const barriosXComuna = ref([]);
 
-
 //modal loading
 const loadingModal = ref(false);
 
@@ -651,7 +652,6 @@ const botonesValidarModal = ref(false);
 //variable de imagen frontal
 const imageUrl = ref(null);
 
-
 //face api js
 const devices = ref([]);
 const selectedDeviceId = ref("");
@@ -671,8 +671,6 @@ const getUrlDocumentos = (url, num) => {
   }
   return url;
 };
-
-
 
 //WATCH GENERO
 watch(IsNewGenero, (value) => {
@@ -777,8 +775,6 @@ const formatDate = (date) => {
   const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
-
-
 
 //STEP PART
 //prev
@@ -1210,7 +1206,7 @@ const validarDatos3 = () => {
   isValidate.value = false;
   console.log("Validando datos del paso 3", imageUrl.value);
 
-  if ((form.cedula_front || imageUrl)) {
+  if (form.cedula_front || imageUrl) {
     console.log("Datos del paso 3 son válidos");
 
     isValidate.value = true;
@@ -1309,7 +1305,6 @@ onMounted(() => {
   if (props.votante.user.biometrico.cedula_front) {
     imageUrl.value = props.votante.user.biometrico.cedula_front;
   }
-
 
   if (props.votante.hash_votantes[0].subtipo) {
     form.comuna = getComuna(props.votante.hash_votantes[0].subtipo);
