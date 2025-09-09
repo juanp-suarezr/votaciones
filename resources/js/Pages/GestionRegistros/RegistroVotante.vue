@@ -1087,7 +1087,7 @@ const registerAndValidate = async () => {
                 // Continuar sin validar
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
-                showVerificacion(true);
+                showVerificacion(true, response.data.id);
                 //poner llamado a modal de botones
               } else if (result.dismiss === swal.DismissReason.cancel) {
                 // Volver a intentar
@@ -1175,7 +1175,7 @@ const registerAndValidate = async () => {
   }
 };
 
-const showVerificacion = async (isDuplicate) => {
+const showVerificacion = async (isDuplicate, id_user) => {
   if (isDuplicate) {
     try {
       const response = await axios.get(`/usuarios-duplicados/${id_user}`);
