@@ -143,11 +143,11 @@ const enviarSolicitud = () => {
     class="relative min-h-screen bg-dots-darker bg-option2 bg-center selection:bg-red-500 selection:text-white flex items-center justify-center body-landing"
   >
   <!-- aviso en construccion -->
-  <div class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg">
+  <!-- <div class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg">
         <h4 class="sm:text-5xl text-xl">
             Pagina en construcción, pronto nuevas actualizaciones
         </h4>
-  </div>
+  </div> -->
     <!-- Botón flotante para abrir/cerrar panel -->
     <button
       @click="cambiarVista"
