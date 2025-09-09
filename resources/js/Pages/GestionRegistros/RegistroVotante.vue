@@ -1085,6 +1085,8 @@ const registerAndValidate = async () => {
             .then((result) => {
               if (result.isConfirmed) {
                 // Continuar sin validar
+                console.log(response.data.id);
+
                 form.validaciones = "registro_duplicado";
                 biometricoModal.value = false;
                 showVerificacion(true, response.data.id);
@@ -1175,7 +1177,9 @@ const registerAndValidate = async () => {
   }
 };
 
-const showVerificacion = async (isDuplicate, id_user) => {
+const showVerificacion = async (isDuplicate, id_user = null) => {
+    console.log(id_user);
+
   if (isDuplicate) {
     try {
       const response = await axios.get(`/usuarios-duplicados/${id_user}`);
