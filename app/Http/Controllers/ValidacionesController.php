@@ -282,7 +282,7 @@ class ValidacionesController extends Controller
             $user->save();
 
             if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                Mail::to($votante->votante->email)->send(new InscriptionApprovedMail($votante));
+                Mail::to($votante->votante->email)->send(new InscriptionDisapprovedMail($votante));
             }
 
             DB::commit();
