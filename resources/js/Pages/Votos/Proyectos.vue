@@ -63,11 +63,11 @@
               </span>
             </p>
 
-            <p
+            <!-- <p
               class="sm:text-xl text-lg font-bold capitalize text-gray-600 text-justify"
             >
               Tipo: {{ pro.proyecto.tipo }}
-            </p>
+            </p> -->
           </div>
           <!-- votacion -->
           <div class="mt-4 mx-auto">
@@ -174,7 +174,7 @@
         </p>
         <div class="flex flex-wrap gap-8 mt-4 text-base sm:text-4xl">
           <div class="w-auto border-r pr-2 border-gray-600">
-            <span class="text-gray-600">numero Proyecto:</span>
+            <span class="text-gray-600">Numero Proyecto:</span>
             {{
               selectedProject ? selectedProject.proyecto.numero_tarjeton : "Elecciones presupuesto participativo 2025"
             }}
@@ -359,7 +359,7 @@ const votar = () => {
         text: "Su voto ha sido registrado",
         icon: "success",
       }).then((result) => {
-        
+
         router.get("dashboard");
       }),
     onError: () =>
