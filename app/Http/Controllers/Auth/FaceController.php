@@ -19,7 +19,6 @@ class FaceController extends Controller
 
     public function validateFace(Request $request)
     {
-        Log('validate gestor');
         $distancias = [];
 
         // 1. Comparar contra TODOS los embeddings existentes
