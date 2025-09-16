@@ -68,7 +68,7 @@ console.log(props);
                 <thead class="bg-gray-100">
                   <tr>
                     <th class="p-2 text-left text-base sm:text-xl font-bold text-gray-700">Proyecto</th>
-                    <th class="p-2 text-center text-base sm:text-xl font-bold text-gray-700">Total</th>
+                    <th class="p-2 text-center text-base sm:text-xl font-bold text-gray-700">Total votos</th>
                     <th class="p-2 text-center text-base sm:text-xl font-bold text-gray-700">%</th>
                   </tr>
                 </thead>
