@@ -1062,7 +1062,7 @@ const registerAndValidate = async () => {
     biometricoModal.value = false;
 
     axios
-      .post(route("face-validate"), formData, {
+      .post(route("face-validate-gestor"), formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
