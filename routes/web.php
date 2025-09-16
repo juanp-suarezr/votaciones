@@ -274,6 +274,8 @@ Route::middleware('auth')->group(function () {
 
     //validar identificacion
     Route::post('/validar-identificacion-presencial', [ValidationController::class, 'verificar']);
+    //validar face ia desde gestor
+    Route::post('/face-validate', [FaceController::class, 'validateFace'])->name('face-validate');
     //recibir y crear usuario
     Route::post('/CreateUser', [ValidationController::class, 'verify'])->name('create-user');
     //usuarios duplicados
