@@ -484,9 +484,9 @@
       <div
         class="w-full max-w-4xl p-6 shadow-md rounded-md flex items-center justify-center bg-secondary hover:bg-primary hover:scale-105 text-white sm:text-4xl text-xl text-center"
       >
-        Votaciones en mesa Cerradas
+        Mesa de votación electrónica cerrada
         <br />
-        Acta de cierre generadas
+        Actas de cierre generadas
       </div>
     </div>
   </AuthenticatedLayout>
