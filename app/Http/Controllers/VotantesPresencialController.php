@@ -161,7 +161,7 @@ class VotantesPresencialController extends Controller
         $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
             ->filter(function ($hijo) use ($id_votante, $comuna) {
                 if($hijo->eventos->hash_proyectos) {
-                    dd($hijo->eventos->hash_proyectos->proyecto);
+                    dd($hijo->eventos->hash_proyectos);
                     return false;
                 }
                 if ($hijo->id_evento_hijo) {
