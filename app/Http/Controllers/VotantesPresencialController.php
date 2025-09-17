@@ -48,17 +48,13 @@ class VotantesPresencialController extends Controller
         $id_evento = 16;
         $anio_actual = Carbon::now()->year;
 
-        if (Auth::user()->jurado) {
+        
 
-            // $id_evento = Auth::user()->jurado->id_evento;
-        } else {
-
-            if (RequestFacade::input('id_evento')) {
+        if (RequestFacade::input('id_evento')) {
                 # code...
                 $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
                 $id_evento = $id_evento->id;
             }
-        }
 
 
 
@@ -70,14 +66,10 @@ class VotantesPresencialController extends Controller
             'updated_at',
             'estado',
         )
-            ->whereYear('created_at', $anio_actual)
             ->where('id_eventos', $id_evento)
-            ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) use ($id_evento) {
-                // Filtro evento + subtipo
-                $query->where('id_eventos', $id_evento)
-                    ->whereHas('votante', function ($q) use ($subtipo) {
-                        $q->where('subtipo', $subtipo);
-                    });
+            ->whereYear('created_at', $anio_actual)
+            ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) {
+                $query->where('subtipo',  $subtipo);
             })
             ->whereHas('votante', function ($query) {
                 $query->when(RequestFacade::input('search'), function ($query, $search) {
