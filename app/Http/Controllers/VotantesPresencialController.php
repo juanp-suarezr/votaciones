@@ -151,7 +151,7 @@ class VotantesPresencialController extends Controller
         })
             ->with(['eventos_hijos' => function ($q) use ($comuna) {
                 $q->whereHas('evento_padre.votantes', function ($query) use ($comuna) {
-                    $query->whereHas('subtipo', $comuna); // hijos con proyectos
+                    $query->where('subtipo', $comuna); // hijos con proyectos
                 })
                 ->whereHas('eventos', function ($q2) {
                     $q2->whereHas('hash_proyectos') // hijos con proyectos
