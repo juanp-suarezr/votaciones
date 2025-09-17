@@ -1,7 +1,7 @@
 <template>
   <Head title="Votaciones" />
 
-  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
+  <SimpleLayout>
     <template #header> Votaciones </template>
 
     <div class="items-center flex flex-col justify-center mx-2">
@@ -245,11 +245,11 @@
         </div>
       </template>
     </Modal>
-  </AuthenticatedLayout>
+  </SimpleLayout>
 </template>
 
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import SimpleLayout from "@/Layouts/SimpleLayout.vue";
 import Avatar from "primevue/avatar";
 import { Head, router, useForm, usePage } from "@inertiajs/vue3";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
