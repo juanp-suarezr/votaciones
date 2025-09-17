@@ -273,7 +273,7 @@
             <!-- total votantes -->
             <div class="mb-2 w-1/4">
               <InputLabel for="total_votos" value="Total votantes" />
-              <b class="p-2 bg-blue-200 text-blue-800 font-bold">{{form.total_votantes}}</b>
+              <b class="">{{form.total_votantes}}</b>
 
             </div>
           </div>
