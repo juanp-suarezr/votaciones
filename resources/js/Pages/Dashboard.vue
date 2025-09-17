@@ -416,7 +416,7 @@
         </div>
       </div>
       <h2 class="text-gray-600 text-2xl inline-flex">
-        Gestión de registro presencial - virtual
+        Gestión de registro electrónico en mesa
       </h2>
       <!-- boton registros -->
       <div
@@ -456,7 +456,7 @@
       <!-- buscador de cedula para validar votacion -->
       <div class="mt-4 sm:w-1/2">
         <h2 class="text-gray-600 text-2xl inline-flex">
-          Buscar votante por numero de identificación
+          Buscar votante por número de identificación
         </h2>
         <form
           @submit.prevent="buscarVotante(cedulaVotante)"

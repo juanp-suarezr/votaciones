@@ -51,7 +51,7 @@
           </div>
 
           <!-- cargo -->
-          <div class="mb-2">
+          <div class="mb-2" v-if="delegado.tipo == 'Delegado'">
             <InputLabel for="cargo" value="Cargo" />
             <TextInput
               id="cargo"
