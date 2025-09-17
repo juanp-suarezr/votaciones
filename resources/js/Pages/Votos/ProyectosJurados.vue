@@ -282,7 +282,7 @@ const form = useForm({
 
 const breadcrumbLinks = [{ url: "", text: "Votaciones" }];
 //modales
-const InicioModal = ref(true);
+const InicioModal = ref(false);
 const modalVisible = ref(false);
 const ModalConfirmacion = ref(false);
 //info
