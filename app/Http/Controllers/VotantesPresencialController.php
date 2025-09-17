@@ -154,6 +154,7 @@ class VotantesPresencialController extends Controller
             }])
             ->first();
 
+            dd($evento_padre);
 
 
         // Filtrar hijos que NO tengan votaciones realizadas por este votante
