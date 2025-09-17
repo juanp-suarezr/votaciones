@@ -87,7 +87,7 @@ class ActaPresencialController extends Controller
             ->with('votos_fisico.proyecto')
             ->findOrFail($id);
 
-            $delegados = Delegados::where('tipo', 'secretario')->get();
+        $delegados = Delegados::where('tipo', 'secretario')->get();
 
         return Inertia::render('VotantesPresencial/Show', [
             'acta' => $acta,
@@ -125,17 +125,15 @@ class ActaPresencialController extends Controller
                         return optional($hash->proyecto)->subtipo == $comuna;
                     });
 
-                    if (! $tiene_proyecto_valido) {
-                        return false; // no tiene proyectos de la comuna
+                    if ($tiene_proyecto_valido) {
+                        if (
+                            isset($hijo->eventos) &&
+                            $hijo->eventos->hash_proyectos &&
+                            $hijo->eventos->hash_proyectos->count() > 0
+                        ) {
+                            $hijos_con_proyectos->push($hijo->eventos);
+                        }
                     }
-                }
-
-                if (
-                    isset($hijo->eventos) &&
-                    $hijo->eventos->hash_proyectos &&
-                    $hijo->eventos->hash_proyectos->count() > 0
-                ) {
-                    $hijos_con_proyectos->push($hijo->eventos);
                 }
             }
         }
