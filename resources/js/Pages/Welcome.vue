@@ -300,7 +300,7 @@ const enviarSolicitud = () => {
           <div class="flex flex-col justify-center items-start md:col-span-2">
             <div class="flex justify-start mb-8">
               <img
-                src="/assets/img/votaYa.webp"
+                src="/assets/img/votaYa.png"
                 alt="Logo"
                 class="h-full w-auto"
               />
