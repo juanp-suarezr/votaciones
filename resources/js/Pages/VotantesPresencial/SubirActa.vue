@@ -60,7 +60,7 @@
         <!-- contenido 2 -->
         <div class="bg-white p-4 rounded-lg shadow h-full">
           <h2 class="text-lg font-semibold mb-4">Registro de información</h2>
-          <p>Registra la información y numero de votos por proyecto</p>
+          <!-- <p>Registra la información y numero de votos por proyecto</p> -->
 
           <!-- campos de form -->
           <div class="mt-4 flex flex-wrap gap-4">
@@ -272,8 +272,8 @@
             </div>
             <!-- total votantes -->
             <div class="mb-2 w-1/4">
-              <InputLabel for="total_votantes" value="Total votantes" />
-              <b>{{form.total_votantes}}</b>
+              <InputLabel for="total_votos" value="Total votantes" />
+              <b class="p-2 bg-blue-200 text-blue-800 font-bold">{{form.total_votantes}}</b>
 
             </div>
           </div>

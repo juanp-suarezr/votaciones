@@ -89,7 +89,7 @@ class VotantesPresencialController extends Controller
 
         return Inertia::render('ReporteVotantes/Index', [
             'votantes_voto' => $votantes,
-            'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
+            'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->where('evento_padre', 0)->whereIn('tipos', 'Presupuesto Participativo')->get(),
             'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo']),
         ]);
     }
