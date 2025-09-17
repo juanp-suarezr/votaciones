@@ -72,8 +72,12 @@ class VotantesPresencialController extends Controller
         )
             ->whereYear('created_at', $anio_actual)
             ->where('id_eventos', $id_evento)
-            ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) {
-                $query->where('subtipo',  $subtipo);
+            ->when(RequestFacade::input('subtipo'), function ($query, $subtipo, $id_evento) {
+                // Filtro evento + subtipo
+                $query->where('id_eventos', $id_evento)
+                    ->whereHas('votante', function ($q) use ($subtipo) {
+                        $q->where('subtipo', $subtipo);
+                    });
             })
             ->whereHas('votante', function ($query) {
                 $query->when(RequestFacade::input('search'), function ($query, $search) {
