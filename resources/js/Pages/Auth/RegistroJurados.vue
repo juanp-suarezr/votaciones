@@ -306,7 +306,7 @@ const submit = () => {
   form.comuna = form.comuna.value; // Asegúrate de que comuna sea un string
   form.punto_votacion = form.punto_votacion.id; // Aseg
 
-  form.post(route("jurados.store"), {
+  form.post(route("registro-jurados.store"), {
     forceFormData: true,
     onSuccess: () => {
       form.reset();

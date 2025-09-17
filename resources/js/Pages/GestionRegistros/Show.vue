@@ -46,7 +46,7 @@
             {{ votante.votante?.direccion || "N/A" }}
           </div>
           <div v-if="votante.intentos > 0">
-            <b>motivo rechazo:</b>
+            <b>Motivo rechazo:</b>
             {{ votante.motivo || "N/A" }}
           </div>
         </div>
@@ -72,7 +72,7 @@
 
         <!-- Foto de cedula -->
         <div class="sm:flex-shrink-0 flex flex-col items-center">
-          <h2>frontal</h2>
+          <h2>Frontal</h2>
           <img
             v-if="votante.votante?.user.biometrico"
             :src="

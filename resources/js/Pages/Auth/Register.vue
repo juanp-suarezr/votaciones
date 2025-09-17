@@ -195,6 +195,7 @@
                 <label class="ps-2 text-sm sm:text-base" for="tres">Otro</label>
               </div>
             </div>
+            <InputError class="mt-2" :message="form.errors.genero" />
           </div>
 
           <!-- Etnia -->
@@ -1045,7 +1046,6 @@ const registerAndValidate = async () => {
       },
     });
 
-
     //capturar foto de rostro
     const canvas = document.createElement("canvas");
     canvas.width = video.value.videoWidth;
@@ -1359,7 +1359,7 @@ const validarDatos2 = () => {
 
   if (isValidate.value) {
   } else {
-    if (form.password) {
+    if (form.password.length < 8) {
       form.errors.password =
         "El campo de contraseña debe contener minimo 8 caracteres. " +
         form.password.length +

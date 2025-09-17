@@ -226,6 +226,31 @@
             </select>
             <InputError class="mt-2" :message="form.errors.condicion" />
           </div>
+          <!-- Celular -->
+          <div class="w-full mb-2">
+            <!-- celular -->
+            <div>
+              <InputLabel for="celular" value="Celular" />
+              <div class="w-full flex flex-wrap gap-2 mt-1">
+                <!-- indicativo bloqueado -->
+                <div
+                  class="flex items-center w-auto[20%] block p-2 border border-gray-400 bg-gray-100 rounded-md"
+                >
+                  <p>+57</p>
+                </div>
+                <!-- celular -->
+                <TextInput
+                  id="celular"
+                  type="number"
+                  class="w-[80%] flex"
+                  v-model="form.celular"
+                  required
+                />
+              </div>
+
+              <InputError class="mt-2" :message="form.errors.celular" />
+            </div>
+          </div>
 
           <!-- Comuna -->
           <div class="mb-2">
@@ -666,6 +691,7 @@ const form = useForm({
   tipo_documento: props.info.tipo_documento || "",
   nacimiento: props.info.nacimiento || "",
   cedula_front: null,
+  celular: props.info.celular || "",
   genero: props.info.genero || "",
   etnia: props.info.etnia || "",
   condicion: props.info.condicion || "",
@@ -1319,6 +1345,7 @@ const validarDatos2 = () => {
     form.genero &&
     form.etnia &&
     form.condicion &&
+    form.celular &&
     form.comuna &&
     form.barrio &&
     form.direccion &&
@@ -1340,7 +1367,9 @@ const validarDatos2 = () => {
     if (!form.condicion) {
       form.errors.condicion = "Este campo es requerido.";
     }
-
+    if (!form.celular) {
+      form.errors.celular = "Este campo es requerido.";
+    }
     if (!form.comuna) {
       form.errors.comuna = "Este campo es requerido.";
     }
