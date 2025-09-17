@@ -110,7 +110,7 @@ class ActaPresencialController extends Controller
         })
             ->with(['eventos_hijos.eventos' => function ($query) {
                 $query->whereHas('hash_proyectos');
-            }, 'eventos.hash_proyectos.proyecto'])
+            }, 'eventos_hijos.eventos.hash_proyectos.proyecto'])
             ->find($id_evento_padre);
 
         // Extraer los hijos que tienen proyectos vigentes
