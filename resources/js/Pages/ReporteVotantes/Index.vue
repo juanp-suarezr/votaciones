@@ -8,7 +8,7 @@
       class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4"
     >
       <div>
-        <Select v-if="!$page.props.user.roles.includes('Jurado')"
+        <Select
           id="eventos"
           v-model="id_evento"
           :options="eventos"
@@ -239,7 +239,7 @@ const props = defineProps({
 
 
 
-const breadcrumbLinks = [{ url: "", text: "reporte de votantes x evento" }];
+const breadcrumbLinks = [{ url: "", text: "Reporte de votantes x evento" }];
 
 // pass filters in search
 let search = ref(props.filters.search);

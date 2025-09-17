@@ -50,7 +50,7 @@ class VotantesPresencialController extends Controller
 
         if (Auth::user()->jurado) {
 
-            $id_evento = Auth::user()->jurado->id_evento;
+            // $id_evento = Auth::user()->jurado->id_evento;
         } else {
 
             if (RequestFacade::input('id_evento')) {
