@@ -160,9 +160,16 @@ class VotantesPresencialController extends Controller
         // Filtrar hijos que NO tengan votaciones realizadas por este votante
         $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
             ->filter(function ($hijo) use ($id_votante, $comuna) {
-                if($hijo->eventos->hash_proyectos) {
-                    dd($hijo->eventos->hash_proyectos);
-                    return false;
+                // Validar que tenga proyectos
+                if ($hijo->eventos && $hijo->eventos->hash_proyectos->isNotEmpty()) {
+                    // Buscar si algún proyecto tiene el mismo subtipo que la comuna
+                    $tiene_proyecto_valido = $hijo->eventos->hash_proyectos->contains(function ($hash) use ($comuna) {
+                        return optional($hash->proyecto)->subtipo == $comuna;
+                    });
+
+                    if (! $tiene_proyecto_valido) {
+                        return false; // no tiene proyectos de la comuna
+                    }
                 }
                 if ($hijo->id_evento_hijo) {
                     $ya_voto = Votos::where('id_eventos', $hijo->id_evento_hijo)
