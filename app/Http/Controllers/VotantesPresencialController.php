@@ -147,20 +147,21 @@ class VotantesPresencialController extends Controller
         $evento_padre = Eventos::where('id', $id_evento_padre)
             ->with(['eventos_hijos' => function ($q) {
                 $q->whereHas('eventos', function ($q2) {
-                    $q2->whereHas('hash_proyectos') // hijos con proyectos
-                        ->where('estado', 'Activo'); // hijos activos
-                })->with(['eventos' => function ($q2) {
-                    $q2->whereHas('hash_proyectos')
-                        ->where('estado', 'Activo');
+                        $q2->where('estado', 'Activo'); // hijos activos
+                })->with(['eventos.hash_proyectos' => function ($q2) {
+                    $q2->where('estado', 'Activo');
                 }]);
             }])
             ->first();
 
-            dd($evento_padre);
+
 
         // Filtrar hijos que NO tengan votaciones realizadas por este votante
         $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
             ->filter(function ($hijo) use ($id_votante) {
+                if($hijo->eventos->hash_proyectos) {
+                    return false;
+                }
                 if ($hijo->id_evento_hijo) {
                     $ya_voto = Votos::where('id_eventos', $hijo->id_evento_hijo)
                         ->where('id_votante', $id_votante)
