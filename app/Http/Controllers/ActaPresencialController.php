@@ -116,6 +116,7 @@ class ActaPresencialController extends Controller
         $hijos_con_proyectos = collect();
         if ($eventos_hijos && $eventos_hijos->eventos_hijos) {
             foreach ($eventos_hijos->eventos_hijos as $hijo) {
+
                 if (
                     isset($hijo->eventos) &&
                     $hijo->eventos->hash_proyectos &&
@@ -125,6 +126,8 @@ class ActaPresencialController extends Controller
                 }
             }
         }
+
+        dd($hijos_con_proyectos);
 
         // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
         $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'id_jurado')
