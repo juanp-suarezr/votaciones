@@ -102,6 +102,7 @@ class ActaPresencialController extends Controller
     {
         $jurado = Auth::user()->jurado;
         $id_evento_padre = $jurado->id_evento;
+        $comuna = $jurado->comuna;
 
         // 1. Obtener eventos hijos con proyectos vigentes
         $eventos_hijos = Eventos::whereHas('eventos_hijos', function ($query) use ($id_evento_padre) {
@@ -109,13 +110,25 @@ class ActaPresencialController extends Controller
         })
             ->with(['eventos_hijos.eventos' => function ($query) {
                 $query->whereHas('hash_proyectos');
-            }])
+            }, 'eventos.hash_proyectos.proyecto'])
             ->find($id_evento_padre);
 
         // Extraer los hijos que tienen proyectos vigentes
         $hijos_con_proyectos = collect();
         if ($eventos_hijos && $eventos_hijos->eventos_hijos) {
             foreach ($eventos_hijos->eventos_hijos as $hijo) {
+
+                // Validar que tenga proyectos
+                if ($hijo->eventos && $hijo->eventos->hash_proyectos->isNotEmpty()) {
+                    // Buscar si algún proyecto tiene el mismo subtipo que la comuna
+                    $tiene_proyecto_valido = $hijo->eventos->hash_proyectos->contains(function ($hash) use ($comuna) {
+                        return optional($hash->proyecto)->subtipo == $comuna;
+                    });
+
+                    if (! $tiene_proyecto_valido) {
+                        return false; // no tiene proyectos de la comuna
+                    }
+                }
 
                 if (
                     isset($hijo->eventos) &&
@@ -127,7 +140,6 @@ class ActaPresencialController extends Controller
             }
         }
 
-        dd($hijos_con_proyectos);
 
         // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
         $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'id_jurado')
