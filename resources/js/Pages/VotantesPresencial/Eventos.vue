@@ -1,7 +1,7 @@
 <template>
   <Head title="Eventos para votar" />
 
-  <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
+  <SimpleLayout>
     <template #header> Selección el evento para votar </template>
 
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -69,7 +69,7 @@
         </div>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </SimpleLayout>
 </template>
 
 <script setup>
