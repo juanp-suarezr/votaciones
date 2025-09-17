@@ -504,8 +504,7 @@
       </h2>
       <p class="mb-4 text-base sm:text-4xl">
         <span class="text-base sm:text-2xl font-bold"
-          >Está a punto de cerrar las elecciones presenciales tic, si esta
-          seguro darle a confirmar:</span
+          >Está a punto de cerrar la votación. Confirme para continuar:</span
         >
       </p>
 
