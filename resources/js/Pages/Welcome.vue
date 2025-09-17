@@ -137,7 +137,7 @@ const enviarSolicitud = () => {
 
 <template>
   <Head title="Welcome" />
-  <link rel="preload" as="image" href="/assets/img/Bannervotoelectrónico_1.png" />
+  <link rel="preload" as="image" href="/assets/img/Bannervotoelectrónico_1.jpg" />
 
   <div
     class="relative min-h-screen bg-dots-darker bg-option2 bg-center selection:bg-red-500 selection:text-white flex items-center justify-center body-landing"
@@ -270,7 +270,7 @@ const enviarSolicitud = () => {
       <!-- banner inicial -->
       <div class="w-full">
         <img
-          src="/assets/img/Bannervotoelectrónico_1.png"
+          src="/assets/img/Bannervotoelectrónico_1.jpg"
           alt="Banner Principal"
           class="w-full h-auto shadow-md object-cover"
         />
