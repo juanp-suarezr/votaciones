@@ -142,27 +142,27 @@ class VotantesPresencialController extends Controller
 
         $id_evento_padre = Auth::user()->jurado->id_evento;
         $id_votante = $request->id_votante;
+        $comuna = Auth::user()->jurado->comuna;
 
         // Traer evento padre con hijos activos y proyectos vigentes
         $evento_padre = Eventos::where('id', $id_evento_padre)
-            ->with(['eventos_hijos' => function ($q) {
-                $q->whereHas('eventos', function ($q2) {
-                        $q2->where('estado', 'Activo'); // hijos activos
+            ->with(['eventos_hijos' => function ($q) use ($comuna) {
+                $q->whereHas('eventos', function ($q2) use ($comuna) {
+                    $q2->whereHas('hash_proyectos') // hijos con proyectos
+                        ->whereHas('votantes', function ($q3) use ($comuna) {
+                            $q3->where('subtipo', $comuna);
+                        })
+                        ->where('estado', 'Activo'); // hijos activos
                 })->with(['eventos' => function ($q2) {
-                    $q2->where('estado', 'Activo');
-                }, 'eventos.hash_proyectos']);
+                    $q2->whereHas('hash_proyectos')
+                        ->where('estado', 'Activo');
+                }]);
             }])
             ->first();
-
-            dd($evento_padre);
-
 
         // Filtrar hijos que NO tengan votaciones realizadas por este votante
         $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
             ->filter(function ($hijo) use ($id_votante) {
-                if($hijo->eventos->hash_proyectos) {
-                    return false;
-                }
                 if ($hijo->id_evento_hijo) {
                     $ya_voto = Votos::where('id_eventos', $hijo->id_evento_hijo)
                         ->where('id_votante', $id_votante)
