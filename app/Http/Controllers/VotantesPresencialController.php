@@ -146,14 +146,14 @@ class VotantesPresencialController extends Controller
 
         // Traer evento padre con hijos activos y proyectos vigentes
         $evento_padre = Eventos::where('id', $id_evento_padre)
-            ->with(['eventos_hijos.eventos.votantes' => function ($q) {
+            ->with(['eventos_hijos' => function ($q) {
                 $q->whereHas('eventos', function ($q2) {
                     $q2->whereHas('hash_proyectos') // hijos con proyectos
                         ->where('estado', 'Activo'); // hijos activos
                 })->with(['eventos' => function ($q2) {
                     $q2->whereHas('hash_proyectos')
                         ->where('estado', 'Activo');
-                }]);
+                }, 'eventos.votantes']);
             }])
             ->first();
 
