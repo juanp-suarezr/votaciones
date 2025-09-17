@@ -160,6 +160,8 @@ class VotantesPresencialController extends Controller
             }])
             ->first();
 
+            dd($evento_padre);
+
         // Filtrar hijos que NO tengan votaciones realizadas por este votante
         $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
             ->filter(function ($hijo) use ($id_votante) {
