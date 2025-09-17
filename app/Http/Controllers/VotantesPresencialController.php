@@ -160,7 +160,25 @@ class VotantesPresencialController extends Controller
             }])
             ->first();
 
-            dd($evento_padre);
+        $evento_padre = Eventos::where('id', $id_evento_padre)
+            ->with(['eventos_hijos' => function ($q) use ($comuna) {
+                $q->whereHas('hash_proyectos') // hijos con proyectos
+                    ->whereHas('votantes', function ($q2) use ($comuna) {
+                        $q2->where('subtipo', $comuna);
+                    })
+                    ->where('estado', 'Activo')
+                    ->with(['eventos' => function ($q3) use ($comuna) {
+                        $q3->whereHas('hash_proyectos')
+                            ->whereHas('votantes', function ($q4) use ($comuna) {
+                                $q4->where('subtipo', $comuna);
+                            })
+                            ->where('estado', 'Activo');
+                    }]);
+            }])
+            ->first();
+
+
+        dd($evento_padre);
 
         // Filtrar hijos que NO tengan votaciones realizadas por este votante
         $eventos_hijos_sin_voto = collect($evento_padre->eventos_hijos ?? [])
