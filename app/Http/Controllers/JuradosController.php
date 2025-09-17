@@ -67,7 +67,6 @@ class JuradosController extends Controller
             'contacto' => 'required|string|max:20',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
-            'codigo_verificacion' => 'required|string|exists:verification_codes,code',
             'punto_votacion' => 'required|exists:parametros_detalle,id',
             'id_evento' => 'required|exists:eventos,id',
             'comuna' => 'required|exists:parametros_detalle,id',
@@ -141,7 +140,7 @@ class JuradosController extends Controller
 
             // Obtener la extensión original de los archivos
             $frontExtension = $request->file('cedula_front')->getClientOriginalExtension();
-            
+
 
 
             $folderDoc = 'documentos';
