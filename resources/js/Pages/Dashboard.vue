@@ -866,8 +866,8 @@ const ActaCierre = async () => {
     cerrarEventoModal.value = false;
     swal.fire({
       icon: "success",
-      title: "Acta cierre generada",
-      text: "votaciones en mesa presencial cerradas, no puede ingresar mas votantes, ni votos",
+      title: "Acta de cierre generada",
+      text: "Mesa de votación electrónica cerrada:ingreso y emisión de votos deshabilitados.",
       didClose: () => {
         //poner llamado a modal de botones
         window.location.reload();
