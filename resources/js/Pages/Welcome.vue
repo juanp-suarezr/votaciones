@@ -253,7 +253,9 @@ const enviarSolicitud = () => {
       <div
         class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4 overflow-x-hidden"
       >
-        <div class="flex flex-col sm:flex-row gap-4 items-center hover:scale-105">
+        <div
+          class="flex flex-col sm:flex-row gap-4 items-center hover:scale-105"
+        >
           <img
             src="/assets/img/logo1.png"
             alt="Logo"
@@ -320,6 +322,9 @@ const enviarSolicitud = () => {
 
           <!-- Video lado derecho -->
           <div class="flex flex-col justify-center items-start md:col-span-2">
+            <h2 class="text-2xl md:text-5xl font-bold text-primary mb-6 mt-4">
+              ¿Sabes qué es el Presupuesto Participativo?
+            </h2>
             <!-- Contenedor responsive -->
             <div
               class="w-full aspect-video shadow-md rounded-xl overflow-hidden"
@@ -337,10 +342,9 @@ const enviarSolicitud = () => {
 
             <!-- Texto descriptivo para SEO -->
             <p class="mt-4 text-gray-700 text-lg sm:text-xl">
-              Mira el video oficial de <strong>Vota Ya</strong>, donde
-              se explica cómo funciona la plataforma de votación digital para el
-              <strong>Presupuesto Participativo</strong>, garantizando
-              seguridad, transparencia y facilidad de uso.
+              En este video te contamos qué es el <b>Presupuesto Participativo</b> y
+              cómo puedes ser parte de las <b>decisiones</b> que transforman tu
+              <b>comunidad.</b>
             </p>
           </div>
         </div>
@@ -464,7 +468,7 @@ const enviarSolicitud = () => {
             <video
               class="rounded-lg w-full h-auto max-h-[400px] shadow-md bg-gray-200 border border-naranja"
               controls
-              poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+              poster="assets/img/VIDEO EN PRODUCCIÓN.png"
             >
               <source
                 src="https://www.w3schools.com/html/mov_bbb.mp4"
@@ -485,7 +489,7 @@ const enviarSolicitud = () => {
               Participa y vota por los proyectos que más beneficien a tu
               comunidad de forma más segura y moderna.
               <br />
-              <i>Tienes un plazo para inscribirte del 15 al 25 de octubre</i>
+              <i>Tienes un plazo para inscribirte del 1 al 31 de octubre</i>
             </p>
             <Link
               :href="route('register')"
