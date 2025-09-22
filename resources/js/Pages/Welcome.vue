@@ -257,7 +257,7 @@ const enviarSolicitud = () => {
           <img
             src="/assets/img/logo1.png"
             alt="Logo"
-            class="sm:h-32 h-24 w-auto border-r border-black"
+            class="sm:h-32 h-24 w-auto sm:border-r border-black"
           />
           <img
             src="/assets/img/voto_electronico.png"

@@ -25,12 +25,12 @@ const submit = () => {
   <Head title="Buscar evento" />
 
   <div
-    class="relative h-screen bg-center bg-option1 selection:bg-red-500 selection:text-white flex flex-col justify-center"
+    class="relative h-screen bg-center bg-option1 selection:bg-red-500 selection:text-white flex flex-col justify-center overflow-x-hidden"
   >
     <div class="w-full sm:px-16 px-4">
-      <div class="flex gap-4 items-center">
+      <div class="sm:flex gap-4 items-center">
         <a
-          class="sm:flex justify-start mt-2 pe-4 border-r border-black"
+          class="sm:flex justify-start mt-2 pe-4 sm:border-r border-black"
           href="/welcome"
         >
           <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />

@@ -40,7 +40,7 @@ console.log(props);
   <Head title="Votaciones por vigencia - proyectos" />
 
   <div class="relative min-h-screen bg-center bg-option2 selection:bg-red-500 selection:text-white flex flex-col justify-center">
-    <div class="w-full flex justify-between sm:px-16 px-4">
+    <div class="w-full flex flex-wrap justify-between sm:px-16 px-4">
       <a class="sm:flex justify-start mt-2" href="/welcome">
         <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
       </a>
