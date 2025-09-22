@@ -312,7 +312,7 @@ const enviarSolicitud = () => {
               <img
                 src="/assets/img/votaYa.png"
                 alt="Logo Vota Ya - Participación ciudadana digital"
-                class="h-full w-3/6 transform transition-transform duration-500 hover:scale-110 hover:rotate-3"
+                class="h-full sm:w-3/6 transform transition-transform duration-500 hover:scale-110 hover:rotate-3"
                 loading="lazy"
               />
             </div>
