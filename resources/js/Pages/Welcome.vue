@@ -139,7 +139,7 @@ const enviarSolicitud = () => {
   <link
     rel="preload"
     as="image"
-    href="/assets/img/Bannervotoelectrónico_1.jpg"
+    href="/assets/img/Bannervotoelectronico_1.png"
   />
 
   <div
@@ -312,7 +312,7 @@ const enviarSolicitud = () => {
               <img
                 src="/assets/img/votaYa.png"
                 alt="Logo Vota Ya - Participación ciudadana digital"
-                class="h-full sm:w-3/6 transform transition-transform duration-500 hover:scale-110 hover:rotate-3"
+                class="h-full sm:w-2/6 transform transition-transform duration-500 hover:scale-110 hover:rotate-3 mt-2"
                 loading="lazy"
               />
             </div>

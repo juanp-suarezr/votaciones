@@ -33,12 +33,12 @@ const submit = () => {
           class="sm:flex justify-start mt-2 pe-4 sm:border-r border-black"
           href="/welcome"
         >
-          <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
+          <img src="/assets/img/logo.png" alt="Logo" class="sm:h-28 h-16 w-auto" />
         </a>
         <img
           src="/assets/img/voto_electronico.png"
           alt="Logo"
-          class="h-32 w-auto"
+          class="sm:h-32 h-16 w-auto"
         />
         <div class="w-full flex justify-end items-center">
           <a

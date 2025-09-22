@@ -42,7 +42,7 @@ console.log(props);
   <div class="relative min-h-screen bg-center bg-option2 selection:bg-red-500 selection:text-white flex flex-col justify-center">
     <div class="w-full flex flex-wrap justify-between sm:px-16 px-4">
       <a class="sm:flex justify-start mt-2" href="/welcome">
-        <img src="/assets/img/logo.png" alt="Logo" class="h-24 w-auto" />
+        <img src="/assets/img/voto_electronico.png" alt="Logo" class="h-24 w-auto" />
       </a>
       <SecondaryButtonReturn class="h-full flex inline-flex mt-8 !text-base">
         Regresar
