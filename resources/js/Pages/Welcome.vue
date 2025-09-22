@@ -13,8 +13,8 @@ import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import axios from "axios";
 const swal = inject("$swal");
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 AOS.init();
 
@@ -59,7 +59,6 @@ const buscarCertificados = async () => {
       `/validar-certificado/${identificacion.value}`
     );
     registro.value = response.data.registro; // Aquí recibes el paginado
-
   } catch (error) {
     registro.value = [];
     swal.fire({
@@ -69,8 +68,6 @@ const buscarCertificados = async () => {
     });
     // Puedes mostrar un swal de error aquí si lo deseas
   } finally {
-
-
     loading.value = false;
     IsSecondTime.value = true;
   }
@@ -84,10 +81,12 @@ const clearAll = () => {
 
 //dercargar certificado
 const descargarCertificado = (ev, idVotante, id_padre) => {
-
-
   window.open(
-    route("certificados.descargar", { id: ev, idVotante: idVotante, id_padre: id_padre }),
+    route("certificados.descargar", {
+      id: ev,
+      idVotante: idVotante,
+      id_padre: id_padre,
+    }),
     "_blank"
   );
 };
@@ -137,13 +136,17 @@ const enviarSolicitud = () => {
 
 <template>
   <Head title="Welcome" />
-  <link rel="preload" as="image" href="/assets/img/Bannervotoelectrónico_1.jpg" />
+  <link
+    rel="preload"
+    as="image"
+    href="/assets/img/Bannervotoelectrónico_1.jpg"
+  />
 
   <div
     class="relative min-h-screen bg-dots-darker bg-option2 bg-center selection:bg-red-500 selection:text-white flex items-center justify-center body-landing"
   >
-  <!-- aviso en construccion -->
-  <!-- <div class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg">
+    <!-- aviso en construccion -->
+    <!-- <div class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg">
         <h4 class="sm:text-5xl text-xl">
             Pagina en construcción, pronto nuevas actualizaciones
         </h4>
@@ -247,13 +250,20 @@ const enviarSolicitud = () => {
     </div>
 
     <div class="w-full">
-      <div class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4 overflow-x-hidden">
-        <div class="flex flex-col sm:flex-row gap-4 items-center">
-        <img src="/assets/img/logo1.png" alt="Logo" class="sm:h-32 h-24 w-auto border-r border-black" />
-        <img src="/assets/img/voto_electronico.png" alt="Logo" class="sm:h-32 h-24 w-auto" />
-
-
-
+      <div
+        class="sm:flex justify-start mt-2 sm:px-16 px-4 py-4 overflow-x-hidden"
+      >
+        <div class="flex flex-col sm:flex-row gap-4 items-center hover:scale-105">
+          <img
+            src="/assets/img/logo1.png"
+            alt="Logo"
+            class="sm:h-32 h-24 w-auto border-r border-black"
+          />
+          <img
+            src="/assets/img/voto_electronico.png"
+            alt="Logo"
+            class="sm:h-32 h-24 w-auto"
+          />
         </div>
         <!-- <div class="w-full flex justify-end items-center">
           <a class="text-white text-xl" href="#certificados_info">
@@ -262,24 +272,27 @@ const enviarSolicitud = () => {
         </div> -->
 
         <div class="w-full flex justify-end items-center">
-          <a class="text-black sm:text-2xl text-xl" href="/resultado-seleccionar-comuna">
+          <a
+            class="text-black sm:text-2xl text-xl"
+            href="/resultado-seleccionar-comuna"
+          >
             Resultados votaciones
           </a>
         </div>
       </div>
       <!-- banner inicial -->
-      <div class="w-full">
+      <div class="w-full shadow-md overflow-hidden">
         <img
-          src="/assets/img/Bannervotoelectrónico_1.jpg"
+          src="/assets/img/Bannervotoelectronico.png"
           alt="Banner Principal"
-          class="w-full h-auto shadow-md object-cover"
+          class="w-full h-full"
         />
       </div>
 
       <div class="sm:px-16 px-4 mt-8">
         <!-- seccion 1 -->
-        <div data-aos="fade-up"
-          class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center bg-gray-200/60 rounded-xl shadow-lg p-8 mb-12"
+        <div
+          class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center bg-gray-200/60 rounded-xl shadow-lg px-8 pt-2 pb-4 mb-12"
         >
           <!-- Texto lado izquierdo -->
           <div
@@ -292,39 +305,71 @@ const enviarSolicitud = () => {
               <span class="text-black">Tu voz, tu decisión</span>
             </h1>
             <p class="text-xl md:text-3xl text-gray-800 mb-4">
-              Plataforma de votaciones de elecciones de Presupuesto Participativo más segura y fácil para votar de forma
-              digital.
+              Plataforma de votaciones de elecciones de Presupuesto
+              Participativo más segura y fácil para votar de forma digital.
             </p>
-          </div>
-          <!-- imagen lado derecho -->
-          <div class="flex flex-col justify-center items-start md:col-span-2">
-            <div class="flex justify-start mb-8">
+            <div class="flex justify-center text-center w-full">
               <img
                 src="/assets/img/votaYa.png"
-                alt="Logo"
-                class="h-full w-auto"
+                alt="Logo Vota Ya - Participación ciudadana digital"
+                class="h-full w-3/6 transform transition-transform duration-500 hover:scale-110 hover:rotate-3"
+                loading="lazy"
               />
             </div>
+          </div>
+
+          <!-- Video lado derecho -->
+          <div class="flex flex-col justify-center items-start md:col-span-2">
+            <!-- Contenedor responsive -->
+            <div
+              class="w-full aspect-video shadow-md rounded-xl overflow-hidden"
+            >
+              <iframe
+                class="w-full h-full"
+                src="https://www.youtube.com/embed/w1sDLE88FqA?rel=0&modestbranding=1&playsinline=1"
+                title="Video oficial de Vota Ya - Cómo participar en las elecciones digitales"
+                frameborder="0"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+
+            <!-- Texto descriptivo para SEO -->
+            <p class="mt-4 text-gray-700 text-lg sm:text-xl">
+              Mira el video oficial de <strong>Vota Ya</strong>, donde
+              se explica cómo funciona la plataforma de votación digital para el
+              <strong>Presupuesto Participativo</strong>, garantizando
+              seguridad, transparencia y facilidad de uso.
+            </p>
           </div>
         </div>
 
         <!-- seccion 2 paso a paso presupuesto participativo -->
-        <div data-aos="fade-up"
+        <div
+          data-aos="fade-up"
           class="md:grid md:grid-cols-3 gap-8 items-stretch bg-gray-200/70 rounded-xl shadow-lg p-8 mb-12"
         >
           <!-- info general -->
-          <div class="flex flex-col justify-center items-center col-span-3 mb-4">
+          <div
+            class="flex flex-col justify-center items-center col-span-3 mb-4"
+          >
             <h2 class="text-2xl sm:text-5xl text-center font-bold text-black">
               Pasos para participar en las votaciones del
             </h2>
-            <h2 class="bg-primary px-2 !py-0 text-white text-2xl sm:text-5xl text-center font-bold">Presupuesto
-              Participativo</h2>
+            <h2
+              class="bg-primary px-2 !py-0 text-white text-2xl sm:text-5xl text-center font-bold"
+            >
+              Presupuesto Participativo
+            </h2>
           </div>
           <!-- Paso 1 -->
           <div
             class="flex flex-col justify-between items-start bg-gray-400/40 rounded-lg p-6 shadow mb-2"
           >
-            <h2 class="text-2xl sm:text-4xl font-bold text-naranja mb-4">1. Regístrate</h2>
+            <h2 class="text-2xl sm:text-4xl font-bold text-naranja mb-4">
+              1. Regístrate
+            </h2>
             <p class="text-lg md:text-xl text-parrafo mb-4">
               Ingresa tus datos personales, sube foto de tu documento y realiza
               el registro biométrico. Recibirás una notificación por correo si
@@ -356,8 +401,8 @@ const enviarSolicitud = () => {
               2. Vota por tu proyecto
             </h2>
             <p class="text-lg md:text-xl text-parrafo mb-4">
-              En las fechas estipuladas, ingresa al aplicativo de Presupuesto Participativo y vota por el
-              proyecto de tu preferencia.
+              En las fechas estipuladas, ingresa al aplicativo de Presupuesto
+              Participativo y vota por el proyecto de tu preferencia.
             </p>
             <Link
               :href="eventoActivo == false ? null : route('login-pp')"
@@ -381,8 +426,9 @@ const enviarSolicitud = () => {
               3. Descarga tu certificado
             </h2>
             <p class="text-lg md:text-xl md:text-lg text-parrafo mb-4">
-              Descarga tu certificado de participación en el aplicativo de Presupuesto Participativo o accede a
-              la sección específica para obtenerlo.
+              Descarga tu certificado de participación en el aplicativo de
+              Presupuesto Participativo o accede a la sección específica para
+              obtenerlo.
             </p>
             <Link
               href="#certificados_info"
@@ -408,7 +454,8 @@ const enviarSolicitud = () => {
         </div>
 
         <!-- Nuevo grid landing registro info-->
-        <div data-aos="fade-up"
+        <div
+          data-aos="fade-up"
           id="registro_info"
           class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gray-200/70 rounded-xl shadow-lg p-8 mb-12"
         >
@@ -456,7 +503,9 @@ const enviarSolicitud = () => {
           <!-- Filtro de búsqueda -->
           <div class="w-full">
             <div class="bg-gray-400/40 shadow-md rounded-lg p-4">
-              <span class="sm:text-3xl text-xl text-center font-semibold text-black mb-6">
+              <span
+                class="sm:text-3xl text-xl text-center font-semibold text-black mb-6"
+              >
                 Ingresar número de identificación para consultar los
                 certificados registrados a tu nombre
               </span>
@@ -473,7 +522,10 @@ const enviarSolicitud = () => {
                   @click="buscarCertificados"
                   >Buscar</SecondaryButton
                 >
-                <SecondaryButton @click="clearAll" class="hover:underline text-lg md:text-xl font-normal">
+                <SecondaryButton
+                  @click="clearAll"
+                  class="hover:underline text-lg md:text-xl font-normal"
+                >
                   Limpiar
                 </SecondaryButton>
               </div>
@@ -486,8 +538,12 @@ const enviarSolicitud = () => {
                 v-if="registro.data && registro.data.length > 0"
                 class="w-full overflow-x-auto"
               >
-                <table class="table-medium w-full border-collapse bg-white rounded-lg shadow-md">
-                  <thead class="text-naranja text-bold border-b border-gray-400">
+                <table
+                  class="table-medium w-full border-collapse bg-white rounded-lg shadow-md"
+                >
+                  <thead
+                    class="text-naranja text-bold border-b border-gray-400"
+                  >
                     <tr>
                       <th class="px-4 py-2 text-left">#</th>
                       <th class="px-4 py-2 text-left">Nombre del Usuario</th>
@@ -530,7 +586,9 @@ const enviarSolicitud = () => {
                   </tbody>
                 </table>
                 <!-- Diseño vertical para pantallas pequeñas -->
-                <div class="table-responsive grid grid-cols-1 gap-4 sm:hidden bg-white rounded-lg shadow-md">
+                <div
+                  class="table-responsive grid grid-cols-1 gap-4 sm:hidden bg-white rounded-lg shadow-md"
+                >
                   <div
                     v-for="(info, index) in registro.data"
                     :key="index"
@@ -556,7 +614,11 @@ const enviarSolicitud = () => {
                     <div class="px-4 py-2 text-parrafo">
                       <PrimaryButton
                         @click="
-                          descargarCertificado(info.evento.id, info.votante.id, info.evento.evento_hijo[0]?.evento_padre?.id)
+                          descargarCertificado(
+                            info.evento.id,
+                            info.votante.id,
+                            info.evento.evento_hijo[0]?.evento_padre?.id
+                          )
                         "
                       >
                         Descargar certificado
@@ -602,7 +664,6 @@ const enviarSolicitud = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>

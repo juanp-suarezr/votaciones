@@ -9,20 +9,20 @@
       href="/welcome"
     >
       <img
-        class="w-full sm:max-w-6xl rounded-lg shadow-md"
-        src="/assets/img/logo_votaciones.jpeg"
+        class="w-full sm:max-w-6xl rounded-lg shadow-md bg-white"
+        src="/assets/img/voto_electronico.png"
       />
     </Link>
     <!-- Contenido del slot -->
     <slot />
     <!-- aviso en construccion -->
-    <div
+    <!-- <div
       class="lg:flex fixed top-2 z-20 p-2 bg-naranja text-white rounded-lg shadow-lg"
     >
       <h4 class="sm:text-5xl text-3xl">
         Pagina en construcción, pronto nuevas actualizaciones
       </h4>
-    </div>
+    </div> -->
     <!-- Botón flotante para abrir/cerrar panel -->
     <button
       @click="cambiarVista"

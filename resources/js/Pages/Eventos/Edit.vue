@@ -252,13 +252,13 @@ const form = useForm({
   dependencias: props.evento.dependencias || "",
   tipos: props.evento.tipos != "NA" ? props.evento.tipos.split("|") : "" || "",
   is_evento_padre: props.evento.evento_padre,
-  evento_padre: props.evento.evento_hijo[0].id_evento_padre || null,
+  evento_padre: props.evento.evento_hijo.length > 0 ? (props.evento.evento_hijo[0].id_evento_padre || null) : props.evento.padre,
   estado: props.evento.estado || "",
   id: props.evento.id,
 });
 
 //variable para asignar evento padre boolean
-const isAsignarPadre = ref(props.evento.evento_hijo[0].id_evento_padre ? true: false);
+const isAsignarPadre = ref(props.evento.evento_hijo.length > 0 ? (props.evento.evento_hijo[0].id_evento_padre ? true: false) : props.evento.padre);
 
 
 console.log(props.evento);
