@@ -62,7 +62,8 @@ class NewPasswordController extends Controller
             $tokenLimpio = str_replace('token=', '', $request->token);
 
             dd([
-                'token_recibido' => $tokenLimpio,
+                'token_recibido' => $request->token,
+                'base64' => base64_encode($request->token),
                 'token_db' => $registro->token,
                 'comparacion' => Hash::check($request->token, $registro->token),
             ]);
