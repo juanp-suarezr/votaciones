@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Informacion_votantes;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -10,6 +12,10 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Request as RequestFacade;
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PasswordResetLinkController extends Controller
 {
@@ -35,11 +41,51 @@ class PasswordResetLinkController extends Controller
         $request->validate([
             'email' => 'required|email',
         ]);
-        
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
+        if ($request->isPPT == '1') {
+
+            // 1. Buscar el correo en votantes
+            $votante = Informacion_votantes::select('email')->where('email', $request->email)->first();
+
+            if (!$votante) {
+                return back()->withErrors(['email' => 'El correo no está registrado.']);
+            }
+
+            // 2. Generar token
+            $token = Str::random(64);
+
+            // 3. Guardar en password_resets
+            DB::table('password_resets')->updateOrInsert(
+                ['email' => $request->email],
+                [
+                    'email' => $request->email,
+                    'token' => Hash::make($token),
+                    'created_at' => Carbon::now(),
+                ]
+            );
+
+            // 4. Disparar la notificación nativa (forzando el email correcto)
+            $user = new \App\Models\User([
+                'email' => $request->email, // falso user temporal solo para notificar
+            ]);
+
+            $user->notify(
+                (new ResetPassword($token))->locale(app()->getLocale())->toMailUsing(
+                    function ($notifiable, $url) use ($request) {
+                        return (new \Illuminate\Notifications\Messages\MailMessage)
+                            ->subject(__('Restablecimiento de contraseña'))
+                            ->line(__('Recibiste este correo porque solicitaste restablecer tu contraseña.'))
+                            ->action(__('Restablecer contraseña'), $url)
+                            ->line(__('Si no solicitaste este cambio, no es necesario realizar ninguna acción.'))
+                            ->to($request->email); // 👈 correo real del votante
+                    }
+                )
+            );
+
+            return back()->with('status', __('Hemos enviado un enlace para restablecer su contraseña.'));
+        }
+
+        // --- flujo normal (Laravel se encarga solo) ---
         $status = Password::sendResetLink(
             $request->only('email')
         );
