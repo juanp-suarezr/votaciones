@@ -49,10 +49,13 @@ console.log(props);
       </SecondaryButtonReturn>
     </div>
     <!-- contenido -->
-    <div class="w-full flex justify-center my-auto sm:px-16 px-4">
-      <div class="w-full border border-gray-200 bg-white shadow-md rounded-lg p-4">
+    <div class="w-full flex flex-col justify-center my-auto sm:px-16 px-4">
+        <h2 class="text-white bg-secondary p-4 rounded-t-lg font-bold flex justify-center sm:text-2xl text-xl">
+            ELECCIONES PRESUPUESTO PARTICIPATIVO
+        </h2>
+      <div class="w-full border border-gray-200 bg-white shadow-md rounded-b-lg p-4">
         <h2 class="font-bold mt-2 text-2xl">Resultados de Votación</h2>
-        <p class="mt-2 text-base">Sector -- {{ comuna }}</p>
+        <p class="mt-2 text-base">{{ comuna }}</p>
 
         <div class="mt-8 w-full sm:grid sm:grid-cols-2 gap-12 w-full px-4">
           <div
