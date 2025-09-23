@@ -47,6 +47,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     email: String,
     token: String,
+    isPPT: String,
 });
 
 const form = useForm({
