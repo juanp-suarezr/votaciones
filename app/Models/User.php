@@ -64,4 +64,16 @@ class User extends Authenticatable
         return $this->hasOne(UsuariosBiometricos::class, 'user_id', 'id');
     }
 
+    //para el restablecimiento contraseña metodo
+    public function getEmailForPasswordReset()
+{
+    // Si es PPT y tiene votante asociado
+    if (str_starts_with($this->email, 'ppt') && $this->votante) {
+        return $this->votante->email; // correo real
+    }
+
+    // Usuario normal
+    return $this->email;
+}
+
 }
