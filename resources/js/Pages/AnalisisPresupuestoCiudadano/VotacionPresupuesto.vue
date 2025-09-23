@@ -66,7 +66,22 @@ console.log(props);
             <h3 class="text-xl font-bold mb-2 text-primary">
               {{ evento.evento_nombre }}
             </h3>
-            <div class="overflow-x-auto">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+
+              <div class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center">
+                <span class="block text-base sm:text-xl text-gray-500">Votos nulos</span>
+                <span class="font-bold text-lg text-red-600">{{ evento.votos_nulos }} votos</span>
+              </div>
+              <div class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center">
+                <span class="block text-base sm:text-xl text-gray-500">Votos no marcados</span>
+                <span class="font-bold text-lg text-yellow-600">{{ evento.votos_no_marcados }}</span>
+              </div>
+              <div class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center">
+                <span class="block text-base sm:text-xl text-gray-500 font-bold">Total votos</span>
+                <span class="font-bold text-lg text-green-600 font-bold">{{ evento.total_votos }}</span>
+              </div>
+            </div>
+            <div class="overflow-x-auto mt-4">
               <table class="w-full divide-y divide-gray-200 rounded-lg overflow-hidden shadow-md">
                 <thead class="bg-gray-100">
                   <tr>
@@ -86,7 +101,7 @@ console.log(props);
                     <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">{{ proyecto.total == 0 ? 0 :((proyecto.total/(evento.total_votos - (evento.votos_nulos + evento.votos_no_marcados)))*100).toFixed(2) }}%</td>
                   </tr>
                   <tr
-                    class="bg-gray-600 hover:bg-gray-800 shadow"
+                    class="bg-gray-200 hover:bg-gray-400 shadow"
                   >
                     <td class="p-2 text-base sm:text-xl font-medium text-gray-900">Total votos validos</td>
                     <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">{{ (evento.total_votos - (evento.votos_nulos + evento.votos_no_marcados)) }}</td>
@@ -95,21 +110,7 @@ console.log(props);
                 </tbody>
               </table>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
 
-              <div class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center">
-                <span class="block text-base sm:text-xl text-gray-500">Votos nulos</span>
-                <span class="font-bold text-lg text-red-600">{{ evento.votos_nulos }} votos - {{ evento.votos_nulos == 0 ? 0 :((evento.votos_nulos/evento.total_votos)*100).toFixed(2) }}%</span>
-              </div>
-              <div class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center">
-                <span class="block text-base sm:text-xl text-gray-500">Votos no marcados</span>
-                <span class="font-bold text-lg text-yellow-600">{{ evento.votos_no_marcados }} votos - {{ evento.votos_no_marcados == 0 ? 0 :((evento.votos_no_marcados/evento.total_votos)*100).toFixed(2) }}%</span>
-              </div>
-              <div class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center">
-                <span class="block text-base sm:text-xl text-gray-500 font-bold">Total votos</span>
-                <span class="font-bold text-lg text-green-600 font-bold">{{ evento.total_votos }}</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
