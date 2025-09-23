@@ -16,7 +16,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification; // 👈 IMPORTANTE
+use Illuminate\Support\Facades\Mail;
+
 
 class PasswordResetLinkController extends Controller
 {
@@ -65,13 +66,16 @@ class PasswordResetLinkController extends Controller
                 ]
             );
 
-            // 4. Disparar la notificación nativa (forzando el email correcto)
-            $user = new \App\Models\User([
-                'email' => $request->email, // falso user temporal solo para notificar
-            ]);
 
-            Notification::route('mail', $request->email)
-                ->notify(new ResetPassword($token));
+            // 4. Enviar correo al correo real
+            Mail::send('emails.password_reset', [
+                'token' => $token,
+                'email' => $request->email,
+            ], function ($message) use ($request) {
+                $message->to($request->email);
+                $message->subject('Restablecimiento de contraseña');
+            });
+
 
             return back()->with('status', __('Hemos enviado un enlace para restablecer su contraseña.'));
         }
