@@ -42,7 +42,7 @@ class NewPasswordController extends Controller
             'email' => 'required|email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-        dd($request->isPPT);
+        
 
         if ($request->isPPT == '1') {
 
