@@ -30,7 +30,7 @@
                     Restablecer contraseña
                 </PrimaryButton>
             </div>
-            <InputError class="mt-2" :message="form.errors.token" />
+            <InputError class="mt-2 !text-lg" :message="form.errors.token" />
         </form>
     </GuestLayout>
 </template>

@@ -42,7 +42,7 @@ class NewPasswordController extends Controller
             'email' => 'required|email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-        
+
 
         if ($request->isPPT == '1') {
 
@@ -58,6 +58,12 @@ class NewPasswordController extends Controller
             $registro = DB::table('password_reset_tokens')
                 ->where('email', $request->email)
                 ->first();
+
+            dd([
+                'token_recibido' => $request->token,
+                'token_db' => $registro->token,
+                'comparacion' => Hash::check($request->token, $registro->token),
+            ]);
 
             if (!$registro) {
                 return back()->withErrors(['token' => 'El correo o usuario no tiene registrado un token valido.']);
