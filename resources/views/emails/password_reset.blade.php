@@ -73,7 +73,7 @@
         <div class="content">
             <p>Hola,</p>
             <p>Estás recibiendo este email porque se ha solicitado un cambio de contraseña para tu cuenta.</p>
-            <a href="{{ url('/reset-password/token=' . $token . '?email=' . urlencode($email)). '&isPPT=1' }}" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">
+            <a href="{{ url('/reset-password/' . $token . '?email=' . urlencode($email)). '&isPPT=1' }}" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">
                 Restablecer contraseña
             </a>
             <p>Este enlace para restablecer la contraseña caduca en 60 minutos.

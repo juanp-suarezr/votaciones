@@ -59,7 +59,7 @@ class NewPasswordController extends Controller
                 ->where('email', $request->email)
                 ->first();
 
-            $tokenLimpio = str_replace('token=', '', $request->token);
+
 
             dd([
                 'token_recibido' => $request->token,
@@ -70,7 +70,7 @@ class NewPasswordController extends Controller
 
             if (!$registro) {
                 return back()->withErrors(['token' => 'El correo o usuario no tiene registrado un token valido.']);
-            } else if (!Hash::check($tokenLimpio, $registro->token)) {
+            } else if (!Hash::check($request->token, $registro->token)) {
                 return back()->withErrors(['token' => 'Token inválido o expirado.']);
             }
 
