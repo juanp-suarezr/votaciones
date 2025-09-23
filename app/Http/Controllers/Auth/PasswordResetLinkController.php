@@ -69,18 +69,8 @@ class PasswordResetLinkController extends Controller
                 'email' => $request->email, // falso user temporal solo para notificar
             ]);
 
-            $user->notify(
-                (new ResetPassword($token))->locale(app()->getLocale())->toMailUsing(
-                    function ($notifiable, $url) use ($request) {
-                        return (new \Illuminate\Notifications\Messages\MailMessage)
-                            ->subject(__('Restablecimiento de contraseña'))
-                            ->line(__('Recibiste este correo porque solicitaste restablecer tu contraseña.'))
-                            ->action(__('Restablecer contraseña'), $url)
-                            ->line(__('Si no solicitaste este cambio, no es necesario realizar ninguna acción.'))
-                            ->to($request->email); // 👈 correo real del votante
-                    }
-                )
-            );
+            Notification::route('mail', $request->email)
+                ->notify(new ResetPassword($token));
 
             return back()->with('status', __('Hemos enviado un enlace para restablecer su contraseña.'));
         }
