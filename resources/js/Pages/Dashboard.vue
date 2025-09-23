@@ -185,7 +185,7 @@
                 class="w-full h-full object-cover"
               />
             </a>
-            <h4 class="m-auto sm:text-4xl text-xl">
+            <h4 class="m-auto sm:text-4xl text-xl w-full">
               {{ getRealName(ev.nombre) }}
             </h4>
             <p class="m-auto">
