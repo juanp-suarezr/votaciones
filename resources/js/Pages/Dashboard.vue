@@ -64,7 +64,7 @@
         v-if="$page.props.auth.user.email == 'ppt'"
         class="text-gray-600 text-2xl"
       >
-        Elecciones Presupuesto participativo
+        Elecciones Presupuesto Participativo
       </h2>
       <h2 class="text-gray-600 text-2xl">Votaciones pendientes</h2>
 
