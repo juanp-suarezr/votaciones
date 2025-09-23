@@ -186,7 +186,7 @@
               />
             </a>
             <h4 class="m-auto sm:text-4xl text-xl">
-              {{ ev.nombre }}
+              {{ getRealName(ev.nombre) }}
             </h4>
             <p class="m-auto">
               <span class="sm:text-xl text-sm text-gray-600"
@@ -738,6 +738,24 @@ const getComuna = (idComuna) => {
 
   return comunas.find((item) => item.value == idComuna)?.label;
 };
+
+//get vigencia año text
+const getRealName = (text) => {
+
+    if (typeof text !== "string") return "";
+
+  const keyword = "vigencia";
+  const index = text.toLowerCase().lastIndexOf(keyword);
+  console.log(text.toLowerCase());
+
+
+  if (index === -1) {
+    return text; // si no encuentra la palabra, devuelve todo
+  }
+
+  return text.slice(index).trim();
+
+}
 
 //chartdata
 const setChartData = () => {
