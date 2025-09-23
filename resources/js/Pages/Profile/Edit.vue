@@ -16,7 +16,7 @@ defineProps({
     <AuthenticatedLayout>
         <div class="">
             <div class="overflow-hidden shadow-sm sm:rounded-lg space-y-6">
-                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg" v-if="$page.props.auth.user.email == 'ppt'">
                     <UpdateProfileInformationForm :must-verify-email="mustVerifyEmail" :status="status" class="max-w-xl" />
                 </div>
 
@@ -24,7 +24,7 @@ defineProps({
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
 
-                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg" v-if="$page.props.auth.user.email == 'ppt'">
                     <DeleteUserForm class="max-w-xl" />
                 </div>
             </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Eventos;
 use App\Models\Hash_eventos_hijos;
+use App\Models\ParametrosDetalle;
 use App\Models\Puntos;
 use App\Models\Tipos;
 use Carbon\Carbon;
@@ -130,6 +131,13 @@ class EventosController extends Controller
 
         //para detectar cuando no este activo y cambia de estado a activo
         if($eventos->estado != 'Activo' && $request->estado == 'Activo') {
+
+            $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
+                ->where('estado', 1)
+                ->pluck('id')
+                ->toArray();
+
+                
 
         }
 
