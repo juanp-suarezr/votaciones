@@ -54,6 +54,7 @@ const form = useForm({
     email: props.email,
     password: '',
     password_confirmation: '',
+    isPPT: props.isPPT,
 });
 
 const submit = () => {
