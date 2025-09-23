@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Informacion_votantes;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -39,6 +41,41 @@ class NewPasswordController extends Controller
             'email' => 'required|email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        if ($request->isPPT == '1') {
+
+            // 1. Buscar el correo en votantes
+            $votante = Informacion_votantes::select('email')->where('email', $request->email)->first();
+
+            if (!$votante) {
+                return back()->withErrors(['email' => 'El correo no está registrado.']);
+            }
+
+
+            //validar token
+            $registro = DB::table('password_reset_tokens')
+                ->where('email', $request->email)
+                ->first();
+
+            if (!$registro) {
+                return back()->withErrors(['token' => 'El correo o usuario no tiene registrado un token valido.']);
+            } else if (!Hash::check($request->token, $registro->token)) {
+                return back()->withErrors(['token' => 'Token inválido o expirado.']);
+            }
+
+            //actualizar contraseña
+            $user = $votante->user;
+            $user->password = Hash::make($request->password);
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+
+            // 4. Eliminar el token (buen práctica)
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+
+
+            return redirect()->route('login')->with('status', __('Contraseña restablecida correctamente.'));
+        }
 
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
