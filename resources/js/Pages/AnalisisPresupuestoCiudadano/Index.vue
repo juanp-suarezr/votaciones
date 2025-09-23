@@ -53,8 +53,8 @@ const submit = () => {
     <!-- contenido -->
     <div class="w-full flex justify-center my-auto sm:px-16 px-4">
       <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-4xl font-bold text-center">Análisis de Resultados</h2>
-        <p class="text-xl mt-2">Seleccione la comuna para ver los resultados</p>
+        <h2 class="text-4xl font-bold text-center">Informe de Resultados</h2>
+        <p class="text-xl mt-2">Seleccione la comuna/corregimiento para ver los resultados</p>
         <!-- comunas -->
         <div class="w-auto mt-6">
           <InputLabel
@@ -73,7 +73,7 @@ const submit = () => {
               class="w-full text-lg"
             />
           </div>
-          <p v-else class="text-xs text-gray-600">No hay comunas registradas</p>
+          <p v-else class="text-xs text-gray-600">No hay comunas/corregimientos registrados</p>
           <InputError class="mt-2" :message="form.errors.id_comuna" />
         </div>
         <div class="mt-6 w-full" v-if="form.id_comuna">
