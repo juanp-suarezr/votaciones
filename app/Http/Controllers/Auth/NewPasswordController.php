@@ -69,7 +69,7 @@ class NewPasswordController extends Controller
             }
 
             //actualizar contraseña
-            $user = User::where('id', $votante->id_user)->frist();
+            $user = User::find($votante->id_user);
             $user->password = Hash::make($request->password);
             $user->setRememberToken(Str::random(60));
             $user->save();
