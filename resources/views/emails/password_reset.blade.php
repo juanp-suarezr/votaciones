@@ -84,7 +84,7 @@
             <p>
 
                 Si tiene problemas para hacer clic en el botón "Restablecer contraseña", copie y pegue la siguiente URL en su navegador web:
-                {{ url('/reset-password/token=' . $token . '?email=' . urlencode($email). '&isPPT=1') }}
+                {{ url('/reset-password/' . $token . '?email=' . urlencode($email). '&isPPT=1') }}
             </p>
         </div>
         <div class="footer">
