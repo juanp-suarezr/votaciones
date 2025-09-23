@@ -15,17 +15,17 @@ defineProps({
 
     <AuthenticatedLayout>
         <div class="">
-            {{ $page.props.auth.user.email }}
+            {{ $page.props.auth.user.email == 'ppt' }}
             <div class="overflow-hidden shadow-sm sm:rounded-lg space-y-6">
-                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <UpdateProfileInformationForm v-if="$page.props.auth.user.email == 'ppt'" :must-verify-email="mustVerifyEmail" :status="status" class="max-w-xl" />
+                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg" v-if="$page.props.auth.user.email != 'ppt'">
+                    <UpdateProfileInformationForm :must-verify-email="mustVerifyEmail" :status="status" class="max-w-xl" />
                 </div>
 
                 <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg">
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
 
-                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg" v-if="$page.props.auth.user.email == 'ppt'">
+                <div class="p-6 sm:p-8 bg-white shadow sm:rounded-lg" v-if="$page.props.auth.user.email != 'ppt'">
                     <DeleteUserForm class="max-w-xl" />
                 </div>
             </div>
