@@ -103,6 +103,7 @@ class ValidacionesController extends Controller
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('user_id', '!=', $votante->votante->user->id)
             ->whereDoesntHave('user.jurado') // filtra solo los biometricos cuyo usuario no tiene jurado
+            ->whereNotNull('embedding')
             ->with([
                 'user:id', // solo carga el id del usuario
                 'user.votantes:id,id_user,nombre,identificacion', // solo carga el id del votante y su user_id
@@ -369,6 +370,7 @@ class ValidacionesController extends Controller
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('user_id', '!=', $votante->votante->user->id)
             ->whereDoesntHave('user.jurado') // filtra solo los biometricos cuyo usuario no tiene jurado
+            ->whereNotNull('embedding')
             ->with([
                 'user:id', // solo carga el id del usuario
                 'user.votantes:id,id_user,nombre,identificacion', // solo carga el id del votante y su user_id

@@ -24,6 +24,7 @@ class FaceController extends Controller
         // 1. Comparar contra TODOS los embeddings existentes
         $usuarios = UsuariosBiometricos::select('id', 'embedding')
         ->whereDoesntHave('user.jurado') // filtra solo los biometricos cuyo usuario no tiene jurado
+        ->whereNotNull('embedding')
         ->get();
         $raw = $request->embedding;
 
@@ -111,6 +112,7 @@ class FaceController extends Controller
         // 1. Comparar contra TODOS los embeddings existentes
         $usuarios = UsuariosBiometricos::select('id', 'embedding')
             ->whereHas('user.jurado') // filtra solo los biometricos cuyo usuario tiene jurado
+            ->whereNotNull('embedding')
             ->get();
 
         $raw = $request->embedding;
