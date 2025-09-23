@@ -185,11 +185,11 @@
                 class="w-full h-full object-cover"
               />
             </a>
-            <h4 class="m-auto sm:text-4xl text-xl w-full mt-2 px-2">
+            <h4 class="m-auto sm:text-4xl text-xl w-full mt-4 px-2">
               {{ getRealName(ev.nombre) }}
             </h4>
             <p class="m-auto w-full">
-              <span class="sm:text-xl text-sm text-gray-600"
+              <span class="sm:text-xl text-sm text-gray-600 px-2"
                 >{{ ev.fecha_inicio }} - {{ ev.fecha_fin }}</span
               >
               <br />
