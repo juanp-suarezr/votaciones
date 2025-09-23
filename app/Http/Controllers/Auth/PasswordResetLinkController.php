@@ -55,7 +55,7 @@ class PasswordResetLinkController extends Controller
             $token = Str::random(64);
 
             // 3. Guardar en password_resets
-            DB::table('password_resets_tokens')->updateOrInsert(
+            DB::table('password_reset_tokens')->updateOrInsert(
                 ['email' => $request->email],
                 [
                     'email' => $request->email,
