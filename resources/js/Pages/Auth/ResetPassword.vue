@@ -50,6 +50,9 @@ const props = defineProps({
     isPPT: String,
 });
 
+console.log(props);
+
+
 const form = useForm({
     token: props.token,
     email: props.email,
