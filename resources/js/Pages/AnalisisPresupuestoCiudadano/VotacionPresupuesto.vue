@@ -83,7 +83,14 @@ console.log(props);
                   >
                     <td class="p-2 text-base sm:text-xl font-medium text-gray-900">{{ proyecto.nombre }}</td>
                     <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">{{ proyecto.total }}</td>
-                    <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">{{ proyecto.total == 0 ? 0 :((proyecto.total/evento.total_votos)*100).toFixed(2) }}%</td>
+                    <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">{{ proyecto.total == 0 ? 0 :((proyecto.total/(evento.total_votos - (evento.votos_nulos + evento.votos_no_marcados)))*100).toFixed(2) }}%</td>
+                  </tr>
+                  <tr
+                    class="bg-gray-600 hover:bg-gray-800 shadow"
+                  >
+                    <td class="p-2 text-base sm:text-xl font-medium text-gray-900">Total votos validos</td>
+                    <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">{{ (evento.total_votos - (evento.votos_nulos + evento.votos_no_marcados)) }}</td>
+                    <td class="p-2 text-center text-base sm:text-xl font-bold text-primary">100%</td>
                   </tr>
                 </tbody>
               </table>
