@@ -59,7 +59,7 @@ const submit = () => {
         <div class="w-auto mt-6">
           <InputLabel
             for="comuna"
-            value="Seleccione la comuna a consultar los resultados"
+            value=""
             class="!text-lg"
           />
           <div v-if="comunas.length" class="card flex justify-content-center">
@@ -69,7 +69,7 @@ const submit = () => {
               :options="comunas"
               option-label="label"
               option-value="value"
-              placeholder="Seleccione una comuna"
+              placeholder="Seleccione una opción"
               class="w-full text-lg"
             />
           </div>
