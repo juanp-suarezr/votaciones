@@ -37,7 +37,7 @@
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
         >
-          Email Password Reset Link
+          Enviar email para restablecer contraseña
         </PrimaryButton>
       </div>
     </form>
@@ -53,12 +53,17 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 
-defineProps({
+const props = defineProps({
   status: String,
+  isPPT: String,
 });
+
+console.log(props);
+
 
 const form = useForm({
   email: "",
+  isPPT: props.isPPT,
 });
 
 const submit = () => {

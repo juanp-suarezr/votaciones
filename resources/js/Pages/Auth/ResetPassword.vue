@@ -3,7 +3,7 @@
 
     <GuestLayout>
         <Link href="/" class="mb-4 flex items-center justify-center">
-            <ApplicationLogo class="h-20 w-20 fill-current text-gray-500" />
+            <ApplicationLogo class="w-1/2 text-gray-500 fill-current" />
         </Link>
 
         <form @submit.prevent="submit">
@@ -14,20 +14,20 @@
             </div>
 
             <div class="mt-3">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Contraseña" />
                 <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="new-password" />
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
             <div class="mt-3">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+                <InputLabel for="password_confirmation" value="Conformar contraseña" />
                 <TextInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" required autocomplete="new-password" />
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
             <div class="mt-4 flex items-center justify-end">
                 <PrimaryButton class="w-full" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Reset Password
+                    Restablecer contraseña
                 </PrimaryButton>
             </div>
         </form>

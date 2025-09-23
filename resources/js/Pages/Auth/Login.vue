@@ -31,7 +31,7 @@
                     <span class="mx-2 text-sm text-gray-600">Recordarme</span>
                 </label>
 
-                <Link v-if="canResetPassword" :href="route('password.request')"
+                <Link v-if="canResetPassword" :href="route('password.request', {isPPT:false})"
                     class="text-sm text-gray-600 underline hover:text-gray-900">
                 ¿Olvidaste tu contraseña?
                 </Link>
