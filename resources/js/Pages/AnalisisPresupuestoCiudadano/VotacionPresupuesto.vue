@@ -29,6 +29,23 @@ const props = defineProps({
 });
 
 console.log(props);
+
+const getRealName = (text) => {
+
+    if (typeof text !== "string") return "";
+
+  const keyword = "vigencia";
+  const index = text.toLowerCase().lastIndexOf(keyword);
+  console.log(text.toLowerCase());
+
+
+  if (index === -1) {
+    return text; // si no encuentra la palabra, devuelve todo
+  }
+
+  return text.slice(index).trim();
+
+}
 </script>
 
 <template>
@@ -69,7 +86,7 @@ console.log(props);
             class="w-auto mb-4"
           >
             <h3 class="text-xl font-bold mb-2 text-primary">
-              {{ evento.evento_nombre }}
+              {{ getRealName(evento.evento_nombre) }}
             </h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
               <div
