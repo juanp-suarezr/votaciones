@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification; // 👈 IMPORTANTE
 
 class PasswordResetLinkController extends Controller
 {
