@@ -67,6 +67,7 @@ class User extends Authenticatable
     //para el restablecimiento contraseña metodo
     public function getEmailForPasswordReset()
 {
+    dd($this->email);
     // Si es PPT y tiene votante asociado
     if (str_starts_with($this->email, 'ppt') && $this->votantes) {
         return $this->votantes->email; // correo real
