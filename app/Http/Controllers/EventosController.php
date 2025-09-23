@@ -116,6 +116,9 @@ class EventosController extends Controller
             'estado' => 'required'
         ]);
 
+
+
+
         $eventos = Eventos::find($id_ev);
         $eventos->nombre = $request->nombre;
         $eventos->descripcion = $request->descripcion;
@@ -124,8 +127,18 @@ class EventosController extends Controller
         $eventos->fecha_fin = $request->fecha_fin;
         $eventos->tipos = $request->tipos;
         $eventos->evento_padre = $request->is_evento_padre;
+
+        //para detectar cuando no este activo y cambia de estado a activo
+        if($eventos->estado != 'Activo' && $request->estado == 'Activo') {
+
+        }
+
+
+
         $eventos->estado = $request->estado;
         $eventos->save();
+
+
 
         if ($request->evento_padre) {
             $hash_evento = Hash_eventos_hijos::where('id_evento_hijo', $eventos->id)->first();

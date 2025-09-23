@@ -61,6 +61,8 @@
     <!-- votantes -->
     <div v-if="$page.props.user.roles.includes('Usuarios')" class="">
       <h2 class="text-gray-600 text-2xl inline-flex">Votaciones pendientes</h2>
+
+      <h2 v-if="$page.props.auth.user.email == 'ppt'" class="text-gray-600 text-2xl inline-flex">Votaciones Presupuesto participativo</h2>
       <!-- eventos votaciones -->
       <div class="md:grid md:grid-cols-2 gap-4 mt-4 mb-4">
         <div
