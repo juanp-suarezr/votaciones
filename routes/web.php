@@ -163,17 +163,20 @@ Route::get('/dashboard', function () {
             ->pluck('id')
             ->toArray();
 
+            $comuna_usuario = Auth::user()->votantes->comuna ?? null;
+
         $eventos = Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
                 $query->where('id_votante', Auth::user()->votantes->id);
-            }, 'eventos_hijos.eventos' => function ($q) {
+            }, 'eventos_hijos.eventos' => function ($q) use ($comuna_usuario) {
                 $q->withCount('hash_proyectos') // trae hash_proyectos_count en cada hijo
-                    ->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
+                    ->whereHas('hash_proyectos.proyecto', function ($q2) use ($comuna_usuario) {
+                  $q2->where('comuna', $comuna_usuario);
+              });
             }])
             ->get()
-            ->filter(function ($evento) use ($info_votante, $comunas_activas) {
+            ->filter(function ($evento) use ($info_votante, $comunas_activas, $comuna_usuario) {
                 // Verifica si el usuario tiene comuna activa
-                $comuna_usuario = Auth::user()->votantes->comuna ?? null;
                 return in_array($comuna_usuario, $comunas_activas);
             });
 
