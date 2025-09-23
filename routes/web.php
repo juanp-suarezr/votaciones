@@ -171,7 +171,7 @@ Route::get('/dashboard', function () {
             }, 'eventos_hijos.eventos' => function ($q) use ($comuna_usuario) {
                 $q->withCount('hash_proyectos') // trae hash_proyectos_count en cada hijo
                     ->whereHas('hash_proyectos.proyecto', function ($q2) use ($comuna_usuario) {
-                  $q2->where('comuna', $comuna_usuario);
+                  $q2->where('subtipo', $comuna_usuario);
               });
             }])
             ->get()
