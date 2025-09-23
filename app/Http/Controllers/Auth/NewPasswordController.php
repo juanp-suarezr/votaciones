@@ -61,13 +61,6 @@ class NewPasswordController extends Controller
 
 
 
-            dd([
-                'token_recibido' => $request->token,
-                'base64' => base64_encode($request->token),
-                'token_db' => $registro->token,
-                'comparacion' => Hash::check($request->token, $registro->token),
-            ]);
-
             if (!$registro) {
                 return back()->withErrors(['token' => 'El correo o usuario no tiene registrado un token valido.']);
             } else if (!Hash::check($request->token, $registro->token)) {
