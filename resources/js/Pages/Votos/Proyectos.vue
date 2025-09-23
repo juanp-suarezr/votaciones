@@ -2,7 +2,7 @@
   <Head title="Votaciones" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
-    <template #header> Votaciones </template>
+    <template #header> {{ $page.props.auth.user.email == 'ppt' ? 'Elecciones Presupuesto Participativo' : 'Votaciones'}} </template>
 
     <div class="items-center flex flex-col justify-center mx-2">
       <div class="sm:flex w-full sm:grid md:grid-cols-2 grid-cols-2 gap-4 mt-6">
