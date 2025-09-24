@@ -68,6 +68,8 @@ class NewPasswordController extends Controller
                 return back()->withErrors(['token' => 'Token inválido o expirado.']);
             }
 
+            dd($votante);
+
             //actualizar contraseña
             $user = User::find($votante->id_user);
             dd($user);
