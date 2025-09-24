@@ -80,7 +80,7 @@ class NewPasswordController extends Controller
 
 
 
-            return redirect()->route('login')->with('status', __('Contraseña restablecida correctamente.'));
+            return redirect()->route('login-pp')->with('status', __('Contraseña restablecida correctamente.'));
         }
 
         // Here we will attempt to reset the user's password. If it is successful we
