@@ -48,7 +48,7 @@ class NewPasswordController extends Controller
         if ($request->isPPT == '1') {
 
             // 1. Buscar el correo en votantes
-            $votante = Informacion_votantes::where('email', $request->email)->first();
+            $votante = Informacion_votantes::select('email', 'id_user', 'id_jurado')->where('email', $request->email)->whereNull('id_jurado')->first();
 
             if (!$votante) {
                 return back()->withErrors(['email' => 'El correo no está registrado.']);
