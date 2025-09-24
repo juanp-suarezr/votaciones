@@ -415,8 +415,8 @@ const enviarSolicitud = () => {
               "
               class="mt-auto px-4 py-2 text-white text-lg md:text-xl rounded shadow transition"
               :class="{
-                'bg-indigo-700 hover:bg-indigo-800': eventoActivo,
-                'bg-indigo-200/60 cursor-not-allowed': eventoActivo == false,
+                'bg-blue-600 hover:bg-blue-800': eventoActivo,
+                'bg-blue-600/60 cursor-not-allowed': eventoActivo == false,
               }"
             >
               Ir a votación
@@ -436,7 +436,7 @@ const enviarSolicitud = () => {
             </p>
             <Link
               href="#certificados_info"
-              class="mt-auto px-4 py-2 bg-green-600 text-white text-lg md:text-xl rounded shadow hover:bg-green-700 transition flex items-center gap-2"
+              class="mt-auto px-4 py-2 bg-blue-600 text-white text-lg md:text-xl rounded shadow hover:bg-blue-700 transition flex items-center gap-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
