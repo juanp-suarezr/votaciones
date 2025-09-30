@@ -45,6 +45,13 @@
             <b>Dirección:</b>
             {{ votante.votante?.direccion || "N/A" }}
           </div>
+          <div>
+            <b>Contacto:</b>
+            <br>
+            Email: {{ votante.votante?.email || "N/A" }}
+            <br>
+            Celular: {{ votante.votante?.celular || "N/A" }}
+          </div>
           <div v-if="votante.intentos > 0">
             <b>Motivo rechazo:</b>
             {{ votante.motivo || "N/A" }}
