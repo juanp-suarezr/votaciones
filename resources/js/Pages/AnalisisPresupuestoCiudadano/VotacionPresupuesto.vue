@@ -31,21 +31,18 @@ const props = defineProps({
 console.log(props);
 
 const getRealName = (text) => {
-
-    if (typeof text !== "string") return "";
+  if (typeof text !== "string") return "";
 
   const keyword = "vigencia";
   const index = text.toLowerCase().lastIndexOf(keyword);
   console.log(text.toLowerCase());
-
 
   if (index === -1) {
     return text; // si no encuentra la palabra, devuelve todo
   }
 
   return text.slice(index).trim();
-
-}
+};
 </script>
 
 <template>
@@ -98,6 +95,14 @@ const getRealName = (text) => {
                 <span class="font-bold text-lg text-red-600"
                   >{{ evento.votos_nulos }} votos</span
                 >
+                <br />
+                <span class="font-bold text-lg text-red-600">
+                  {{
+                    ((evento.votos_nulos / (evento.total_votos)) *
+                      100
+                    ).toFixed(2)
+                  }}%
+                </span>
               </div>
               <div
                 class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center"
@@ -108,6 +113,14 @@ const getRealName = (text) => {
                 <span class="font-bold text-lg text-yellow-600">{{
                   evento.votos_no_marcados
                 }}</span>
+                <br />
+                <span class="font-bold text-lg text-yellow-600">
+                  {{
+                    ((evento.votos_nulos / (evento.total_votos)) *
+                      100
+                    ).toFixed(2)
+                  }}%
+                </span>
               </div>
               <div
                 class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center"
@@ -118,6 +131,10 @@ const getRealName = (text) => {
                 <span class="font-bold text-lg text-green-600 font-bold">{{
                   evento.total_votos
                 }}</span>
+                <br />
+                <span class="font-bold text-lg text-green-600 font-bold">
+                    100%
+                </span>
               </div>
             </div>
             <div class="overflow-x-auto mt-4">
