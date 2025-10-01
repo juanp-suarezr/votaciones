@@ -109,7 +109,7 @@ const getRealName = (text) => {
                   >Votos nulos</span
                 >
                 <span class="font-bold text-lg text-red-600"
-                  >{{ evento.votos_nulos }} votos</span
+                  >{{ evento.votos_nulos }}</span
                 >
                 <br />
                 <span class="font-bold text-lg text-red-600">
