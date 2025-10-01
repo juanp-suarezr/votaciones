@@ -59,7 +59,7 @@
     </div>
 
     <!-- votantes -->
-    <div v-if="$page.props.user.roles.includes('Usuarios')" class="">
+    <div id="driver1" v-if="$page.props.user.roles.includes('Usuarios')" class="">
       <h2
         v-if="$page.props.auth.user.email == 'ppt'"
         class="text-gray-600 text-2xl"
@@ -150,6 +150,7 @@
           </div>
           <!-- con banner -->
           <div
+          id="driver2"
             v-if="
               ev.votantes[0].estado == 'Activo' &&
               ev.tipos.includes('withBanner') &&
@@ -245,7 +246,7 @@
                 ev.estado == 'Activo' &&
                 !votos.find((item) => item.id_eventos == ev.id)
               "
-              class="sm:text-2xl text-xl m-auto mt-2"
+              class="sm:text-2xl text-xl m-auto mt-2 driver3"
               :class="{ 'opacity-25': isLoading }"
               :disabled="isLoading"
               :href="
@@ -573,6 +574,10 @@ ChartJS.register(
   ChartDataLabels
 );
 
+//drivers
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+
 const swal = inject("$swal");
 
 const props = defineProps({
@@ -741,21 +746,18 @@ const getComuna = (idComuna) => {
 
 //get vigencia año text
 const getRealName = (text) => {
-
-    if (typeof text !== "string") return "";
+  if (typeof text !== "string") return "";
 
   const keyword = "vigencia";
   const index = text.toLowerCase().lastIndexOf(keyword);
   console.log(text.toLowerCase());
-
 
   if (index === -1) {
     return text; // si no encuentra la palabra, devuelve todo
   }
 
   return text.slice(index).trim();
-
-}
+};
 
 //chartdata
 const setChartData = () => {
@@ -1039,10 +1041,149 @@ const validarVotante = async (identificacion) => {
     return false;
   }
 };
+
+onMounted(() => {
+  console.log(eventosPendientes.value);
+
+  // === DRIVER TOUR PARA NUEVOS USUARIOS ===
+  if (
+    usePage().props.user.roles.includes("Usuarios") && // Es votante
+    eventosPendientes.value.length > 0 && // Tiene eventos activos
+    eventosPendientes.value.some(
+      (ev) =>
+        typeof ev.tipos === "string" &&
+        ev.tipos.split("|").includes("Presupuesto Participativo")
+    ) && // Aún no tiene votos
+    props.info_votante[0].votante.Isdriver === 0 // Solo primera vez
+  ) {
+    const tutorial = driver({
+      showProgress: true, // barra de progreso
+      allowClose: true,
+      overlayOpacity: 0.8,
+      stagePadding: 8,
+      keyboardControl: true,
+      popoverClass: 'driverjs-theme',
+      nextBtnText: "Siguiente",
+      prevBtnText: "Anterior",
+      closeBtnText: "Cerrar",
+
+      steps: [
+        {
+          element: "#driver1",
+          popover: {
+            title: "¡Bienvenido!",
+            description:
+              "En este espacio podrás participar en las votaciones activas de tu comuna.",
+            side: "bottom",
+            align: "center",
+          },
+        },
+        {
+          element: "#driver2",
+          popover: {
+            title: "Vigencias disponibles",
+            description:
+              "Para votar verás los banners organizados por vigencia, según la comuna en la que te inscribiste.",
+            side: "top",
+            align: "start",
+          },
+        },
+        {
+          element: ".driver3",
+          popover: {
+            title: "¿Cómo votar?",
+            description:
+              'Para votar en cada vigencia, presiona el botón azul "Votar". Irás al proceso de votación; al regresar al dashboard podrás continuar votando por las otras vigencias disponibles.',
+            side: "left",
+            align: "center",
+          },
+        },
+      ],
+    });
+
+    // ✅ Iniciar el tour con la nueva API
+    tutorial.drive();
+
+    // Marca que ya se mostró localmente y en backend
+    localStorage.setItem("driver_shown_event_15", "1");
+
+    // Opcional: avisar al backend que ya lo vio (tu endpoint /marcar-driver)
+    axios.post("/marcar-driver", { isDriver: true }).catch((e) => {
+      // si falla el post no interrumpimos la experiencia, pero puedes loguearlo
+      console.warn("No se pudo marcar driver en backend:", e);
+    });
+  }
+});
 </script>
 
 <style>
 .p-knob-text {
   fill: white !important;
 }
+
+.driver-popover.driverjs-theme {
+  background-color: #d3d8f7;
+  color: #000;
+  width: auto;
+  max-width: 400px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-title {
+  font-size: 30px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-title,
+.driver-popover.driverjs-theme .driver-popover-description,
+.driver-popover.driverjs-theme .driver-popover-progress-text {
+  color: #000;
+  font-size: 20px;
+}
+
+.driver-popover.driverjs-theme button {
+  flex: 1;
+  flex-wrap: wrap;
+  text-align: center;
+  background-color: #000;
+  color: #ffffff;
+  border: 2px solid #000;
+  text-shadow: none;
+  font-size: 14px;
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+.driver-popover.driverjs-theme button:hover {
+  background-color: #000;
+  color: #ffffff;
+}
+
+.driver-popover.driverjs-theme .driver-popover-navigation-btns {
+  justify-content: space-between;
+  gap: 3px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-close-btn {
+  color: #9b9b9b;
+}
+
+.driver-popover.driverjs-theme .driver-popover-close-btn:hover {
+  color: #000;
+}
+
+.driver-popover.driverjs-theme .driver-popover-arrow-side-left.driver-popover-arrow {
+  border-left-color: #fde047;
+}
+
+.driver-popover.driverjs-theme .driver-popover-arrow-side-right.driver-popover-arrow {
+  border-right-color: #fde047;
+}
+
+.driver-popover.driverjs-theme .driver-popover-arrow-side-top.driver-popover-arrow {
+  border-top-color: #fde047;
+}
+
+.driver-popover.driverjs-theme .driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-bottom-color: #fde047;
+}
+
 </style>

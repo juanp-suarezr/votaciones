@@ -16,6 +16,7 @@ const swal = inject("$swal");
 import AOS from "aos";
 import "aos/dist/aos.css";
 
+
 AOS.init();
 
 const props = defineProps({
@@ -100,6 +101,8 @@ onMounted(() => {
     // Default para pantallas grandes
     mostrarPanel.value = window.innerWidth >= 768;
   }
+
+
 });
 
 // Guardar el estado cada vez que cambia
@@ -342,8 +345,9 @@ const enviarSolicitud = () => {
 
             <!-- Texto descriptivo para SEO -->
             <p class="mt-4 text-gray-700 text-lg sm:text-xl">
-              En este video te contamos qué es el <b>Presupuesto Participativo</b> y
-              cómo puedes ser parte de las <b>decisiones</b> que transforman tu
+              En este video te contamos qué es el
+              <b>Presupuesto Participativo</b> y cómo puedes ser parte de las
+              <b>decisiones</b> que transforman tu
               <b>comunidad.</b>
             </p>
           </div>

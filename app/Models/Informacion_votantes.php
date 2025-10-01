@@ -36,6 +36,7 @@ class Informacion_votantes extends Model
         'created_at',
         'updated_at',
         'imagen',
+        'Isdriver',
 
     ];
 

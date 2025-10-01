@@ -156,7 +156,7 @@ Route::get('/dashboard', function () {
     $eventos = [];
     $votos = [];
     if (Auth::user()->votantes) {
-        $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->get();
+        $info_votante = Hash_votantes::where('id_votante', Auth::user()->votantes->id)->with(['votante:id,Isdriver'])->get();
 
         $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
             ->where('estado', 1)
