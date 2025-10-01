@@ -59,7 +59,11 @@
     </div>
 
     <!-- votantes -->
-    <div id="driver1" v-if="$page.props.user.roles.includes('Usuarios')" class="">
+    <div
+      id="driver1"
+      v-if="$page.props.user.roles.includes('Usuarios')"
+      class=""
+    >
       <h2
         v-if="$page.props.auth.user.email == 'ppt'"
         class="text-gray-600 text-2xl"
@@ -67,6 +71,11 @@
         Elecciones Presupuesto Participativo
       </h2>
       <h2 class="text-gray-600 text-2xl">Votaciones pendientes</h2>
+      <p v-if="$page.props.auth.user.email == 'ppt'"
+        class="text-gray-600 text-lg">
+        Si hay varias vigencias para votar, ingrese a cada una y seleccione el
+        proyecto que considere más beneficioso para su comunidad
+      </p>
 
       <!-- eventos votaciones -->
       <div class="md:grid md:grid-cols-2 gap-4 mt-4 mb-4">
@@ -150,7 +159,7 @@
           </div>
           <!-- con banner -->
           <div
-          id="driver2"
+            id="driver2"
             v-if="
               ev.votantes[0].estado == 'Activo' &&
               ev.tipos.includes('withBanner') &&
@@ -1062,7 +1071,7 @@ onMounted(() => {
       overlayOpacity: 0.8,
       stagePadding: 8,
       keyboardControl: true,
-      popoverClass: 'driverjs-theme',
+      popoverClass: "driverjs-theme",
       nextBtnText: "Siguiente",
       prevBtnText: "Anterior",
       closeBtnText: "Cerrar",
@@ -1105,10 +1114,7 @@ onMounted(() => {
     // ✅ Iniciar el tour con la nueva API
     tutorial.drive();
 
-    // Marca que ya se mostró localmente y en backend
-    localStorage.setItem("driver_shown_event_15", "1");
-
-    // Opcional: avisar al backend que ya lo vio (tu endpoint /marcar-driver)
+    // avisar al backend que ya lo vio (tu endpoint /marcar-driver)
     axios.post("/marcar-driver", { isDriver: true }).catch((e) => {
       // si falla el post no interrumpimos la experiencia, pero puedes loguearlo
       console.warn("No se pudo marcar driver en backend:", e);
@@ -1159,13 +1165,11 @@ onMounted(() => {
 }
 
 .driver-popover.driverjs-theme .driver-popover-footer {
-
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .driver-popover.driverjs-theme .driver-popover-navigation-btns {
@@ -1181,20 +1185,23 @@ onMounted(() => {
   color: #000;
 }
 
-.driver-popover.driverjs-theme .driver-popover-arrow-side-left.driver-popover-arrow {
+.driver-popover.driverjs-theme
+  .driver-popover-arrow-side-left.driver-popover-arrow {
   border-left-color: #fde047;
 }
 
-.driver-popover.driverjs-theme .driver-popover-arrow-side-right.driver-popover-arrow {
+.driver-popover.driverjs-theme
+  .driver-popover-arrow-side-right.driver-popover-arrow {
   border-right-color: #fde047;
 }
 
-.driver-popover.driverjs-theme .driver-popover-arrow-side-top.driver-popover-arrow {
+.driver-popover.driverjs-theme
+  .driver-popover-arrow-side-top.driver-popover-arrow {
   border-top-color: #fde047;
 }
 
-.driver-popover.driverjs-theme .driver-popover-arrow-side-bottom.driver-popover-arrow {
+.driver-popover.driverjs-theme
+  .driver-popover-arrow-side-bottom.driver-popover-arrow {
   border-bottom-color: #fde047;
 }
-
 </style>

@@ -18,6 +18,7 @@ use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 use function PHPUnit\Framework\isEmpty;
@@ -307,5 +308,29 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
             ->with('success', 'Recurso eliminado exitosamente');
+    }
+
+    public function marcarDriver(Request $request)
+    {
+        $request->validate([
+            'isDriver' => 'required|boolean',
+        ]);
+
+        $user = Auth::user(); // Obtener el usuario autenticado
+
+        if ($user) {
+            $infoVotante = Informacion_votantes::where('id_user', $user->id)->first();
+
+            if ($infoVotante) {
+                $infoVotante->Isdriver = $request->isDriver;
+                $infoVotante->save();
+
+                return response()->json(['message' => 'Estado de driver actualizado correctamente.']);
+            } else {
+                return response()->json(['error' => 'Información del votante no encontrada.'], 404);
+            }
+        } else {
+            return response()->json(['error' => 'Usuario no autenticado.'], 401);
+        }
     }
 }
