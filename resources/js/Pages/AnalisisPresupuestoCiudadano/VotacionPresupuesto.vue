@@ -133,7 +133,7 @@ const getRealName = (text) => {
                 <br />
                 <span class="font-bold text-lg text-yellow-600">
                   {{
-                    ((evento.votos_nulos / evento.total_votos) * 100).toFixed(
+                    ((evento.votos_no_marcados / evento.total_votos) * 100).toFixed(
                       2
                     )
                   }}%
