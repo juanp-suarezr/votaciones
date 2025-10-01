@@ -1066,6 +1066,7 @@ onMounted(() => {
       nextBtnText: "Siguiente",
       prevBtnText: "Anterior",
       closeBtnText: "Cerrar",
+      doneBtnText: "Finalizar",
 
       steps: [
         {
@@ -1073,7 +1074,7 @@ onMounted(() => {
           popover: {
             title: "¡Bienvenido!",
             description:
-              "En este espacio podrás participar en las votaciones activas de tu comuna.",
+              "En este espacio podrás participar en las votaciones activas de tu comuna o corregimiento.",
             side: "bottom",
             align: "center",
           },
@@ -1083,7 +1084,7 @@ onMounted(() => {
           popover: {
             title: "Vigencias disponibles",
             description:
-              "Para votar verás los banners organizados por vigencia, según la comuna en la que te inscribiste.",
+              "Para votar verás los banners organizados por vigencia, según la comuna/corregimiento en la que te inscribiste.",
             side: "top",
             align: "start",
           },
@@ -1155,6 +1156,16 @@ onMounted(() => {
 .driver-popover.driverjs-theme button:hover {
   background-color: #000;
   color: #ffffff;
+}
+
+.driver-popover.driverjs-theme .driver-popover-footer {
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
 }
 
 .driver-popover.driverjs-theme .driver-popover-navigation-btns {

@@ -247,6 +247,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    //cambiar estado isDrver votante
+    Route::post('/cambiar-isdriver', [UserController::class, 'cambiarIsdriver'])->name('cambiarIsdriver');
 
 
     //update proyectos
