@@ -1063,6 +1063,7 @@ onMounted(() => {
         typeof ev.tipos === "string" &&
         ev.tipos.split("|").includes("Presupuesto Participativo")
     ) && // Aún no tiene votos
+    props.info_votante[0].estado === 'Activo' &&
     props.info_votante[0].votante.Isdriver === 0 // Solo primera vez
   ) {
     const tutorial = driver({
