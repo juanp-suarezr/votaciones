@@ -85,7 +85,23 @@ const getRealName = (text) => {
             <h3 class="text-xl font-bold mb-2 text-primary">
               {{ getRealName(evento.evento_nombre) }}
             </h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <!-- total votos general -->
+              <div
+                class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center"
+              >
+                <span class="block text-base sm:text-xl text-gray-500 font-bold"
+                  >Total votos</span
+                >
+                <span class="font-bold text-lg text-green-600 font-bold">{{
+                  evento.total_votos
+                }}</span>
+                <br />
+                <span class="font-bold text-lg text-green-600 font-bold">
+                  100%
+                </span>
+              </div>
+              <!-- votos nulos -->
               <div
                 class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center"
               >
@@ -98,12 +114,13 @@ const getRealName = (text) => {
                 <br />
                 <span class="font-bold text-lg text-red-600">
                   {{
-                    ((evento.votos_nulos / (evento.total_votos)) *
-                      100
-                    ).toFixed(2)
+                    ((evento.votos_nulos / evento.total_votos) * 100).toFixed(
+                      2
+                    )
                   }}%
                 </span>
               </div>
+              <!-- votos no marcados -->
               <div
                 class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center"
               >
@@ -116,26 +133,31 @@ const getRealName = (text) => {
                 <br />
                 <span class="font-bold text-lg text-yellow-600">
                   {{
-                    ((evento.votos_nulos / (evento.total_votos)) *
-                      100
-                    ).toFixed(2)
+                    ((evento.votos_nulos / evento.total_votos) * 100).toFixed(
+                      2
+                    )
                   }}%
                 </span>
               </div>
-              <div
+                <!-- votos validos -->
+                <div
                 class="bg-gray-100 rounded-md hover:scale-105 hover:bg-gray-200 shadow-md p-3 text-center"
-              >
-                <span class="block text-base sm:text-xl text-gray-500 font-bold"
-                  >Total votos</span
                 >
-                <span class="font-bold text-lg text-green-600 font-bold">{{
-                  evento.total_votos
+                <span class="block text-base sm:text-xl text-gray-500"
+                  >Votos validos</span
+                >
+                <span class="font-bold text-lg text-blue-600">{{
+                  evento.total_votos - (evento.votos_nulos + evento.votos_no_marcados)
                 }}</span>
                 <br />
-                <span class="font-bold text-lg text-green-600 font-bold">
-                    100%
+                <span class="font-bold text-lg text-blue-600">
+                  {{
+                    ((evento.total_votos - (evento.votos_nulos + evento.votos_no_marcados)) / evento.total_votos * 100).toFixed(
+                      2
+                    )
+                  }}%
                 </span>
-              </div>
+                </div>
             </div>
             <div class="overflow-x-auto mt-4">
               <table
