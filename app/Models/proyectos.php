@@ -22,7 +22,7 @@ class Proyectos extends Model
         'tipo',
         'subtipo',
         'numero_tarjeton',
-        'imagen',
+        'id_tipo',
         'created_at',
         'updated_at',
         'estado',
@@ -32,6 +32,11 @@ class Proyectos extends Model
     public function parametroDetalle()
     {
         return $this->belongsTo(ParametrosDetalle::class, 'subtipo', 'id');
+    }
+
+    public function tipo_proyecto()
+    {
+        return $this->belongsTo(Tipo_proyectos::class, 'id_tipo', 'id');
     }
 
     public function hash_proyectos()

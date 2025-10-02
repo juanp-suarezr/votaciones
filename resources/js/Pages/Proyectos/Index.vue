@@ -54,7 +54,7 @@
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.detalle }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
-                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.tipo }}</p>
+                            <p class="text-gray-900 whitespace-no-wrap">{{ ev.tipo_proyecto.nombre }}</p>
                         </td>
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.parametro_detalle?.detalle }}</p>

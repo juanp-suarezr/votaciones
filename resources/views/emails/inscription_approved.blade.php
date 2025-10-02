@@ -73,10 +73,13 @@
         </div>
         <div class="content">
             <h1>¡Hola, {{ $nombre }}!</h1>
-            <p><b>La alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que su registro ha sido <b style="color: green">aprobado.</b> Una vez se habilite la fecha de votación, podrá ingresar al
-                <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;"> software</a> utilizando como usuario su número de identificación y la contraseña que ingresó durante el proceso de registro, con el fin de votar por el proyecto de su preferencia en beneficio de la comunidad.
+            <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que su registro ha sido <b style="color: green">aprobado.</b>
+            <br>
+            Antes de cada jornada de votación, recibirá un correo electrónico en el que se le indicarán los proyectos disponibles en su comuna o corregimiento, así como la fecha exacta en la que podrá participar.
+            <br>
+            Una vez se habilite la fecha de votación, podrá ingresar al software de votaciones utilizando como usuario su número de identificación y la contraseña creada durante el proceso de inscripción. Allí podrá emitir su voto por el proyecto de su preferencia, en beneficio de la comunidad.
             </p>
-            <em>Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login-pp</a></em>
+            <em>👉Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login-pp</a></em>
 
         </div>
         <div class="footer">

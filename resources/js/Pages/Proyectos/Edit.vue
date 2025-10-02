@@ -184,55 +184,20 @@
             <InputError class="mt-2" :message="form.errors.estado" />
           </div>
 
-          <!-- Imagen -->
-          <div class="col-span-2">
-            <p class="text-gray-600 text-sm">
-              Imagen de proyecto (resolución recomendada: 1080x1080px)
-            </p>
-            <div class="border-2 border-gray-300 rounded-md p-2">
-              <!-- Mostrar la imagen actual si existe -->
-              <div class="flex justify-center">
-                <img
-                  v-if="imageUrl || props.proyecto.imagen"
-                  :src="imageUrl || getImageUrl(props.proyecto.imagen)"
-                  :alt="form.detalle"
-                  class="w-2/6 h-auto"
-                />
-                <PhotoIcon v-else class="w-1/6 text-gray-300" />
-              </div>
+          <!-- tipo proyecto -->
+          <div class="mb-2">
+            <InputLabel for="tipo_proyecto" value="Tipo Proyecto" />
 
-              <!-- Botón para cambiar la imagen -->
-              <div class="mt-4">
-                <label
-                  for="imagen"
-                  class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
-                >
-                  Cambiar Imagen
-                </label>
-                <TextInput
-                  id="imagen"
-                  type="file"
-                  class="hidden"
-                  accept="image/*"
-                  @input="onAdvancedUpload($event.target.files[0])"
-                />
-                <InputError class="mt-2" :message="form.errors.imagen" />
-              </div>
-
-              <!-- Botón para eliminar la imagen -->
-              <div
-                v-if="imageUrl || props.proyecto.imagen"
-                class="flex justify-center mt-2"
-              >
-                <button
-                  @click="removeImage"
-                  type="button"
-                  class="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Eliminar Imagen
-                </button>
-              </div>
-            </div>
+            <Dropdown
+              id="tipo_proyecto"
+              v-model="form.tipo_proyecto"
+              :options="tipo_proyectos"
+              option-label="nombre"
+              option-value="id"
+              placeholder="Seleccione el tipo de proyecto"
+              class="w-full"
+            />
+            <InputError class="mt-2" :message="form.errors.tipo_proyecto" />
           </div>
 
           <div>
@@ -296,6 +261,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  tipo_proyectos: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 console.log(props);
@@ -314,8 +283,8 @@ const form = useForm({
   eventos: eventosBD || [],
   subtipo: props.proyecto.subtipo || "",
   tipo: props.proyecto.tipo,
+  tipo_proyecto: props.proyecto.id_tipo || "",
   estado: props.proyecto.estado || "",
-  imagen: props.proyecto.imagen,
 });
 
 const selectedParametro = ref(null);
@@ -403,13 +372,6 @@ const removeImage = () => {
 
 const submit = () => {
   console.log(form);
-
-  if(form.imagen && typeof form.imagen === "string") {
-    console.log("Imagen no modificada, enviando nombre del archivo");
-
-    // Si la imagen es un objeto, significa que se ha seleccionado una nueva imagen
-    form.imagen = ''; // Solo enviar el nombre del archivo
-  }
 
   form.post(route("proyectoUpdate", { id: props.proyecto.id }), {
     forceFormData: true,

@@ -9,6 +9,7 @@ use App\Models\Informacion_votantes;
 use App\Models\Parametros;
 use App\Models\ParametrosDetalle;
 use App\Models\Proyectos;
+use App\Models\Tipo_proyectos;
 use App\Models\Tipos;
 use App\Models\User;
 use Illuminate\Support\Facades\Request as RequestFacade;
@@ -58,6 +59,7 @@ class ProyectosController extends Controller
                         $query->where('estado', $estado);
                     })
                     ->with('parametroDetalle')
+                    ->with('tipo_proyecto')
                     ->with('hash_proyectos')
                     ->paginate(5)
                     ->withQueryString(),
@@ -76,12 +78,14 @@ class ProyectosController extends Controller
         $parametros = Parametros::where('estado', 1)->get();
         $subtipos = ParametrosDetalle::where('estado', 1)->get();
         $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->get();
+        $tipo_proyectos = Tipo_proyectos::select('nombre', 'id')->get();
 
         return Inertia::render('Proyectos/Add', [
             'tipos' => $tipos,
             'parametros' => $parametros,
             'subtipos' => $subtipos,
             'eventos' => $eventos,
+            'tipo_proyectos' => $tipo_proyectos,
 
         ]);
     }
@@ -95,6 +99,7 @@ class ProyectosController extends Controller
             'subtipo' => 'required',
             'numero_tarjeton' => 'required',
             'estado' => 'required',
+            'tipo_proyecto' => 'required',
 
         ]);
 
@@ -106,22 +111,6 @@ class ProyectosController extends Controller
 
         try {
 
-            if ($request->imagen) {
-
-                $request->validate([
-
-                    'imagen' => 'mimes:jpg,png,jpeg,gif,bmp,tiff,svg,web,webp|max:2048',
-
-                ]);
-
-
-                $folder = 'proyectos';
-                $extension = $request->file('imagen')->getClientOriginalExtension();
-
-                $fileName = time() . '_proyecto_' . $request->tipo . '_' . $request->subtipo . '.' . $extension;
-                $filePath = $request->file('imagen')->storeAs('uploads/' . $folder, $fileName, 'public');
-            }
-
             // Crear el usuario
             $proyecto = Proyectos::create([
                 'detalle' => $request->detalle,
@@ -129,7 +118,7 @@ class ProyectosController extends Controller
                 'tipo' => $request->tipo,
                 'subtipo' => $request->subtipo,
                 'numero_tarjeton' => $request->numero_tarjeton,
-                'imagen' => $fileName,
+                'id_tipo' => $request->tipo_proyecto,
                 'estado' => $request->estado,
             ]);
 
@@ -170,6 +159,7 @@ class ProyectosController extends Controller
         $subtipos = ParametrosDetalle::where('estado', 1)->get();
         $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->get();
         $proyecto = Proyectos::with('hash_proyectos')->find($id_proyecto);
+        $tipo_proyectos = Tipo_proyectos::select('nombre', 'id')->get();
 
         $proyecto->eventos = optional($proyecto->hash_proyectos)
             ->pluck('id_evento') // Extrae el campo `nombre` de cada `evento` relacionado
@@ -182,7 +172,7 @@ class ProyectosController extends Controller
             'subtipos' => $subtipos,
             'eventos' => $eventos,
             'proyecto' => $proyecto,
-
+            'tipo_proyectos' => $tipo_proyectos,
         ]);
     }
 
@@ -200,6 +190,7 @@ class ProyectosController extends Controller
             'subtipo' => '',
             'numero_tarjeton' => 'required',
             'estado' => 'required',
+            'tipo_proyecto' => 'required',
 
         ]);
 
@@ -208,28 +199,6 @@ class ProyectosController extends Controller
 
         try {
 
-            $fileName = null;
-
-            if ($request->imagen) {
-
-                $request->validate([
-
-                    'imagen' => 'mimes:jpg,png,jpeg,gif,bmp,tiff,svg,web,webp|max:2048',
-
-                ]);
-
-
-                $folder = 'proyectos';
-                $extension = $request->file('imagen')->getClientOriginalExtension();
-
-                $fileName = time() . '_proyecto_' . $request->tipo . '_' . $request->subtipo . '.' . $extension;
-                $filePath = $request->file('imagen')->storeAs('uploads/' . $folder, $fileName, 'public');
-
-                // Eliminar el archivo antiguo si existe
-                if ($proyecto->imagen != 'NA') {
-                    Storage::delete('uploads/' . $folder . '/' . $proyecto->imagen);
-                }
-            }
 
             // Crear el usuario
             $proyecto->update([
@@ -238,7 +207,7 @@ class ProyectosController extends Controller
                 'tipo' => $request->tipo,
                 'subtipo' => $request->input('subtipo.id', 0), // Aseguramos que subtipo tenga un valor por defecto si no se envía
                 'numero_tarjeton' => $request->numero_tarjeton,
-                'imagen' => $fileName ?? $proyecto->imagen,
+                'id_tipo' => $request->tipo_proyecto,
                 'estado' => $request->estado,
             ]);
 

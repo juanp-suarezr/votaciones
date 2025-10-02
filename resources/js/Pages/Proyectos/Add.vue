@@ -184,42 +184,20 @@
             <InputError class="mt-2" :message="form.errors.estado" />
           </div>
 
-          <!-- imagen -->
-          <div class="col-span-2">
-            <!-- imagen banner -->
-            <p class="text-gray-600 text-sm">
-              Imagen de proyecto (resolución recomendada: 1080x1080px)
-            </p>
-            <div class="border-2 border-gray-300 rounded-md p-2">
-              <TextInput
-                id="imagen"
-                type="file"
-                class="mt-1 !border-0"
-                accept="image/*"
-                @input="onAdvancedUpload($event.target.files[0])"
-                :maxFileSize="2e6"
-              />
-              <InputError class="mt-2" :message="form.errors.imagen" />
+          <!-- tipo proyecto -->
+          <div class="mb-2">
+            <InputLabel for="tipo_proyecto" value="Tipo Proyecto" />
 
-              <div class="flex justify-center">
-                <img
-                  v-if="imageUrl"
-                  :src="imageUrl"
-                  :alt="form.detalle"
-                  class="w-2/6 h-auto"
-                />
-                <PhotoIcon v-else class="w-1/6 text-gray-300" />
-              </div>
-              <div v-if="imageUrl" class="flex justify-center mt-2">
-                <button
-                  @click="removeImage"
-                  type="button"
-                  class="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Eliminar Imagen
-                </button>
-              </div>
-            </div>
+            <Dropdown
+                      id="tipo_proyecto"
+                      v-model="form.tipo_proyecto"
+                      :options="tipo_proyectos"
+                      option-label="nombre"
+                      option-value="id"
+                      placeholder="Seleccione el tipo de proyecto"
+                      class="w-full"
+                    />
+            <InputError class="mt-2" :message="form.errors.tipo_proyecto" />
           </div>
 
           <div>
@@ -281,6 +259,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  tipo_proyectos: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 console.log(props);
@@ -293,7 +275,7 @@ const form = useForm({
   eventos: [],
   subtipo: 0,
   estado: 1,
-  imagen: "",
+  tipo_proyecto: "",
 });
 
 //evento seleccionado para elegir candidato o usuario
@@ -387,7 +369,7 @@ const removeImage = () => {
 
 const submit = () => {
     console.log(form);
-    
+
   form.subtipo = form.subtipo.id;
 
   form.post(route("proyectos.store"), {
@@ -405,7 +387,7 @@ const submit = () => {
     },
     onError: function (errors) {
       console.log(errors);
-      
+
       swal({
         title: "Error",
         text: "Ha ocurrido un error al intentar guardar el proyecto",
