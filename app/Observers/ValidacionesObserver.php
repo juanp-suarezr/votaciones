@@ -22,7 +22,7 @@ class ValidacionesObserver
 
     private function registrarAuditoria($registro)
     {
-        dd(Auth::id());
+        
         AuditoriaRegistro::create([
             'votante_id' => $registro->id,
             'accion' => $registro->estado,
