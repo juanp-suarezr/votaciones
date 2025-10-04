@@ -22,11 +22,12 @@ class ValidacionesObserver
 
     private function registrarAuditoria($registro)
     {
+        dd(Auth::id());
         AuditoriaRegistro::create([
             'votante_id' => $registro->id,
             'accion' => $registro->estado,
             'id_evento' => $registro->id_evento,
-            'usuario_id' => Auth::id() || null,
+            'usuario_id' => Auth::id(),
             'ip_address' => Request::ip(),
             'user_agent' => Request::header('User-Agent'),
         ]);

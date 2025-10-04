@@ -67,7 +67,7 @@
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
-                    Fecha de registro
+                    Fecha de validación
                   </th>
                 </tr>
               </thead>
@@ -176,12 +176,16 @@ let id_user = ref(props.filters.id_user ?? "");
 
 let id_evento = ref(props.eventos.find((item) => item.id == 15));
 
-const formatDate = (date) => {
+const formatDateTime = (date) => {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const seconds = String(d.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 const handleEnterKey = () => {
