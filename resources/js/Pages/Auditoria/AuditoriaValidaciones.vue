@@ -176,7 +176,7 @@ let id_user = ref(props.filters.id_user ?? "");
 
 let id_evento = ref(props.eventos.find((item) => item.id == 15));
 
-const formatDateTime = (date) => {
+const formatDate = (date) => {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
