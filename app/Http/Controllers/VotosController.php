@@ -94,7 +94,7 @@ class VotosController extends Controller
                                 $query->where('subtipo', 'like', '%' . $subtipo_user . '%')
                                     ->where('estado', 1);
                             });
-                        })->with('proyecto')->get(),
+                        })->with('proyecto.tipo_proyecto')->get(),
 
 
                     'votante' => $infoVotante,
