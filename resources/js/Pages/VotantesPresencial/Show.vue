@@ -11,7 +11,7 @@
     <div class="p-4">
       <div class="bg-white shadow-md rounded-lg p-6 mb-6">
         <div class="w-full mb-4 border-b-2 border-secondary pb-4">
-            <ApplicationLogo class="h-24 !w-full object-contain" />
+          <ApplicationLogo class="h-24 !w-full object-contain" />
         </div>
         <h2 class="text-lg font-bold mb-4 text-blue-900">
           Datos del reporte de escrutinio
@@ -32,9 +32,20 @@
             <div class="sm:grid sm:grid-cols-2 gap-4">
               <div class="md:col-span-2">
                 <b>Comuna/Corregimiento:</b>
-                {{ getParametros(acta.comuna) || "Sin información" }}
+                <span v-if="acta.tipo === 'virtual'">
+                  <template v-if="comunasDetalles.length">
+                    <ul class="list-disc ml-4">
+                      <li v-for="comuna in comunasDetalles" :key="comuna.id">
+                        {{ comuna.detalle }}
+                      </li>
+                    </ul>
+                  </template>
+                </span>
+                <span v-else>
+                  {{ getParametros(acta.comuna) || "Sin información" }}
+                </span>
               </div>
-              <div class="md:col-span-2">
+              <div class="md:col-span-2" v-if="acta.tipo !== 'virtual'">
                 <b>Puesto de votación:</b>
                 {{ getParametros(acta.puesto_votacion) || "N/A" }}
               </div>
@@ -59,27 +70,32 @@
                 {{ acta.observaciones || "N/A" }}
               </div>
               <!-- Info jurado -->
-              <div class="md:col-span-2 mt-4 mb-2">
+              <div
+                class="md:col-span-2 mt-4 mb-2"
+                v-if="acta.tipo !== 'virtual'"
+              >
                 <h2 class="font-bold text-lg">Información Jurado</h2>
               </div>
               <!-- imagen jurado -->
-              <div
-                class="card shadow-lg rounded-md p-4 mb-4"
-                v-if="acta.jurado.user.biometrico"
-              >
-                <img
-                  :src="getUrlBiometrico(acta.jurado.user.biometrico.photo)"
-                  class="w-full sm:h-48 sm:object-cover"
-                />
-              </div>
-              <div
-                class="card shadow-lg rounded-md p-4 sm:h-36 h-full flex items-center justify-center"
-                v-else
-              >
-                Img jurado
+              <div v-if="acta.tipo !== 'virtual'">
+                <div
+                  class="card shadow-lg rounded-md p-4 mb-4"
+                  v-if="acta.jurado.user.biometrico"
+                >
+                  <img
+                    :src="getUrlBiometrico(acta.jurado.user.biometrico.photo)"
+                    class="w-full sm:h-48 sm:object-cover"
+                  />
+                </div>
+                <div
+                  class="card shadow-lg rounded-md p-4 sm:h-36 h-full flex items-center justify-center"
+                  v-else
+                >
+                  Img jurado
+                </div>
               </div>
               <!-- informacion jurado -->
-              <div class="flex flex-col my-auto">
+              <div class="flex flex-col my-auto" v-if="acta.tipo !== 'virtual'">
                 <div>
                   <b>Nombre:</b>
                   {{ acta.jurado.nombre || "N/A" }}
@@ -95,26 +111,29 @@
               </div>
 
               <!-- Info testigo -->
-              <div class="md:col-span-2 mt-4 mb-2">
+              <div
+                class="md:col-span-2 mt-4 mb-2"
+                v-if="acta.tipo !== 'virtual'"
+              >
                 <h2 class="font-bold text-lg">Información Testigo</h2>
               </div>
-              <div>
+              <div v-if="acta.tipo !== 'virtual'">
                 <b>Nombre:</b>
                 {{ acta.nombre_testigo || "N/A" }}
               </div>
-              <div>
+              <div v-if="acta.tipo !== 'virtual'">
                 <b>identificacion:</b>
                 cc. {{ acta.identificacion_testigo || "N/A" }}
               </div>
-              <div>
+              <div v-if="acta.tipo !== 'virtual'">
                 <b>contacto:</b>
                 {{ acta.contacto_testigo || "N/A" }}
               </div>
               <!-- Info votaciones -->
-              <div class="md:col-span-2 mt-4 mb-2">
+              <div v-if="acta.tipo !== 'virtual'" class="md:col-span-2 mt-4 mb-2">
                 <h2 class="font-bold text-lg">Información votación</h2>
               </div>
-              <div class="w-full col-span-2">
+              <div class="w-full col-span-2" v-if="acta.tipo !== 'virtual'">
                 <table
                   v-if="acta.votos_fisico && acta.votos_fisico.length"
                   class="min-w-full whitespace-no-wrap"
@@ -254,7 +273,6 @@ import VueEasyLightbox from "vue-easy-lightbox";
 import { ref, inject, computed } from "vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 
-
 const swal = inject("$swal");
 
 const props = defineProps({
@@ -292,12 +310,30 @@ const closeLightbox = () => {
 };
 
 const getParametros = (id) => {
-  return props.parametros.find((item) => item.id === id).detalle;
+  console.log(id);
+
+  return props.parametros.find((item) => item.id === parseInt(id)).detalle;
 };
 
-const getUrlActa = (url) => `/storage/uploads/actas/${url}`;
+// Buscar el detalle de la comuna en los parámetros
+const comunasDetalles = computed(() => {
+  if (!props.acta.comuna || !props.parametros) return [];
+  const ids = String(props.acta.comuna)
+    .split("|")
+    .map((id) => id.trim());
+  return props.parametros.filter((p) => ids.includes(String(p.id)));
+});
+
 const getUrlBiometrico = (url) => `/storage/uploads/fotos/${url}`;
 const getFirma = (url) => `/storage/uploads/delegado/${url}`;
+
+const getUrlActa = (url) => {
+  if (url === "virtual") {
+    return `/assets/img/logo1.png`;
+  }
+
+  return `/storage/uploads/actas/${url}`;
+};
 
 const formatDate = (date) => {
   const d = new Date(date);

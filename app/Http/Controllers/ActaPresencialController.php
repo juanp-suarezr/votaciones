@@ -62,12 +62,15 @@ class ActaPresencialController extends Controller
             ->when(RequestFacade::input('subtipo'), function ($query, $subtipo) {
                 $query->where('comuna',  $subtipo);
             })
-            ->whereHas('jurado', function ($query) {
-                $query->when(RequestFacade::input('search'), function ($query, $search) {
-                    $query->where('nombre',  'like', '%' . $search . '%')
-                        ->orWhere('identificacion', $search);
-                });
-            })
+            ->when(RequestFacade::input('search'), function ($query, $search) {
+        // Si hay búsqueda, filtrar por jurado, pero incluir los que no tienen jurado
+        $query->where(function ($q) use ($search) {
+            $q->whereHas('jurado', function ($sub) use ($search) {
+                $sub->where('nombre', 'like', '%' . $search . '%')
+                    ->orWhere('identificacion', $search);
+            });
+        });
+    })
             ->with('jurado')
             ->with('votos_fisico.proyecto')
             ->paginate(5)

@@ -18,7 +18,10 @@ Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
     ->name('password.confirm');
 
 Route::middleware('guest')->group(function () {
+
+    // Aplicar 'verificar.estado' solo a la ruta register
     Route::get('register', [RegisteredUserController::class, 'create'])
+        ->middleware('verificar.estado')
         ->name('register');
 
     //Validator cedula

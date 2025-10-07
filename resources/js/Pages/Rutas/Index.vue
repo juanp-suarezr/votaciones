@@ -20,7 +20,6 @@
                   class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
                 >
                   <th
-                    colspan="2"
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
                     #
@@ -59,7 +58,7 @@
                   :key="ruta.id"
                   class="text-gray-700"
                 >
-                  <td class="border-b border-gray-200 bg-white p-1 text-sm">
+                  <td class="border-b border-gray-200 bg-white px-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{ index + 1 }}
                     </p>
@@ -94,7 +93,13 @@
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    acciones
+                    <SecondaryLink
+                      type="button"
+                      :href="route('rutas.edit', ruta.id)"
+                      class="mb-2"
+                    >
+                      Editar
+                    </SecondaryLink>
                   </td>
                 </tr>
               </tbody>
@@ -123,6 +128,7 @@ import { Head } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
+import SecondaryLink from "@/Components/SecondaryLink.vue";
 
 const props = defineProps({
   rutas: {

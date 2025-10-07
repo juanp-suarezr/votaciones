@@ -45,6 +45,12 @@ class Eventos extends Model
         return $this->hasMany(Acta_escrutino::class, 'id_evento', 'id');
     }
 
+    // Relación para traerme el evento padre directamente
+    public function padre()
+    {
+        return $this->belongsTo(Eventos::class, 'evento_padre', 'id');
+    }
+
 
     // Relación muchos a uno con Hash_eventos_hijos (para traerse el evento padre del hijo)
     public function evento_hijo()

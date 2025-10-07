@@ -19,12 +19,12 @@
               id="ruta"
               type="text"
               class="mt-1 block w-full"
-              v-model="form.ruta"
+              v-model="form.path"
               required
               autofocus
               autocomplete="ruta"
             />
-            <InputError class="mt-2" :message="form.errors.ruta" />
+            <InputError class="mt-2" :message="form.errors.path" />
           </div>
 
           <!-- Fecha inicio -->
@@ -105,7 +105,7 @@
                 Ruta
               </span>
             </h3>
-            <p class="">{{ form.ruta }}</p>
+            <p class="">{{ form.path }}</p>
           </div>
           <div class="mb-8">
             <h3 class="mb-3">
@@ -144,7 +144,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 const swal = inject("$swal");
 
 const form = useForm({
-  ruta: "",
+  path: "",
   fecha_inicio: "",
   fecha_fin: "",
   estado: "1",

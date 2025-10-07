@@ -3,6 +3,8 @@
 namespace App\Exports;
 
 use App\Models\Empresa;
+use App\Models\Parametros;
+use App\Models\ParametrosDetalle;
 use App\Models\Votos;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +56,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
                 });
             })
             ->with('votante')->with(['votante' => function ($query) {
-                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'created_at'); // agrega aquí solo los campos necesarios
+                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'celular', 'email', 'comuna', 'created_at'); // agrega aquí solo los campos necesarios
             }])
             ->get();
 
@@ -79,6 +81,9 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
                 'votante.tipo_documento' => $votante->votante->tipo_documento,
                 'votante.identificacion' => $votante->votante->identificacion,
                 'votante.genero' => $votante->votante->genero,
+                'votante.celular' => $votante->votante->celular,
+                'votante.email' => $votante->votante->email,
+                'votante.comuna' => ParametrosDetalle::where('id', $votante->votante->comuna)->value('detalle') ?? 'N/A',
                 'votante.created_at' => $votante->votante->created_at,
                 'created_at' => $votante->created_at,
 
@@ -95,6 +100,9 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
             'Tipo de documento',
             'Identificación',
             'Genero',
+            'Celular',
+            'Email',
+            'Comuna',
             'Fecha creación registro',
             'Fecha de voto',
 

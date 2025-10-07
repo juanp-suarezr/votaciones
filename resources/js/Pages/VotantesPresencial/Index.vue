@@ -177,7 +177,13 @@
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <p class="text-gray-900 whitespace-no-wrap">
+                    <p
+                      class="text-gray-900 whitespace-no-wrap"
+                      v-if="acta.tipo == 'virtual'"
+                    >
+                      Virtual
+                    </p>
+                    <p class="text-gray-900 whitespace-no-wrap" v-else>
                       {{ acta.jurado.nombre }}
                       <br />
                       <b>cc:</b> {{ acta.jurado.identificacion }}
@@ -186,7 +192,13 @@
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <p class="text-gray-900 whitespace-no-wrap">
+                    <p
+                      class="text-gray-900 whitespace-no-wrap"
+                      v-if="acta.tipo == 'virtual'"
+                    >
+                      Virtual
+                    </p>
+                    <p class="text-gray-900 whitespace-no-wrap" v-else>
                       {{ acta.nombre_testigo }}
                       <br />
                       <b>cc:</b> {{ acta.identificacion_testigo }}
@@ -239,7 +251,13 @@
                       </p>
                     </div>
                     <div v-else>
-                      <p>No hay votos por proyectos</p>
+                      <p
+                        class="text-gray-900 whitespace-no-wrap"
+                        v-if="acta.tipo == 'virtual'"
+                      >
+                        Virtual
+                      </p>
+                      <p v-else>No hay votos por proyectos</p>
                     </div>
                   </td>
                   <td
@@ -257,7 +275,8 @@
                       >
                         <EyeIcon class="h-6 w-6 text-gray-800" />
                       </Link>
-                      <Link v-if="$page.props.user.roles.includes('Administrador')"
+                      <!-- <Link
+                        v-if="$page.props.user.roles.includes('Administrador')"
                         class="bg-yellow-400/60 rounded-full hover:!bg-yellow-400/80 p-1"
                         v-tooltip.bottom="'Editar'"
                         :href="
@@ -267,7 +286,7 @@
                         "
                       >
                         <PencilSquareIcon class="h-6 w-6 text-gray-800" />
-                      </Link>
+                      </Link> -->
                     </div>
                   </td>
                 </tr>
@@ -292,7 +311,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { watch } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryLink from "@/Components/PrimaryLink.vue";
@@ -303,7 +322,11 @@ import Pagination from "@/Components/Pagination.vue";
 import { Head, Link } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import Select from "primevue/select";
-import { DocumentArrowDownIcon, EyeIcon, PencilSquareIcon } from "@heroicons/vue/24/solid";
+import {
+  DocumentArrowDownIcon,
+  EyeIcon,
+  PencilSquareIcon,
+} from "@heroicons/vue/24/solid";
 
 import comunas from "@/shared/comunas.json"; // Importa el JSON
 
@@ -337,8 +360,36 @@ let comuna = ref(props.filters.comuna ?? "");
 let id_evento = ref(props.eventos.find((item) => item.id == 16));
 
 const getParametros = (id) => {
-  return props.parametros.find((item) => item.id === id).detalle;
+  console.log(id);
+
+  if (!id) return "N/A"; // si viene null, undefined o vacío
+
+  // Forzamos a string por si viene como número
+  const idStr = String(id);
+
+  if (idStr.includes("|")) {
+    const ids = id.split("|").map((i) => i.trim());
+    return ids
+      .map((singleId) => {
+        const param = props.parametros.find(
+          (item) => item.id === parseInt(singleId)
+        );
+        return param ? param.detalle : "N/A";
+      })
+      .join(", ");
+  }
+
+  return props.parametros.find((item) => item.id === parseInt(id)).detalle;
 };
+
+// Buscar el detalle de la comuna en los parámetros
+const comunasDetalles = computed(() => {
+  if (!props.acta.comunas || !props.parametros) return [];
+  const ids = String(props.acta.comunas)
+    .split("|")
+    .map((id) => id.trim());
+  return props.parametros.filter((p) => ids.includes(String(p.id)));
+});
 
 const formatDate = (date) => {
   const d = new Date(date);

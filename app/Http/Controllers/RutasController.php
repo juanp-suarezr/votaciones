@@ -47,7 +47,7 @@ class RutasController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Rutas/Create');
+        return Inertia::render('Rutas/Add');
     }
 
     /**
@@ -62,7 +62,7 @@ class RutasController extends Controller
             'path' => 'required|string|max:255',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'estado' => 'required|in:activo,inactivo',
+            'estado' => 'required',
         ]);
         RutasVotaciones::create($request->all());
         return redirect()->route('rutas.index')
