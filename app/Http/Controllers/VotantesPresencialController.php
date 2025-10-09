@@ -48,13 +48,13 @@ class VotantesPresencialController extends Controller
         $id_evento = 16;
         $anio_actual = Carbon::now()->year;
 
-        
+
 
         if (RequestFacade::input('id_evento')) {
-                # code...
-                $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
-                $id_evento = $id_evento->id;
-            }
+            # code...
+            $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
+            $id_evento = $id_evento->id;
+        }
 
 
 
@@ -270,16 +270,11 @@ class VotantesPresencialController extends Controller
         ob_end_clean();
         ob_start();
 
-        $id_evento = 16;
+
+        $id_evento = intval(RequestFacade::input('id_evento'));
 
 
-        if (Auth::user()->jurado) {
 
-            $id_evento = Auth::user()->jurado->id_evento;
-        } else {
-
-            $id_evento = Eventos::select('id')->where('id', RequestFacade::input('id_evento'))->first();
-        }
 
 
         $subtipo = RequestFacade::input('subtipo');

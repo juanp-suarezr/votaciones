@@ -36,6 +36,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
 
         $anio_actual = Carbon::now()->year;
 
+        
         $votantes = Votos::select(
             'id_votante',
             'id_eventos',
@@ -45,7 +46,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
             'estado',
         )
             ->whereYear('created_at', $anio_actual)
-            ->where('id_eventos', $this->id_evento->id)
+            ->where('id_eventos', $this->id_evento)
             ->when($this->subtipo, function ($query, $subtipo) {
                 $query->where('subtipo',  $subtipo);
             })
