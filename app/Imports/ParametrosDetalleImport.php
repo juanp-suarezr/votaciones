@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Votante;
 use App\Models\HashVotante;
 use App\Models\Informacion_votantes;
+use App\Models\ParametrosDetalle;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -16,14 +17,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class ParametrosDetalleImport implements ToCollection, WithHeadingRow
 {
     private $numRegistrosInsertados = 0;
-    private $numRegistrosActualizados = 0;
 
     protected $eventId;
 
 
-    public function __construct($eventId)
+    public function __construct()
     {
-        $this->eventId = $eventId;
+        
     }
 
     public function collection($rows)
@@ -40,71 +40,25 @@ class ParametrosDetalleImport implements ToCollection, WithHeadingRow
 
             // Validar que las 7 primeras columnas tengan datos
             if (
-                empty($row[0]) || empty($row[1]) || empty($row[2]) ||
-                empty($row[3]) || empty($row[4]) || empty($row[5]) || empty($row[6])
+                empty($row[0]) || empty($row[1])
             ) {
                 return null;
             }
 
             // Limitar a las primeras 7 columnas
-            $row = array_slice($row, 0, 7);
+            $row = array_slice($row, 0, 2);
 
             DB::transaction(function () use ($row) {
-                // Buscar por identificación
-                $delegados = Delegados::where('identificacion', $row[1])->first();
+
+                // Crear un nuevo usuario
+                $detalleParametro = ParametrosDetalle::create([
+                    'detalle' => $row[0],
+                    'codParametro' => $row[1],
+                ]);
 
 
-                // Si existe, actualiza usuario
-                if ($delegados) {
-
-                    $user =  User::where('id', $delegados->id_user)->first();
-                    $user->update([
-                        'email' => $row[5],
-                        'identificacion' => $row[5],
-                        'password' => Hash::make($row[6]),
-                        'estado' => 'Activo',
-                    ]);
-
-                    $delegados->update([
-                        'id_evento' => $this->eventId,
-                        'puntos_votacion' => intval($row[4] ?? 0),
-                        'nombre' => $row[0],
-                        'identificacion' => $row[1],
-                        'contacto' => $row[2],
-                        'cargo' => 'Jurado',
-                        'tipo' => 'jurado',
-                        'comuna' => intval($row[3] ?? 0),
-                        'estado' => 1
-                    ]);
-
-                    // Incrementar el contador de registros actualizados correctamente
-                    $this->numRegistrosActualizados++;
-                } else {
-                    // Crear un nuevo usuario
-                    $user = User::create([
-                        'name' => $row[0],
-                        'email' => $row[5],
-                        'identificacion' => $row[5],
-                        'password' => Hash::make($row[6]),
-                        'estado' => 'Activo',
-                    ]);
-
-                    // Crear un nuevo votante relacionado al usuario
-                    $delegados = Delegados::create([
-                        'id_evento' => $this->eventId,
-                        'puntos_votacion' => intval($row[4] ?? 0),
-                        'id_user' => $user->id,
-                        'nombre' => $row[0],
-                        'identificacion' => $row[1],
-                        'contacto' => $row[2],
-                        'cargo' => 'Jurado',
-                        'tipo' => 'jurado',
-                        'comuna' => intval($row[3] ?? 0),
-                        'estado' => 1
-                    ]);
-                    // Incrementar el contador de registros insertados correctamente
-                    $this->numRegistrosInsertados++;
-                }
+                // Incrementar el contador de registros insertados correctamente
+                $this->numRegistrosInsertados++;
             });
 
             $index++;
@@ -116,8 +70,5 @@ class ParametrosDetalleImport implements ToCollection, WithHeadingRow
         return $this->numRegistrosInsertados;
     }
 
-    public function getNumRegistrosActualizados()
-    {
-        return $this->numRegistrosActualizados;
-    }
+
 }

@@ -105,11 +105,10 @@ class cargueMasivoController extends Controller
 
         // Obtener el número de registros insertados correctamente
         $numRegistrosInsertados = $import->getNumRegistrosInsertados();
-        $numRegistrosActualizados = $import->getNumRegistrosActualizados();
+
 
         return back()->with([
         'numRegistrosInsertados' => $numRegistrosInsertados,
-        'numRegistrosActualizados' => $numRegistrosActualizados,
     ]);
     }
 

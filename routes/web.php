@@ -8,6 +8,7 @@ use App\Http\Controllers\auditoriasController;
 use App\Http\Controllers\Auth\FaceController;
 use App\Http\Controllers\CandidatosController;
 use App\Http\Controllers\cargueMasivoController;
+use App\Http\Controllers\CargueVotantesFisicoController;
 use App\Http\Controllers\CedulaController;
 use App\Http\Controllers\CertificadosController;
 use App\Http\Controllers\DelegadosController;
@@ -314,6 +315,10 @@ Route::middleware('auth')->group(function () {
 
     //descargar excel
     Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');
+
+    //RUTAS PARA CARGUE VOTANTES FISICO
+    Route::get('/votantesFisicos', [CargueVotantesFisicoController::class, 'index'])->name('votantesFisicos.index');
+    Route::post('/votantesFisicos/cargueMasivo', [CargueVotantesFisicoController::class, 'cargueMasivo'])->name('votantesFisicos.cargueMasivo');
 });
 
 Route::group(['middleware' => ['auth']], function () {

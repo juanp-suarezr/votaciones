@@ -32,6 +32,10 @@
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Reporte escrutinio</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.roles.includes('Jurado') || $page.props.user.roles.includes('Administrador')" :href="route('votantesFisicos.index')" :active="route().current('votantesFisicos')">
+                <ArchiveBoxArrowDownIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Votantes físicos</span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('actas-virtuales-listar')" :href="route('actasVirtuales.index')" :active="route().current('actasVirtuales')">
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Actas virtuales</span>
