@@ -4,9 +4,7 @@
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header> Votantes x evento </template>
 
-    <div
-      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4"
-    >
+    <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4">
       <div>
         <Select
           id="eventos"
@@ -82,9 +80,10 @@
 
       <div class="flex gap 4 p-4">
         <SecondaryButton class="me-4 py-2 h-full" @click="limpiar">
-            Limpiar
+          Limpiar
         </SecondaryButton>
         <a
+          v-if="id_evento"
           :href="
             route('votantes.excel', {
               search: search,
@@ -96,7 +95,6 @@
         >
           <DocumentArrowDownIcon class="h-6 w-6 me-2" />Exportar
         </a>
-
       </div>
     </div>
     <div class="flex flex-col overflow-x-auto">
@@ -134,7 +132,6 @@
                   >
                     Fecha de votación
                   </th>
-
                 </tr>
               </thead>
               <tbody>
@@ -143,9 +140,7 @@
                   :key="user.id"
                   class="text-gray-700"
                 >
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <Avatar
                       :label="getInitials(user.votante.nombre)"
                       class="bg-indigo-200 text-indigo-800 text-xl"
@@ -153,43 +148,32 @@
                       shape="circle"
                     />
                   </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{ user.votante.nombre }}
                     </p>
                   </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
-                      {{ user.votante.tipo_documento }} - {{ user.votante.identificacion }}
+                      {{ user.votante.tipo_documento }} -
+                      {{ user.votante.identificacion }}
                     </p>
                   </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{ user.votante.genero }}
                     </p>
                   </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{ formatDate(user.votante.created_at) }}
                     </p>
                   </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{ formatDate(user.created_at) }}
                     </p>
                   </td>
-
-
                 </tr>
               </tbody>
             </table>
@@ -238,9 +222,6 @@ const props = defineProps({
 
 console.log(props.eventos);
 
-
-
-
 const breadcrumbLinks = [{ url: "", text: "Reporte de votantes x evento" }];
 
 // pass filters in search
@@ -269,12 +250,11 @@ const handleEnterKey = () => {
 };
 
 const limpiar = () => {
+  search.value = "";
+  id_evento.value = props.eventos.find((item) => item.id == 16);
+  comuna.value = "";
 
-    search.value = "";
-    id_evento.value = props.eventos.find(item => item.id == 16);
-    comuna.value = "";
-
-    router.get(
+  router.get(
     "/votantesPresencial",
     { search: search.value, id_evento: id_evento.value, subtipo: comuna.value },
     {
@@ -282,7 +262,7 @@ const limpiar = () => {
       replace: true,
     }
   );
-}
+};
 
 const getInitials = function (name) {
   let parts = name.split(" ");
