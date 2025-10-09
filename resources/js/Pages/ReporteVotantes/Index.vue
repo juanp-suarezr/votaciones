@@ -236,6 +236,8 @@ const props = defineProps({
   },
 });
 
+console.log(props.eventos);
+
 
 
 
@@ -245,7 +247,7 @@ const breadcrumbLinks = [{ url: "", text: "Reporte de votantes x evento" }];
 let search = ref(props.filters.search);
 let comuna = ref(props.filters.comuna ?? "");
 
-let id_evento = ref(props.eventos.find(item => item.id == 16));
+let id_evento = ref(props.eventos[0]);
 
 const formatDate = (date) => {
   const d = new Date(date);
