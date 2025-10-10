@@ -400,7 +400,7 @@ const enviarSolicitud = () => {
           <!-- Paso 2 -->
           <div
             class="flex flex-col justify-between items-start bg-gray-400/40 rounded-lg p-6 shadow mb-2"
-            :class="{ '!bg-gray-600': eventoActivo == false }"
+            :class="{ '!bg-gray-600/40': eventoActivo == false }"
           >
             <h2
               class="text-2xl sm:text-4xl font-bold text-red-600 mb-4"

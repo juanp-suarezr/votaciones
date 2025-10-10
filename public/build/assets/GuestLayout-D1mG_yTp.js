@@ -1,0 +1,1 @@
+import{c as t,o as a,e as r,G as o,n as c}from"./app-BGQ2FonO.js";const n={class:"flex h-screen items-center justify-center bg-gray-200 px-6"},m={__name:"GuestLayout",props:["isRegister"],setup(e){return(s,l)=>(a(),t("div",n,[r("div",{class:c(["w-full rounded-md bg-white p-6 shadow-md",e.isRegister?"max-w-2xl":"max-w-sm "])},[o(s.$slots,"default")],2)]))}};export{m as _};
