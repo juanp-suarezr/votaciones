@@ -116,7 +116,7 @@
                 {{ voto.cantidad_anulada }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
-                {{ formatDate(voto.created_at) }}
+                {{ voto.created_at }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ voto.evento.nombre }}
