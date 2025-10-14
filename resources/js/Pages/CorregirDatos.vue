@@ -205,6 +205,7 @@
           </div>
 
           <!-- Barrio -->
+          <!-- Barrio -->
           <div class="mb-2">
             <InputLabel for="barrio" value="Barrio/Vereda" />
             <Select
@@ -217,6 +218,15 @@
               :highlightOnSelect="false"
               class="w-full"
             />
+            <div class="w-full mt-2" v-if="isOtroBarrio">
+              <InputLabel for="barrio_otro" value="Cual?" />
+              <TextInput
+                id="barrio_otro"
+                type="text"
+                class="mt-1 block w-full"
+                v-model="form.barrio"
+              />
+            </div>
             <InputError class="mt-2" :message="form.errors.barrio" />
           </div>
           <!-- Dirección -->
@@ -660,6 +670,9 @@ const message = ref("");
 const isCameraReady = ref(false);
 const loadingButtonBiometric = ref(false);
 
+//verificar si el barrio es otro
+const isOtroBarrio = ref(false);
+
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
 
@@ -689,6 +702,32 @@ watch(comunaSelected, (newValue) => {
     console.log(barriosXComuna.value);
   }
 });
+
+//WATCH BARRIO -- OTROS
+watch(
+  () => form.barrio,
+  (value) => {
+    console.log(value);
+
+    if (value == "Otro") {
+      form.barrio = "";
+      isOtroBarrio.value = true;
+    }
+  }
+);
+
+// Observa todos los campos del formulario y elimina errores automáticamente
+watch(
+  () => form.data(),
+  (nuevoValor) => {
+    Object.keys(form.errors).forEach((campo) => {
+      if (nuevoValor[campo]) {
+        form.errors[campo] = null;
+      }
+    });
+  },
+  { deep: true }
+);
 
 const onFileChange = (field, event) => {
   const file = event.target.files[0];
