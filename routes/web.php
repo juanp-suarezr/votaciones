@@ -122,6 +122,16 @@ Route::get('/welcome', function () {
     ]);
 })->name('welcome');
 
+//landing comunas - barrio
+Route::get('/cual-es-mi-sector', function () {
+    return Inertia::render('ComunasBarrios', [
+
+        'isActive' => Eventos::where('estado', 'activo')
+            ->whereRaw("LOWER(tipos) LIKE ?", ['%presupuesto participativo%'])
+            ->exists(),
+    ]);
+})->name('ComunasBarrios');
+
 //GESTION CERTIFICADOS
 //descargar
 Route::get('/certificados/descargar/{id}/{idVotante?}/{id_padre?}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
