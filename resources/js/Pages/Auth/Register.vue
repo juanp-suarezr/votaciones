@@ -1425,7 +1425,7 @@ const submit = async () => {
     onSuccess: () => {
       swal({
         title: "Registro realizado",
-        text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará internamente la validación de su información, el estado del trámite será notificado a través del correo electrónico registrado. Recuerde que su usuario es su número de identificación y la contraseña es la que ingresó al momento del registro.",
+        text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará una validación interna de su información. El estado del trámite será notificado en un máximo de 72 horas al correo electrónico registrado. Recuerde que su usuario corresponde a su número de identificación y la contraseña es la que creó al momento del registro.",
         icon: "success",
       }).then((result) => {
         window.location.href = route("welcome");
