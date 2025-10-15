@@ -17,6 +17,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 import barrios from "@/shared/barrios_comuna.json"; // Importa el JSON
+import barrios_por_comuna from "@/shared/barrios.json"; // Importa el JSON
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Select, Textarea } from "primevue";
 
@@ -75,7 +76,7 @@ const buscar = () => {
     loading.value = true;
 
     // Filtrar barrios por comuna seleccionada
-    let barriosSeleccionados = barrios.find(
+    let barriosSeleccionados = barrios_por_comuna.find(
       (barrio) => barrio.id === parseInt(comunaSelected.value.value)
     );
 
