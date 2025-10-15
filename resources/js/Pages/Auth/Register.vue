@@ -268,7 +268,7 @@
                 <a
                   :href="route('ComunasBarrios')"
                     target="_blank"
-                    class="underline !text-azul cursor-pointer"
+                    class="underline !text-white font-bold cursor-pointer"
                     >enlace</a
                   >.
               </p>
