@@ -298,6 +298,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/usuarios-duplicados/{id_user}', [ValidationController::class, 'usuariosDuplicados'])->name('usuarios-duplicados');
     //actualizacion de datos con imgs
     Route::post('/corregir-datos', [ValidationController::class, 'corregirDatos'])->name('corregirDatos');
+    //validar face ia
+    Route::post('/face-validate-correccion', [FaceController::class, 'validateFaceCorreccion'])->name('face-validate-correccion');
     //actualizacion de datos delegado o jurado
     Route::post('/delegados-update', [DelegadosController::class, 'updateDelegados'])->name('delegados.updateDelegados');
 
