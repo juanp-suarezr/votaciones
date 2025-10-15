@@ -259,6 +259,22 @@
             </div>
           </div>
 
+          <!-- aviso comuna/barrios -->
+          <div class="mb-2 w-full col-span-2">
+            <div class="bg-azul rounded-md p-2 w-full h-full">
+              <p class="text-white text-base">
+                Si no esta seguro a que comuna/corregimiento o barrio/vereda
+                pertenece, puede consultar en el siguiente
+                <a
+                  :href="route('ComunasBarrios')"
+                    target="_blank"
+                    class="underline !text-azul cursor-pointer"
+                    >enlace</a
+                  >.
+              </p>
+            </div>
+          </div>
+
           <!-- Comuna -->
           <div class="mb-2">
             <InputLabel for="comuna" value="Comuna/Corregimiento" />
