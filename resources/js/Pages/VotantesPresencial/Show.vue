@@ -135,32 +135,30 @@
                 {{ acta.contacto_testigo || "N/A" }}
               </div>
               <!-- Info votaciones -->
-              <div
-                v-if="acta.tipo !== 'virtual'"
-                class="md:col-span-2 mt-4 mb-2"
-              >
+              <div class="md:col-span-2 mt-4 mb-2">
                 <h2 class="font-bold text-lg">Información votación</h2>
               </div>
               <!-- voto nulo -->
               <div>
                 <b>Votos blanco:</b>
-                {{ acta.votos_blanco || "N/A" }}
+                {{ acta.votos_blanco || "0" }}
               </div>
               <!-- voto no marcados -->
               <div>
                 <b>Votos no marcados:</b>
-                {{ acta.votos_no_marcados || "N/A" }}
+                {{ acta.votos_no_marcados || "0" }}
               </div>
               <!-- voto blanco -->
               <div>
                 <b>Votos nulos:</b>
-                {{ acta.votos_nulos || "N/A" }}
+                {{ acta.votos_nulos || "0" }}
               </div>
               <!-- total -->
               <div>
                 <b>Total votos:</b>
-                {{ acta.total_ciudadanos || "N/A" }}
+                {{ acta.total_ciudadanos || "0" }}
               </div>
+              <!-- votos fisicos proyectos-->
               <div class="w-full col-span-2" v-if="acta.tipo !== 'virtual'">
                 <table
                   v-if="acta.votos_fisico && acta.votos_fisico.length"
@@ -207,6 +205,73 @@
                       >
                         <p class="text-gray-900 whitespace-no-wrap">
                           {{ pro.proyecto?.detalle ?? "Proyecto desconocido" }}
+                        </p>
+                      </td>
+                      <!-- cantidad -->
+                      <td
+                        class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                      >
+                        <p class="text-gray-900 whitespace-no-wrap">
+                          {{ pro.cantidad }}
+                        </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div v-else>
+                  <em>No hay votos por proyectos</em>
+                </div>
+              </div>
+              <!-- votos virtuales proyectos -->
+              <div class="w-full col-span-2" v-else>
+                <table
+                  v-if="
+                    votos_virtuales_proyectos &&
+                    votos_virtuales_proyectos.length
+                  "
+                  class="min-w-full whitespace-no-wrap"
+                >
+                  <thead>
+                    <tr
+                      class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                    >
+                      <th
+                        class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                      >
+                        #
+                      </th>
+
+                      <th
+                        class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                      >
+                        Proyecto
+                      </th>
+                      <th
+                        class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                      >
+                        votos
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(pro, idx) in votos_virtuales_proyectos"
+                      :key="pro.id"
+                      class="text-gray-700"
+                    >
+                      <td
+                        class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                      >
+                        <p class="text-gray-900 whitespace-no-wrap">
+                          {{ idx + 1 }}
+                        </p>
+                      </td>
+                      <!-- proyecto name -->
+                      <td
+                        class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                      >
+                        <p class="text-gray-900 whitespace-no-wrap">
+                          {{ pro.nombre ?? "Proyecto desconocido" }}
                         </p>
                       </td>
                       <!-- cantidad -->
@@ -294,9 +359,13 @@ const props = defineProps({
   delegados: {
     type: Object,
   },
+  votos_virtuales_proyectos: {
+    type: Object,
+    default: () => [],
+  },
 });
 
-console.log(props.acta);
+console.log(props);
 
 const breadcrumbLinks = [
   { url: "/actaPresencial", text: "Actas de escrutinio" },

@@ -63,14 +63,14 @@ class ActaPresencialController extends Controller
                 $query->where('comuna',  $subtipo);
             })
             ->when(RequestFacade::input('search'), function ($query, $search) {
-        // Si hay búsqueda, filtrar por jurado, pero incluir los que no tienen jurado
-        $query->where(function ($q) use ($search) {
-            $q->whereHas('jurado', function ($sub) use ($search) {
-                $sub->where('nombre', 'like', '%' . $search . '%')
-                    ->orWhere('identificacion', $search);
-            });
-        });
-    })
+                // Si hay búsqueda, filtrar por jurado, pero incluir los que no tienen jurado
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('jurado', function ($sub) use ($search) {
+                        $sub->where('nombre', 'like', '%' . $search . '%')
+                            ->orWhere('identificacion', $search);
+                    });
+                });
+            })
             ->with('jurado')
             ->with('votos_fisico.proyecto')
             ->paginate(5)
@@ -91,12 +91,34 @@ class ActaPresencialController extends Controller
             ->with('evento:id,nombre')
             ->findOrFail($id);
 
+        $votos_virtuales_proyectos = [];
+
+        if ($acta->tipo === 'virtual') {
+            $votos_virtuales_proyectos = Votos::where('id_eventos', $acta->id_evento)
+                ->where('subtipo', $acta->comuna)
+                ->where('id_proyecto', '>', 0)
+                ->with('proyecto')
+                ->get()
+                ->groupBy('id_proyecto')
+                ->map(function ($votos, $id_proyecto) {
+                    $nombre = $votos->first()->proyecto->detalle ?? 'Sin nombre';
+                    $cantidad = $votos->count();
+                    return [
+                        'id_proyecto' => $id_proyecto,
+                        'nombre' => $nombre,
+                        'cantidad' => $cantidad,
+                    ];
+                })
+                ->values();
+        }
+
         $delegados = Delegados::where('tipo', 'secretario')->get();
 
         return Inertia::render('VotantesPresencial/Show', [
             'acta' => $acta,
             'parametros' => ParametrosDetalle::where('estado', 1)->get(),
             'delegados' => $delegados,
+            'votos_virtuales_proyectos' => $votos_virtuales_proyectos,
 
         ]);
     }
