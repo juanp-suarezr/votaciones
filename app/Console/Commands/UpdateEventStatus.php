@@ -2,14 +2,18 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\CertificadosMail;
+use App\Mail\InfoEventosMail;
 use App\Models\Acta_escrutino;
 use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
 use Illuminate\Console\Command;
 use App\Models\Eventos;
+use App\Models\Hash_votantes;
 use App\Models\ParametrosDetalle;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 
@@ -49,6 +53,46 @@ class UpdateEventStatus extends Command
             ->where('estado', 1)
             ->pluck('id')
             ->toArray();
+
+        // Obtener los votantes asociados al evento con id 15 para notificar inicio de votaciones
+        $votantes = Hash_votantes::where('id_evento', 15)
+            ->with('votante')
+            ->where('estado', 'Activo') // Solo los activos
+            ->get();
+
+        // Obtener los votantes asociados al evento con id 15 para notificar certificados
+        $votantes1 = Hash_votantes::where('id_evento', 15)
+            ->with('votante.votos')
+            ->get();
+
+        //si de eventos update esta el evento de id 15
+        if ($eventsToUpdate->contains('id', 15)) {
+            # code...
+            foreach ($votantes as $votante) {
+                if (!in_array($votante->subtipo, $comunas_activas)) {
+                    continue; // Si no está, salta al siguiente votante
+                }
+                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante));
+                }
+            }
+        }
+
+        //
+        if ($eventsToClose->contains('id', 15)) {
+
+
+            foreach ($votantes1 as $votante) {
+
+                if (!in_array($votante->subtipo, $comunas_activas) || $votante->votante->votos->isEmpty()) {
+                    continue; // Si no está, salta al siguiente votante
+                }
+
+                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                    Mail::to($votante->votante->email)->send(new CertificadosMail($votante));
+                }
+            }
+        }
 
         // Actualiza el estado de los eventos encontrados
         foreach ($eventsToUpdate as $event) {

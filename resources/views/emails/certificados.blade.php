@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listado proyectos</title>
+    <title>Certificaciones</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,17 +81,12 @@
         </div>
         <div class="content">
             <h1>¡Hola, {{ $nombre }}!</h1>
-            <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que esta habilitado para votar en el evento {{$evento->nombre}} entre el {{$evento->fecha_inicio}} y {{$evento->fecha_fin}}</p>
-            <h2>Estos son los proyectos registrados para el evento {{ $evento->nombre }}</h2>
-            <ul style="text-align: left;">
-                @foreach ($proyectos as $hash_proyecto)
-                    <li class="project-item">
-                        <strong>Nombre del Proyecto:</strong> {{ $hash_proyecto->detalle }}<br>
-                        <strong>Descripción:</strong> {{ $hash_proyecto->descripcion }}<br>
-                    </li>
-                    <br>
-                @endforeach
-            </ul>
+            <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que usted puede obtener los certificados de los eventos de Presupuesto Participativo, ingresando a la plataforma con su numero de identificación y contraseña</p>
+            <p>o ingresando a la siguiente pagina</p>
+            <h3>
+            Pagina para obtener certificaciones: <a href="https://votaciones.servicios-alcaldiapereira.com/certificaciones" target="_blank">https://votaciones.servicios-alcaldiapereira.com/certificaciones</a>
+            </h3>
+
             <p>Recuerde que su participación es fundamental para el desarrollo de nuestra ciudad.</p>
             <p>¡Gracias por ser parte del cambio!</p>
 
