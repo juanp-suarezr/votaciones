@@ -112,7 +112,7 @@ const buscar = () => {
   } else {
     swal({
       title: "Error",
-      text: "Por favor, selecciona una comuna o barrio.",
+      text: "Por favor, selecciona una comuna/corregimiento o barrio/vereda.",
       icon: "error",
     });
   }
@@ -301,16 +301,16 @@ const enviarSolicitud = () => {
           <div class="flex flex-col gap-2">
             <label class="font-semibold text-gray-700">Tipo de búsqueda</label>
             <select v-model="tipoBusqueda" class="border rounded-lg px-3 py-2">
-              <option value="comuna">Comuna</option>
-              <option value="barrio">Barrio</option>
+              <option value="comuna">Comuna/Corregimiento</option>
+              <option value="barrio">Barrio/Vereda</option>
             </select>
           </div>
           <div class="flex flex-col gap-2 mt-4" v-if="tipoBusqueda !== ''">
             <label class="font-semibold text-gray-700"
               >{{
                 tipoBusqueda === "comuna"
-                  ? "Selecciona una comuna"
-                  : "Selecciona un barrio"
+                  ? "Selecciona una comuna/corregimiento"
+                  : "Selecciona un barrio/vereda"
               }}
             </label>
             <Select
@@ -358,7 +358,7 @@ const enviarSolicitud = () => {
               class="border border-blue-300 rounded-lg p-4 bg-blue-50 shadow-md min-w-[180px] flex flex-col items-center"
             >
               <span class="text-sm text-gray-600">
-                {{ tipoBusqueda === "comuna" ? "Barrio/vereda" : "Comuna" }}:
+                {{ tipoBusqueda === "comuna" ? "Barrio/vereda" : "Comuna/corregimiento" }}:
                 {{ res.nombre }}
               </span>
             </div>
