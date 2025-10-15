@@ -187,6 +187,22 @@
             <InputError class="mt-2" :message="form.errors.condicion" />
           </div>
 
+          <!-- aviso comuna/barrios -->
+          <div class="mb-2 w-full col-span-2">
+            <div class="bg-azul rounded-md p-2 w-full h-full">
+              <p class="text-white text-base">
+                Si no esta seguro a que comuna/corregimiento o barrio/vereda
+                pertenece, puede consultar en el siguiente
+                <a
+                  :href="route('ComunasBarrios')"
+                  target="_blank"
+                  class="underline !text-white font-bold cursor-pointer"
+                  >enlace</a
+                >.
+              </p>
+            </div>
+          </div>
+
           <!-- Comuna -->
           <div class="mb-2">
             <InputLabel for="comuna" value="Comuna/Corregimiento" />
@@ -254,16 +270,14 @@
             <label
               for="consentimiento1"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-            >
+              >Conozco y Acepto la Política de Privacidad de Datos
               <a
-                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
+                href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
                 target="_blank"
                 class="underline !text-azul cursor-pointer"
-                >Manifiesto</a
-              >
-              que la información registrada es veraz y corresponde a mis datos
-              personales
-            </label>
+                >Política</a
+              ></label
+            >
             <InputError class="mt-1" :message="form.errors.checked" />
           </div>
           <!-- declaración juramentada -->
@@ -278,15 +292,16 @@
             <label
               for="consentimiento2"
               class="ps-4 pe-12 sm:text-base text-sm text-gray-500"
-              >Manifiesto que acepto, bajo juramento, la
+            >
               <a
-                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=211273"
+                href="https://www.pereira.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=visorpdf&file=https%3A%2F%2Fwww.pereira.gov.co%2Floader.php%3FlServicio%3DTools2%26lTipo%3Ddescargas%26lFuncion%3DexposeDocument%26idFile%3D211273%26tmp%3De1c59e50ed23a13cda9087f627ac4f4d%26urlDeleteFunction%3Dhttps%253A%252F%252Fwww.pereira.gov.co%252Floader.php%253FlServicio%253DTools2%2526lTipo%253Ddescargas%2526lFuncion%253DdeleteTemporalFile%2526tmp%253De1c59e50ed23a13cda9087f627ac4f4d&pdf=1&tmp=e1c59e50ed23a13cda9087f627ac4f4d&fileItem=229566"
                 target="_blank"
                 class="underline !text-azul cursor-pointer"
-                >Declaración</a
+                >Manifiesto</a
               >
-              sobre la veracidad de la información registrada</label
-            >
+              que la información registrada es veraz y corresponde a mis datos
+              personales
+            </label>
             <InputError class="mt-1" :message="form.errors.declaracion" />
           </div>
           <!-- Botón de Enviar -->
