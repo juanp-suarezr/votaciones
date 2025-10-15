@@ -53,6 +53,7 @@ const barrioSelected = ref(null);
 
 // para verificar si cambia el tipo de busqueda
 watch(tipoBusqueda, (nuevoValor) => {
+    resultados.value = []; // Limpiar resultados al cambiar el tipo de búsqueda
   if (nuevoValor === "comuna") {
     barrioSelected.value = null; // Limpiar selección de barrio
   } else if (nuevoValor === "barrio") {
@@ -60,11 +61,7 @@ watch(tipoBusqueda, (nuevoValor) => {
   }
 });
 
-//Liampiar filtros
-const clearAll = () => {
-  identificacion.value = "";
-  registro.value = [];
-};
+
 
 //buscar resultados x comuna
 const buscar = () => {
