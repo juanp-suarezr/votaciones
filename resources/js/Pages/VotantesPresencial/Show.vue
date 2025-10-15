@@ -13,9 +13,14 @@
         <div class="w-full mb-4 border-b-2 border-secondary pb-4">
           <ApplicationLogo class="h-24 !w-full object-contain" />
         </div>
-        <h2 class="text-lg font-bold mb-4 text-blue-900">
-          Datos del reporte de escrutinio
-        </h2>
+        <div class="flex justify-between flex-wrap gap-2">
+          <h2 class="text-lg font-bold mb-4 text-blue-900">
+            Datos del reporte de escrutinio
+          </h2>
+          <p class="font-bold mb-4">
+            {{ acta.evento.nombre }}
+          </p>
+        </div>
         <div class="md:grid md:grid-cols-2 gap-4">
           <!-- imagen de acta -->
           <div
@@ -130,8 +135,31 @@
                 {{ acta.contacto_testigo || "N/A" }}
               </div>
               <!-- Info votaciones -->
-              <div v-if="acta.tipo !== 'virtual'" class="md:col-span-2 mt-4 mb-2">
+              <div
+                v-if="acta.tipo !== 'virtual'"
+                class="md:col-span-2 mt-4 mb-2"
+              >
                 <h2 class="font-bold text-lg">Información votación</h2>
+              </div>
+              <!-- voto nulo -->
+              <div>
+                <b>Votos blanco:</b>
+                {{ acta.votos_blanco || "N/A" }}
+              </div>
+              <!-- voto no marcados -->
+              <div>
+                <b>Votos no marcados:</b>
+                {{ acta.votos_no_marcados || "N/A" }}
+              </div>
+              <!-- voto blanco -->
+              <div>
+                <b>Votos nulos:</b>
+                {{ acta.votos_nulos || "N/A" }}
+              </div>
+              <!-- total -->
+              <div>
+                <b>Total votos:</b>
+                {{ acta.total_ciudadanos || "N/A" }}
               </div>
               <div class="w-full col-span-2" v-if="acta.tipo !== 'virtual'">
                 <table
@@ -195,27 +223,6 @@
                 <div v-else>
                   <em>No hay votos por proyectos</em>
                 </div>
-              </div>
-
-              <!-- voto nulo -->
-              <div>
-                <b>Votos nulo:</b>
-                {{ acta.votos_nulos || "N/A" }}
-              </div>
-              <!-- voto no marcados -->
-              <div>
-                <b>Votos no marcados:</b>
-                {{ acta.votos_no_marcados || "N/A" }}
-              </div>
-              <!-- voto blanco -->
-              <div>
-                <b>Votos blanco:</b>
-                {{ acta.votos_blanco || "N/A" }}
-              </div>
-              <!-- total -->
-              <div>
-                <b>Total votos:</b>
-                {{ acta.total_ciudadanos || "N/A" }}
               </div>
             </div>
           </div>
@@ -289,6 +296,8 @@ const props = defineProps({
   },
 });
 
+console.log(props.acta);
+
 const breadcrumbLinks = [
   { url: "/actaPresencial", text: "Actas de escrutinio" },
   { url: "", text: "Detalles Acta escrutinio" },
@@ -297,8 +306,6 @@ const breadcrumbLinks = [
 // Lightbox
 const previewImage = ref("");
 const showLightbox = ref(false);
-
-console.log(props);
 
 const openLightbox = (imageUrl) => {
   previewImage.value = imageUrl;

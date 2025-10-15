@@ -88,6 +88,7 @@ class ActaPresencialController extends Controller
 
         $acta = Acta_escrutino::with('jurado.user.biometrico')
             ->with('votos_fisico.proyecto')
+            ->with('evento:id,nombre')
             ->findOrFail($id);
 
         $delegados = Delegados::where('tipo', 'secretario')->get();
