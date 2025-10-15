@@ -99,32 +99,36 @@ class UpdateEventStatus extends Command
                 $acta_fin->puesto_votacion = null; // Asigna el puesto de votación si es necesario
                 $acta_fin->save();
 
-                //crear acta de escrutinio final
-                $acta_escrutinio = new Acta_escrutino();
-                $acta_escrutinio->tipo = 'virtual';
-
-                // ✅ Separar fecha y hora correctamente desde el formato "Y-m-d H:i:s"
+                //crear acta de escrutinio final por comuna
                 $fechaInicio = Carbon::parse($event->fecha_inicio);
-                $acta_escrutinio->fecha_inicio = $fechaInicio->format('Y-m-d');
-                $acta_escrutinio->hora_inicio = $fechaInicio->format('H:i:s');
+                foreach ($comunas_activas as $comuna) {
 
-                $acta_escrutinio->fecha_fin = $now->format('Y-m-d');
-                $acta_escrutinio->hora_cierre = $now->format('H:i:s');
-                $acta_escrutinio->id_evento = $event->id;
-                $acta_escrutinio->id_jurado = null; // Asigna el ID del jurado si es necesario
-                $acta_escrutinio->comuna = implode('|', $comunas_activas); // IDs separados por |
-                $acta_escrutinio->puesto_votacion = null; // Asigna el puesto de votación si es necesario
-                $acta_escrutinio->total_votantes = $event->votos->count(); // Total de votantes
-                $acta_escrutinio->total_ciudadanos = $event->padre?->votantes?->count() ?? 0; // Total de votantes
-    
-                $acta_escrutinio->votos_nulos = 0; // Total de votos nulos
-                $acta_escrutinio->votos_blanco = $event->votos->where('id_proyecto', 0)->count(); // Total de votos blanco
-                $acta_escrutinio->votos_no_marcados = 0; // Total de votos no marcados
-                $acta_escrutinio->observaciones = 'Acta generada automáticamente al cerrar el evento.'; // Observaciones
-                $acta_escrutinio->imagen = 'virtual'; // Asigna la imagen si es necesario
+                    $acta_escrutinio = new Acta_escrutino();
+                    $acta_escrutinio->tipo = 'virtual';
+
+                    // ✅ Separar fecha y hora correctamente desde el formato "Y-m-d H:i:s"
+
+                    $acta_escrutinio->fecha_inicio = $fechaInicio->format('Y-m-d');
+                    $acta_escrutinio->hora_inicio = $fechaInicio->format('H:i:s');
+
+                    $acta_escrutinio->fecha_fin = $now->format('Y-m-d');
+                    $acta_escrutinio->hora_cierre = $now->format('H:i:s');
+                    $acta_escrutinio->id_evento = $event->id;
+                    $acta_escrutinio->id_jurado = null; // Asigna el ID del jurado si es necesario
+                    $acta_escrutinio->comuna = $comuna; // IDs separados por |
+                    $acta_escrutinio->puesto_votacion = null; // Asigna el puesto de votación si es necesario
+                    $acta_escrutinio->total_votantes = $event->votos->where('subtipo', $comuna)->count(); // Total de votos
+                    $acta_escrutinio->total_ciudadanos = $event->padre?->votantes?->where('subtipo', $comuna)->count() ?? 0; // Total de votantes
+
+                    $acta_escrutinio->votos_nulos = 0; // Total de votos nulos
+                    $acta_escrutinio->votos_blanco = $event->votos->where('subtipo', $comuna)->where('id_proyecto', 0)->count(); // Total de votos blanco
+                    $acta_escrutinio->votos_no_marcados = 0; // Total de votos no marcados
+                    $acta_escrutinio->observaciones = 'Acta generada automáticamente al cerrar el evento.'; // Observaciones
+                    $acta_escrutinio->imagen = 'virtual'; // Asigna la imagen si es necesario
 
 
-                $acta_escrutinio->save();
+                    $acta_escrutinio->save();
+                }
             }
 
             $this->info('cerrado');
