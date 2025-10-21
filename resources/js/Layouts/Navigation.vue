@@ -18,6 +18,10 @@
                 <HomeIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Inicio</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('funcionarios-listar')" :href="route('funcionarios.index')" :active="route().current('funcionarios')">
+                <DocumentTextIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Funcionarios Planeación</span>
+            </nav-link>
             <nav-link v-if="$page.props.user.roles.includes('Jurado')" :href="route('actaPresencial.create')" :active="route().current('actaPresencial')">
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Cargar acta escrutinio</span>

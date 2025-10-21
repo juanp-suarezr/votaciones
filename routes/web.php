@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\FuncionariosExports;
 use App\Http\Controllers\ActaPresencialController;
 use App\Http\Controllers\ActasVirtualesController;
 use App\Http\Controllers\AnalisisController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\CedulaController;
 use App\Http\Controllers\CertificadosController;
 use App\Http\Controllers\DelegadosController;
 use App\Http\Controllers\EventosController;
+use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\JuradosController;
 use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\ParametrosDetalleController;
@@ -30,6 +32,7 @@ use App\Http\Controllers\VotosController;
 use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
 use App\Models\Eventos;
+use App\Models\Funcionarios_planeacion;
 use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
@@ -104,6 +107,18 @@ Route::get('/consulta-certificado/{evento_id}/{votante_id}', function ($evento_i
         'comuna' => $comuna->detalle,
     ]);
 })->name('consulta.certificado.publica');
+
+//Consultar por qr de funcionario planeacion
+Route::get('/consulta-funcionario/{identificacion}/{id}', function ($identificacion, $id) {
+
+    $funcionario = Funcionarios_planeacion::where('identificacion', $identificacion)
+        ->where('id', $id)
+        ->firstOrFail();
+
+    return view('consulta_funcionario', [
+        'funcionario' => $funcionario,
+    ]);
+})->name('consulta.funcionario.publica');
 
 //registro jurados
 // Route::get('/registro-jurados-@djdo33kc', [JuradosController::class, 'create'])->name('registro.jurados');
@@ -327,6 +342,8 @@ Route::middleware('auth')->group(function () {
 
     //descargar excel
     Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');
+    //descargar excel funcionarios planeacion
+    Route::get('/funcionarios/exportar', [FuncionariosController::class, 'zip'])->name('funcionarios.zip');
 
     //RUTAS PARA CARGUE VOTANTES FISICO
     Route::get('/votantesFisicos', [CargueVotantesFisicoController::class, 'index'])->name('votantesFisicos.index');
@@ -354,6 +371,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('actasVirtuales', ActasVirtualesController::class);
     Route::resource('registro-jurados', JuradosController::class);
     Route::resource('rutas', RutasController::class);
+
+    //funcionarios planeacion
+    Route::resource('funcionarios', FuncionariosController::class);
 });
 
 
