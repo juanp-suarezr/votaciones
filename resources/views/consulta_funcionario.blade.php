@@ -38,7 +38,7 @@
 
         .header .logo {
             width: 100%;
-            max-width: 320px;
+            max-width: 360px;
             height: auto;
             object-fit: contain;
             margin-bottom: 14px;
