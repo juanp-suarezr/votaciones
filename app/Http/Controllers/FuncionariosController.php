@@ -31,9 +31,9 @@ class FuncionariosController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:funcionario-listar|funcionario-crear|funcionario-editar|funcionario-eliminar', ['only' => ['index', 'store']]);
-        $this->middleware('permission:funcionario-crear', ['only' => ['create', 'store']]);
-        $this->middleware('permission:funcionario-editar', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:funcionarios-listar|funcionarios-crear|funcionarios-editar|funcionarios-eliminar', ['only' => ['index', 'store']]);
+        $this->middleware('permission:funcionarios-crear', ['only' => ['create', 'store']]);
+        $this->middleware('permission:funcionarios-editar', ['only' => ['edit', 'update']]);
     }
 
     public function index()
