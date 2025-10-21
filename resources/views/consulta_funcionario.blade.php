@@ -38,7 +38,7 @@
 
         .header .logo {
             width: 100%;
-            max-width: 220px;
+            max-width: 320px;
             height: auto;
             object-fit: contain;
             margin-bottom: 14px;
@@ -75,7 +75,7 @@
 
         .profile {
             min-width: 180px;
-            max-width: 240px;
+            max-width: 340px;
             text-align: center;
             flex: 1 1 200px;
         }
