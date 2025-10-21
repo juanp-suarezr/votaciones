@@ -17,10 +17,11 @@
         body {
             font-family: Inter, Arial, sans-serif;
             background: var(--bg) url('{{ asset('assets/img/escudo.png') }}') center center no-repeat;
-            background-size: 400px auto;
+            background-size: 350px auto;
             background-attachment: fixed;
+            background-blend-mode: lighten;
             margin: 0;
-            padding: 24px;
+            padding: 16px;
         }
 
         .container {
@@ -28,30 +29,39 @@
             margin: 0 auto;
         }
 
-        /* HEADER centrado */
+        /* --- HEADER --- */
         .header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
+            padding: 12px;
         }
 
         .header .logo {
-            height: 120px;
+            width: 100%;
+            max-width: 220px;
+            height: auto;
             object-fit: contain;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            transition: all 0.3s ease;
         }
 
         .header h1 {
-            font-size: 22px;
+            font-size: 24px;
             color: var(--blue);
             margin: 0;
+            line-height: 1.3;
         }
 
         .header .subtitle {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--muted);
             margin-top: 6px;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
+        /* --- CARD --- */
         .card {
             background: var(--card);
             border-radius: 12px;
@@ -65,13 +75,14 @@
 
         .profile {
             min-width: 180px;
-            max-width: 220px;
+            max-width: 240px;
             text-align: center;
+            flex: 1 1 200px;
         }
 
         .avatar {
-            width: 140px;
-            height: 140px;
+            width: 150px;
+            height: 150px;
             border-radius: 12px;
             object-fit: cover;
             border: 4px solid #fff;
@@ -92,8 +103,7 @@
         }
 
         .info {
-            flex: 1;
-            min-width: 260px;
+            flex: 2 1 300px;
         }
 
         .row {
@@ -127,7 +137,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
-            margin-bottom: 8px;
+            margin-top: 10px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -137,33 +147,60 @@
             border-radius: 999px;
             font-weight: 600;
             font-size: 13px;
-            color: #fff
+            color: #fff;
         }
 
         .badge--active {
-            background: var(--success)
+            background: var(--success);
         }
 
         .badge--inactive {
-            background: var(--danger)
+            background: var(--danger);
         }
 
         .footer-note {
             margin-top: 14px;
             color: var(--muted);
-            font-size: 13px
+            font-size: 13px;
         }
 
-        @media(max-width:720px) {
+        /* --- RESPONSIVE --- */
+        @media (max-width: 720px) {
+            body {
+                padding: 12px;
+                background-size: 280px auto;
+            }
+
             .header .logo {
-                height: 90px;
+                max-width: 160px;
+                margin-bottom: 10px;
             }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header .subtitle {
+                font-size: 12px;
+            }
+
             .card {
-                padding: 14px;
+                flex-direction: column;
+                padding: 16px;
+                gap: 16px;
             }
+
             .avatar {
                 width: 120px;
                 height: 120px;
+            }
+
+            .name {
+                font-size: 16px;
+            }
+
+            .field {
+                min-width: 100%;
             }
         }
     </style>
@@ -190,7 +227,7 @@
                 <div class="name">{{ $funcionario->nombre }}</div>
                 <div class="meta">ID interno: {{ $funcionario->id }}</div>
 
-                <div style="margin-top:12px" class="badges">
+                <div class="badges">
                     <div class="badge {{ $funcionario->estado ? 'badge--active' : 'badge--inactive' }}">
                         {{ $funcionario->estado ? 'Activo' : 'Inactivo' }}
                     </div>
@@ -231,7 +268,7 @@
                 </div>
 
                 <div class="footer-note">
-                    Si desea imprimir este comprobante, use la opción de imprimir del navegador.
+                    Si desea imprimir este comprobante, use la opción de imprimir del navegador.<br>
                     Para consultas administrativas, contacte Secretaría de Planeación.
                 </div>
             </div>
