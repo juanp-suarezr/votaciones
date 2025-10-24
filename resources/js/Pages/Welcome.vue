@@ -468,7 +468,7 @@ const enviarSolicitud = () => {
           class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gray-200/70 rounded-xl shadow-lg p-8 mb-12"
         >
           <!-- Video lado izquierdo -->
-          <div class="flex justify-center items-center">
+          <div class="flex flex-col justify-center items-center">
             <!-- Contenedor responsive -->
             <div
               class="w-full aspect-video shadow-md rounded-xl overflow-hidden"
