@@ -469,17 +469,27 @@ const enviarSolicitud = () => {
         >
           <!-- Video lado izquierdo -->
           <div class="flex justify-center items-center">
-            <video
-              class="rounded-lg w-full h-auto max-h-[400px] shadow-md bg-gray-200 border border-naranja"
-              controls
-              poster="assets/img/VIDEO EN PRODUCCIÓN.png"
+            <!-- Contenedor responsive -->
+            <div
+              class="w-full aspect-video shadow-md rounded-xl overflow-hidden"
             >
-              <source
-                src="https://www.w3schools.com/html/mov_bbb.mp4"
-                type="video/mp4"
-              />
-              Tu navegador no soporta el video.
-            </video>
+              <iframe
+                class="w-full h-full"
+                src="https://www.youtube.com/embed/rz1X2fwDZgE?rel=0&modestbranding=1&playsinline=1"
+                title="Video oficial de Vota Ya - Cómo participar en las elecciones digitales"
+                frameborder="0"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+
+            <!-- Texto descriptivo para SEO -->
+            <p class="mt-4 text-gray-700 text-lg sm:text-xl">
+              En este video te indicamos paso a paso como inscribirse en el
+              <b>Presupuesto Participativo</b> y participar en las votaciones de
+              forma digital, segura y fácil.
+            </p>
           </div>
           <!-- Texto lado derecho -->
           <div class="flex flex-col justify-center items-start">
