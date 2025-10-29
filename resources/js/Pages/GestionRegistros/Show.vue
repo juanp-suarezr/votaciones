@@ -332,11 +332,18 @@ const getComuna = (idComuna) => {
 const verificarSelectBarrio = (barrio, idComuna) => {
   // Buscar la comuna por ID
   const comuna = barrios.find(c => c.id === idComuna);
+  console.log(comuna);
+
+  console.log(barrio);
+
 
   // Verificar si el nombre del barrio está en la lista de esa comuna
   const existeBarrio = comuna.barrios.some(
     b => b.toLowerCase().trim() === barrio.toLowerCase().trim()
   );
+
+  console.log(existeBarrio);
+
 
   return existeBarrio;
 };
