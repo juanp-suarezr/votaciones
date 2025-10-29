@@ -41,6 +41,8 @@
           <div>
             <b>Barrio:</b>
             {{ votante.votante?.barrio || "N/A" }}
+            <br>
+            <i>{{verificarSelectBarrio(votante.votante?.barrio, votante.subtipo) ? 'Barrio ingresado por el usuario' : ''}}</i>
           </div>
           <div>
             <b>Dirección:</b>
@@ -254,6 +256,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import comunas from "@/shared/comunas.json";
+import barrios from "@/shared/barrios.json";
 import VueEasyLightbox from "vue-easy-lightbox";
 import Modal from "@/Components/Modal.vue";
 
@@ -324,6 +327,18 @@ const getComuna = (idComuna) => {
   console.log(idComuna);
 
   return comunas.find((item) => item.value == idComuna)?.label;
+};
+
+const verificarSelectBarrio = (barrio, idComuna) => {
+  // Buscar la comuna por ID
+  const comuna = barrios.find(c => c.id === idComuna);
+
+  // Verificar si el nombre del barrio está en la lista de esa comuna
+  const existeBarrio = comuna.barrios.some(
+    b => b.toLowerCase().trim() === barrio.toLowerCase().trim()
+  );
+
+  return existeBarrio;
 };
 
 const aprobarRegistro = () => {
