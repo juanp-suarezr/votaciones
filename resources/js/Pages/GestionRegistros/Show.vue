@@ -345,7 +345,7 @@ const verificarSelectBarrio = (barrio, idComuna) => {
   console.log(existeBarrio);
 
 
-  return existeBarrio;
+  return !existeBarrio;
 };
 
 const aprobarRegistro = () => {
