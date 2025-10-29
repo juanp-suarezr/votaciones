@@ -40,6 +40,12 @@
           <div>
             <b>Barrio:</b>
             {{ votante.votante?.barrio || "N/A" }}
+            <br />
+            <i>{{
+              verificarSelectBarrio(votante.votante?.barrio, votante.subtipo)
+                ? "Barrio ingresado por el usuario"
+                : ""
+            }}</i>
           </div>
           <div>
             <b>Dirección:</b>
@@ -47,9 +53,9 @@
           </div>
           <div>
             <b>Contacto:</b>
-            <br>
+            <br />
             Email: {{ votante.votante?.email || "N/A" }}
-            <br>
+            <br />
             Celular: {{ votante.votante?.celular || "N/A" }}
           </div>
           <div v-if="votante.intentos > 0">
@@ -99,8 +105,6 @@
           />
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
-
-
       </div>
 
       <!-- Botones para ver PDFs -->
@@ -119,22 +123,17 @@
           </div>
         </div>
 
-
-
         <!-- Select de motivos de rechazo -->
         <div class="flex flex-col gap-2 w-full md:w-1/3">
           <b>Motivo de rechazo:</b>
           <select v-model="form.motivo" class="border rounded p-2">
             <option value="" disabled>Seleccione un motivo</option>
             <option value="aprobado">No hay motivos (aprobado)</option>
-            <option value="Documentos incorrectos">
-              Documento incorrecto
-            </option>
+            <option value="Documentos incorrectos">Documento incorrecto</option>
             <option value="Identidad no validada">Identidad no validada</option>
             <option value="Parte frontal del documento poco visible">
               Parte frontal del documento poco visible
             </option>
-
 
             <option value="Registro duplicado">Registro duplicado</option>
             <option
@@ -324,6 +323,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import comunas from "@/shared/comunas.json";
+import barrios from "@/shared/barrios.json";
 import VueEasyLightbox from "vue-easy-lightbox";
 import Modal from "@/Components/Modal.vue";
 
@@ -396,6 +396,23 @@ const getComuna = (idComuna) => {
   console.log(idComuna);
 
   return comunas.find((item) => item.value == idComuna)?.label;
+};
+
+const verificarSelectBarrio = (barrio, idComuna) => {
+  // Buscar la comuna por ID
+  const comuna = barrios.find((c) => c.id === idComuna);
+  console.log(comuna);
+
+  console.log(barrio);
+
+  // Verificar si el nombre del barrio está en la lista de esa comuna
+  const existeBarrio = comuna.barrios.some(
+    (b) => b.toLowerCase().trim() === barrio.toLowerCase().trim()
+  );
+
+  console.log(existeBarrio);
+
+  return !existeBarrio;
 };
 
 const aprobarRegistro = () => {
