@@ -134,6 +134,9 @@ Route::get('/welcome', function () {
         'isActive' => Eventos::where('estado', 'activo')
             ->whereRaw("LOWER(tipos) LIKE ?", ['%presupuesto participativo%'])
             ->exists(),
+        'comunas' => ParametrosDetalle::where('codParametro', 'com01')
+            ->where('estado', 1)
+            ->get(),
     ]);
 })->name('welcome');
 
@@ -189,7 +192,7 @@ Route::get('/dashboard', function () {
             ->pluck('id')
             ->toArray();
 
-            $comuna_usuario = Auth::user()->votantes->comuna ?? null;
+        $comuna_usuario = Auth::user()->votantes->comuna ?? null;
 
         $eventos = Eventos::whereNot('nombre', '=', 'Admin')
             ->with(['votantes' => function ($query) {
@@ -197,8 +200,8 @@ Route::get('/dashboard', function () {
             }, 'eventos_hijos.eventos' => function ($q) use ($comuna_usuario) {
                 $q->withCount('hash_proyectos') // trae hash_proyectos_count en cada hijo
                     ->whereHas('hash_proyectos.proyecto', function ($q2) use ($comuna_usuario) {
-                  $q2->where('subtipo', $comuna_usuario);
-              });
+                        $q2->where('subtipo', $comuna_usuario);
+                    });
             }])
             ->get()
             ->filter(function ($evento) use ($info_votante, $comunas_activas, $comuna_usuario) {
@@ -214,7 +217,7 @@ Route::get('/dashboard', function () {
     $existeActa = null;
     $cierre = null;
     $registro_biometrico = UsuariosBiometricos::where('user_id', Auth::user()->id)
-    ->exists();
+        ->exists();
     if (Auth::user()->jurado) {
 
 

@@ -16,7 +16,6 @@ const swal = inject("$swal");
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-import comunas from "@/shared/comunas.json";
 
 AOS.init();
 
@@ -24,6 +23,7 @@ const props = defineProps({
   eventos: Object,
   puntos_votacion: Object,
   isActive: Boolean,
+  comunas: Object,
 });
 
 console.log(props);
@@ -52,6 +52,9 @@ const eventoActivo = ref(props.isActive);
 
 // pass filters in search
 let identificacion = ref(null);
+
+//comunas activas
+const comunas = ref(props.comunas);
 
 //busqueda
 const buscarCertificados = async () => {
@@ -535,7 +538,7 @@ const enviarSolicitud = () => {
           >
             <div
               v-for="comuna in comunas"
-              :key="comuna.value"
+              :key="comuna.id"
               class="relative bg-white border-4 border-blue-200 rounded-2xl shadow-md p-6 text-center transition transform hover:-translate-y-1 hover:shadow-xl hover:border-blue-400"
             >
               <div
@@ -544,7 +547,7 @@ const enviarSolicitud = () => {
                 Habilitada
               </div>
               <h2 class="text-xl font-bold text-blue-700 mb-2">
-                {{ comuna.label }}
+                {{ comuna.detalle }}
               </h2>
               <p class="text-sm text-gray-600 italic">
                 Zona de participación ciudadana

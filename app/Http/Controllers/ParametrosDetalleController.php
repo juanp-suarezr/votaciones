@@ -123,7 +123,7 @@ class ParametrosDetalleController extends Controller
                     $comunas = array_values($comunas);
 
                     file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                    Artisan::call('frontend:build');
+
                 }
             }
 
@@ -183,7 +183,6 @@ class ParametrosDetalleController extends Controller
                     $comunas = array_values($comunas);
 
                     file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                    Artisan::call('frontend:build');
                 }
             } else if (
                 $codParametro === 'com01' &&
@@ -216,7 +215,6 @@ class ParametrosDetalleController extends Controller
                     $comunas = array_values($comunas);
 
                     file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                    Artisan::call('frontend:build');
                 }
             }
 
