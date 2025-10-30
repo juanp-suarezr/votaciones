@@ -16,6 +16,7 @@ const swal = inject("$swal");
 import AOS from "aos";
 import "aos/dist/aos.css";
 
+import comunas from "@/shared/comunas.json";
 
 AOS.init();
 
@@ -101,8 +102,6 @@ onMounted(() => {
     // Default para pantallas grandes
     mostrarPanel.value = window.innerWidth >= 768;
   }
-
-
 });
 
 // Guardar el estado cada vez que cambia
@@ -503,7 +502,10 @@ const enviarSolicitud = () => {
               Participa y vota por los proyectos que más beneficien a tu
               comunidad de forma más segura y moderna.
               <br />
-              <i>Tienes plazo para inscribirte del 1 de octubre al 19 de noviembre</i>
+              <i
+                >Tienes plazo para inscribirte del 1 de octubre al 19 de
+                noviembre</i
+              >
             </p>
             <Link
               :href="route('register')"
@@ -511,6 +513,49 @@ const enviarSolicitud = () => {
             >
               ¡Regístrate -- Presupuesto Participativo!
             </Link>
+          </div>
+        </div>
+        <!-- Comunas habilitadas -->
+        <div
+          class="min-h-screen bg-gray-200 py-12 px-6 flex flex-col items-center"
+        >
+          <h1 class="text-4xl font-extrabold text-blue-800 mb-3 text-center">
+            Comunas y Corregimientos Habilitados
+          </h1>
+          <p class="text-gray-600 text-lg mb-10 text-center max-w-2xl">
+            Estos son los sectores de Pereira habilitados para participar en el
+            proceso de
+            <span class="font-semibold text-blue-700"
+              >Presupuesto Participativo</span
+            >.
+          </p>
+
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl"
+          >
+            <div
+              v-for="comuna in comunas"
+              :key="comuna.value"
+              class="relative bg-white border-4 border-blue-200 rounded-2xl shadow-md p-6 text-center transition transform hover:-translate-y-1 hover:shadow-xl hover:border-blue-400"
+            >
+              <div
+                class="absolute top-2 right-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+              >
+                Habilitada
+              </div>
+              <h2 class="text-xl font-bold text-blue-700 mb-2">
+                {{ comuna.label }}
+              </h2>
+              <p class="text-sm text-gray-600 italic">
+                Zona de participación ciudadana
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-12 text-gray-700 text-center">
+            <p class="text-sm italic">
+              Recuerde que puede participar de manera informada y responsable 💬
+            </p>
           </div>
         </div>
         <!-- consultar certificados -->
