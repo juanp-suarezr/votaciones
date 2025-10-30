@@ -155,7 +155,7 @@ import { EyeIcon, SwatchIcon } from "@heroicons/vue/24/solid";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 
 const props = defineProps({
   votantes: {

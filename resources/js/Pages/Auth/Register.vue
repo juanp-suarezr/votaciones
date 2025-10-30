@@ -283,7 +283,7 @@
               v-model="comunaSelected"
               :options="comunas"
               filter
-              optionLabel="label"
+              optionLabel="detalle"
               placeholder="Seleccione comuna/corregimiento de dirección"
               checkmark
               :highlightOnSelect="false"
@@ -661,9 +661,8 @@ import Select from "primevue/select";
 import ProgressSpinner from "primevue/progressspinner";
 import Password from "primevue/password";
 import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
-import departamentos from "@/shared/departamentos.json"; // Importa el JSON
 import ciudades from "@/shared/ciudades.json"; // Importa el JSON
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+
 import barrios from "@/shared/barrios.json"; // Importa el JSON
 import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
@@ -678,6 +677,14 @@ import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp"
 import backEjemplo from "../../../../public/assets/img/cedulaBackEjemplo.webp";
 
 import * as faceapi from "face-api.js";
+
+
+const props = defineProps({
+  comunas: {
+    type: Object,
+    required: true,
+  },
+});
 
 const form = useForm({
   nombre: "",
@@ -720,6 +727,9 @@ const loadingModal = ref(false);
 
 //modal Inicio
 const InicioModal = ref(true);
+
+//comunas habilitadas
+const comunas = ref(props.comunas);
 
 //ITEMS DEL STEP
 const items = ref([
@@ -813,7 +823,7 @@ watch(comunaSelected, (newValue) => {
   if (newValue) {
     form.comuna = newValue;
     barriosXComuna.value = barrios.find(
-      (barrio) => barrio.id === parseInt(newValue.value)
+      (barrio) => barrio.id === parseInt(newValue.id)
     ).barrios;
     console.log(barriosXComuna.value);
   }

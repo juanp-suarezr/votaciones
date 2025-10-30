@@ -254,7 +254,7 @@ import SecondaryLink from "@/Components/SecondaryLink.vue";
 import InputError from "@/Components/InputError.vue";
 import Tag from "primevue/tag";
 import { inject, ref } from "vue";
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 const swal = inject("$swal");
 import Modal from "@/Components/Modal.vue";
 

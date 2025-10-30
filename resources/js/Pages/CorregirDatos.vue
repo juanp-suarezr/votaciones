@@ -211,7 +211,7 @@
               v-model="comunaSelected"
               :options="comunas"
               filter
-              optionLabel="label"
+              optionLabel="detalle"
               placeholder="Seleccione comuna/corregimiento del proyecto"
               checkmark
               :highlightOnSelect="false"
@@ -566,7 +566,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
 
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+
 import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
 
 import barrios from "@/shared/barrios.json"; // Importa el JSON
@@ -599,7 +599,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  comunas: {
+    type: Object,
+    required: true,
+  },
 });
+
+//comunas habilitadas
+const comunas = ref(props.comunas);
 
 console.log("Votante data:", props.votante);
 
@@ -714,7 +721,7 @@ watch(comunaSelected, (newValue) => {
   if (newValue) {
     form.comuna = newValue;
     barriosXComuna.value = barrios.find(
-      (barrio) => barrio.id === parseInt(newValue.value)
+      (barrio) => barrio.id === parseInt(newValue.id)
     ).barrios;
     console.log(barriosXComuna.value);
   }
@@ -1354,7 +1361,7 @@ watch(biometricoModal, (newVal) => {
 const getComuna = (idComuna) => {
   console.log(idComuna);
 
-  return comunas.find((item) => item.value == idComuna);
+  return comunas.find((item) => item.id == idComuna);
 };
 
 onMounted(() => {

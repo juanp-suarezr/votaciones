@@ -265,7 +265,7 @@ class ValidationController extends Controller
                 $Informacion_votantes->genero = $request->genero;
                 $Informacion_votantes->etnia = $request->etnia;
                 $Informacion_votantes->condicion = $request->condicion;
-                $Informacion_votantes->comuna = $request->input('comuna.value');
+                $Informacion_votantes->comuna = $request->input('comuna.id');
                 $Informacion_votantes->barrio = $request->barrio;
                 $Informacion_votantes->direccion = $request->direccion;
                 $Informacion_votantes->celular = $request->celular;
@@ -275,7 +275,7 @@ class ValidationController extends Controller
                 $hashVotante = Hash_votantes::where('id_votante', $Informacion_votantes->id)->first();
 
                     $hashVotante->tipo = 'votante';
-                    $hashVotante->subtipo = $request->input('comuna.value');
+                    $hashVotante->subtipo = $request->input('comuna.id');
                     $hashVotante->validaciones = $validacion;
                     $hashVotante->estado = 'Pendiente';
                     $hashVotante->intentos = 1;
@@ -294,7 +294,7 @@ class ValidationController extends Controller
                     'genero' => $request->genero,
                     'etnia' => $request->etnia,
                     'condicion' => $request->condicion,
-                    'comuna' => $request->input('comuna.value'),
+                    'comuna' => $request->input('comuna.id'),
                     'barrio' => $request->barrio,
                     'direccion' => $request->direccion,
                     'celular' => $request->celular,
@@ -306,7 +306,7 @@ class ValidationController extends Controller
                 $hash_votante = new Hash_votantes([
                     'id_votante' => $informacionUsuario->id,
                     'tipo' => 'votante',
-                    'subtipo' => $request->input('comuna.value'),
+                    'subtipo' => $request->input('comuna.id'),
                     'id_evento' => 15,
                     'candidato' => 0,
                     'validaciones' => $validacion,
@@ -553,13 +553,13 @@ class ValidationController extends Controller
             $votante->genero = $request->genero;
             $votante->etnia = $request->etnia;
             $votante->condicion = $request->condicion;
-            $votante->comuna = $request->input('comuna.value');
+            $votante->comuna = $request->input('comuna.id');
             $votante->barrio = $request->barrio;
             $votante->direccion = $request->direccion;
             $votante->save();
 
             // Actualizar el registro de hash_votantes asociado a la información del votante
-            $hash_votante->subtipo = $request->input('comuna.value');
+            $hash_votante->subtipo = $request->input('comuna.id');
             $hash_votante->validaciones = $validacion;
             $hash_votante->estado = 'Pendiente';
             $hash_votante->intentos += 1;

@@ -463,7 +463,6 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import InputError from "@/Components/InputError.vue";
 import { inject, ref } from "vue";
-import comunas from "@/shared/comunas.json"; // Importa el JSON
 import Tag from "primevue/tag";
 const swal = inject("$swal");
 

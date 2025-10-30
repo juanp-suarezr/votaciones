@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Http\Controllers\Controller;
+use App\Models\ParametrosDetalle;
 use App\Models\Puntos;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -22,12 +24,14 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        
+
 
         return Inertia::render(
-            'Auth/Register', 
+            'Auth/Register',
             [
-                
+                'comunas' => ParametrosDetalle::where('codParametro', 'com01')
+                    ->where('estado', 1)
+                    ->get(),
             ]
         );
     }
@@ -41,7 +45,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 

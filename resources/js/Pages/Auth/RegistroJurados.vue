@@ -254,7 +254,7 @@ import { useForm, Head } from "@inertiajs/vue3";
 import Select from "primevue/select";
 import Password from "primevue/password";
 import tipo_documento from "@/shared/tipo_documento.json"; // Importa el JSON
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 
 import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
 import axios from "axios";

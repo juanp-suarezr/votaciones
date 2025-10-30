@@ -10,6 +10,7 @@ use App\Models\Delegado;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\InformacionUsuario;
+use App\Models\ParametrosDetalle;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
@@ -208,6 +209,9 @@ class ValidacionesController extends Controller
             'GestionRegistros/RegistroVotante',
             [
                 'info' => $info,
+                'comunas' => ParametrosDetalle::where('codParametro', 'com01')
+                    ->where('estado', 1)
+                    ->get(),
 
             ]
         );

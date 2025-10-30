@@ -203,7 +203,7 @@ import Avatar from "primevue/avatar";
 import Select from "primevue/select";
 import { DocumentArrowDownIcon } from "@heroicons/vue/24/solid";
 
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 
 const props = defineProps({
   votantes_voto: {

@@ -555,7 +555,7 @@ import { useToast } from "vue-toast-notification";
 import Message from "primevue/message";
 import Knob from "primevue/knob";
 import Tag from "primevue/tag";
-import comunas from "@/shared/comunas.json"; // Importa el JSON
+import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 import { info } from "autoprefixer";
 import axios from "axios";
 import TextInput from "@/Components/TextInput.vue";
