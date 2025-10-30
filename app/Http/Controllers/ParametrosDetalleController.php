@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -122,6 +123,7 @@ class ParametrosDetalleController extends Controller
                     $comunas = array_values($comunas);
 
                     file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                    Artisan::call('frontend:build');
                 }
             }
 
@@ -181,6 +183,7 @@ class ParametrosDetalleController extends Controller
                     $comunas = array_values($comunas);
 
                     file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                    Artisan::call('frontend:build');
                 }
             } else if (
                 $codParametro === 'com01' &&
@@ -213,6 +216,7 @@ class ParametrosDetalleController extends Controller
                     $comunas = array_values($comunas);
 
                     file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                    Artisan::call('frontend:build');
                 }
             }
 
@@ -265,6 +269,7 @@ class ParametrosDetalleController extends Controller
                 $comunas = array_values($comunas);
 
                 file_put_contents($jsonPath, json_encode($comunas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                Artisan::call('frontend:build');
             }
         }
 
@@ -275,5 +280,5 @@ class ParametrosDetalleController extends Controller
             ->with('success', 'Recurso eliminado exitosamente');
     }
 
-   
+
 }
