@@ -1036,6 +1036,7 @@ const showModalBiometrico = async () => {
 //validar registro biometrico
 const registerAndValidate = async () => {
   loadingButtonBiometric.value = true;
+  biometricoModal.value = false;
   loadingModal.value = true;
 
   message.value = "";
@@ -1051,6 +1052,9 @@ const registerAndValidate = async () => {
     message.value = "La cámara no está lista.";
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
+    biometricoModal.value = true;
+
+
 
     return;
   }
@@ -1067,7 +1071,7 @@ const registerAndValidate = async () => {
       title: "Validación en progreso",
       text: "Mire a la cámara hasta que finalice la validación.",
       icon: "info",
-      timer: 2000,
+      timer: 5000,
       showConfirmButton: false,
       didClose: () => {
         //poner llamado a loading modal
