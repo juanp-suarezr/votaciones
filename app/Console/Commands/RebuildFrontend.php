@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
 class RebuildFrontend extends Command
@@ -12,7 +13,7 @@ class RebuildFrontend extends Command
 
     public function handle()
     {
-        $this->info('⚙️ Ejecutando npm run build...');
+        Log::info('⚙️ Ejecutando npm run build...');
 
         $process = new Process(['npm', 'run', 'build']);
         $process->setWorkingDirectory(base_path());
@@ -23,9 +24,9 @@ class RebuildFrontend extends Command
         });
 
         if ($process->isSuccessful()) {
-            $this->info('✅ Frontend reconstruido correctamente.');
+            Log::info('✅ Frontend reconstruido correctamente.');
         } else {
-            $this->error('❌ Error al ejecutar el build: ' . $process->getErrorOutput());
+            Log::info('❌ Error al ejecutar el build: ' . $process->getErrorOutput());
         }
     }
 }
