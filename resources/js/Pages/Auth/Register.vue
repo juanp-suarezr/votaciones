@@ -267,10 +267,10 @@
                 pertenece, puede consultar en el siguiente
                 <a
                   :href="route('ComunasBarrios')"
-                    target="_blank"
-                    class="underline !text-white font-bold cursor-pointer"
-                    >enlace</a
-                  >.
+                  target="_blank"
+                  class="underline !text-white font-bold cursor-pointer"
+                  >enlace</a
+                >.
               </p>
             </div>
           </div>
@@ -678,7 +678,6 @@ import backEjemplo from "../../../../public/assets/img/cedulaBackEjemplo.webp";
 
 import * as faceapi from "face-api.js";
 
-
 const props = defineProps({
   comunas: {
     type: Object,
@@ -1053,8 +1052,6 @@ const registerAndValidate = async () => {
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
     biometricoModal.value = true;
-
-
 
     return;
   }
@@ -1447,12 +1444,26 @@ const validarDatos3 = () => {
 };
 
 const submit = async () => {
+  // Mostrar loading al inicio
+  swal.fire({
+    title: "Registrando usuario...",
+    text: "Por favor, espere mientras se procesa su registro.",
+    allowOutsideClick: false,
+    didOpen: () => {
+      swal.showLoading();
+    },
+  });
   const recaptchaToken = await executeRecaptcha("register");
 
   // Agregar el token de reCAPTCHA al formulario
   form.recaptcha_token = recaptchaToken;
   form.post(route("create-user"), {
     onSuccess: () => {
+      // Cerrar el loading antes de mostrar éxito
+      try {
+        swal.close();
+      } catch (e) {}
+
       swal({
         title: "Registro realizado",
         text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará una validación interna de su información. El estado del trámite será notificado en un máximo de 72 horas al correo electrónico registrado. Recuerde que su usuario corresponde a su número de identificación y la contraseña es la que creó al momento del registro.",
@@ -1467,6 +1478,11 @@ const submit = async () => {
       stopCamera();
     },
     onError: (errors) => {
+      // Cerrar el loading antes de mostrar error
+      try {
+        swal.close();
+      } catch (e) {}
+
       stopCamera();
       swal({
         title: "Error",
