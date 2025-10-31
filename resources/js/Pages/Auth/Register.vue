@@ -1066,10 +1066,9 @@ const registerAndValidate = async () => {
       title: "Validación en progreso",
       text: "Mire a la cámara hasta que finalice la validación.",
       icon: "info",
-      timer: 5000,
-      showConfirmButton: false,
-      didClose: () => {
-        //poner llamado a loading modal
+      allowOutsideClick: false,
+      didOpen: () => {
+        swal.showLoading();
       },
     });
 
@@ -1091,6 +1090,7 @@ const registerAndValidate = async () => {
     //fin
 
     if (!detection) {
+      swal.close();
       loadingModal.value = false;
       loadingButtonBiometric.value = false;
       message.value = "No se detectó un rostro.";
@@ -1146,6 +1146,7 @@ const registerAndValidate = async () => {
         console.log(response);
         loadingButtonBiometric.value = false;
         loadingModal.value = false;
+        swal.close();
         if (response.data.match) {
           swal
             .fire({
@@ -1182,6 +1183,7 @@ const registerAndValidate = async () => {
         }
       })
       .catch((error) => {
+        swal.close();
         loadingButtonBiometric.value = false;
         loadingModal.value = false;
         console.log(error);
