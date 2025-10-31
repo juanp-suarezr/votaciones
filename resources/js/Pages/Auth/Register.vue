@@ -1035,7 +1035,6 @@ const showModalBiometrico = async () => {
 //validar registro biometrico
 const registerAndValidate = async () => {
   loadingButtonBiometric.value = true;
-  biometricoModal.value = false;
   loadingModal.value = true;
 
   message.value = "";
@@ -1051,7 +1050,6 @@ const registerAndValidate = async () => {
     message.value = "La cámara no está lista.";
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
-    biometricoModal.value = true;
 
     return;
   }
