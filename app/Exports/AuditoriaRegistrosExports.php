@@ -39,7 +39,6 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
         $auditoria_registro = AuditoriaRegistro::select('id_evento', 'accion', 'votante_id', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
         ->where('id_evento', $this->id_evento)
         ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion,comuna')
-            ->orderBy('created_at', 'desc')
             ->get(); // Mantener los parámetros en la URL
 
         // Transform the collection
