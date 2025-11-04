@@ -324,6 +324,8 @@ Route::middleware('auth')->group(function () {
     //AUDITORIAS
     Route::get('/auditorias', [auditoriasController::class, 'index'])->name('auditorias');
     Route::get('/auditoria-validaciones', [auditoriasController::class, 'auditoriaValidaciones'])->name('auditoria-validaciones');
+    //exportar auditoria validaciones excel
+    Route::get('/auditoria-validaciones/excel', [auditoriasController::class, 'excel'])->name('auditoriaVal.excel');
 
     //iniciar acta presencial tic
     Route::get('/ActaInicial', [ActaPresencialController::class, 'actaInicial_create'])->name('ActaInicial.create');

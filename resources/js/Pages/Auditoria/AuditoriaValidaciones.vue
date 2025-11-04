@@ -27,6 +27,18 @@
           Limpiar
         </SecondaryButton>
       </div>
+      <div class="flex gap 4 p-4 justify-end">
+        <SecondaryLink
+          class="me-4 py-2 h-full !bg-green-400 text-green-800"
+          :href="
+            route('auditoriaVal.excel', {
+              id_evento: id_evento,
+            })
+          "
+        >
+          Descargar Reporte
+        </SecondaryLink>
+      </div>
     </div>
     <div class="flex flex-col overflow-x-auto">
       <div class="inline-block rounded-lg shadow">
@@ -93,8 +105,14 @@
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <p class="text-gray-900 whitespace-no-wrap" :class="{ 'text-green-600': user.accion === 'Activo', 'text-red-600': user.accion == 'Rechazado' }">
-                      {{ user.accion == 'Activo' ? 'Aprobado' : user.accion }}
+                    <p
+                      class="text-gray-900 whitespace-no-wrap"
+                      :class="{
+                        'text-green-600': user.accion === 'Activo',
+                        'text-red-600': user.accion == 'Rechazado',
+                      }"
+                    >
+                      {{ user.accion == "Activo" ? "Aprobado" : user.accion }}
                     </p>
                   </td>
                   <td
@@ -153,7 +171,7 @@ import { Head } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
-
+import SecondaryLink from "@/Components/SecondaryLink.vue";
 
 const props = defineProps({
   auditoria_registro: {
@@ -229,5 +247,4 @@ const getInitials = function (name) {
   }
   return initials;
 };
-
 </script>

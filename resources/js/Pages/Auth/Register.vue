@@ -556,23 +556,24 @@
   <Modal :show="biometricoModal" :closeable="true">
     <template #default>
       <h2
-        class="py-4 text-2xl font-semibold text-gray-800 flex flex-wrap tex-center justify-center bg-azul text-white"
+        class="py-4 text-2xl font-semibold text-gray-800 flex justify-center bg-azul text-white"
       >
         Validación Biométrica
       </h2>
 
       <div class="mt-4 px-4">
-        <p class="text-sm sm:text-base text-gray-800">
+        <p class="text-sm sm:text-base text-gray-800 text-center">
           Por favor, asegúrese de que su rostro esté bien iluminado y visible en
           la cámara (sin gorras, tapabocas, gafas).
         </p>
       </div>
-      <div class="my-12 px-4">
-        <label for="camera">Seleccionar cámara:</label>
+
+      <div class="my-8 px-4 relative flex flex-col items-center">
+        <label for="camera" class="mb-2">Seleccionar cámara:</label>
         <select
           id="camera"
           v-model="selectedDeviceId"
-          class="rounded-lg w-auto ms-4"
+          class="rounded-lg w-auto mb-4"
         >
           <option
             v-for="device in devices"
@@ -583,24 +584,62 @@
           </option>
         </select>
 
-        <video
-          ref="video"
-          autoplay
-          muted
-          width="400"
-          height="340"
-          class="rounded-xl shadow-lg flex mx-auto mt-6"
-        />
+        <!-- CONTENEDOR DE VIDEO -->
+        <div class="relative inline-block">
+          <video
+            ref="video"
+            autoplay
+            muted
+            width="400"
+            height="340"
+            class="rounded-xl shadow-lg"
+          />
 
-        <button
-          type="button"
-          :disabled="loadingButtonBiometric"
-          class="bg-secondary hover:bg-primary z-1000 text-base sm:text-base text-white p-2 rounded-md shadow-xl flex mx-auto mt-4 disabled:bg-gray-500"
-          @click="registerAndValidate()"
-        >
-          Validar
-        </button>
-        {{ message }}
+          <!-- BOTÓN FLOTANTE -->
+          <transition name="fade">
+            <button
+              v-if="!loadingButtonBiometric"
+              type="button"
+              class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-secondary hover:bg-primary text-white px-4 py-2 rounded-md shadow-lg"
+              @click="registerAndValidate()"
+            >
+              Continuar
+            </button>
+          </transition>
+
+          <!-- INDICADOR DE CARGA -->
+          <transition name="fade">
+            <div
+              v-if="loadingButtonBiometric"
+              class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center rounded-xl text-white"
+            >
+              <span class="text-lg font-semibold mb-2">Validando...</span>
+              <svg
+                class="animate-spin h-6 w-6 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            </div>
+          </transition>
+        </div>
+
+        <!-- MENSAJE DE VALIDACIÓN -->
+        <p class="mt-4 text-sm text-gray-700">{{ message }}</p>
       </div>
     </template>
   </Modal>
@@ -1540,3 +1579,14 @@ onMounted(() => {
   verificarCamaraONecesaria();
 });
 </script>
+
+<style scoped>
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+</style>

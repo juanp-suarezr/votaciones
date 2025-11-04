@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Exports\AuditoriaRegistrosExports;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Http\Controllers\Controller;
 use App\Models\AuditoriaRegistro;
@@ -8,6 +10,7 @@ use App\Models\AuditoriaVotos;
 use App\Models\Eventos;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class auditoriasController extends Controller
 {
@@ -31,7 +34,7 @@ class auditoriasController extends Controller
         $id_evento = 15;
         if(RequestFacade::input('id_evento')){
             $id_evento = RequestFacade::input('id_evento');
-            
+
         }
 
 
@@ -84,5 +87,24 @@ class auditoriasController extends Controller
                 'filters' => RequestFacade::only(['id_evento']),
             ]
         );
+    }
+
+    public function excel()
+    {
+        ob_end_clean();
+        ob_start();
+
+
+        $id_evento = 15;
+        if(RequestFacade::input('id_evento')){
+            $id_evento = RequestFacade::input('id_evento');
+        }
+
+
+
+
+
+
+        return Excel::download(new AuditoriaRegistrosExports($id_evento), 'auditoria_registros.xls', \Maatwebsite\Excel\Excel::XLS);
     }
 }
