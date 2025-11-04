@@ -211,6 +211,7 @@
               v-model="comunaSelected"
               :options="comunas"
               filter
+              required
               optionLabel="detalle"
               placeholder="Seleccione comuna/corregimiento del proyecto"
               checkmark
@@ -228,6 +229,7 @@
               id="barrio"
               v-model="form.barrio"
               :options="barriosXComuna"
+              required
               filter
               placeholder="Seleccione barrio/vereda de dirección"
               checkmark
