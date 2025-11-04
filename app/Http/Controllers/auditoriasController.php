@@ -97,7 +97,7 @@ class auditoriasController extends Controller
 
         $id_evento = 15;
         if(RequestFacade::input('id_evento')){
-            $id_evento = RequestFacade::input('id_evento');
+            $id_evento = intval(RequestFacade::input('id_evento'));
         }
 
 

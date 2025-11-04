@@ -40,8 +40,7 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
         ->where('id_evento', $this->id_evento)
         ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion,comuna')
             ->orderBy('created_at', 'desc')
-            ->paginate(5)
-            ->withQueryString(); // Mantener los parámetros en la URL
+            ->get(); // Mantener los parámetros en la URL
 
         // Transform the collection
         $auditoria_registro->transform(function ($registro) {
@@ -51,7 +50,7 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
             return [
                 'usuario.name' => $registro->usuario->name,
                 'accion' => $registro->accion,
-                'hash_votante.votante.nombre' => $registro->hash_votante->votante->identificacion,
+                'hash_votante.votante.nombre' => $registro->hash_votante->votante->nombre,
                 'hash_votante.votante.identificacion' => $registro->hash_votante->votante->identificacion,
                 'hash_votante.votante.comuna' => ParametrosDetalle::where('id', $registro->hash_votante->votante->comuna)->value('detalle') ?? 'N/A',
                 'ip_address' => $registro->ip_address,
