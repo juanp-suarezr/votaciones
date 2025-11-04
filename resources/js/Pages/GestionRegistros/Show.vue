@@ -255,7 +255,7 @@ import { Head, useForm, router } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import comunas from "@/shared/comunas.json";
+import comunas from "@/shared/comunas_completas.json";
 import barrios from "@/shared/barrios.json";
 import VueEasyLightbox from "vue-easy-lightbox";
 import Modal from "@/Components/Modal.vue";
