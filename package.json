@@ -4,7 +4,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "load:test": "artillery run load-tests/votaciones-test.yml"
+        "load:test": "artillery run load-tests/votaciones-test.yml",
+        "load:report": "artillery run --output load-tests/reports/$(date +%Y%m%d-%H%M%S).json load-tests/votaciones-test.yml && artillery report --output load-tests/reports/$(date +%Y%m%d-%H%M%S).html load-tests/reports/*.json"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^1.0.0",
