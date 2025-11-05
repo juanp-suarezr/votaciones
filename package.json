@@ -5,7 +5,8 @@
         "dev": "vite",
         "build": "vite build",
         "load:test": "artillery run load-test/votaciones-test.yml",
-        "load:report": "node -e \"const fs=require('fs'); const dir='load-test/reports'; if(!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); const timestamp=new Date().toISOString().replace(/[:.]/g,'-'); const json=`${dir}/report-${timestamp}.json`; const html=`${dir}/report-${timestamp}.html`; require('child_process').execSync(`npx artillery run --output ${json} load-test/votaciones-test.yml && npx artillery report --output ${html} ${json}`, {stdio:'inherit'});\""
+        "load:report": "set TIMESTAMP=%DATE:~-4%%DATE:~3,2%%DATE:~0,2%-%TIME:~0,2%%TIME:~3,2% && artillery run --output load-test/reports/%TIMESTAMP%.json load-test/votaciones-test.yml && artillery report --output load-test/reports/%TIMESTAMP%.html load-test/reports/%TIMESTAMP%.json",
+        "load:report_ws": "node -e \"const fs=require('fs'); const dir='load-test/reports'; if(!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); const timestamp=new Date().toISOString().replace(/[:.]/g,'-'); const json=`${dir}/report-${timestamp}.json`; const html=`${dir}/report-${timestamp}.html`; require('child_process').execSync(`npx artillery run --output ${json} load-test/votaciones-test.yml && npx artillery report --output ${html} ${json}`, {stdio:'inherit'});\""
     },
     "devDependencies": {
         "@inertiajs/vue3": "^1.0.0",
