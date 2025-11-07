@@ -81,13 +81,13 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
     {
         return [
             'Gestor',
-            'Acción',
+            'Accion',
             'Nombre Votante',
             'Numero Identificación',
             'Comuna',
             'IP Address',
             'User Agent',
-            'Fecha de validación',
+            'Fecha de validacion',
 
         ];
     }
