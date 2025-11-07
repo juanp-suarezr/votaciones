@@ -59,6 +59,7 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
             ];
         });
 
+        Log::info('Exportando auditoria_registro: ', $auditoria_registro->toArray());
         return $auditoria_registro;
     }
 
