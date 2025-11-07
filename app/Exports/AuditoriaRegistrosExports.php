@@ -15,6 +15,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
@@ -32,35 +34,46 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
      */
     public function collection()
     {
+        try {
+            DB::beginTransaction();
 
-        $anio_actual = Carbon::now()->year;
+            $anio_actual = Carbon::now()->year;
 
+            $auditoria_registro = AuditoriaRegistro::select('id_evento', 'accion', 'votante_id', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
+                ->where('id_evento', $this->id_evento)
+                ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion,comuna')
+                ->get();
 
-        $auditoria_registro = AuditoriaRegistro::select('id_evento', 'accion', 'votante_id', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
-        ->where('id_evento', $this->id_evento)
-        ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion,comuna')
-            ->get(); // Mantener los parámetros en la URL
+            // Transform the collection
+            $auditoria_registro->transform(function ($registro) {
+                return [
+                    'usuario.name' => optional($registro->usuario)->name ?? 'N/A',
+                    'accion' => $registro->accion,
+                    'hash_votante.votante.nombre' => optional($registro->hash_votante->votante)->nombre ?? 'N/A',
+                    'hash_votante.votante.identificacion' => optional($registro->hash_votante->votante)->identificacion ?? 'N/A',
+                    'hash_votante.votante.comuna' => $registro->hash_votante->votante->comuna ? ParametrosDetalle::where('id', $registro->hash_votante->votante->comuna)->value('detalle') ?? 'N/A' : 'N/A',
+                    'ip_address' => $registro->ip_address,
+                    'user_agent' => $registro->user_agent,
+                    'created_at' => $registro->created_at,
+                ];
+            });
 
-        // Transform the collection
-        $auditoria_registro->transform(function ($registro) {
+            Log::info('Exportando auditoria_registro: ', $auditoria_registro->toArray());
 
-
-            // Asegurar que num_ofertas se coloca en la posición correcta
-            return [
-                'usuario.name' => $registro->usuario->name,
-                'accion' => $registro->accion,
-                'hash_votante.votante.nombre' => $registro->hash_votante->votante->nombre,
-                'hash_votante.votante.identificacion' => $registro->hash_votante->votante->identificacion,
-                'hash_votante.votante.comuna' => $registro->hash_votante->votante->comuna ? ParametrosDetalle::where('id', $registro->hash_votante->votante->comuna)->value('detalle') ?? 'N/A' : 'N/A',
-                'ip_address' => $registro->ip_address,
-                'user_agent' => $registro->user_agent,
-                'created_at' => $registro->created_at,
-
-            ];
-        });
-
-        Log::info('Exportando auditoria_registro: ', $auditoria_registro->toArray());
-        return $auditoria_registro;
+            DB::commit();
+            return $auditoria_registro;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error('Error exportando auditoria_registro', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'id_evento' => $this->id_evento,
+            ]);
+            // Devolver colección vacía para que la exportación genere un archivo vacío en lugar de fallar silenciosamente
+            return collect([]);
+        }
     }
 
     public function headings(): array
