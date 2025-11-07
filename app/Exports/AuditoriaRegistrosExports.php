@@ -51,14 +51,14 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
                 'accion' => $registro->accion,
                 'hash_votante.votante.nombre' => $registro->hash_votante->votante->nombre,
                 'hash_votante.votante.identificacion' => $registro->hash_votante->votante->identificacion,
-                'hash_votante.votante.comuna' => ParametrosDetalle::where('id', $registro->hash_votante->votante->comuna)->value('detalle') ?? 'N/A',
+                'hash_votante.votante.comuna' => $registro->hash_votante->votante->comuna ? ParametrosDetalle::where('id', $registro->hash_votante->votante->comuna)->value('detalle') ?? 'N/A' : 'N/A',
                 'ip_address' => $registro->ip_address,
                 'user_agent' => $registro->user_agent,
                 'created_at' => $registro->created_at,
 
             ];
         });
-        
+
         return $auditoria_registro;
     }
 
