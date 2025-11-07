@@ -58,10 +58,11 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
                 ];
             });
 
-            Log::info('Exportando auditoria_registro: ', $auditoria_registro->toArray());
+            // Log::info('Exportando auditoria_registro: ', $auditoria_registro->toArray());
 
             DB::commit();
             return $auditoria_registro;
+
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error('Error exportando auditoria_registro', [
