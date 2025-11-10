@@ -27,7 +27,7 @@
         <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
           <!-- Nombre -->
           <div class="mb-2">
-            <InputLabel for="nombre" value="Nombre Completo" />
+            <InputLabel for="nombre" value="Nombre Completo(Nombres y apellidos)" />
             <TextInput
               id="nombre"
               type="text"
@@ -40,7 +40,7 @@
 
           <!-- Identificación -->
           <div class="mb-2">
-            <InputLabel for="identificacion" value="Identificación" />
+            <InputLabel for="identificacion" value="Número de identificación" />
             <TextInput
               id="identificacion"
               type="text"
