@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Eventos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
+use App\Models\ParametrosDetalle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -418,6 +419,9 @@ class ValidationController extends Controller
             'CorregirDatos',
             [
                 'votante' => $votante,
+                'comunas' => ParametrosDetalle::where('codParametro', 'com01')
+                    ->where('estado', 1)
+                    ->get(),
             ]
         );
     }

@@ -607,6 +607,8 @@ const props = defineProps({
   },
 });
 
+console.log(props);
+
 //comunas habilitadas
 const comunas = ref(props.comunas);
 
@@ -1362,8 +1364,10 @@ watch(biometricoModal, (newVal) => {
 
 const getComuna = (idComuna) => {
   console.log(idComuna);
+console.log(props.comunas);
 
-  return comunas.find((item) => item.id == idComuna);
+
+  return props.comunas.find((item) => item.id == idComuna);
 };
 
 onMounted(() => {
@@ -1373,6 +1377,7 @@ onMounted(() => {
 
   if (props.votante.hash_votantes[0].subtipo) {
     form.comuna = getComuna(props.votante.hash_votantes[0].subtipo);
+    comunaSelected.value = getComuna(props.votante.hash_votantes[0].subtipo);
   }
 
   form.fecha_expedicion = formatDate(props.votante.fecha_expedicion);
