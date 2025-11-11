@@ -43,7 +43,7 @@
             <InputLabel for="identificacion" value="Número de identificación" />
             <TextInput
               id="identificacion"
-              type="text"
+              type="number"
               class="mt-1 block w-full"
               v-model="form.identificacion"
               required
