@@ -1,0 +1,48 @@
+config:
+  target: "https://votacionesqa.servicios-alcaldiapereira.com"
+  phases:
+    - duration: 40
+      arrivalRate: 2
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json, text/plain, */*"
+  cookies: true
+  processor: "./processor.cjs"
+  plugins:
+    metrics-by-endpoint: {}
+
+scenarios:
+  - name: "Login y voto concurrente (Laravel + Inertia)"
+    beforeRequest: "metricsByEndpoint_beforeRequest"
+    flow:
+      # 1️⃣ Obtener cookie CSRF
+      - get:
+          url: "/sanctum/csrf-cookie"
+          expect:
+            - statusCode: 204
+
+      # 2️⃣ Login con sesión (no token)
+      - post:
+          url: "/api/login"
+          headers:
+            X-XSRF-TOKEN: "{{ $cookie.XSRF-TOKEN }}"
+          json:
+            email: "usuario{{ randomInt(2,1000) }}@example.com"
+            password: "123456"
+          expect:
+            - statusCode: 302     # Laravel redirige al dashboard o inicio
+          followRedirect: true
+
+      # 3️⃣ Simular envío de voto autenticado (por sesión)
+      - post:
+          url: "/api/votos"
+          headers:
+            X-XSRF-TOKEN: "{{ $cookie.XSRF-TOKEN }}"
+          json:
+            votante_id: "{{ randomInt(2, 1000) }}"
+            evento_id: 16
+            proyecto_id: "{{ randomInt(14, 15) }}"
+          expect:
+            - statusCode: 200
+      - think: 1

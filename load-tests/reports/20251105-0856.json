@@ -1,0 +1,148 @@
+{
+  "aggregate": {
+    "counters": {
+      "vusers.created_by_name.Login + Voto concurrente": 12000,
+      "vusers.created": 12000,
+      "errors.Invalid URL - api/login": 12000,
+      "vusers.failed": 12000
+    },
+    "rates": {},
+    "firstCounterAt": 1762351009748,
+    "lastCounterAt": 1762351070315,
+    "firstMetricAt": 1762351009748,
+    "lastMetricAt": 1762351070315,
+    "period": 1762351070000,
+    "summaries": {},
+    "histograms": {}
+  },
+  "intermediate": [
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 14,
+        "vusers.created": 14,
+        "errors.Invalid URL - api/login": 14,
+        "vusers.failed": 14
+      },
+      "rates": {},
+      "firstCounterAt": 1762351009748,
+      "lastCounterAt": 1762351009994,
+      "firstMetricAt": 1762351009748,
+      "lastMetricAt": 1762351009994,
+      "period": "1762351000000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 1979,
+        "vusers.created": 1979,
+        "errors.Invalid URL - api/login": 1979,
+        "vusers.failed": 1979
+      },
+      "rates": {},
+      "firstCounterAt": 1762351010001,
+      "lastCounterAt": 1762351019993,
+      "firstMetricAt": 1762351010001,
+      "lastMetricAt": 1762351019993,
+      "period": "1762351010000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 2000,
+        "vusers.created": 2000,
+        "errors.Invalid URL - api/login": 2000,
+        "vusers.failed": 2000
+      },
+      "rates": {},
+      "firstCounterAt": 1762351020000,
+      "lastCounterAt": 1762351029993,
+      "firstMetricAt": 1762351020000,
+      "lastMetricAt": 1762351029993,
+      "period": "1762351020000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 2000,
+        "vusers.created": 2000,
+        "errors.Invalid URL - api/login": 2000,
+        "vusers.failed": 2000
+      },
+      "rates": {},
+      "firstCounterAt": 1762351030000,
+      "lastCounterAt": 1762351039992,
+      "firstMetricAt": 1762351030000,
+      "lastMetricAt": 1762351039992,
+      "period": "1762351030000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 2000,
+        "vusers.created": 2000,
+        "errors.Invalid URL - api/login": 2000,
+        "vusers.failed": 2000
+      },
+      "rates": {},
+      "firstCounterAt": 1762351040000,
+      "lastCounterAt": 1762351049992,
+      "firstMetricAt": 1762351040000,
+      "lastMetricAt": 1762351049992,
+      "period": "1762351040000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 2001,
+        "vusers.created": 2001,
+        "errors.Invalid URL - api/login": 2000,
+        "vusers.failed": 2000
+      },
+      "rates": {},
+      "firstCounterAt": 1762351050000,
+      "lastCounterAt": 1762351059999,
+      "firstMetricAt": 1762351050000,
+      "lastMetricAt": 1762351059999,
+      "period": "1762351050000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 1985,
+        "vusers.created": 1985,
+        "errors.Invalid URL - api/login": 1986,
+        "vusers.failed": 1986
+      },
+      "rates": {},
+      "firstCounterAt": 1762351060000,
+      "lastCounterAt": 1762351069982,
+      "firstMetricAt": 1762351060000,
+      "lastMetricAt": 1762351069982,
+      "period": "1762351060000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Login + Voto concurrente": 21,
+        "vusers.created": 21,
+        "errors.Invalid URL - api/login": 21,
+        "vusers.failed": 21
+      },
+      "rates": {},
+      "firstCounterAt": 1762351070006,
+      "lastCounterAt": 1762351070315,
+      "firstMetricAt": 1762351070006,
+      "lastMetricAt": 1762351070315,
+      "period": "1762351070000",
+      "summaries": {},
+      "histograms": {}
+    }
+  ]
+}
