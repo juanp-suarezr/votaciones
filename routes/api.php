@@ -26,7 +26,7 @@ Route::get('userinfo',function () {
     ], 200);
 });
 
-// Protected routes 
+// Protected routes
 Route::middleware('auth:sanctum')->group( function () {
     Route::post('/logout', [UserAuthController::class, 'logout']);
 
@@ -38,3 +38,4 @@ Route::middleware('auth:sanctum')->group( function () {
 });
 
 Route::post('login',[UserAuthController::class,'login']);
+Route::post('votos',[UserAuthController::class,'votar']);

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class LoginRequest extends FormRequest
 {
@@ -46,6 +47,10 @@ class LoginRequest extends FormRequest
         $login = $this->input('email'); // Puede ser email o identificación
         $password = $this->input('password');
 
+        Log::info('Intento de login', [
+            'email' => $this->input('email'),
+            'password' => $this->input('password'),
+        ]);
 
         $origin = $this->input('origin');
 
@@ -58,7 +63,6 @@ class LoginRequest extends FormRequest
         // Buscar usuario por email o identificación
         $user = User::where(function ($query) use ($login, $tipo_login) {
             $query->where($tipo_login, $login);
-
         })
             ->first();
 
