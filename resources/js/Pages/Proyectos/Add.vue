@@ -193,7 +193,7 @@
                       v-model="form.tipo_proyecto"
                       :options="tipo_proyectos"
                       filter
-                      optionlabel="nombre"
+                      optionLabel="nombre"
                       placeholder="Seleccione el tipo de proyecto"
                       ckeckmark
                       :highlightOnSelect="false"
