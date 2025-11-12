@@ -188,13 +188,15 @@
           <div class="mb-2">
             <InputLabel for="tipo_proyecto" value="Tipo Proyecto" />
 
-            <Dropdown
+            <Select
                       id="tipo_proyecto"
                       v-model="form.tipo_proyecto"
                       :options="tipo_proyectos"
-                      option-label="nombre"
-                      option-value="id"
+                      filter
+                      optionLabel="nombre"
                       placeholder="Seleccione el tipo de proyecto"
+                      ckeckmark
+                      :highlightOnSelect="false"
                       class="w-full"
                     />
             <InputError class="mt-2" :message="form.errors.tipo_proyecto" />
@@ -275,7 +277,7 @@ const form = useForm({
   eventos: [],
   subtipo: 0,
   estado: 1,
-  tipo_proyecto: "",
+  tipo_proyecto: 0,
 });
 
 //evento seleccionado para elegir candidato o usuario
@@ -371,6 +373,7 @@ const submit = () => {
     console.log(form);
 
   form.subtipo = form.subtipo.id;
+  form.tipo_proyecto = form.tipo_proyecto.id;
 
   form.post(route("proyectos.store"), {
     onSuccess: function () {

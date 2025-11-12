@@ -130,8 +130,6 @@ class ProyectosController extends Controller
                 Hash_proyectos::create([
                     'id_proyecto' => $proyecto->id,  // ID del votante
                     'id_evento' => $evento,  // ID del evento
-                    'tipo' => $request->tipo,  // Asignamos el tipo que ya tenemos
-                    'subtipo' => $request->subtipo,  // Asignamos el subtipo que ya tenemos
                 ]);
             }
 

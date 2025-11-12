@@ -27,7 +27,7 @@
         <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
           <!-- Nombre -->
           <div class="mb-2">
-            <InputLabel for="nombre" value="Nombre Completo" />
+            <InputLabel for="nombre" value="Nombre Completo(Nombres y apellidos)" />
             <TextInput
               id="nombre"
               type="text"
@@ -40,10 +40,10 @@
 
           <!-- Identificación -->
           <div class="mb-2">
-            <InputLabel for="identificacion" value="Identificación" />
+            <InputLabel for="identificacion" value="Número de identificación" />
             <TextInput
               id="identificacion"
-              type="text"
+              type="number"
               class="mt-1 block w-full"
               v-model="form.identificacion"
               required
@@ -606,6 +606,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+console.log(props);
 
 //comunas habilitadas
 const comunas = ref(props.comunas);
@@ -1362,8 +1364,10 @@ watch(biometricoModal, (newVal) => {
 
 const getComuna = (idComuna) => {
   console.log(idComuna);
+console.log(props.comunas);
 
-  return comunas.find((item) => item.id == idComuna);
+
+  return props.comunas.find((item) => item.id == idComuna);
 };
 
 onMounted(() => {
@@ -1373,6 +1377,7 @@ onMounted(() => {
 
   if (props.votante.hash_votantes[0].subtipo) {
     form.comuna = getComuna(props.votante.hash_votantes[0].subtipo);
+    comunaSelected.value = getComuna(props.votante.hash_votantes[0].subtipo);
   }
 
   form.fecha_expedicion = formatDate(props.votante.fecha_expedicion);
