@@ -277,7 +277,7 @@ const form = useForm({
   eventos: [],
   subtipo: 0,
   estado: 1,
-  tipo_proyecto: "",
+  tipo_proyecto: 0,
 });
 
 //evento seleccionado para elegir candidato o usuario
