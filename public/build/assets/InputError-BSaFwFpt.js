@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/InputError-BTsfK5Ek.js
-import{f as s,J as t,c as a,o as r,e as o,t as c}from"./app-BaYsaKJ0.js";const n={class:"text-[8px] md:text-sm text-red-600"},l={__name:"InputError",props:["message"],setup(e){return(m,i)=>s((r(),a("div",null,[o("p",n,c(e.message),1)],512)),[[t,e.message]])}};export{l as _};
-========
-import{f as s,J as t,c as a,o as r,e as o,t as c}from"./app-DSxmcYn4.js";const n={class:"text-[8px] md:text-sm text-red-600"},l={__name:"InputError",props:["message"],setup(e){return(m,i)=>s((r(),a("div",null,[o("p",n,c(e.message),1)],512)),[[t,e.message]])}};export{l as _};
->>>>>>>> origin/main:public/build/assets/InputError-BSaFwFpt.js
