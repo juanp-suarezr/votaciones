@@ -71,8 +71,10 @@
         Elecciones Presupuesto Participativo
       </h2>
       <h2 class="text-gray-600 text-2xl">Votaciones pendientes</h2>
-      <p v-if="$page.props.auth.user.email == 'ppt'"
-        class="text-gray-600 text-lg">
+      <p
+        v-if="$page.props.auth.user.email == 'ppt'"
+        class="text-gray-600 text-lg"
+      >
         Si hay varias vigencias para votar, ingrese a cada una y seleccione el
         proyecto que considere más beneficioso para su comunidad
       </p>
@@ -177,15 +179,18 @@
             />
             <a
               class="w-full h-full bg-indigo-200 text-indigo-800 cursor-pointer"
-
-              :href="ev.estado == 'Activo' ?
-                route('votos.index', {
-                  evento: ev.id,
-                  tipo_evento: ev.tipos,
-                  tipo_user: ev.votantes.length != 0 ? ev.votantes[0].tipo : '',
-                  subtipo_user:
-                    ev.votantes.length != 0 ? ev.votantes[0].subtipo : '',
-                }) : null"
+              :href="
+                ev.estado == 'Activo'
+                  ? route('votos.index', {
+                      evento: ev.id,
+                      tipo_evento: ev.tipos,
+                      tipo_user:
+                        ev.votantes.length != 0 ? ev.votantes[0].tipo : '',
+                      subtipo_user:
+                        ev.votantes.length != 0 ? ev.votantes[0].subtipo : '',
+                    })
+                  : null
+              "
             >
               <img
                 :src="
@@ -193,6 +198,11 @@
                 "
                 alt="Imagen de evento"
                 class="w-full h-full object-cover"
+                :class="{
+                  'filter grayscale opacity-70': votos.find(
+                    (item) => item.id_eventos == ev.id
+                  ),
+                }"
               />
             </a>
             <h4 class="m-auto sm:text-4xl text-xl w-full mt-4 px-2">
@@ -245,7 +255,10 @@
               "
               class="sm:text-2xl text-base text-gray-800 mt-4"
             >
-              <PrimaryButton class="!bg-naranja" @click="descargarCertificado(ev.id, ev.id_padre)">
+              <PrimaryButton
+                class="!bg-naranja"
+                @click="descargarCertificado(ev.id, ev.id_padre)"
+              >
                 Descargar certificado {{ ev.id_padre }}
               </PrimaryButton>
             </div>
@@ -1063,7 +1076,7 @@ onMounted(() => {
         typeof ev.tipos === "string" &&
         ev.tipos.split("|").includes("Presupuesto Participativo")
     ) && // Aún no tiene votos
-    props.info_votante[0].estado === 'Activo' &&
+    props.info_votante[0].estado === "Activo" &&
     props.info_votante[0].votante.Isdriver === 0 // Solo primera vez
   ) {
     const tutorial = driver({

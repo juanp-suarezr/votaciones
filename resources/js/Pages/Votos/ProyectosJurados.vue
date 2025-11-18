@@ -219,23 +219,80 @@
     <!-- Modal inicio -->
     <Modal :show="InicioModal" :closeable="true">
       <template #default>
+        <!-- Título -->
         <h2
-          class="p-4 sm:text-4xl text-2x font-bold text-gray-800 flex text-center justify-center bg-azul text-white"
+          class="p-4 sm:text-4xl text-2xl font-bold flex justify-center text-center bg-azul text-white"
         >
           Aviso Importante para el proceso de votación
         </h2>
 
-        <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
+        <!-- Botón lector por voz -->
+        <div class="flex justify-end pr-6 pt-4">
+          <button
+            @click="leerAviso()"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
+          >
+            🔊 Escuchar
+          </button>
+        </div>
+
+        <!-- Mensaje principal -->
+        <div class="text-justify sm:text-2xl text-xl p-6 leading-relaxed">
           <p>
             Revise bien su elección antes de votar, ya que no se permitirá una
             segunda oportunidad para realizar esta acción.
           </p>
         </div>
 
-        <div class="flex justify-center gap-4 text-center h-full my-6">
+        <!-- Listado accesible con scroll -->
+        <div class="px-6 mt-4">
+          <h3 class="text-2xl sm:text-3xl font-semibold mb-4 text-gray-800">
+            Proyectos Disponibles
+          </h3>
+
+          <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
+            <ul class="space-y-4">
+              <li
+                v-for="pro in proyectos"
+                :key="pro.id"
+                class="p-4 rounded-xl shadow-md bg-gray-50 border border-gray-200"
+              >
+                <div class="flex flex-col gap-2">
+                  <h4
+                    class="font-bold text-xl sm:text-2xl text-blue-900 flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-7 h-7 sm:w-8 sm:h-8 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8zm0 10c-3.314 0-6-2.463-6-5.5S8.686 7 12 7s6 2.463 6 5.5S15.314 18 12 18z"
+                      />
+                    </svg>
+
+                    {{ pro.nombre }}
+                  </h4>
+
+                  <p class="text-lg sm:text-xl text-gray-700 leading-relaxed">
+                    {{ pro.proyecto.detalle }}
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Botón continuar -->
+        <div class="flex justify-center gap-4 text-center h-full my-8">
           <PrimaryButton
             type="button"
-            class="h-full text-xl sm:text-2xl"
+            class="h-full text-xl sm:text-2xl px-8 py-3"
             @click="InicioModal = false"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"
@@ -356,12 +413,29 @@ const proyecto = (proyecto) => {
 
 const votar = () => {
   form.post(route("votos.store"), {
-    onSuccess: () =>
+    onSuccess: () => {
       swal({
         title: "Voto registrado exitosamente",
         text: "Su voto ha sido registrado",
         icon: "success",
-      }),
+        buttons: false, // Oculta botones
+        closeOnClickOutside: false,
+        closeOnEsc: false,
+      });
+
+      // Mostrar el botón OK después de un delay
+      setTimeout(() => {
+        swal({
+          title: "Voto registrado exitosamente",
+          text: "Su voto ha sido registrado",
+          icon: "success",
+          buttons: {
+            confirm: "OK",
+          },
+        });
+      }, 3000); // 2 segundos
+    },
+
     onError: () =>
       swal({
         title: "Error en el registro",
@@ -369,5 +443,30 @@ const votar = () => {
         icon: "error",
       }),
   });
+};
+
+const leerTexto = (texto) => {
+  // Cancelar si ya está leyendo algo
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(texto);
+  speech.lang = "es-CO"; // Español Colombia
+  speech.rate = 1; // Velocidad natural
+  speech.pitch = 1; // Tono
+
+  window.speechSynthesis.speak(speech);
+};
+
+const leerAviso = () => {
+  let texto =
+    "Aviso importante para el proceso de votación. " +
+    "Revise bien su elección antes de votar, ya que no se permitirá una segunda oportunidad. " +
+    "Proyectos disponibles: ";
+
+  proyectos.forEach((pro) => {
+    texto += `. Proyecto: ${pro.nombre}. Detalle: ${pro.proyecto.detalle}. `;
+  });
+
+  leerTexto(texto);
 };
 </script>

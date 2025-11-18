@@ -198,7 +198,7 @@ onMounted(() => {
     mostrarPanel.value = saved === "true";
   } else {
     // Default para pantallas grandes
-    mostrarPanel.value = window.innerWidth >= 768;
+    mostrarPanel.value = false;
   }
 });
 
