@@ -177,15 +177,15 @@
             />
             <a
               class="w-full h-full bg-indigo-200 text-indigo-800 cursor-pointer"
-              :href="
+
+              :href="ev.estado == 'Activo' ?
                 route('votos.index', {
                   evento: ev.id,
                   tipo_evento: ev.tipos,
                   tipo_user: ev.votantes.length != 0 ? ev.votantes[0].tipo : '',
                   subtipo_user:
                     ev.votantes.length != 0 ? ev.votantes[0].subtipo : '',
-                })
-              "
+                }) : null"
             >
               <img
                 :src="
@@ -245,7 +245,7 @@
               "
               class="sm:text-2xl text-base text-gray-800 mt-4"
             >
-              <PrimaryButton @click="descargarCertificado(ev.id, ev.id_padre)">
+              <PrimaryButton class="!bg-naranja" @click="descargarCertificado(ev.id, ev.id_padre)">
                 Descargar certificado {{ ev.id_padre }}
               </PrimaryButton>
             </div>
