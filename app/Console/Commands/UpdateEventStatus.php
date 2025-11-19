@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Mail\AnomaliasMail;
 use App\Mail\CertificadosMail;
 use App\Mail\InfoEventosMail;
+use App\Mail\ProyectosMail;
 use App\Models\Acta_escrutino;
 use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
@@ -31,7 +32,13 @@ class UpdateEventStatus extends Command
     public function handle()
     {
         $now = Carbon::now();
-        
+        $DiasLater = $now->copy()->addDays(3);
+
+
+        // Busca los eventos con fecha de inicio faltando 3 dias para empezar y estado pendiente
+        $eventsToStart = Eventos::where('fecha_inicio', '=', $now)
+            ->where('estado', 'Pendiente')
+            ->get();
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
         $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
@@ -66,6 +73,29 @@ class UpdateEventStatus extends Command
         $votantes1 = Hash_votantes::where('id_evento', 15)
             ->with('votante.votos')
             ->get();
+
+            //si de eventos proximos a empezar esta el evento de id 15
+        if ($eventsToStart->contains('id', 15)) {
+            Log::info("Enviando correos de proyectos para evento 15");
+
+                $eventos = Eventos::where('estado', '!=', 'Cerrado')
+                    ->whereHas('evento_hijo', function ($query) {
+
+                        $query->where('id_evento_padre', 15);
+                    })
+                    ->with('hash_proyectos.proyecto')
+                    ->get();
+
+
+                foreach ($eventos as $event) {
+                    foreach ($votantes as $votante) {
+                        Log::info("Enviando correo a: " . $votante->votante->email);
+                        if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                            Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
+                        }
+                    }
+                }
+        }
 
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {

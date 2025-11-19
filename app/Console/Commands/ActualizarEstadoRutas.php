@@ -73,38 +73,6 @@ class ActualizarEstadoRutas extends Command
 
             if ($ruta->path === 'register' && $ahora->greaterThanOrEqualTo($ruta->fecha_fin)) {
 
-                Log::info("Enviando correos de proyectos para evento 15");
-
-                $eventos = Eventos::where('estado', '!=', 'Cerrado')
-                    ->whereHas('evento_hijo', function ($query) {
-
-                        $query->where('id_evento_padre', 15);
-                    })
-                    ->with('hash_proyectos.proyecto')
-                    ->get();
-
-
-
-                $votantes = Hash_votantes::where('id_evento', 15)
-                    ->with('votante')
-                    ->where('estado', 'Activo') // Solo los activos
-                    ->get();
-
-                Log::info("Votantes encontrados: " . $votantes->count());
-
-                foreach ($eventos as $event) {
-                    foreach ($votantes as $votante) {
-                        Log::info("Enviando correo a: " . $votante->votante->email);
-                        if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                            Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
-                        }
-                    }
-                }
-
-
-
-                foreach ($votantes as $votante) {
-                }
             }
 
             $ruta->save();
