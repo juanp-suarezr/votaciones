@@ -198,10 +198,10 @@ class ValidacionesController extends Controller
         if ($request->id_votante) {
 
             $info = Informacion_votantes::with([
-                    'hashVotantes' => function ($query) {
-                        $query->where('subtipo', '!=', 0);
-                    }
-                ])
+                'hashVotantes' => function ($query) {
+                    $query->where('subtipo', '!=', 0);
+                }
+            ])
                 ->findOrFail($request->id_votante);
         }
 
@@ -321,10 +321,12 @@ class ValidacionesController extends Controller
                     $query->where('identificacion', $identificacion);
                 }
 
-                if (is_numeric($nombre)) {
-                    $query->where('id', (int) $nombre);
-                } else {
-                    $query->where('nombre', 'like', '%' . $nombre . '%');
+                if ($nombre) {
+                    if (is_numeric($nombre)) {
+                        $query->where('id', (int) $nombre);
+                    } else {
+                        $query->where('nombre', 'like', '%' . $nombre . '%');
+                    }
                 }
 
                 if ($estado) {
