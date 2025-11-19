@@ -167,6 +167,15 @@
         >
           🗳️ Confirmar voto
         </h2>
+        <!-- Botón lector por voz -->
+        <div class="flex justify-end pr-6 pt-4">
+          <button
+            @click="leerAviso1(selectedProject)"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
+          >
+            🔊 Escuchar
+          </button>
+        </div>
         <p class="mb-4 text-base sm:text-4xl">
           <span class="text-lg sm:text-5xl font-bold"
             >Está a punto de votar por el siguiente proyecto:</span
@@ -464,8 +473,26 @@ const leerAviso = () => {
     "Proyectos disponibles: ";
 
   props.proyectos.forEach((pro, index) => {
-    texto += `. Proyecto: ${index+1}. ${pro.proyecto.detalle}. `;
+    texto += `. Proyecto: ${index + 1}. ${pro.proyecto.detalle}. `;
   });
+
+  leerTexto(texto);
+};
+
+const leerAviso1 = (selectedProject) => {
+  let texto =
+    "Confirmar voto " +
+    "Está a punto de votar por el siguiente proyecto: " +
+    "Proyectos disponibles: " +
+    "Número Proyecto: " +selectedProject
+      ? selectedProject.proyecto.numero_tarjeton
+      : "Elecciones presupuesto participativo 2025 " +
+        "Comuna o Corregimiento: " + selectedProject
+                ? getComuna(selectedProject.proyecto.subtipo)
+                : getComuna(props.proyectos[0].proyecto.subtipo) +
+        "Nombre Proyecto: " +selectedProject
+              ? selectedProject.proyecto.detalle
+              : "VOTO EN BLANCO" + ". ";
 
   leerTexto(texto);
 };
