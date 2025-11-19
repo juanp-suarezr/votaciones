@@ -140,10 +140,8 @@ const props = defineProps({
 const breadcrumbLinks = [{ url: "", text: "listado de rutas de votaciones" }];
 
 const formatDate = (date) => {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const [year, month, day] = date.split("T")[0].split("-");
   return `${year}-${month}-${day}`;
 };
+
 </script>
