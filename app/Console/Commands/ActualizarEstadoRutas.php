@@ -45,11 +45,12 @@ class ActualizarEstadoRutas extends Command
         //     ->where('estado', 'Activo') // Solo los activos
         //     ->get();
 
-        //     Log::info("Votantes", ['votantes' => $votantes]);
+        // foreach ($votantes as $votante) {
 
-        // if ($votantes->votante->email !== null && $votantes->votante->email !== '' && $votantes->votante->email !== 'NA') {
-        //     Mail::to($votantes->votante->email)->send(new AnomaliasMail($votantes));
-        //     $this->info("✅ correo enviado: {$votantes->votante->email}");
+        //     if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+        //         Mail::to($votante->votante->email)->send(new AnomaliasMail($votante));
+        //         $this->info("✅ correo enviado: {$votante->votante->email}");
+        //     }
         // }
 
         foreach ($rutas as $ruta) {

@@ -31,19 +31,7 @@ class UpdateEventStatus extends Command
     public function handle()
     {
         $now = Carbon::now();
-        //enviar correo anomalias
-        $votantes = Hash_votantes::where('id_evento', 15)
-            ->with('votante')
-            ->where('estado', 'Activo') // Solo los activos
-            ->get();
-
-        foreach ($votantes as $votante) {
-
-            if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                Mail::to($votante->votante->email)->send(new AnomaliasMail($votante));
-                $this->info("✅ correo enviado: {$votante->votante->email}");
-            }
-        }
+        
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
         $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
