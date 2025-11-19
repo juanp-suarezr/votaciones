@@ -302,7 +302,7 @@ class ValidacionesController extends Controller
     public function historial()
     {
         $user = Auth::user();
-
+        dd(RequestFacade::input('identificacion'));
 
         $votantes = Hash_votantes::query()
             ->where('id_evento', 15)
