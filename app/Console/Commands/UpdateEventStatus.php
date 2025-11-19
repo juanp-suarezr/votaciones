@@ -36,7 +36,7 @@ class UpdateEventStatus extends Command
 
 
         // Busca los eventos con fecha de inicio faltando 3 dias para empezar y estado pendiente
-        $eventsToStart = Eventos::where('fecha_inicio', '=', $now)
+        $eventsToStart = Eventos::whereDate('fecha_inicio', $DiasLater->toDateString())
             ->where('estado', 'Pendiente')
             ->get();
 
