@@ -40,17 +40,17 @@ class ActualizarEstadoRutas extends Command
         $contador = 0;
 
         //enviar correo anomalias
-        $votantes = Hash_votantes::where('id_evento', 15)
-            ->with('votante')
-            ->where('estado', 'Activo') // Solo los activos
-            ->get();
+        // $votantes = Hash_votantes::where('id_evento', 15)
+        //     ->with('votante')
+        //     ->where('estado', 'Activo') // Solo los activos
+        //     ->get();
 
-            Log::info("Votantes", ['votantes' => $votantes]);
+        //     Log::info("Votantes", ['votantes' => $votantes]);
 
-        if ($votantes->votante->email !== null && $votantes->votante->email !== '' && $votantes->votante->email !== 'NA') {
-            Mail::to($votantes->votante->email)->send(new AnomaliasMail($votantes));
-            $this->info("✅ correo enviado: {$votantes->votante->email}");
-        }
+        // if ($votantes->votante->email !== null && $votantes->votante->email !== '' && $votantes->votante->email !== 'NA') {
+        //     Mail::to($votantes->votante->email)->send(new AnomaliasMail($votantes));
+        //     $this->info("✅ correo enviado: {$votantes->votante->email}");
+        // }
 
         foreach ($rutas as $ruta) {
             $estadoAnterior = $ruta->estado;
