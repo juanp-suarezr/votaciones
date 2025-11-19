@@ -486,23 +486,35 @@ const leerAviso = () => {
   leerTexto(texto);
 };
 
+/* ===========================================
+   🔊 lector de voz para confirmar voto
+   =========================================== */
 const leerAviso1 = (selectedProject) => {
-  let texto =
-    "Confirmar voto " +
-    "Está a punto de votar por el siguiente proyecto: " +
-    "Proyectos disponibles: " +
-    "Número Proyecto: " +
-    selectedProject
-      ? selectedProject.proyecto.numero_tarjeton
-      : "Elecciones presupuesto participativo 2025 " +
-        "Comuna o Corregimiento: " +
-        selectedProject
-      ? getComuna(selectedProject.proyecto.subtipo)
-      : getComuna(props.proyectos[0].proyecto.subtipo) +
-        "Nombre Proyecto: " +
-        selectedProject
-      ? selectedProject.proyecto.detalle
-      : "VOTO EN BLANCO" + ". ";
+  let texto = "Confirmación de voto. ";
+
+  if (selectedProject) {
+    texto +=
+      "Está a punto de votar por el siguiente proyecto: " +
+      "Número del proyecto: " +
+      selectedProject.proyecto.numero_tarjeton +
+      ". " +
+      "Comuna o Corregimiento: " +
+      getComuna(selectedProject.proyecto.subtipo) +
+      ". " +
+      "Nombre del proyecto: " +
+      selectedProject.proyecto.detalle +
+      ". ";
+  } else {
+    // Caso VOTO EN BLANCO
+    const primerProyecto = props.proyectos[0];
+
+    texto +=
+      "Está a punto de emitir un voto en blanco para las elecciones de presupuesto participativo 2025. " +
+      "Comuna o Corregimiento: " +
+      getComuna(primerProyecto.proyecto.subtipo) +
+      ". " +
+      "Voto en blanco. ";
+  }
 
   leerTexto(texto);
 };
