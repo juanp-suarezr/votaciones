@@ -470,7 +470,7 @@ const leerAviso = () => {
     "Revise bien su elección antes de votar, ya que no se permitirá una segunda oportunidad. " +
     "Proyectos disponibles: ";
 
-  proyectos.forEach(pro => {
+  props.proyectos.forEach(pro => {
     texto += `. Proyecto: ${pro.nombre}. Detalle: ${pro.proyecto.detalle}. `;
   });
 

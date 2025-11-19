@@ -183,7 +183,7 @@
                   'cursor-not-allowed': ev.estado == 'Activo'
                 }"
               :href="
-                ev.estado == 'Pendiente'
+                ev.estado == 'Activo'
                   ? route('votos.index', {
                       evento: ev.id,
                       tipo_evento: ev.tipos,
