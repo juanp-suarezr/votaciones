@@ -147,6 +147,15 @@
         <h2 class="sm:text-4xl text-xl font-bold mb-4 text-center">
           Detalle del Proyecto
         </h2>
+        <!-- Botón lector por voz -->
+        <div class="flex justify-end pr-6 pt-2">
+          <button
+            @click="leerAviso2(modalProyecto)"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
+          >
+            🔊 Escuchar
+          </button>
+        </div>
         <p class="mb-4 text-base sm:text-2xl">
           {{ modalProyecto.proyecto.detalle }}
         </p>
@@ -174,7 +183,7 @@
           🗳️ Confirmar voto
         </h2>
         <!-- Botón lector por voz -->
-        <div class="flex justify-end pr-6 pt-4">
+        <div class="flex justify-end pr-6 pt-2">
           <button
             @click="leerAviso1(selectedProject)"
             class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
@@ -473,6 +482,7 @@ const leerTexto = (texto) => {
   window.speechSynthesis.speak(speech);
 };
 
+//lector de voz para aviso inicial
 const leerAviso = () => {
   let texto =
     "Aviso importante para el proceso de votación. " +
@@ -515,6 +525,22 @@ const leerAviso1 = (selectedProject) => {
       ". " +
       "Voto en blanco. ";
   }
+
+  leerTexto(texto);
+};
+
+/* ===========================================
+   🔊 lector de voz para detalle del proyecto
+   =========================================== */
+const leerAviso2 = (modalProyecto) => {
+  let texto =
+    "Detalle del proyecto. " +
+    "Nombre del proyecto: " +
+    modalProyecto.proyecto.detalle +
+    ". " +
+    "Descripción: " +
+    modalProyecto.proyecto.descripcion +
+    ". ";
 
   leerTexto(texto);
 };
