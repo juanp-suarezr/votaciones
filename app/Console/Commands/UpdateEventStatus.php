@@ -30,6 +30,7 @@ class UpdateEventStatus extends Command
     public function handle()
     {
         $now = Carbon::now();
+        
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
         $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)

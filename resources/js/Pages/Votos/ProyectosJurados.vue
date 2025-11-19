@@ -261,6 +261,7 @@
 
           <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
             <ul class="space-y-4">
+                <!-- proyectos -->
               <li
                 v-for="pro in proyectos"
                 :key="pro.id"
@@ -290,6 +291,35 @@
 
                   <p class="text-lg sm:text-xl text-gray-700 leading-relaxed">
                     {{ pro.proyecto.detalle }}
+                  </p>
+                </div>
+              </li>
+              <!-- vt en blanco -->
+              <li
+                class="p-4 rounded-xl shadow-md bg-gray-50 border border-gray-200"
+              >
+                <div class="flex flex-col gap-2">
+                  <h4
+                    class="font-bold text-xl sm:text-2xl text-blue-900 flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-7 h-7 sm:w-8 sm:h-8 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8zm0 10c-3.314 0-6-2.463-6-5.5S8.686 7 12 7s6 2.463 6 5.5S15.314 18 12 18z"
+                      />
+                    </svg>
+                  </h4>
+
+                  <p class="text-lg sm:text-xl text-gray-700 leading-relaxed">
+                    VOTO EN BLANCO
                   </p>
                 </div>
               </li>
@@ -484,15 +514,18 @@ const leerAviso1 = (selectedProject) => {
     "Confirmar voto " +
     "Está a punto de votar por el siguiente proyecto: " +
     "Proyectos disponibles: " +
-    "Número Proyecto: " +selectedProject
+    "Número Proyecto: " +
+    selectedProject
       ? selectedProject.proyecto.numero_tarjeton
       : "Elecciones presupuesto participativo 2025 " +
-        "Comuna o Corregimiento: " + selectedProject
-                ? getComuna(selectedProject.proyecto.subtipo)
-                : getComuna(props.proyectos[0].proyecto.subtipo) +
-        "Nombre Proyecto: " +selectedProject
-              ? selectedProject.proyecto.detalle
-              : "VOTO EN BLANCO" + ". ";
+        "Comuna o Corregimiento: " +
+        selectedProject
+      ? getComuna(selectedProject.proyecto.subtipo)
+      : getComuna(props.proyectos[0].proyecto.subtipo) +
+        "Nombre Proyecto: " +
+        selectedProject
+      ? selectedProject.proyecto.detalle
+      : "VOTO EN BLANCO" + ". ";
 
   leerTexto(texto);
 };

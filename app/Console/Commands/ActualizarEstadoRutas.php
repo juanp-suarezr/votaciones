@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\AnomaliasMail;
 use App\Mail\ProyectosMail;
 use App\Models\Eventos;
 use App\Models\Hash_votantes;
@@ -38,6 +39,17 @@ class ActualizarEstadoRutas extends Command
         $rutas = RutasVotaciones::all();
         $contador = 0;
 
+        //enviar correo anomalias
+        $votantes = Hash_votantes::where('id_evento', 15)
+            ->with('votante')
+            ->where('estado', 'Activo') // Solo los activos
+            ->get();
+
+        if ($votantes->votante->email !== null && $votantes->votante->email !== '' && $votantes->votante->email !== 'NA') {
+            Mail::to($votantes->votante->email)->send(new AnomaliasMail($votantes));
+            $this->info("✅ correo enviado: {$votantes->votante->email}");
+        }
+
         foreach ($rutas as $ruta) {
             $estadoAnterior = $ruta->estado;
 
@@ -68,22 +80,22 @@ class ActualizarEstadoRutas extends Command
                     ->with('hash_proyectos.proyecto')
                     ->get();
 
-                    
+
 
                 $votantes = Hash_votantes::where('id_evento', 15)
                     ->with('votante')
                     ->where('estado', 'Activo') // Solo los activos
                     ->get();
 
-                    Log::info("Votantes encontrados: " . $votantes->count());
+                Log::info("Votantes encontrados: " . $votantes->count());
 
                 foreach ($eventos as $event) {
                     foreach ($votantes as $votante) {
                         Log::info("Enviando correo a: " . $votante->votante->email);
-                            if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                                Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
-                            }
+                        if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                            Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
                         }
+                    }
                 }
 
 
