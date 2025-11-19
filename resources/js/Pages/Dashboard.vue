@@ -180,7 +180,7 @@
             <a
               class="w-full h-full bg-indigo-200 text-indigo-800 cursor-pointer"
               :class="{
-                  'cursor-not-allowed': ev.estado == 'Activo'
+                  '!cursor-not-allowed': ev.estado == 'Pendiente'
                 }"
               :href="
                 ev.estado == 'Activo'
