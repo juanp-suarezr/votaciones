@@ -259,7 +259,7 @@
               class="sm:text-2xl text-base text-gray-800 mt-4"
             >
               <SecondaryButton
-                class="!bg-naranja"
+                class="!bg-naranja text-white"
                 @click="descargarCertificado(ev.id, ev.id_padre)"
               >
                 Descargar certificado {{ ev.id_padre }}
