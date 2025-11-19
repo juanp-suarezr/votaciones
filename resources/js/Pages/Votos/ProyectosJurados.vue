@@ -464,7 +464,7 @@ const leerAviso = () => {
     "Proyectos disponibles: ";
 
   props.proyectos.forEach((pro, index) => {
-    texto += `. Proyecto: ${index}. nombre: ${pro.proyecto.detalle}. `;
+    texto += `. Proyecto: ${index+1}. ${pro.proyecto.detalle}. `;
   });
 
   leerTexto(texto);
