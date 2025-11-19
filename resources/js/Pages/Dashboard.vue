@@ -179,18 +179,7 @@
             />
             <a
               class="w-full h-full bg-indigo-200 text-indigo-800 cursor-pointer"
-              :href="
-                ev.estado == 'Activo'
-                  ? route('votos.index', {
-                      evento: ev.id,
-                      tipo_evento: ev.tipos,
-                      tipo_user:
-                        ev.votantes.length != 0 ? ev.votantes[0].tipo : '',
-                      subtipo_user:
-                        ev.votantes.length != 0 ? ev.votantes[0].subtipo : '',
-                    })
-                  : null
-              "
+              
             >
               <img
                 :src="
