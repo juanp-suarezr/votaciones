@@ -302,7 +302,6 @@ class ValidacionesController extends Controller
     public function historial()
     {
         $user = Auth::user();
-        dd(RequestFacade::input('identificacion'));
 
         $votantes = Hash_votantes::query()
             ->where('id_evento', 15)
@@ -331,9 +330,11 @@ class ValidacionesController extends Controller
                 if ($estado) {
                     $query->where('estado', $estado);
                 } else {
-                    $query->where('estado', 'Activo')
-                        ->orWhere('estado', 'Rechazado')
-                        ->orWhere('estado', 'Bloqueado');
+                    $query->where(function ($q) {
+                        $q->where('estado', 'Activo')
+                            ->orWhere('estado', 'Rechazado')
+                            ->orWhere('estado', 'Bloqueado');
+                    });
                 }
 
                 $query->where('id_user', '!=', null);
