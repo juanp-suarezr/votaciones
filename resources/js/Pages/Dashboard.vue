@@ -258,12 +258,12 @@
               "
               class="sm:text-2xl text-base text-gray-800 mt-4"
             >
-              <PrimaryButton
+              <SecondaryButton
                 class="!bg-naranja"
                 @click="descargarCertificado(ev.id, ev.id_padre)"
               >
                 Descargar certificado {{ ev.id_padre }}
-              </PrimaryButton>
+              </SecondaryButton>
             </div>
 
             <PrimaryLink
@@ -602,6 +602,7 @@ ChartJS.register(
 //drivers
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
 
 const swal = inject("$swal");
 
