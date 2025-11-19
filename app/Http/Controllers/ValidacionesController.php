@@ -308,6 +308,11 @@ class ValidacionesController extends Controller
             ->when(RequestFacade::input('subtipo'), function ($query) {
                 $subtipo = RequestFacade::input('subtipo.value');
                 $query->where('subtipo', 'like', $subtipo);
+            })->when(RequestFacade::input('nombre'), function ($query) {
+                $nombre = RequestFacade::input('nombre');
+                if (is_numeric($nombre)) {
+                        $query->where('id', (int) $nombre);
+                    }
             })->whereHas('votante', function ($query) use ($user) {
 
                 $identificacion = RequestFacade::input('identificacion');
@@ -320,9 +325,7 @@ class ValidacionesController extends Controller
                 }
 
                 if ($nombre) {
-                    if (is_numeric($nombre)) {
-                        $query->where('id', (int) $nombre);
-                    } else {
+                    if (!is_numeric($nombre)) {
                         $query->where('nombre', 'like', '%' . $nombre . '%');
                     }
                 }
