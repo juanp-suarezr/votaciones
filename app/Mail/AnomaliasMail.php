@@ -21,9 +21,9 @@ class AnomaliasMail extends Mailable
      *
      * @return void
      */
-    public function __construct(Hash_votantes $votante)
+    public function __construct(Hash_votantes $votantes)
     {
-        $this->votante = $votante;
+        $this->votante = $votantes;
     }
 
     /**

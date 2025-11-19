@@ -45,6 +45,8 @@ class ActualizarEstadoRutas extends Command
             ->where('estado', 'Activo') // Solo los activos
             ->get();
 
+            Log::info("Votantes", ['votantes' => $votantes]);
+
         if ($votantes->votante->email !== null && $votantes->votante->email !== '' && $votantes->votante->email !== 'NA') {
             Mail::to($votantes->votante->email)->send(new AnomaliasMail($votantes));
             $this->info("✅ correo enviado: {$votantes->votante->email}");
