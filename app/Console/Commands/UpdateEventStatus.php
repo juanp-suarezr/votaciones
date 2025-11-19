@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\AnomaliasMail;
 use App\Mail\CertificadosMail;
 use App\Mail\InfoEventosMail;
 use App\Models\Acta_escrutino;
