@@ -182,8 +182,8 @@ class ProyectosController extends Controller
         $proyecto = Proyectos::find($request->id);
 
         $request->validate([
-            'detalle' => 'required|string|max:100',
-            'descripcion' => 'required|string|max:500',
+            'detalle' => 'required|string|max:400',
+            'descripcion' => 'required|string|max:600',
             'tipo' => 'required',
             'subtipo' => '',
             'numero_tarjeton' => 'required',
