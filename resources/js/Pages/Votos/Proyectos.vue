@@ -241,7 +241,7 @@
     </div>
 
     <!-- Modal inicio -->
-    <Modal :show="InicioModal" :closeable="true" :height="'80vh'">
+    <Modal :show="InicioModal" :closeable="true" :height="'90vh'">
       <template #default>
         <!-- Título -->
         <h2
@@ -274,7 +274,7 @@
             Proyectos Disponibles
           </h3>
 
-          <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
+          <div class="pr-2 space-y-4">
             <ul class="space-y-4">
               <li
                 v-for="pro in proyectos"
@@ -341,7 +341,7 @@
         </div>
 
         <!-- Botón continuar -->
-        <div class="flex justify-center gap-4 text-center h-full my-8">
+        <div class="flex justify-center text-center h-full my-8">
           <PrimaryButton
             type="button"
             class="h-full text-xl sm:text-2xl px-8 py-3"
