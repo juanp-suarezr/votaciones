@@ -241,11 +241,11 @@
     </div>
 
     <!-- Modal inicio -->
-    <Modal :show="InicioModal" :closeable="true">
+    <Modal :show="InicioModal" :closeable="true" :height="'80vh'">
       <template #default>
         <!-- Título -->
         <h2
-          class="p-4 sm:text-4xl text-2xl font-bold flex justify-center text-center bg-azul text-white"
+          class="p-4 sm:text-4xl text-2xl font-bold flex justify-center text-center bg-azul text-white h-16 items-center"
         >
           Aviso Importante para el proceso de votación
         </h2>

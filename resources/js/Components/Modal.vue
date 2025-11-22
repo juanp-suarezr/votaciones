@@ -14,6 +14,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    height: {
+        type: String,
+        default: null,
+    },
 });
 
 const emit = defineEmits(['close']);
@@ -57,6 +61,13 @@ const maxWidthClass = computed(() => {
         '2xl': 'sm:max-w-2xl',
     }[props.maxWidth];
 });
+
+const heightStyle = computed(() => {
+    if (props.height) {
+        return { height: props.height, overflow: 'auto' };
+    }
+    return {};
+});
 </script>
 
 <template>
@@ -88,6 +99,7 @@ const maxWidthClass = computed(() => {
                         v-show="show"
                         class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto m-auto"
                         :class="maxWidthClass"
+                        :style="heightStyle"
                     >
                         <slot v-if="show" />
                     </div>
