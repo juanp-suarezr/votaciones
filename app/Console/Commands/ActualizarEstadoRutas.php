@@ -43,6 +43,44 @@ class ActualizarEstadoRutas extends Command
             ->where('estado', 'Pendiente')
             ->get();
 
+            $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
+            ->where('estado', 1)
+            ->pluck('id')
+            ->toArray();
+
+            // Obtener los votantes asociados al evento con id 15 para notificar inicio de votaciones
+        $votantes = Hash_votantes::where('id_evento', 15)
+            ->with('votante')
+            ->where('estado', 'Activo') // Solo los activos
+            ->get();
+
+            //si de eventos proximos a empezar esta el evento de id 15
+        if ($eventsToStart->contains('id', 15)) {
+            Log::info("Enviando correos de proyectos para evento 15");
+
+            $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
+                ->whereHas('evento_hijo', function ($query) {
+
+                    $query->where('id_evento_padre', 15);
+                })
+                ->with('hash_proyectos.proyecto')
+                ->get();
+
+
+            foreach ($eventos as $event) {
+                foreach ($votantes as $votante) {
+                    if (!in_array($votante->subtipo, $comunas_activas)) {
+                        continue; // Si no está, salta al siguiente votante
+                    }
+                    Log::info("Enviando correo a: " . $votante->votante->email);
+                    if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                        Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
+                    }
+                }
+            }
+        }
+
+
         $rutas = RutasVotaciones::all();
         $contador = 0;
 
