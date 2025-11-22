@@ -350,7 +350,7 @@
         </div>
 
         <!-- Botón continuar -->
-        <div class="flex justify-center text-center h-full my-8">
+        <div class="flex justify-center text-center my-8">
           <PrimaryButton
             type="button"
             class="text-xl sm:text-2xl px-8 py-3"
