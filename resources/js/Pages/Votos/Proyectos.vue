@@ -245,19 +245,31 @@
       <template #default>
         <!-- Título -->
         <h2
-          class="p-4 sm:text-4xl text-2xl font-bold flex justify-center text-center bg-azul text-white h-16 items-center"
+          class="p-4 sm:text-4xl text-2xl font-bold flex justify-center text-center bg-azul text-white items-center"
         >
           Aviso Importante para el proceso de votación
         </h2>
 
-        <!-- Botón lector por voz -->
-        <div class="flex justify-end pr-6 pt-4">
+        <!-- Botones: Escuchar (izq) / Continuar (der) -->
+        <div class="flex justify-between items-center px-6 pt-4">
+          <!-- Escuchar -->
           <button
             @click="leerAviso()"
             class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
           >
             🔊 Escuchar
           </button>
+
+          <!-- Continuar -->
+          <PrimaryButton
+            type="button"
+            class="text-lg sm:text-xl px-6 py-2"
+            @click="InicioModal = false"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+          >
+            Continuar
+          </PrimaryButton>
         </div>
 
         <!-- Mensaje principal -->
@@ -344,7 +356,7 @@
         <div class="flex justify-center text-center h-full my-8">
           <PrimaryButton
             type="button"
-            class="h-full text-xl sm:text-2xl px-8 py-3"
+            class="text-xl sm:text-2xl px-8 py-3"
             @click="InicioModal = false"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"
