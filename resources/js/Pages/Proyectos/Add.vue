@@ -373,7 +373,6 @@ const submit = () => {
     console.log(form);
 
   form.subtipo = form.subtipo.id;
-  form.tipo_proyecto = form.tipo_proyecto.id;
 
   form.post(route("proyectos.store"), {
     onSuccess: function () {
