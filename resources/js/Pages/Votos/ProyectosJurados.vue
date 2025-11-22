@@ -245,13 +245,26 @@
         </h2>
 
         <!-- Botón lector por voz -->
-        <div class="flex justify-end pr-6 pt-4">
+        <!-- Botones: Escuchar (izq) / Continuar (der) -->
+        <div class="flex justify-between items-center px-6 pt-4">
+          <!-- Escuchar -->
           <button
             @click="leerAviso()"
             class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
           >
             🔊 Escuchar
           </button>
+
+          <!-- Continuar -->
+          <PrimaryButton
+            type="button"
+            class="text-lg sm:text-xl px-6 py-2"
+            @click="InicioModal = false"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+          >
+            Continuar
+          </PrimaryButton>
         </div>
 
         <!-- Mensaje principal -->
@@ -270,7 +283,7 @@
 
           <div class="pr-2 space-y-4">
             <ul class="space-y-4">
-                <!-- proyectos -->
+              <!-- proyectos -->
               <li
                 v-for="pro in proyectos"
                 :key="pro.id"
@@ -340,7 +353,7 @@
         <div class="flex justify-center text-center h-full my-8">
           <PrimaryButton
             type="button"
-            class="h-full text-xl sm:text-2xl px-8 py-3"
+            class="text-xl sm:text-2xl px-8 py-3"
             @click="InicioModal = false"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"
@@ -417,8 +430,6 @@ const getImageUrl = (imageName) => {
   // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
   return `/storage/uploads/usuarios/${imageName}`;
 };
-
-
 
 const getImageProyectoUrl = (imageName) => {
   // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
@@ -568,5 +579,4 @@ const leerAviso2 = (modalProyecto) => {
 
   leerTexto(texto);
 };
-
 </script>
