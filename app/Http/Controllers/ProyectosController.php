@@ -77,7 +77,7 @@ class ProyectosController extends Controller
         $tipos = Tipos::pluck('nombre', 'nombre')->all();
         $parametros = Parametros::where('estado', 1)->get();
         $subtipos = ParametrosDetalle::where('estado', 1)->get();
-        $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->get();
+        $eventos = Eventos::where('tipos', 'LIKE', '%Proyecto%')->where('estado', '!=', 'Bloqueado')->get();
         $tipo_proyectos = Tipo_proyectos::select('nombre', 'id')->get();
 
         return Inertia::render('Proyectos/Add', [
