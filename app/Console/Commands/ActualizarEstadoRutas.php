@@ -68,7 +68,7 @@ class ActualizarEstadoRutas extends Command
                     ->with('hash_proyectos.proyecto')
                     ->get();
 
-                    
+
 
                 $votantes = Hash_votantes::where('id_evento', 15)
                     ->with('votante')
@@ -77,14 +77,14 @@ class ActualizarEstadoRutas extends Command
 
                     Log::info("Votantes encontrados: " . $votantes->count());
 
-                foreach ($eventos as $event) {
-                    foreach ($votantes as $votante) {
-                        Log::info("Enviando correo a: " . $votante->votante->email);
-                            if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                                Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
-                            }
-                        }
-                }
+                // foreach ($eventos as $event) {
+                //     foreach ($votantes as $votante) {
+                //         Log::info("Enviando correo a: " . $votante->votante->email);
+                //             if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                //                 Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
+                //             }
+                //         }
+                // }
 
 
 
