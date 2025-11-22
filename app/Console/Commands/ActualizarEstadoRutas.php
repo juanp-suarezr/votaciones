@@ -35,6 +35,13 @@ class ActualizarEstadoRutas extends Command
     public function handle()
     {
         $ahora = Carbon::now();
+        $DiasLater = $ahora->copy()->addDays(3);
+
+
+        // Busca los eventos con fecha de inicio faltando 3 dias para empezar y estado pendiente
+        $eventsToStart = Eventos::whereDate('fecha_inicio', $DiasLater->toDateString())
+            ->where('estado', 'Pendiente')
+            ->get();
 
         $rutas = RutasVotaciones::all();
         $contador = 0;

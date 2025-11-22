@@ -78,7 +78,7 @@ class UpdateEventStatus extends Command
         if ($eventsToStart->contains('id', 15)) {
             Log::info("Enviando correos de proyectos para evento 15");
 
-            $eventos = Eventos::where('estado', '!=', 'Cerrado')
+            $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
                 ->whereHas('evento_hijo', function ($query) {
 
                     $query->where('id_evento_padre', 15);
