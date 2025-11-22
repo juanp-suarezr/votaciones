@@ -93,8 +93,8 @@ class ProyectosController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'detalle' => 'required|string|max:400',
-            'descripcion' => 'required|string|max:500',
+            'detalle' => 'required|string|max:500',
+            'descripcion' => 'required|string|max:600',
             'tipo' => 'required',
             'subtipo' => 'required',
             'numero_tarjeton' => 'required',
