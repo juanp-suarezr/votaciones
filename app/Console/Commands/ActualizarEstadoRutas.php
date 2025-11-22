@@ -41,22 +41,28 @@ class ActualizarEstadoRutas extends Command
         // Busca los eventos con fecha de inicio faltando 3 dias para empezar y estado pendiente
         $eventsToStart = Eventos::whereDate('fecha_inicio', $DiasLater->toDateString())
             ->where('estado', 'Pendiente')
+            ->where('aviso_inicio_enviado', 0)
             ->get();
 
-            $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
+
+        $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
             ->where('estado', 1)
             ->pluck('id')
             ->toArray();
 
-            // Obtener los votantes asociados al evento con id 15 para notificar inicio de votaciones
+        // Obtener los votantes asociados al evento con id 15 para notificar inicio de votaciones
         $votantes = Hash_votantes::where('id_evento', 15)
             ->with('votante')
             ->where('estado', 'Activo') // Solo los activos
             ->get();
 
-            //si de eventos proximos a empezar esta el evento de id 15
+        //si de eventos proximos a empezar esta el evento de id 15
         if ($eventsToStart->contains('id', 15)) {
             Log::info("Enviando correos de proyectos para evento 15");
+
+            $evento15 = Eventos::find(15);
+            $evento15->aviso_inicio_enviado = 1;
+            $evento15->save();
 
             $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
                 ->whereHas('evento_hijo', function ($query) {
@@ -65,6 +71,8 @@ class ActualizarEstadoRutas extends Command
                 })
                 ->with('hash_proyectos.proyecto')
                 ->get();
+
+
 
 
             foreach ($eventos as $event) {
@@ -117,7 +125,6 @@ class ActualizarEstadoRutas extends Command
             }
 
             if ($ruta->path === 'register' && $ahora->greaterThanOrEqualTo($ruta->fecha_fin)) {
-
             }
 
             $ruta->save();

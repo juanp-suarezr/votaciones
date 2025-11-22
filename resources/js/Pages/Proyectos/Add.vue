@@ -370,9 +370,11 @@ const removeImage = () => {
 };
 
 const submit = () => {
-    console.log(form);
+
 
   form.subtipo = form.subtipo.id;
+  form.tipo_proyecto = form.tipo_proyecto.id;
+  console.log(form.tipo_proyecto);
 
   form.post(route("proyectos.store"), {
     onSuccess: function () {
