@@ -198,10 +198,10 @@ class ValidacionesController extends Controller
         if ($request->id_votante) {
 
             $info = Informacion_votantes::with([
-                    'hashVotantes' => function ($query) {
-                        $query->where('subtipo', '!=', 0);
-                    }
-                ])
+                'hashVotantes' => function ($query) {
+                    $query->where('subtipo', '!=', 0);
+                }
+            ])
                 ->findOrFail($request->id_votante);
         }
 
@@ -303,37 +303,44 @@ class ValidacionesController extends Controller
     {
         $user = Auth::user();
 
-
         $votantes = Hash_votantes::query()
             ->where('id_evento', 15)
             ->when(RequestFacade::input('subtipo'), function ($query) {
                 $subtipo = RequestFacade::input('subtipo.value');
                 $query->where('subtipo', 'like', $subtipo);
+            })->when(RequestFacade::input('nombre'), function ($query) {
+                $nombre = RequestFacade::input('nombre');
+                if (is_numeric($nombre)) {
+                        $query->where('id', (int) $nombre);
+                    }
             })->whereHas('votante', function ($query) use ($user) {
 
                 $identificacion = RequestFacade::input('identificacion');
                 $nombre = RequestFacade::input('nombre');
                 $estado = RequestFacade::input('estado');
 
-                $query->where('id_user', '!=', null);
 
                 if ($identificacion) {
                     $query->where('identificacion', $identificacion);
                 }
 
-                if (is_numeric($nombre)) {
-                    $query->where('id', (int) $nombre);
-                } else {
-                    $query->where('nombre', 'like', '%' . $nombre . '%');
+                if ($nombre) {
+                    if (!is_numeric($nombre)) {
+                        $query->where('nombre', 'like', '%' . $nombre . '%');
+                    }
                 }
 
                 if ($estado) {
                     $query->where('estado', $estado);
                 } else {
-                    $query->where('estado', 'Activo')
-                        ->orWhere('estado', 'Rechazado')
-                        ->orWhere('estado', 'Bloqueado');
+                    $query->where(function ($q) {
+                        $q->where('estado', 'Activo')
+                            ->orWhere('estado', 'Rechazado')
+                            ->orWhere('estado', 'Bloqueado');
+                    });
                 }
+
+                $query->where('id_user', '!=', null);
             })
             ->with('votante.user.biometrico', 'evento')
 

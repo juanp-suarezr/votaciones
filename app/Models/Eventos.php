@@ -27,6 +27,7 @@ class Eventos extends Model
         'fecha_inicio',
         'fecha_fin',
         'estado',
+        'aviso_inicio_enviado',
 
     ];
 

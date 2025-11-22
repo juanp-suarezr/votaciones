@@ -506,7 +506,7 @@ const enviarSolicitud = () => {
               comunidad de forma más segura y moderna.
               <br />
               <i
-                >Tienes plazo para inscribirte del 1 de octubre al 19 de
+                >Tienes plazo para inscribirte del 1 de octubre al 27 de
                 noviembre</i
               >
             </p>

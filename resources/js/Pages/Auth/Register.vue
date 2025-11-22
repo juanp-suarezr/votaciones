@@ -1187,27 +1187,38 @@ const registerAndValidate = async () => {
         loadingModal.value = false;
         swal.close();
         if (response.data.match) {
-          swal
-            .fire({
-              title: "Error en validación",
-              text: "Usted ya tiene un registro biométrico. Si está seguro que no se ha registrado, puede volver a intentarlo o continuar (probabilidad de rechazo).",
-              icon: "error",
-              showCancelButton: true,
-              cancelButtonText: "Volver a intentar",
-              confirmButtonText: "Continuar",
-            })
-            .then((result) => {
-              if (result.isConfirmed) {
-                // Continuar sin validar
+            swal({
+            title: "Validación exitosa",
+            text: "Validación biométrica exitosa",
+            icon: "success",
+            didClose: () => {
                 form.validaciones = "registro_duplicado";
-                biometricoModal.value = false;
-                submit();
-                //poner llamado a modal de botones
-              } else if (result.dismiss === swal.DismissReason.cancel) {
-                // Volver a intentar
-                console.log("Usuario decide volver a intentar");
-              }
-            });
+              //poner llamado a modal de botones
+              biometricoModal.value = false;
+              submit();
+            },
+          });
+        //   swal
+        //     .fire({
+        //       title: "Validación",
+        //       text: "Usted ya tiene un registro biométrico. Si está seguro que no se ha registrado, puede volver a intentarlo o continuar (probabilidad de rechazo).",
+        //       icon: "warning",
+        //       showCancelButton: true,
+        //       cancelButtonText: "Volver a intentar",
+        //       confirmButtonText: "Continuar",
+        //     })
+        //     .then((result) => {
+        //       if (result.isConfirmed) {
+        //         // Continuar sin validar
+        //         form.validaciones = "registro_duplicado";
+        //         biometricoModal.value = false;
+        //         submit();
+        //         //poner llamado a modal de botones
+        //       } else if (result.dismiss === swal.DismissReason.cancel) {
+        //         // Volver a intentar
+        //         console.log("Usuario decide volver a intentar");
+        //       }
+        //     });
         } else {
           swal({
             title: "Validación exitosa",

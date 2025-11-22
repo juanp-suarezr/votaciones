@@ -6,10 +6,11 @@
 
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
       <div class="p-6 border-b border-gray-200">
-        <h1 class="sm:text-xl text-lg font-bold">Proceso de votación presencial física - {{ eventos_hijos_vigentes[0].nombre }}</h1>
-        <p class="mt-2">
-            {{ faltan_actas }} actas por enviar
-        </p>
+        <h1 class="sm:text-xl text-lg font-bold">
+          Proceso de votación presencial física -
+          {{ eventos_hijos_vigentes[0].nombre }}
+        </h1>
+        <p class="mt-2">{{ faltan_actas }} actas por enviar</p>
       </div>
 
       <!-- contenido en grid -->
@@ -202,18 +203,6 @@
             <div class="w-full">
               <h2>Registro de votos</h2>
             </div>
-            <!-- votos nulos -->
-            <div class="mb-2 w-1/4">
-              <InputLabel for="votos_nulos" value="Votos nulos" />
-              <TextInput
-                id="votos_nulos"
-                v-model="form.votos_nulos"
-                class="mt-1 block w-full"
-                type="number"
-                required
-              />
-              <InputError :message="form.errors.votos_nulos" class="mt-2" />
-            </div>
             <!-- votos blancos -->
             <div class="mb-2 w-1/4">
               <InputLabel for="votos_blancos" value="Votos blancos" />
@@ -241,9 +230,24 @@
                 class="mt-2"
               />
             </div>
+            <!-- votos nulos -->
+            <div class="mb-2 w-1/4">
+              <InputLabel for="votos_nulos" value="Votos nulos" />
+              <TextInput
+                id="votos_nulos"
+                v-model="form.votos_nulos"
+                class="mt-1 block w-full"
+                type="number"
+                required
+              />
+              <InputError :message="form.errors.votos_nulos" class="mt-2" />
+            </div>
+
             <!-- bucle for para proyectos -->
             <div
-              v-for="proyecto in proyectosPorEvento(eventos_hijos_vigentes[0].id)"
+              v-for="proyecto in proyectosPorEvento(
+                eventos_hijos_vigentes[0].id
+              )"
               :key="proyecto.id"
               class="mb-2 w-full"
             >
@@ -264,17 +268,14 @@
                 required
               />
               <InputError
-                :message="
-                  form.errors['votos_proyectos.' + proyecto.id]
-                "
+                :message="form.errors['votos_proyectos.' + proyecto.id]"
                 class="mt-2"
               />
             </div>
             <!-- total votantes -->
             <div class="mb-2 w-1/4">
               <InputLabel for="total_votos" value="Total votantes" />
-              <b class="">{{form.total_votantes}}</b>
-
+              <b class="">{{ form.total_votantes }}</b>
             </div>
           </div>
         </div>
@@ -313,7 +314,7 @@ const props = defineProps({
   puesto_votacion: Number,
   id_jurado: Number,
   eventos_hijos_vigentes: Object,
-  actas_enviadas :Object,
+  actas_enviadas: Object,
   faltan_actas: Number,
 });
 
@@ -345,7 +346,6 @@ const form = useForm({
 const imageUrl = ref(null);
 //max palabras
 const isMaxPalabras = ref(false);
-
 
 // Limite palabras
 const palabrasEnTestimonio = computed(() => {
@@ -389,11 +389,11 @@ watch(
 );
 
 // Asignar proyectos al evento actual
-const proyectosPorEvento = id_evento => {
-    console.log(id_evento);
+const proyectosPorEvento = (id_evento) => {
+  console.log(id_evento);
 
-    return props.proyectos[id_evento] || [];
-}
+  return props.proyectos[id_evento] || [];
+};
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -516,11 +516,11 @@ const submit = () => {
     },
     onError: (errors) => {
       console.error(errors);
-        swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Hubo un error al enviar el formulario. Por favor, verifica los datos e intenta nuevamente.",
-        });
+      swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un error al enviar el formulario. Por favor, verifica los datos e intenta nuevamente.",
+      });
     },
   });
 };

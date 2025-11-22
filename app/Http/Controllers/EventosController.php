@@ -134,6 +134,14 @@ class EventosController extends Controller
         $eventos->tipos = $request->tipos;
         $eventos->evento_padre = $request->is_evento_padre;
 
+        //para detectar cuando es diferente a pendiente
+        if ($eventos->estado != 'Pendiente' && $request->estado == 'Pendiente') {
+
+            // El estado ha cambiado a Pendiente, setear aviso_inicio_enviado a 0
+            $eventos = Eventos::find(15);
+            $eventos->aviso_inicio_enviado = 0;
+        }
+
         //para detectar cuando no este activo y cambia de estado a activo
         if ($eventos->estado != 'Activo' && $request->estado == 'Activo') {
 
@@ -158,7 +166,6 @@ class EventosController extends Controller
             $acta_fin->comunas = implode('|', $comunas_activas); // IDs separados por |
             $acta_fin->puesto_votacion = null; // Asigna el puesto de votación si es necesario
             $acta_fin->save();
-
         }
 
 

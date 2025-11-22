@@ -22,6 +22,7 @@ class ParametrosDetalle extends Model
         'codParametro',
         'detalle',
         'estado',
+        'habilitada',
 
     ];
 

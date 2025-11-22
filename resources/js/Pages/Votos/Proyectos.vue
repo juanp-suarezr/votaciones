@@ -2,7 +2,13 @@
   <Head title="Votaciones" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
-    <template #header> {{ $page.props.auth.user.email == 'ppt' ? 'Elecciones Presupuesto Participativo' : 'Votaciones'}} </template>
+    <template #header>
+      {{
+        $page.props.auth.user.email == "ppt"
+          ? "Elecciones Presupuesto Participativo"
+          : "Votaciones"
+      }}
+    </template>
 
     <div class="items-center flex flex-col justify-center mx-2">
       <div class="sm:flex w-full sm:grid md:grid-cols-2 grid-cols-2 gap-4 mt-6">
@@ -141,6 +147,15 @@
         <h2 class="sm:text-4xl text-xl font-bold mb-4 text-center">
           Detalle del Proyecto
         </h2>
+        <!-- Botón lector por voz -->
+        <div class="flex justify-end pr-6 pt-2">
+          <button
+            @click="leerAviso2(modalProyecto)"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
+          >
+            🔊 Escuchar
+          </button>
+        </div>
         <p class="mb-4 text-base sm:text-2xl">
           {{ modalProyecto.proyecto.detalle }}
         </p>
@@ -167,6 +182,15 @@
         >
           🗳️ Confirmar voto
         </h2>
+        <!-- Botón lector por voz -->
+        <div class="flex justify-end pr-6 pt-2">
+          <button
+            @click="leerAviso1(selectedProject)"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
+          >
+            🔊 Escuchar
+          </button>
+        </div>
         <p class="mb-4 text-base sm:text-4xl">
           <span class="text-lg sm:text-5xl font-bold"
             >Está a punto de votar por el siguiente proyecto:</span
@@ -176,7 +200,9 @@
           <div class="w-auto border-r pr-2 border-gray-600">
             <span class="text-gray-600">Número Proyecto:</span>
             {{
-              selectedProject ? selectedProject.proyecto.numero_tarjeton : "Elecciones presupuesto participativo 2025"
+              selectedProject
+                ? selectedProject.proyecto.numero_tarjeton
+                : "Elecciones presupuesto participativo 2025"
             }}
           </div>
           <div class="w-auto pr-2">
@@ -217,22 +243,108 @@
     <!-- Modal inicio -->
     <Modal :show="InicioModal" :closeable="true">
       <template #default>
+        <!-- Título -->
         <h2
-          class="p-4 sm:text-4xl text-2x font-bold text-gray-800 flex text-center justify-center bg-azul text-white"
+          class="p-4 sm:text-4xl text-2xl font-bold flex justify-center text-center bg-azul text-white"
         >
           Aviso Importante para el proceso de votación
         </h2>
 
-        <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
+        <!-- Botón lector por voz -->
+        <div class="flex justify-end pr-6 pt-4">
+          <button
+            @click="leerAviso()"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-lg sm:text-xl shadow-md"
+          >
+            🔊 Escuchar
+          </button>
+        </div>
+
+        <!-- Mensaje principal -->
+        <div class="text-justify sm:text-2xl text-xl p-6 leading-relaxed">
           <p>
-            Revise bien su elección antes de votar, ya que no se permitirá una segunda oportunidad para realizar esta acción.
+            Revise bien su elección antes de votar, ya que no se permitirá una
+            segunda oportunidad para realizar esta acción.
           </p>
         </div>
 
-        <div class="flex justify-center gap-4 text-center h-full my-6">
+        <!-- Listado accesible con scroll -->
+        <div class="px-6 mt-4">
+          <h3 class="text-2xl sm:text-3xl font-semibold mb-4 text-gray-800">
+            Proyectos Disponibles
+          </h3>
+
+          <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
+            <ul class="space-y-4">
+              <li
+                v-for="pro in proyectos"
+                :key="pro.id"
+                class="p-4 rounded-xl shadow-md bg-gray-50 border border-gray-200"
+              >
+                <div class="flex flex-col gap-2">
+                  <h4
+                    class="font-bold text-xl sm:text-2xl text-blue-900 flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-7 h-7 sm:w-8 sm:h-8 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8zm0 10c-3.314 0-6-2.463-6-5.5S8.686 7 12 7s6 2.463 6 5.5S15.314 18 12 18z"
+                      />
+                    </svg>
+
+                    {{ pro.nombre }}
+                  </h4>
+
+                  <p class="text-lg sm:text-xl text-gray-700 leading-relaxed">
+                    {{ pro.proyecto.detalle }}
+                  </p>
+                </div>
+              </li>
+              <li
+                class="p-4 rounded-xl shadow-md bg-gray-50 border border-gray-200"
+              >
+                <div class="flex flex-col gap-2">
+                  <h4
+                    class="font-bold text-xl sm:text-2xl text-blue-900 flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-7 h-7 sm:w-8 sm:h-8 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8zm0 10c-3.314 0-6-2.463-6-5.5S8.686 7 12 7s6 2.463 6 5.5S15.314 18 12 18z"
+                      />
+                    </svg>
+                  </h4>
+
+                  <p class="text-lg sm:text-xl text-gray-700 leading-relaxed">
+                    VOTO EN BLANCO
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Botón continuar -->
+        <div class="flex justify-center gap-4 text-center h-full my-8">
           <PrimaryButton
             type="button"
-            class="h-full text-xl sm:text-2xl"
+            class="h-full text-xl sm:text-2xl px-8 py-3"
             @click="InicioModal = false"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"
@@ -261,7 +373,7 @@ import Modal from "@/Components/Modal.vue";
 const props = defineProps({
   proyectos: Object,
   votante: Object,
-  last_vote: Number
+  last_vote: Number,
 });
 
 console.log(props);
@@ -274,7 +386,7 @@ const form = useForm({
   tipo: "",
   subtipo: 0,
   estado: "Activo",
-  last_vote: props.last_vote ? parseInt(props.last_vote): 0,
+  last_vote: props.last_vote ? parseInt(props.last_vote) : 0,
 });
 
 const breadcrumbLinks = [{ url: "", text: "Votaciones" }];
@@ -353,15 +465,30 @@ const proyecto = (proyecto) => {
 
 const votar = () => {
   form.post(route("votos.store"), {
-    onSuccess: () =>
+    onSuccess: () => {
       swal({
         title: "Voto registrado exitosamente",
         text: "Su voto ha sido registrado",
         icon: "success",
-      }).then((result) => {
+        buttons: false, // Oculta botones
+        closeOnClickOutside: false,
+        closeOnEsc: false,
+      });
 
-        router.get("dashboard");
-      }),
+      // Mostrar el botón OK después de un delay
+      setTimeout(() => {
+        swal({
+          title: "Voto registrado exitosamente",
+          text: "Su voto ha sido registrado",
+          icon: "success",
+          buttons: {
+            confirm: "OK",
+          },
+        }).then(() => {
+          router.get("dashboard");
+        });
+      }, 3000); // 2 segundos
+    },
     onError: () =>
       swal({
         title: "Error en el registro",
@@ -369,5 +496,80 @@ const votar = () => {
         icon: "error",
       }),
   });
+};
+
+const leerTexto = (texto) => {
+  // Cancelar si ya está leyendo algo
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(texto);
+  speech.lang = "es-CO"; // Español Colombia
+  speech.rate = 1; // Velocidad natural
+  speech.pitch = 1; // Tono
+
+  window.speechSynthesis.speak(speech);
+};
+
+//lector de voz para aviso inicial
+const leerAviso = () => {
+  let texto =
+    "Aviso importante para el proceso de votación. " +
+    "Revise bien su elección antes de votar, ya que no se permitirá una segunda oportunidad. " +
+    "Proyectos disponibles: ";
+
+  props.proyectos.forEach((pro, index) => {
+    texto += `. Proyecto: ${index + 1}. ${pro.proyecto.detalle}. `;
+  });
+
+  leerTexto(texto);
+};
+
+/* ===========================================
+   🔊 lector de voz para confirmar voto
+   =========================================== */
+const leerAviso1 = (selectedProject) => {
+  let texto = "Confirmación de voto. ";
+
+  if (selectedProject) {
+    texto +=
+      "Está a punto de votar por el siguiente proyecto: " +
+      "Número del proyecto: " +
+      selectedProject.proyecto.numero_tarjeton +
+      ". " +
+      "Comuna o Corregimiento: " +
+      getComuna(selectedProject.proyecto.subtipo) +
+      ". " +
+      "Nombre del proyecto: " +
+      selectedProject.proyecto.detalle +
+      ". ";
+  } else {
+    // Caso VOTO EN BLANCO
+    const primerProyecto = props.proyectos[0];
+
+    texto +=
+      "Está a punto de emitir un voto en blanco para las elecciones de presupuesto participativo 2025. " +
+      "Comuna o Corregimiento: " +
+      getComuna(primerProyecto.proyecto.subtipo) +
+      ". " +
+      "Voto en blanco. ";
+  }
+
+  leerTexto(texto);
+};
+
+/* ===========================================
+   🔊 lector de voz para detalle del proyecto
+   =========================================== */
+const leerAviso2 = (modalProyecto) => {
+  let texto =
+    "Detalle del proyecto. " +
+    "Nombre del proyecto: " +
+    modalProyecto.proyecto.detalle +
+    ". " +
+    "Descripción: " +
+    modalProyecto.proyecto.descripcion +
+    ". ";
+
+  leerTexto(texto);
 };
 </script>

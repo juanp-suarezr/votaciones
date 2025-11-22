@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\AnomaliasMail;
 use App\Mail\CertificadosMail;
 use App\Mail\InfoEventosMail;
+use App\Mail\ProyectosMail;
 use App\Models\Acta_escrutino;
 use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
@@ -30,6 +32,10 @@ class UpdateEventStatus extends Command
     public function handle()
     {
         $now = Carbon::now();
+        
+
+
+
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
         $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
@@ -64,6 +70,7 @@ class UpdateEventStatus extends Command
         $votantes1 = Hash_votantes::where('id_evento', 15)
             ->with('votante.votos')
             ->get();
+
 
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {

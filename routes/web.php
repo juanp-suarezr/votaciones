@@ -135,7 +135,7 @@ Route::get('/welcome', function () {
             ->whereRaw("LOWER(tipos) LIKE ?", ['%presupuesto participativo%'])
             ->exists(),
         'comunas' => ParametrosDetalle::where('codParametro', 'com01')
-            ->where('estado', 1)
+            ->where('habilitada', 1)
             ->get(),
     ]);
 })->name('welcome');

@@ -19,7 +19,7 @@
         <form @submit.prevent="submit" class="grid sm:grid-cols-2 gap-4">
           <!-- nombre -->
           <div class="mb-2">
-            <InputLabel for="nombre" value="Nombre del proyecto" />
+            <InputLabel for="nombre" value="Nombre del proyecto (max 400 caracteres)" />
             <TextInput
               id="nombre"
               type="text"
@@ -48,7 +48,7 @@
           <!-- descripción -->
           <div class="col-span-2 mb-2">
             <p class="text-gray-600 text-sm">
-              Información adicional sobre el evento (max 500 caracteres)
+              Información adicional sobre el evento (max 600 caracteres)
             </p>
             <Textarea
               v-model="form.descripcion"
@@ -329,7 +329,7 @@ const palabrasEnTestimonio = computed(() => {
     const palabras = form.descripcion.trim();
     const result = palabras.length;
 
-    if (result >= 500) {
+    if (result >= 600) {
         isMaxPalabras.value = true;
     } else {
         isMaxPalabras.value = false;
@@ -370,10 +370,11 @@ const removeImage = () => {
 };
 
 const submit = () => {
-    console.log(form);
+
 
   form.subtipo = form.subtipo.id;
   form.tipo_proyecto = form.tipo_proyecto.id;
+  console.log(form.tipo_proyecto);
 
   form.post(route("proyectos.store"), {
     onSuccess: function () {
