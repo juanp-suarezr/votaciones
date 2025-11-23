@@ -550,7 +550,7 @@ const enviarSolicitud = () => {
                 {{ comuna.detalle }}
               </h2>
               <p class="text-sm text-gray-600 italic">
-                Zona de participación ciudadana
+                {{ comuna.en_inscripcion ? "Votación del 8 al 14 de diciembre" : "Votación del 24 al 30 de noviembre" }}
               </p>
             </div>
           </div>
