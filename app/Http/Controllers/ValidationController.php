@@ -420,7 +420,7 @@ class ValidationController extends Controller
             [
                 'votante' => $votante,
                 'comunas' => ParametrosDetalle::where('codParametro', 'com01')
-                    ->where('estado', 1)
+                    ->where('en_inscripcion', 1)
                     ->get(),
             ]
         );
