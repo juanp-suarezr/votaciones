@@ -30,6 +30,7 @@ class RegisteredUserController extends Controller
             'Auth/Register',
             [
                 'comunas' => ParametrosDetalle::where('codParametro', 'com01')
+                ->where('en_inscripcion', 1)
                     ->get(),
             ]
         );

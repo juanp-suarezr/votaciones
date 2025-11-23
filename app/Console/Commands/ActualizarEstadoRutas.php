@@ -57,36 +57,36 @@ class ActualizarEstadoRutas extends Command
             ->get();
 
         //si de eventos proximos a empezar esta el evento de id 15
-        if ($eventsToStart->contains('id', 15)) {
-            Log::info("Enviando correos de proyectos para evento 15");
+        // if ($eventsToStart->contains('id', 15)) {
+        //     Log::info("Enviando correos de proyectos para evento 15");
 
-            $evento15 = Eventos::find(15);
-            $evento15->aviso_inicio_enviado = 1;
-            $evento15->save();
+        //     $evento15 = Eventos::find(15);
+        //     $evento15->aviso_inicio_enviado = 1;
+        //     $evento15->save();
 
-            $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
-                ->whereHas('evento_hijo', function ($query) {
+        //     $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
+        //         ->whereHas('evento_hijo', function ($query) {
 
-                    $query->where('id_evento_padre', 15);
-                })
-                ->with('hash_proyectos.proyecto')
-                ->get();
-
-
+        //             $query->where('id_evento_padre', 15);
+        //         })
+        //         ->with('hash_proyectos.proyecto')
+        //         ->get();
 
 
-            foreach ($eventos as $event) {
-                foreach ($votantes as $votante) {
-                    if (!in_array($votante->subtipo, $comunas_activas)) {
-                        continue; // Si no está, salta al siguiente votante
-                    }
-                    Log::info("Enviando correo a: " . $votante->votante->email);
-                    if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                        Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
-                    }
-                }
-            }
-        }
+
+
+        //     foreach ($eventos as $event) {
+        //         foreach ($votantes as $votante) {
+        //             if (!in_array($votante->subtipo, $comunas_activas)) {
+        //                 continue; // Si no está, salta al siguiente votante
+        //             }
+        //             Log::info("Enviando correo a: " . $votante->votante->email);
+        //             if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+        //                 Mail::to($votante->votante->email)->send(new ProyectosMail($votante, $event));
+        //             }
+        //         }
+        //     }
+        // }
 
 
         $rutas = RutasVotaciones::all();

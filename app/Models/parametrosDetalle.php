@@ -23,6 +23,7 @@ class ParametrosDetalle extends Model
         'detalle',
         'estado',
         'habilitada',
+        'en_inscripcion',
 
     ];
 
