@@ -508,12 +508,11 @@ class AnalisisPresupuestoController extends Controller
             ->with(['evento_hijo.evento_padre.votantes' => function ($query) use ($request) {
                 $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
                     ->where(function ($q) {
-                        $q->where('estado', 'Activo')
-                            ->orWhere('validaciones', 'voto presencial - virtual');
+                        $q->where('estado', 'Activo');
                     });
             }])
             ->first();
-            
+
 
         //suma total de ciudadanos
         $total_registros_virtuales = $evento->evento_hijo[0]->evento_padre->votantes->count();
