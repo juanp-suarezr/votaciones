@@ -513,11 +513,11 @@ class AnalisisPresupuestoController extends Controller
                     });
             }])
             ->first();
-            dd($evento);
+            dd($evento->evento_hijo[0]->evento_padre->votantes->count());
 
 
         //suma total de ciudadanos
-        $total_registros_virtuales = $evento->votantes_count;
+        $total_registros_virtuales = $evento->evento_hijo[0]->evento_padre->votantes->count();
 
         $resumen_puestos = [];
         $total_registros_fisicos = 0;
