@@ -505,7 +505,7 @@ class AnalisisPresupuestoController extends Controller
 
         //evento para determinar total registros virtuales y tic
         $evento = Eventos::where('id', $request->id_evento)
-            ->withCount(['padre.votantes' => function ($query) use ($request) {
+            ->withCount(['evento_hijo_unico.evento_padre.votantes' => function ($query) use ($request) {
                 $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
                     ->where(function ($q) {
                         $q->where('estado', 'Activo')

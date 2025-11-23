@@ -59,6 +59,11 @@ class Eventos extends Model
         return $this->hasMany(Hash_eventos_hijos::class, 'id_evento_hijo', 'id');
     }
 
+    public function evento_hijo_unico()
+    {
+        return $this->hasOne(Hash_eventos_hijos::class, 'id_evento_hijo', 'id');
+    }
+
     // Relación uno a muchos con Hash_eventos_hijos (para traerse los eventos hijos del padre)
     public function eventos_hijos()
     {
