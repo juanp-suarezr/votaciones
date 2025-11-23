@@ -410,7 +410,7 @@ class AnalisisPresupuestoController extends Controller
         // Inicializar resultados con los proyectos
         foreach ($proyectos as $proyecto) {
 
-            $total_votantes_virtual += $proyecto->evento->evento_hijo->evento_padre->votantes->count();
+            $total_votantes_virtual += $proyecto->evento->evento_hijo[0]->evento_padre->votantes->count();
 
             $resultados[$proyecto->id_proyecto] = [
                 'id_proyecto' => $proyecto->id_proyecto,

@@ -223,7 +223,7 @@ const Submit = () => {
           {{ total_votos_fisicos }}
         </p>
         <!-- contenido graficas y tabla resultados -->
-        <div class="sm:grid sm:grid-cols-2 sm:gap-4 mt-6">
+        <div class="mt-6">
           <!-- graficas -->
           <div class="w-full mt-6">
             <!-- pie chart -->
