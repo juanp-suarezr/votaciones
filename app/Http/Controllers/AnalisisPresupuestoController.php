@@ -407,10 +407,13 @@ class AnalisisPresupuestoController extends Controller
         // 4. Agrupar y sumar votos por proyecto
         $resultados = [];
 
+        //total votantes virtuales habilitados
+        $total_votantes_virtual = $proyectos[0]->evento->evento_hijo[0]->evento_padre->votantes->count();
+
         // Inicializar resultados con los proyectos
         foreach ($proyectos as $proyecto) {
 
-            $total_votantes_virtual += $proyecto->evento->evento_hijo[0]->evento_padre->votantes->count();
+
 
             $resultados[$proyecto->id_proyecto] = [
                 'id_proyecto' => $proyecto->id_proyecto,
@@ -508,7 +511,8 @@ class AnalisisPresupuestoController extends Controller
             ->with(['evento_hijo.evento_padre.votantes' => function ($query) use ($request) {
                 $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
                     ->where(function ($q) {
-                        $q->where('estado', 'Activo');
+                        $q->where('estado', 'Activo')
+                            ->orWhere('validaciones', 'voto presencial - virtual');
                     });
             }])
             ->first();
