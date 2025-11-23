@@ -513,6 +513,7 @@ class AnalisisPresupuestoController extends Controller
                     });
             }])
             ->first();
+            dd($evento);
 
 
         //suma total de ciudadanos
