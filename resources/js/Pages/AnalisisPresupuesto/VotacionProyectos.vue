@@ -237,12 +237,12 @@ const Submit = () => {
           </div> -->
 
             <!-- bar chart -->
-            <div class="w-full h-full sm:h-72 mt-4">
+            <div class="w-full h-full mt-4">
               <Chart
                 type="bar"
                 :data="chartDataBar"
                 :options="chartOptionsBar"
-                class="h-full w-full mt-4"
+                class="w-full mt-4"
               />
             </div>
           </div>
