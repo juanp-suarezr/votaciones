@@ -164,14 +164,23 @@ class UpdateEventStatus extends Command
                 return $evento->hash_proyectos->isNotEmpty();
             });
 
+            $this->info($evento_h);
+
 
             # code...
-            foreach ($votantes as $votante) {
-                if (!in_array($votante->subtipo, $comunas_activas)) {
-                    continue; // Si no está, salta al siguiente votante
-                }
-                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
+            // foreach ($votantes as $votante) {
+            //     if (!in_array($votante->subtipo, $comunas_activas)) {
+            //         continue; // Si no está, salta al siguiente votante
+            //     }
+            //     if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+            //         Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
+            //     }
+            // }
+
+            if (in_array($votantes[0]->subtipo, $comunas_activas)) {
+
+                if ($votantes[0]->votante->email !== null && $votantes[0]->votante->email !== '' && $votantes[0]->votante->email !== 'NA') {
+                    Mail::to($votantes[0]->votante->email)->send(new InfoEventosMail($votantes[0], $evento_h));
                 }
             }
         }

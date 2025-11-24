@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Eventos;
 use App\Models\Hash_votantes;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -20,7 +21,7 @@ class InfoEventosMail extends Mailable
      * @param Hash_votantes $votante
      * @param mixed $eventos (array|Collection)
      */
-    public function __construct(Hash_votantes $votante, $eventos)
+    public function __construct(Hash_votantes $votante, Eventos $eventos)
     {
         $this->votante = $votante;
         $this->eventos = collect($eventos);
@@ -31,6 +32,8 @@ class InfoEventosMail extends Mailable
         foreach ($this->eventos as $evento) {
 
             $proyectos = [];
+
+            
 
             foreach ($evento->hash_proyectos as $hash) {
 
