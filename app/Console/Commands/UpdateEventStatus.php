@@ -38,10 +38,17 @@ class UpdateEventStatus extends Command
 
 
         // Busca los eventos con fecha de inicio pasada y estado pendiente
-        $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
+        $eventsToUpdate = Eventos::with([
+            'eventos_hijos' => function ($q) {
+                $q->with([
+                    'eventos.hash_proyectos.proyecto'
+                ]);
+            }
+        ])
+            ->where('fecha_inicio', '<=', $now)
             ->where('estado', 'Pendiente')
-            ->with('eventos_hijos.eventos.hash_proyectos.proyecto')
             ->get();
+
 
 
         $eventsToClose = Eventos::where('fecha_fin', '<=', $now)
