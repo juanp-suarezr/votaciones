@@ -160,7 +160,10 @@ class UpdateEventStatus extends Command
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {
 
-            $evento_h = $eventsToUpdate->whereHas('hash_proyectos')->get();
+            $evento_h = $eventsToUpdate->filter(function ($evento) {
+                return $evento->hash_proyectos->isNotEmpty();
+            });
+
 
             # code...
             foreach ($votantes as $votante) {
