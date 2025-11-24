@@ -174,7 +174,7 @@ class UpdateEventStatus extends Command
                 }
                 if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
                     Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
-                    break;
+                    
                 }
             }
 
