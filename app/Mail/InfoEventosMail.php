@@ -38,34 +38,37 @@ class InfoEventosMail extends Mailable
         $proyectos_por_evento = [];
 
         foreach ($this->eventos as $evento) {
-            $proyectos = [];
 
-            foreach ($evento->eventos_hijos as $hijos) {
-                Log::info('Evento hijo ID: ' . $hijos->id);
+            foreach ($evento->eventos_hijos as $hijoHash) {
 
-                if (isset($hijos->eventos) && isset($evento->hash_proyectos)) {
+                $eventoHijo = $hijoHash->eventos;
 
-                    foreach ($hijos->eventos->hash_proyectos as $hash) {
-                        Log::info('Revisando proyecto para evento hijo ID ' . $hijos->id);
-                        if (
-                            isset($hash->proyecto) && isset($hash->proyecto->subtipo)
-                            && isset($this->votante->subtipo)
-                            && (string)$hash->proyecto->subtipo === (string)$this->votante->subtipo
-                        ) {
-                            Log::info('Agregando proyecto ID ' . $hash->proyecto->id . ' para votante ID ' . $this->votante->id);
-                            $proyectos[] = $hash->proyecto;
-                            Log::info('Proyecto agregado.');
-                        }
+                if (!$eventoHijo || $eventoHijo->estado !== 'Activo') {
+                    continue;
+                }
+
+                $proyectos = [];
+
+                foreach ($eventoHijo->hash_proyectos as $hash) {
+
+                    if (
+                        $hash->proyecto &&
+                        $this->votante->subtipo &&
+                        (string)$hash->proyecto->subtipo === (string)$this->votante->subtipo
+                    ) {
+                        $proyectos[] = $hash->proyecto;
                     }
-                    if (!empty($proyectos)) {
-                        $proyectos_por_evento[] = [
-                            'evento' => $hijos->eventos,
-                            'proyectos' => $proyectos,
-                        ];
-                    }
+                }
+
+                if (!empty($proyectos)) {
+                    $proyectos_por_evento[] = [
+                        'evento' => $eventoHijo,
+                        'proyectos' => $proyectos,
+                    ];
                 }
             }
         }
+
 
         return $this
             ->subject('Inicio de votaciones / Proyectos disponibles')
