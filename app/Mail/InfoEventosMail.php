@@ -39,28 +39,34 @@ class InfoEventosMail extends Mailable
         foreach ($this->eventos as $evento) {
             $proyectos = [];
 
-            Log::info('hash_proyectos del evento ID ' . $evento->id . ': ' . ($evento->hash_proyectos ? $evento->hash_proyectos->count() : '0'));   
+            foreach ($evento->eventos_hijos as $hijos) {
+                Log::info('Evento hijo ID: ' . $hijos->id);
 
-            if (isset($evento->hash_proyectos) && is_iterable($evento->hash_proyectos)) {
-                foreach ($evento->hash_proyectos as $hash) {
-                    Log::info('Revisando proyecto para evento ID ' . $evento->id);
-                    if (isset($hash->proyecto) && isset($hash->proyecto->subtipo)
-                        && isset($this->votante->subtipo)
-                        && (string)$hash->proyecto->subtipo === (string)$this->votante->subtipo
-                    ) {
-                        Log::info('Agregando proyecto ID ' . $hash->proyecto->id . ' para votante ID ' . $this->votante->id);
-                        $proyectos[] = $hash->proyecto;
-                        Log::info('Proyecto agregado.');
+                if (isset($hijos->eventos) && isset($evento->hash_proyectos)) {
+
+                    foreach ($hijos->eventos->hash_proyectos as $hash) {
+                        Log::info('Revisando proyecto para evento hijo ID ' . $hijos->id);
+                        if (
+                            isset($hash->proyecto) && isset($hash->proyecto->subtipo)
+                            && isset($this->votante->subtipo)
+                            && (string)$hash->proyecto->subtipo === (string)$this->votante->subtipo
+                        ) {
+                            Log::info('Agregando proyecto ID ' . $hash->proyecto->id . ' para votante ID ' . $this->votante->id);
+                            $proyectos[] = $hash->proyecto;
+                            Log::info('Proyecto agregado.');
+                        }
+
+                        if (!empty($proyectos)) {
+                            $proyectos_por_evento[] = [
+                                'evento' => $hijos->eventos,
+                                'proyectos' => $proyectos,
+                            ];
+                        }
                     }
                 }
             }
 
-            if (!empty($proyectos)) {
-                $proyectos_por_evento[] = [
-                    'evento' => $evento,
-                    'proyectos' => $proyectos,
-                ];
-            }
+
         }
 
         return $this
@@ -69,7 +75,6 @@ class InfoEventosMail extends Mailable
             ->with([
                 'nombre' => $this->votante->votante->nombre ?? 'Usuario',
                 'proyectos_por_evento' => $proyectos_por_evento,
-                'eventos' => $this->eventos,
             ]);
     }
 }
