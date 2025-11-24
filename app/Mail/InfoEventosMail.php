@@ -56,18 +56,15 @@ class InfoEventosMail extends Mailable
                             $proyectos[] = $hash->proyecto;
                             Log::info('Proyecto agregado.');
                         }
-
-                        if (!empty($proyectos)) {
-                            $proyectos_por_evento[] = [
-                                'evento' => $hijos->eventos,
-                                'proyectos' => $proyectos,
-                            ];
-                        }
+                    }
+                    if (!empty($proyectos)) {
+                        $proyectos_por_evento[] = [
+                            'evento' => $hijos->eventos,
+                            'proyectos' => $proyectos,
+                        ];
                     }
                 }
             }
-
-
         }
 
         return $this
