@@ -32,7 +32,7 @@ class UpdateEventStatus extends Command
     public function handle()
     {
         $now = Carbon::now();
-        
+
 
 
 
@@ -71,35 +71,6 @@ class UpdateEventStatus extends Command
             ->with('votante.votos')
             ->get();
 
-
-        //si de eventos update esta el evento de id 15
-        if ($eventsToUpdate->contains('id', 15)) {
-            # code...
-            foreach ($votantes as $votante) {
-                if (!in_array($votante->subtipo, $comunas_activas)) {
-                    continue; // Si no está, salta al siguiente votante
-                }
-                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante));
-                }
-            }
-        }
-
-        //
-        if ($eventsToClose->contains('id', 15)) {
-
-
-            foreach ($votantes1 as $votante) {
-
-                if (!in_array($votante->subtipo, $comunas_activas) || $votante->votante->votos->isEmpty()) {
-                    continue; // Si no está, salta al siguiente votante
-                }
-
-                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                    Mail::to($votante->votante->email)->send(new CertificadosMail($votante));
-                }
-            }
-        }
 
         // Actualiza el estado de los eventos encontrados
         foreach ($eventsToUpdate as $event) {
@@ -183,6 +154,35 @@ class UpdateEventStatus extends Command
             }
 
             $this->info('cerrado');
+        }
+
+        //si de eventos update esta el evento de id 15
+        if ($eventsToUpdate->contains('id', 15)) {
+            # code...
+            foreach ($votantes as $votante) {
+                if (!in_array($votante->subtipo, $comunas_activas)) {
+                    continue; // Si no está, salta al siguiente votante
+                }
+                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante));
+                }
+            }
+        }
+
+        //
+        if ($eventsToClose->contains('id', 15)) {
+
+
+            foreach ($votantes1 as $votante) {
+
+                if (!in_array($votante->subtipo, $comunas_activas) || $votante->votante->votos->isEmpty()) {
+                    continue; // Si no está, salta al siguiente votante
+                }
+
+                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                    Mail::to($votante->votante->email)->send(new CertificadosMail($votante));
+                }
+            }
         }
 
         $this->info('Event statuses updated successfully.');
