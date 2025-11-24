@@ -53,7 +53,6 @@ class InfoEventosMail extends Mailable
 
         }
 
-        Log::info('Proyectos por evento enviados al correo: ', $this->proyectos_por_evento);
 
         return $this
             ->subject('Inicio de votaciones / Proyectos priorizados')

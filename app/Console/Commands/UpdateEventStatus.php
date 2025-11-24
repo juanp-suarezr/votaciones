@@ -164,8 +164,6 @@ class UpdateEventStatus extends Command
                 return $evento->hash_proyectos->isNotEmpty();
             });
 
-            $this->info($evento_h);
-
 
             # code...
             foreach ($votantes as $votante) {
