@@ -43,7 +43,7 @@ class InfoEventosMail extends Mailable
 
                 $eventoHijo = $hijoHash->eventos;
 
-                if (!$eventoHijo || $eventoHijo->estado !== 'Activo') {
+                if (!$eventoHijo || ($eventoHijo->estado !== 'Cerrado' && $eventoHijo->estado !== 'Bloqueado')) {
                     continue;
                 }
 
