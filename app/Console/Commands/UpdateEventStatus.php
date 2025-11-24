@@ -84,7 +84,7 @@ class UpdateEventStatus extends Command
                 ->get();
 
 
-                dd($eventos);
+                Log::info('eventos para notificar: ' . $eventos->count());
 
 
             # code...
