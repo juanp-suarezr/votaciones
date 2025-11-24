@@ -43,6 +43,7 @@ class UpdateEventStatus extends Command
             ->with([
                 'eventos_hijos.eventos' => function ($q) {
                     $q->where('estado', 'Activo')
+                        ->orWhere('estado', 'Pendiente')
                         ->with('hash_proyectos.proyecto');
                 }
             ])
