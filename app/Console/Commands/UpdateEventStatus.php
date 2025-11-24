@@ -75,7 +75,7 @@ class UpdateEventStatus extends Command
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {
 
-            $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
+            $eventos = Eventos::where('estado', '=', 'Pendiente')
                 ->whereHas('evento_hijo', function ($query) {
 
                     $query->where('id_evento_padre', 15);
@@ -84,8 +84,7 @@ class UpdateEventStatus extends Command
                 ->get();
 
 
-
-
+                dd($eventos);
 
 
             # code...

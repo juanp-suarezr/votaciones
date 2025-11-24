@@ -41,11 +41,14 @@ class InfoEventosMail extends Mailable
 
             if (isset($evento->hash_proyectos) && is_iterable($evento->hash_proyectos)) {
                 foreach ($evento->hash_proyectos as $hash) {
+                    Log::info('Revisando proyecto para evento ID ' . $evento->id);
                     if (isset($hash->proyecto) && isset($hash->proyecto->subtipo)
                         && isset($this->votante->subtipo)
                         && (string)$hash->proyecto->subtipo === (string)$this->votante->subtipo
                     ) {
+                        Log::info('Agregando proyecto ID ' . $hash->proyecto->id . ' para votante ID ' . $this->votante->id);
                         $proyectos[] = $hash->proyecto;
+                        Log::info('Proyecto agregado.');
                     }
                 }
             }
