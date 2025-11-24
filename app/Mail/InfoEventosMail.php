@@ -21,7 +21,7 @@ class InfoEventosMail extends Mailable
      * @param Hash_votantes $votante
      * @param mixed $eventos (array|Collection)
      */
-    public function __construct(Hash_votantes $votante, Eventos $eventos)
+    public function __construct(Hash_votantes $votante, $eventos)
     {
         $this->votante = $votante;
         $this->eventos = collect($eventos);
@@ -33,7 +33,7 @@ class InfoEventosMail extends Mailable
 
             $proyectos = [];
 
-            
+
 
             foreach ($evento->hash_proyectos as $hash) {
 
