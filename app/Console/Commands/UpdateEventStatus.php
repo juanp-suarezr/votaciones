@@ -76,7 +76,7 @@ class UpdateEventStatus extends Command
         if ($eventsToUpdate->contains('id', 15)) {
 
             $eventos_h = Eventos::where('estado', 'Pendiente')
-                ->whereHas('evento_hijo', function ($query) {
+                ->whereHas('eventos_hijos', function ($query) {
 
                     $query->where('id_evento_padre', 15);
                 })
