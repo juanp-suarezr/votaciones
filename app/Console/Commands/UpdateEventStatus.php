@@ -32,7 +32,7 @@ class UpdateEventStatus extends Command
     public function handle()
     {
         $now = Carbon::now();
-        
+
 
 
 
@@ -74,16 +74,31 @@ class UpdateEventStatus extends Command
 
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {
+
+            $eventos = Eventos::where('estado', '!=', 'Cerrado')->where('estado', '!=', 'Bloqueado')
+                ->whereHas('evento_hijo', function ($query) {
+
+                    $query->where('id_evento_padre', 15);
+                })
+                ->with('hash_proyectos.proyecto')
+                ->get();
+
+
+
+
+
+
             # code...
             foreach ($votantes as $votante) {
                 if (!in_array($votante->subtipo, $comunas_activas)) {
                     continue; // Si no está, salta al siguiente votante
                 }
                 if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante));
+                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $eventos));
                 }
             }
         }
+
 
         //
         if ($eventsToClose->contains('id', 15)) {
