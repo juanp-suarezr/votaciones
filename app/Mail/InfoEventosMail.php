@@ -28,40 +28,26 @@ class InfoEventosMail extends Mailable
 
     public function build()
     {
-        foreach ($this->eventos as $eventoPadre) {
+        foreach ($this->eventos as $evento) {
 
-            foreach ($eventoPadre->eventos_hijos as $hashHijo) {
+            $proyectos = [];
 
-                $eventoHijo = $hashHijo->eventos;
+            foreach ($evento->hash_proyectos as $hash) {
 
-                if (!$eventoHijo || ($eventoHijo->estado == 'Activo' || $eventoHijo->estado == 'Pendiente')) {
-                    continue;
-                }
-
-                Log::info("Procesando evento hijo: {$eventoHijo->id}");
-
-                $proyectos = [];
-
-                foreach ($eventoHijo->hash_proyectos as $hash) {
-
-                    if (
-                        $hash->proyecto &&
-                        $hash->proyecto->subtipo &&
-                        $this->votante->subtipo &&
-                        (string) $hash->proyecto->subtipo === (string) $this->votante->subtipo
-                    ) {
-                        $proyectos[$hash->proyecto->id] = $hash->proyecto;
-                        // ← Usa ID como key para evitar duplicados
-                    }
-                }
-
-                if (!empty($proyectos)) {
-                    $this->proyectos_por_evento[] = [
-                        'evento'     => $eventoHijo,
-                        'proyectos'  => array_values($proyectos)
-                    ];
+                if (
+                    isset($hash->proyecto) &&
+                    $hash->proyecto->subtipo == $this->votante->subtipo
+                ) {
+                    $proyectos[] = $hash->proyecto;
                 }
             }
+
+            $this->proyectos_por_evento[] = [
+                'evento' => $evento->nombre,
+                'proyectos' => $proyectos
+            ];
+
+
         }
 
         Log::info('Proyectos por evento enviados al correo: ', $this->proyectos_por_evento);

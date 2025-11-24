@@ -99,7 +99,7 @@
                     @endphp
 
                     <h2 style="text-align:left;font-size:18px;margin-top:18px;color:#222;">
-                        Evento: {{ $evento->nombre ?? 'Evento sin nombre' }}
+                        Evento: {{ $evento ?? 'Evento sin nombre' }}
                     </h2>
 
                     @foreach($proyectos as $proyecto)
