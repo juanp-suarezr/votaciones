@@ -40,6 +40,7 @@ class UpdateEventStatus extends Command
         // Busca los eventos con fecha de inicio pasada y estado pendiente
         $eventsToUpdate = Eventos::where('fecha_inicio', '<=', $now)
             ->where('estado', 'Pendiente')
+            ->with('hash_proyectos.proyecto')
             ->get();
 
 
@@ -158,15 +159,24 @@ class UpdateEventStatus extends Command
 
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {
+
+            $evento_h = $eventsToUpdate->filter(function ($evento) {
+                return $evento->hash_proyectos->isNotEmpty();
+            });
+
+            $this->info($evento_h);
+
+
             # code...
             foreach ($votantes as $votante) {
                 if (!in_array($votante->subtipo, $comunas_activas)) {
                     continue; // Si no está, salta al siguiente votante
                 }
                 if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante));
+                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
                 }
             }
+
         }
 
         //

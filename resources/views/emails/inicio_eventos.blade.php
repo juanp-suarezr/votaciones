@@ -81,7 +81,11 @@
         </div>
         <div class="content">
             <h1>¡Hola, {{ $nombre }}!</h1>
+<<<<<<< HEAD
             <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que las elecciones del Presupuesto Participativo según la comuna que registro, están habilitadas para votar según las vigencias registradas para su comuna</p>
+=======
+            <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que las elecciones del Presupuesto Participativo según la comuna que registro, ya se encuentran habilitadas.</p>
+>>>>>>> qa
             <p>Puede votar virtualmente ingresando como usuario su numero de identificación y contraseña, que registro en el proceso de inscripción</p>
             <h3>
             Link de inscripción: <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank">https://votaciones.servicios-alcaldiapereira.com/login-pp</a>
@@ -90,6 +94,28 @@
             <p>Recuerde que su participación es fundamental para el desarrollo de nuestra ciudad.</p>
             <p>¡Gracias por ser parte del cambio!</p>
 
+            {{-- listados de proyectos por evento --}}
+            @if(!empty($proyectos_por_evento) && count($proyectos_por_evento) > 0)
+                @foreach($proyectos_por_evento as $item)
+                    @php
+                        $evento = $item['evento'] ?? null;
+                        $proyectos = $item['proyectos'] ?? [];
+                    @endphp
+
+                    <h2 style="text-align:left;font-size:18px;margin-top:18px;color:#222;">
+                        Evento: {{ $evento ?? 'Evento sin nombre' }}
+                    </h2>
+
+                    @foreach($proyectos as $proyecto)
+                        <div class="project-item">
+                            <strong>{{ $proyecto->detalle ?? 'Proyecto sin título' }}</strong>
+                            <p>{{ $proyecto->descripcion ?? 'Sin descripción disponible.' }}</p>
+                        </div>
+                    @endforeach
+                @endforeach
+            @else
+                <p style="margin-top:12px;color:#555;">No hay proyectos disponibles por el momento para su comuna.</p>
+            @endif
         </div>
         <div class="footer">
             &copy; {{ date('Y') }} Alcaldía de Pereira. Todos los derechos reservados.

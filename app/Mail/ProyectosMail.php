@@ -39,13 +39,13 @@ class ProyectosMail extends Mailable
 
         foreach ($this->evento->hash_proyectos as $hash) {
 
-        if (
-            isset($hash->proyecto) &&
-            $hash->proyecto->subtipo == $this->votante->subtipo
-        ) {
-            $proyectos[] = $hash->proyecto;
+            if (
+                isset($hash->proyecto) &&
+                $hash->proyecto->subtipo == $this->votante->subtipo
+            ) {
+                $proyectos[] = $hash->proyecto;
+            }
         }
-    }
 
 
         return $this
