@@ -75,7 +75,7 @@ class UpdateEventStatus extends Command
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate->contains('id', 15)) {
 
-            $eventos = Eventos::where('estado', 'Pendiente')
+            $eventos_h = Eventos::where('estado', 'Pendiente')
                 ->whereHas('evento_hijo', function ($query) {
 
                     $query->where('id_evento_padre', 15);
@@ -84,7 +84,7 @@ class UpdateEventStatus extends Command
                 ->get();
 
 
-                Log::info('eventos para notificar: ' . $eventos->count());
+                Log::info('eventos para notificar: ' . $eventos_h->count());
 
 
             # code...
@@ -93,7 +93,7 @@ class UpdateEventStatus extends Command
                     continue; // Si no está, salta al siguiente votante
                 }
                 if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
-                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $eventos));
+                    Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $eventos_h));
                 }
             }
         }

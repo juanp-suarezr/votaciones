@@ -39,7 +39,7 @@ class InfoEventosMail extends Mailable
         foreach ($this->eventos as $evento) {
             $proyectos = [];
 
-            Log::info('Procesando evento ID ' . $evento->id . ' para votante ID ' . $this->votante->id);
+            Log::info('hash_proyectos del evento ID ' . $evento->id . ': ' . ($evento->hash_proyectos ? $evento->hash_proyectos->count() : '0'));   
 
             if (isset($evento->hash_proyectos) && is_iterable($evento->hash_proyectos)) {
                 foreach ($evento->hash_proyectos as $hash) {
