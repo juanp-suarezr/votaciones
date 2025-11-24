@@ -43,7 +43,7 @@
           <!-- proyectos -->
           <div class="mt-4 mx-auto">
             <h2 class="sm:text-4xl text-2xl font-bold capitalize text-justify">
-              Proyecto -- {{ pro.proyecto.numero_tarjeton }}
+              Tarjetón -- {{ pro.proyecto.numero_tarjeton }}
             </h2>
 
             <p class="sm:text-2xl text-xl text-justify">
