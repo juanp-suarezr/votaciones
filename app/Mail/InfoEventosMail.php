@@ -25,7 +25,7 @@ class InfoEventosMail extends Mailable
     public function __construct(Hash_votantes $votante, Eventos $eventos)
     {
         $this->votante = $votante;
-        $this->eventos = $eventos;
+        $this->eventos = collect($eventos);
     }
 
     /**
