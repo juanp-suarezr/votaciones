@@ -17,7 +17,7 @@
         >
           <div class="mx-auto w-full flex justify-center items-center">
             <div
-              v-if="pro.proyecto.tipo_proyecto.imagen == null"
+              v-if="pro.proyecto.tipo_proyecto?.imagen ? pro.proyecto.tipo_proyecto.imagen == null : true"
               class="w-full flex justify-center items-center h-[200pt] sm:h-[300pt] bg-indigo-200 text-indigo-800"
             >
               <p class="m-auto sm:text-4xxl text-xxl object-cover">
