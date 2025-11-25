@@ -154,7 +154,7 @@ Route::get('/cual-es-mi-sector', function () {
 //descargar
 Route::get('/certificados/descargar/{id}/{idVotante?}/{id_padre?}', [CertificadosController::class, 'descargarCertificado'])->name('certificados.descargar');
 //ver eventos a los que voto el votante segun identificacion
-Route::get('/validar-certificado/{identificacion}', [VotosController::class, 'verificar']);
+Route::get('/validar-certificado/{identificacion}', [VotosController::class, 'verificar'])->middleware('verificar.estado');
 
 //pagina de resultados presupuesto participativo inicial sencilla
 Route::get('/resultado-seleccionar-comuna', [AnalisisPresupuestoController::class, 'indexComuna']);
