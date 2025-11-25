@@ -47,10 +47,6 @@ class LoginRequest extends FormRequest
         $login = $this->input('email'); // Puede ser email o identificación
         $password = $this->input('password');
 
-        Log::info('Intento de login', [
-            'email' => $this->input('email'),
-            'password' => $this->input('password'),
-        ]);
 
         $origin = $this->input('origin');
 
