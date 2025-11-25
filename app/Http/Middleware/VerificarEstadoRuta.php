@@ -18,8 +18,7 @@ class VerificarEstadoRuta
 
         // Buscar si la ruta está registrada en la base de datos
         $ruta = RutasVotaciones::where('path', $rutaActual)->first();
-        Log::info('Verificando ruta: ' . $request->path(), ['estado' => optional($ruta)->estado]);
-
+        
         if ($ruta) {
 
             // Suponiendo que el campo estado = 1 es activo y 0 es bloqueado
