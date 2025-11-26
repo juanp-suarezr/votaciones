@@ -81,11 +81,7 @@
         </div>
         <div class="content">
             <h1>¡Hola, {{ $nombre }}!</h1>
-<<<<<<< HEAD
             <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que las elecciones del Presupuesto Participativo según la comuna que registro, están habilitadas para votar según las vigencias registradas para su comuna</p>
-=======
-            <p><b>La Alcaldía de Pereira</b>, a través de la <b>Secretaría de Planeación</b> informa que las elecciones del Presupuesto Participativo según la comuna que registro, ya se encuentran habilitadas.</p>
->>>>>>> qa
             <p>Puede votar virtualmente ingresando como usuario su numero de identificación y contraseña, que registro en el proceso de inscripción</p>
             <h3>
             Link de inscripción: <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank">https://votaciones.servicios-alcaldiapereira.com/login-pp</a>
