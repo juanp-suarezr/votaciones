@@ -133,7 +133,7 @@ import {
   ChatBubbleLeftRightIcon,
 } from "@heroicons/vue/24/solid";
 import { Link, useForm } from "@inertiajs/vue3";
-import { Textarea } from "primevue";
+import Textarea from "primevue/textarea";
 import { inject, ref, computed, watch, onMounted } from "vue";
 
 const swal = inject("$swal");
