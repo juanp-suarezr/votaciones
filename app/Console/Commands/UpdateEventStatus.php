@@ -43,6 +43,10 @@ class UpdateEventStatus extends Command
             ->with('hash_proyectos.proyecto')
             ->get();
 
+            $eventsToUpdate1 = Eventos::where('estado', 'Activo')
+            ->with('hash_proyectos.proyecto')
+            ->get();
+
 
         $eventsToClose = Eventos::where('fecha_fin', '<=', $now)
             ->where('estado', 'Activo')
@@ -158,7 +162,7 @@ class UpdateEventStatus extends Command
         }
 
         //si de eventos update esta el evento de id 15
-        if ($eventsToUpdate->contains('id', 15)) {
+        if ($eventsToUpdate1->contains('id', 15)) {
 
             $evento_h = $eventsToUpdate->filter(function ($evento) {
                 return $evento->hash_proyectos->isNotEmpty();
