@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use App\Models\ParametrosDetalle;
 
 class auditoriasController extends Controller
 {
@@ -41,17 +42,35 @@ class auditoriasController extends Controller
 
         $voto_auditoria = AuditoriaVotos::select('id_evento', 'voto_id', 'accion', 'tipo_voto', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
         ->where('id_evento', $id_evento)
+        ->when(RequestFacade::input('comuna'), function ($query) {
+            $comuna = RequestFacade::input('comuna');
+            $query->whereHas('voto.votante', function ($q) use ($comuna) {
+                $q->where('comuna', $comuna);
+            });
+        })
         ->with('usuario:id,name,identificacion', 'voto:id_votante,id', 'voto.votante:id,nombre,identificacion')
             ->orderBy('created_at', 'desc')
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL
+
+            $comunas = ParametrosDetalle::where('codParametro', 'com01')
+                ->where('habilitada', 1)
+                ->select('id', 'detalle', 'habilitada')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'label' => $item->detalle,
+                        'value' => $item->id,
+                    ];
+                });
 
             return Inertia::render(
             'Auditoria/Index',
             [
                 'voto_auditoria' => $voto_auditoria,
                 'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
-                'filters' => RequestFacade::only(['id_evento']),
+                'filters' => RequestFacade::only(['id_evento', 'comuna']),
+                'comunas' => $comunas,
             ]
         );
 
@@ -76,16 +95,34 @@ class auditoriasController extends Controller
                 $query->where('usuario_id', $id_user);
             }
         })
+        ->when(RequestFacade::input('comuna'), function ($query) {
+            $comuna = RequestFacade::input('comuna');
+            $query->whereHas('hash_votante.votante', function ($q) use ($comuna) {
+                $q->where('comuna', $comuna);
+            });
+        })
         ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion')
             ->orderBy('created_at', 'desc')
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL
 
+        $comunas = ParametrosDetalle::where('codParametro', 'com01')
+            ->where('estado', 1)
+            ->select('id', 'detalle')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->detalle,
+                    'value' => $item->id,
+                ];
+            });
+
         return Inertia::render('Auditoria/AuditoriaValidaciones',
             [
                 'auditoria_registro' => $auditoria_registro,
                 'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
-                'filters' => RequestFacade::only(['id_evento']),
+                'filters' => RequestFacade::only(['id_evento', 'comuna']),
+                'comunas' => $comunas,
             ]
         );
     }

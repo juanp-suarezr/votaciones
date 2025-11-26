@@ -22,7 +22,22 @@
         />
       </div>
 
-      <div class="flex gap 4 p-4">
+      <div class="flex gap 4 p-4 items-center">
+        <div class="mr-4" style="min-width:220px;">
+          <Select
+            id="comunas"
+            v-model="selectedComuna"
+            :options="comunas"
+            optionLabel="label"
+            filter
+            filterBy="label"
+            placeholder="Seleccione comuna"
+            showClear
+            class="block w-full"
+            @change="applyFilters"
+          />
+        </div>
+
         <SecondaryButton class="me-4 py-2 h-full" @click="limpiar">
           Limpiar
         </SecondaryButton>
@@ -175,12 +190,31 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  comunas: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const breadcrumbLinks = [{ url: "", text: "auditoria de votos" }];
 
 
 let id_evento = ref(props.eventos.find((item) => item.id == 15));
+let selectedComuna = ref(props.filters.comuna ?? null);
+
+const applyFilters = () => {
+  router.get(
+    "/auditorias",
+    {
+      id_evento: id_evento.value ? (id_evento.value.id ?? id_evento.value) : null,
+      comuna: selectedComuna.value,
+    },
+    {
+      preserveState: true,
+      replace: true,
+    }
+  );
+};
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -194,7 +228,8 @@ const handleEnterKey = () => {
   router.get(
     "/auditorias",
     {
-      id_evento: id_evento.value.id,
+      id_evento: id_evento.value ? (id_evento.value.id ?? id_evento.value) : null,
+      comuna: selectedComuna.value,
     },
     {
       preserveState: true,
@@ -204,13 +239,12 @@ const handleEnterKey = () => {
 };
 
 const limpiar = () => {
-
   id_evento.value = props.eventos.find((item) => item.id == 15);
-
+  selectedComuna.value = null;
 
   router.get(
     "/auditorias",
-    { id_evento: id_evento.value },
+    { id_evento: id_evento.value ? (id_evento.value.id ?? id_evento.value) : null },
     {
       preserveState: true,
       replace: true,
