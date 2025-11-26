@@ -233,7 +233,7 @@ import { PhotoIcon } from "@heroicons/vue/24/solid";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import Dropdown from "primevue/dropdown";
 import Select from "primevue/select";
-import { Textarea } from "primevue";
+import Textarea from "primevue/textarea";
 
 const swal = inject("$swal");
 
