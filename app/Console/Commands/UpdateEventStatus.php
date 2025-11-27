@@ -175,7 +175,7 @@ class UpdateEventStatus extends Command
                 if (!in_array($votante->subtipo, $comunas_activas)) {
                     continue; // Si no está, salta al siguiente votante
                 }
-                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA' && $votante->votante->id != $id_especifico) {
+                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA' && $votante->votante->id == $id_especifico) {
                     Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
                 }
             }
