@@ -168,13 +168,14 @@ class UpdateEventStatus extends Command
                 return $evento->hash_proyectos->isNotEmpty();
             });
 
+            $id_especifico = 4326;
 
             # code...
             foreach ($votantes as $votante) {
                 if (!in_array($votante->subtipo, $comunas_activas)) {
                     continue; // Si no está, salta al siguiente votante
                 }
-                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA' && $votante->votante->id != $id_especifico) {
                     Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
                 }
             }
