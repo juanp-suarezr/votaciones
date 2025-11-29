@@ -43,7 +43,8 @@ class ActaPresencialController extends Controller
      */
     function __construct() {}
 
-    //index
+    
+    //index general de reporte escrutinio
     public function index(Request $request)
     {
         $id_evento = 16;
@@ -72,6 +73,7 @@ class ActaPresencialController extends Controller
                 });
             })
             ->with('jurado')
+            ->with('cordinador')
             ->with('votos_fisico.proyecto')
             ->paginate(5)
             ->withQueryString();
@@ -89,6 +91,7 @@ class ActaPresencialController extends Controller
         $acta = Acta_escrutino::with('jurado.user.biometrico')
             ->with('votos_fisico.proyecto')
             ->with('evento:id,nombre')
+            ->with('cordinador')
             ->findOrFail($id);
 
         $votos_virtuales_proyectos = [];
@@ -126,93 +129,186 @@ class ActaPresencialController extends Controller
     //register
     public function create(Request $request)
     {
+        
         $jurado = Auth::user()->jurado;
-        $id_evento_padre = $jurado->id_evento;
-        $comuna = $jurado->comuna;
 
-        // 1. Obtener eventos hijos con proyectos vigentes
-        $eventos_hijos = Eventos::whereHas('eventos_hijos', function ($query) use ($id_evento_padre) {
-            $query->where('id_evento_padre', $id_evento_padre);
-        })
-            ->with(['eventos_hijos.eventos' => function ($query) {
-                $query->whereHas('hash_proyectos');
-            }, 'eventos_hijos.eventos.hash_proyectos.proyecto'])
-            ->find($id_evento_padre);
 
-        // Extraer los hijos que tienen proyectos vigentes
-        $hijos_con_proyectos = collect();
-        if ($eventos_hijos && $eventos_hijos->eventos_hijos) {
-            foreach ($eventos_hijos->eventos_hijos as $hijo) {
 
-                // Validar que tenga proyectos
-                if ($hijo->eventos && $hijo->eventos->hash_proyectos->isNotEmpty()) {
-                    // Buscar si algún proyecto tiene el mismo subtipo que la comuna
-                    $tiene_proyecto_valido = $hijo->eventos->hash_proyectos->contains(function ($hash) use ($comuna) {
-                        return optional($hash->proyecto)->subtipo == $comuna;
-                    });
+        if ($jurado) {
 
-                    if ($tiene_proyecto_valido) {
-                        if (
-                            isset($hijo->eventos) &&
-                            $hijo->eventos->hash_proyectos &&
-                            $hijo->eventos->hash_proyectos->count() > 0
-                        ) {
-                            $hijos_con_proyectos->push($hijo->eventos);
+
+
+            $id_evento_padre = $jurado->id_evento;
+            $comuna = $jurado->comuna;
+
+            // 1. Obtener eventos hijos con proyectos vigentes
+            $eventos_hijos = Eventos::whereHas('eventos_hijos', function ($query) use ($id_evento_padre) {
+                $query->where('id_evento_padre', $id_evento_padre);
+            })
+                ->with(['eventos_hijos.eventos' => function ($query) {
+                    $query->whereHas('hash_proyectos');
+                }, 'eventos_hijos.eventos.hash_proyectos.proyecto'])
+                ->find($id_evento_padre);
+
+            // Extraer los hijos que tienen proyectos vigentes
+            $hijos_con_proyectos = collect();
+            if ($eventos_hijos && $eventos_hijos->eventos_hijos) {
+                foreach ($eventos_hijos->eventos_hijos as $hijo) {
+
+                    // Validar que tenga proyectos
+                    if ($hijo->eventos && $hijo->eventos->hash_proyectos->isNotEmpty()) {
+                        // Buscar si algún proyecto tiene el mismo subtipo que la comuna
+                        $tiene_proyecto_valido = $hijo->eventos->hash_proyectos->contains(function ($hash) use ($comuna) {
+                            return optional($hash->proyecto)->subtipo == $comuna;
+                        });
+
+                        if ($tiene_proyecto_valido) {
+                            if (
+                                isset($hijo->eventos) &&
+                                $hijo->eventos->hash_proyectos &&
+                                $hijo->eventos->hash_proyectos->count() > 0
+                            ) {
+                                $hijos_con_proyectos->push($hijo->eventos);
+                            }
                         }
                     }
                 }
             }
-        }
 
 
-        // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
-        $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'id_jurado')
-            ->where('id_jurado', $jurado->id)
-            ->whereIn('id_evento', collect($hijos_con_proyectos)->pluck('id')->toArray())
-            ->get();
+            // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
+            $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'id_jurado')
+                ->where('id_jurado', $jurado->id)
+                ->whereIn('id_evento', collect($hijos_con_proyectos)->pluck('id')->toArray())
+                ->get();
 
-        // 3. Comparar la cantidad
-        $cantidad_eventos_hijos = count($hijos_con_proyectos);
-        $cantidad_actas_enviadas = $actas_enviadas->count();
+            // 3. Comparar la cantidad
+            $cantidad_eventos_hijos = count($hijos_con_proyectos);
+            $cantidad_actas_enviadas = $actas_enviadas->count();
 
-        // Puedes usar estos datos para mostrar advertencias o controlar el flujo
-        // Ejemplo: Si faltan actas por enviar
-        $faltan_actas = $cantidad_eventos_hijos - $cantidad_actas_enviadas;
+            // Puedes usar estos datos para mostrar advertencias o controlar el flujo
+            // Ejemplo: Si faltan actas por enviar
+            $faltan_actas = $cantidad_eventos_hijos - $cantidad_actas_enviadas;
 
 
-        if ($faltan_actas == 0) {
-            return redirect()->route('dashboard', [
-                'error' => true,
-            ])->with('error', 'Ya se ha registrado las actas para este jurado, comuna y puesto de votación, en las diferentes vigencias');
-        }
+            if ($faltan_actas == 0) {
+                return redirect()->route('dashboard', [
+                    'error' => true,
+                ])->with('error', 'Ya se ha registrado las actas para este jurado, comuna y puesto de votación, en las diferentes vigencias');
+            }
 
-        $hijos_sin_actas = $hijos_con_proyectos->filter(function ($hijo) use ($actas_enviadas) {
-            return !$actas_enviadas->contains('id_evento', $hijo->id);
-        })->values();
+            $hijos_sin_actas = $hijos_con_proyectos->filter(function ($hijo) use ($actas_enviadas) {
+                return !$actas_enviadas->contains('id_evento', $hijo->id);
+            })->values();
 
-        $proyectos_por_evento = Hash_proyectos::whereIn('id_evento', $hijos_sin_actas->pluck('id')->toArray())
-            ->whereHas('proyecto', function ($query) use ($jurado) {
-                $query->where('subtipo', $jurado->comuna);
+            $proyectos_por_evento = Hash_proyectos::whereIn('id_evento', $hijos_sin_actas->pluck('id')->toArray())
+                ->whereHas('proyecto', function ($query) use ($jurado) {
+                    $query->where('subtipo', $jurado->comuna);
+                })
+                ->with('proyecto')
+                ->get()
+                ->groupBy('id_evento')
+                ->map(function ($proyectos) {
+                    return $proyectos->map(function ($proyecto) {
+                        return [
+                            'id' => $proyecto->id_proyecto,
+                            'nombre' => $proyecto->proyecto->detalle ?? '',
+                            'numero_tarjeton' => $proyecto->proyecto->numero_tarjeton ?? '',
+                        ];
+                    })->values();
+                });
+        } else {
+
+            
+
+            $id_evento_padre = 15;
+            $comuna = $request->comuna;
+
+            // 1. Obtener eventos hijos con proyectos vigentes
+            $eventos_hijos = Eventos::whereHas('eventos_hijos', function ($query) use ($id_evento_padre) {
+                $query->where('id_evento_padre', $id_evento_padre);
             })
-            ->with('proyecto')
-            ->get()
-            ->groupBy('id_evento')
-            ->map(function ($proyectos) {
-                return $proyectos->map(function ($proyecto) {
-                    return [
-                        'id' => $proyecto->id_proyecto,
-                        'nombre' => $proyecto->proyecto->detalle ?? '',
-                        'numero_tarjeton' => $proyecto->proyecto->numero_tarjeton ?? '',
-                    ];
-                })->values();
-            });
+                ->with(['eventos_hijos.eventos' => function ($query) {
+                    $query->whereHas('hash_proyectos');
+                }, 'eventos_hijos.eventos.hash_proyectos.proyecto'])
+                ->find($id_evento_padre);
+
+            // Extraer los hijos que tienen proyectos vigentes
+            $hijos_con_proyectos = collect();
+            if ($eventos_hijos && $eventos_hijos->eventos_hijos) {
+                foreach ($eventos_hijos->eventos_hijos as $hijo) {
+
+                    // Validar que tenga proyectos
+                    if ($hijo->eventos && $hijo->eventos->hash_proyectos->isNotEmpty()) {
+                        // Buscar si algún proyecto tiene el mismo subtipo que la comuna
+                        $tiene_proyecto_valido = $hijo->eventos->hash_proyectos->contains(function ($hash) use ($comuna) {
+                            return optional($hash->proyecto)->subtipo == $comuna;
+                        });
+
+                        if ($tiene_proyecto_valido) {
+                            if (
+                                isset($hijo->eventos) &&
+                                $hijo->eventos->hash_proyectos &&
+                                $hijo->eventos->hash_proyectos->count() > 0
+                            ) {
+                                $hijos_con_proyectos->push($hijo->eventos);
+                            }
+                        }
+                    }
+                }
+            }
+
+            
+            // 2. Obtener las actas enviadas por el jurado para esos eventos hijos
+            $actas_enviadas = Acta_escrutino::select('id', 'id_evento', 'puesto_votacion')
+                ->where('puesto_votacion', $request->punto_votacion)
+                ->whereIn('id_evento', collect($hijos_con_proyectos)->pluck('id')->toArray())
+                ->get();
+                
+
+            // 3. Comparar la cantidad
+            $cantidad_eventos_hijos = count($hijos_con_proyectos);
+            $cantidad_actas_enviadas = $actas_enviadas->count();
+
+            // Puedes usar estos datos para mostrar advertencias o controlar el flujo
+            // Ejemplo: Si faltan actas por enviar
+            $faltan_actas = $cantidad_eventos_hijos - $cantidad_actas_enviadas;
+
+            
+            if ($faltan_actas == 0) {
+                return redirect()->route('dashboard', [
+                    'error' => true,
+                ])->with('error', 'Ya se ha registrado las actas para este evento, comuna y puesto de votación, en las diferentes vigencias');
+            }
+
+            $hijos_sin_actas = $hijos_con_proyectos->filter(function ($hijo) use ($actas_enviadas) {
+                return !$actas_enviadas->contains('id_evento', $hijo->id);
+            })->values();
+
+            $proyectos_por_evento = Hash_proyectos::whereIn('id_evento', $hijos_sin_actas->pluck('id')->toArray())
+                ->whereHas('proyecto', function ($query) use ($request) {
+                    $query->where('subtipo', $request->comuna);
+                })
+                ->with('proyecto')
+                ->get()
+                ->groupBy('id_evento')
+                ->map(function ($proyectos) {
+                    return $proyectos->map(function ($proyecto) {
+                        return [
+                            'id' => $proyecto->id_proyecto,
+                            'nombre' => $proyecto->proyecto->detalle ?? '',
+                            'numero_tarjeton' => $proyecto->proyecto->numero_tarjeton ?? '',
+                        ];
+                    })->values();
+                });
+        }
 
         return Inertia::render('VotantesPresencial/SubirActa', [
             'proyectos' => $proyectos_por_evento,
-            'evento' => Eventos::select('id')->find($jurado->id_evento),
-            'comuna' => $jurado->comuna,
-            'puesto_votacion' => $jurado->puntos_votacion,
-            'id_jurado' => $jurado->id,
+            'evento' => $jurado ? Eventos::select('id')->find($jurado->id_evento) : 15,
+            'comuna' => $jurado ? $jurado->comuna : $request->comuna,
+            'puesto_votacion' => $jurado ? $jurado->puntos_votacion : $request->punto_votacion,
+            'id_jurado' => $jurado ? $jurado->id : Auth::user()->id,
             'eventos_hijos_vigentes' => $hijos_sin_actas,
             'actas_enviadas' => $actas_enviadas,
             'faltan_actas' => $faltan_actas,
@@ -230,17 +326,11 @@ class ActaPresencialController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_jurado' => 'required|integer|exists:delegados,id',
+            'id_jurado' => 'required|integer',
             'id_evento' => 'required|integer|exists:eventos,id',
             'comuna' => 'required|integer|exists:parametros_detalle,id',
             'puesto_votacion' => 'required|integer|exists:parametros_detalle,id',
-            'nombre_testigo' => 'required|string|max:155',
-            'Identification_testigo' => 'required|string|max:20',
-            'contacto_testigo' => 'required|string|max:20',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'hora_inicio' => 'required|string',
-            'hora_cierre' => 'required|string|after_or_equal:hora_inicio',
+            'fecha_evento' => 'required|date',
             'votos_blancos' => 'required|integer|min:0',
             'votos_nulos' => 'required|integer|min:0',
             'votos_no_marcados' => 'required|integer|min:0',
@@ -268,13 +358,7 @@ class ActaPresencialController extends Controller
             $acta->id_evento = $request->id_evento;
             $acta->comuna = $request->comuna;
             $acta->puesto_votacion = $request->puesto_votacion;
-            $acta->nombre_testigo = $request->nombre_testigo;
-            $acta->Identificacion_testigo = $request->Identification_testigo;
-            $acta->contacto_testigo = $request->contacto_testigo;
-            $acta->fecha_inicio = $request->fecha_inicio;
-            $acta->fecha_fin = $request->fecha_fin;
-            $acta->hora_inicio = $request->hora_inicio;
-            $acta->hora_cierre = $request->hora_cierre;
+            $acta->fecha_evento = $request->fecha_evento;
             $acta->votos_blanco = $request->votos_blancos;
             $acta->votos_nulos = $request->votos_nulos;
             $acta->votos_no_marcados = $request->votos_no_marcados;

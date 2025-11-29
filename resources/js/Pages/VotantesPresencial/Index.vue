@@ -112,11 +112,7 @@
                   >
                     Jurado
                   </th>
-                  <th
-                    class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
-                  >
-                    Testigo
-                  </th>
+                  
                   <th
                     class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                   >
@@ -184,26 +180,14 @@
                       Virtual
                     </p>
                     <p class="text-gray-900 whitespace-no-wrap" v-else>
-                      {{ acta.jurado.nombre }}
+                      {{ acta.jurado ? acta.jurado.nombre : 'Usuario: '+acta.cordinador.name }}
                       <br />
-                      <b>cc:</b> {{ acta.jurado.identificacion }}
+                      <div v-if="acta.jurado != null">
+                        <b>cc:</b> {{ acta.jurado.identificacion }}
+                      </div>
                     </p>
                   </td>
-                  <td
-                    class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
-                  >
-                    <p
-                      class="text-gray-900 whitespace-no-wrap"
-                      v-if="acta.tipo == 'virtual'"
-                    >
-                      Virtual
-                    </p>
-                    <p class="text-gray-900 whitespace-no-wrap" v-else>
-                      {{ acta.nombre_testigo }}
-                      <br />
-                      <b>cc:</b> {{ acta.identificacion_testigo }}
-                    </p>
-                  </td>
+                  
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >

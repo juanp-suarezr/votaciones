@@ -50,6 +50,8 @@ class InfoEventosMail extends Mailable
                 'proyectos' => $proyectos
             ];
 
+            Log::info('InfoEventosMail - Proyectos para evento ' . $evento->nombre . ': ' . count($proyectos));
+
 
         }
 

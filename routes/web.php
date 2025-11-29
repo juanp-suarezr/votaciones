@@ -264,6 +264,9 @@ Route::get('/dashboard', function () {
         'existe_acta' => $existeActa,
         'cierre' => $cierre,
         'registro_biometrico' => $registro_biometrico,
+        'puntos_votacion' => ParametrosDetalle::where('estado', 1)
+            ->where('codParametro', 'pt_v')
+            ->get(),
 
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');

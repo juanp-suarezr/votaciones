@@ -36,7 +36,7 @@
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Reporte escrutinio</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.roles.includes('Jurado') || $page.props.user.roles.includes('Administrador')" :href="route('votantesFisicos.index')" :active="route().current('votantesFisicos')">
+            <nav-link v-if="$page.props.user.roles.includes('Jurado') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Cordinador-Presupuesto')" :href="route('votantesFisicos.index')" :active="route().current('votantesFisicos')">
                 <ArchiveBoxArrowDownIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Votantes físicos</span>
             </nav-link>

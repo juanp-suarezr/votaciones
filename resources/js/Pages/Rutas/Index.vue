@@ -72,14 +72,14 @@
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
                     <p class="text-gray-900 whitespace-no-wrap">
-                      {{ formatDate(ruta.fecha_inicio) }}
+                      {{ ruta.fecha_inicio ? formatDate(ruta.fecha_inicio) : 'N/A' }}
                     </p>
                   </td>
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
                     <p class="text-gray-900 whitespace-no-wrap">
-                      {{ formatDate(ruta.fecha_fin) }}
+                      {{ ruta.fecha_inicio ? formatDate(ruta.fecha_fin) : 'N/A' }}
                     </p>
                   </td>
                   <td

@@ -24,10 +24,7 @@ class Acta_escrutino extends Model
         'nombre_testigo',
         'identificacion_testigo',
         'contacto_testigo',
-        'fecha_inicio',
-        'fecha_fin',
-        'hora_inicio',
-        'hora_cierre',
+        'fecha_evento',
         'votos_nulos',
         'votos_blanco',
         'votos_no_marcados',
@@ -43,6 +40,11 @@ class Acta_escrutino extends Model
     public function jurado()
     {
         return $this->hasOne(Delegados::class, 'id', 'id_jurado');
+    }
+
+    public function cordinador()
+    {
+        return $this->hasOne(User::class, 'id', 'id_jurado');
     }
 
     public function evento()

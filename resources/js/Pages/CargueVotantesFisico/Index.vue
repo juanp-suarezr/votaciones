@@ -58,13 +58,13 @@
               class="bg-white hover:bg-gray-50"
             >
               <td class="px-4 py-2 text-sm text-gray-900">
-                {{ votante.votante.nombre }}
+                {{ votante.votante.nombre || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ votante.votante.identificacion }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
-                {{ votante.votante.genero }}
+                {{ votante.votante.genero || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ formatDate(votante.created_at) }}
@@ -93,6 +93,9 @@
                 Nombre de votante
               </th>
               <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
+                Identificación de votante
+              </th>
+              <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
                 Cantidad de votos anulados
               </th>
               <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
@@ -110,7 +113,10 @@
               class="bg-white hover:bg-gray-50"
             >
               <td class="px-4 py-2 text-sm text-gray-900">
-                {{ voto.votante.nombre }}
+                {{ voto.votante.nombre || 'N/A' }}
+              </td>
+              <td class="px-4 py-2 text-sm text-gray-900">
+                {{ voto.votante.identificacion || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ voto.cantidad_anulada }}

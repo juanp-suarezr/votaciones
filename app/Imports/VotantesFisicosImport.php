@@ -44,29 +44,25 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
             // Validar que las 7 primeras columnas tengan datos
             if (
-                empty($row[0]) || empty($row[1]) || empty($row[2]) || empty($row[5])
+                empty($row[0]) || empty($row[1])
             ) {
                 return null;
             }
 
             // Limitar a las primeras 6 columnas
-            $row = array_slice($row, 0, 6);
+            $row = array_slice($row, 0, 2);
 
             try {
 
                 DB::transaction(function () use ($row) {
 
                     //votante
-                    $votante = Informacion_votantes::where('identificacion', $row[2])->first();
+                    $votante = Informacion_votantes::where('identificacion', $row[0])->first();
 
                     if (!$votante) {
                         $votante = new Informacion_votantes();
-                        $votante->nombre = $row[0];
-                        $votante->email = $row[1];
-                        $votante->identificacion = $row[2];
-                        $votante->nacimiento = $row[3] ?? null;
-                        $votante->genero = $row[4] ?? null;
-                        $votante->comuna = $row[5];
+                        $votante->identificacion = $row[0];
+                        $votante->comuna = $row[1];
                         $votante->save();
 
                         //crear hash_votante
@@ -74,7 +70,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                             'id_votante' => $votante->id,
                             'id_evento' => 15,
                             'tipo' => 'Votante',
-                            'subtipo' => $row[5],
+                            'subtipo' => $row[1],
                             'candidato' => 0, // Asignar 0 para indicar que no es candidato
                             'validaciones' => 'voto fisico',
                             'estado' => 'Activo',
@@ -125,7 +121,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 //eliminar voto fisico
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
-                                    ->where('comuna', $row[5])
+                                    ->where('comuna', $row[1])
                                     ->where('tipo', 'fisico')
                                     ->first();
 
@@ -148,7 +144,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                         $voto_a_modificar->save();
                                     }
                                 } else {
-                                    Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[5]);
+                                    Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[1]);
                                     // Puedes continuar o manejar el error según tu lógica
 
                                 }
@@ -162,7 +158,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 //eliminar voto fisico
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
-                                    ->where('comuna', $row[5])
+                                    ->where('comuna', $row[1])
                                     ->where('tipo', 'fisico')
                                     ->first();
 
@@ -185,7 +181,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                         $voto_a_modificar->save();
                                     }
                                 } else {
-                                    Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[5]);
+                                    Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[1]);
                                     // Puedes continuar o manejar el error según tu lógica
 
                                 }
@@ -197,7 +193,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                             } else {
                                 // Si no hay votos virtuales, verificar votos físicos
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
-                                    ->where('comuna', $row[5])
+                                    ->where('comuna', $row[1])
                                     ->where('tipo', 'fisico')
                                     ->first();
 
@@ -215,7 +211,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                     }
 
                                 } else {
-                                    Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[5]);
+                                    Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[1]);
                                     // Puedes continuar o manejar el error según tu lógica
 
                                 }

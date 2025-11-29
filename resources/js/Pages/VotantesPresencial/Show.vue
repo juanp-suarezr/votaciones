@@ -55,10 +55,10 @@
                 {{ getParametros(acta.puesto_votacion) || "N/A" }}
               </div>
               <div>
-                <b>Fecha inicio:</b>
-                {{ formatDate(acta.fecha_inicio) || "N/A" }}
+                <b>Fecha del evento:</b>
+                {{ formatDate(acta.fecha_evento) || "N/A" }}
               </div>
-              <div>
+              <!-- <div>
                 <b>Fecha Cierre:</b>
                 {{ formatDate(acta.fecha_fin) || "N/A" }}
               </div>
@@ -69,23 +69,17 @@
               <div>
                 <b>Hora de cierre:</b>
                 {{ acta.hora_cierre || "N/A" }}
-              </div>
+              </div> -->
               <div class="md:col-span-2">
                 <b>Observaciones:</b>
                 {{ acta.observaciones || "N/A" }}
               </div>
-              <!-- Info jurado -->
-              <div
-                class="md:col-span-2 mt-4 mb-2"
-                v-if="acta.tipo !== 'virtual'"
-              >
-                <h2 class="font-bold text-lg">Información Jurado</h2>
-              </div>
+              
               <!-- imagen jurado -->
               <div v-if="acta.tipo !== 'virtual'">
                 <div
                   class="card shadow-lg rounded-md p-4 mb-4"
-                  v-if="acta.jurado.user.biometrico"
+                  v-if="acta.jurado && acta.jurado.user.biometrico"
                 >
                   <img
                     :src="getUrlBiometrico(acta.jurado.user.biometrico.photo)"
@@ -96,44 +90,26 @@
                   class="card shadow-lg rounded-md p-4 sm:h-36 h-full flex items-center justify-center"
                   v-else
                 >
-                  Img jurado
+                  {{ acta.jurado ? 'Imagen Jurado' : 'Usuario Cordinador' }}
                 </div>
               </div>
               <!-- informacion jurado -->
               <div class="flex flex-col my-auto" v-if="acta.tipo !== 'virtual'">
                 <div>
                   <b>Nombre:</b>
-                  {{ acta.jurado.nombre || "N/A" }}
+                  {{ acta.jurado ? acta.jurado.nombre : acta.cordinador.name || "N/A" }}
                 </div>
                 <div>
                   <b>identificacion:</b>
-                  cc. {{ acta.jurado.identificacion || "N/A" }}
+                  cc. {{ acta.jurado ? acta.jurado.identificacion : "N/A" }}
                 </div>
-                <div>
+                <div v-if="acta.jurado">
                   <b>contacto:</b>
                   {{ acta.jurado.contacto || "N/A" }}
                 </div>
               </div>
 
-              <!-- Info testigo -->
-              <div
-                class="md:col-span-2 mt-4 mb-2"
-                v-if="acta.tipo !== 'virtual'"
-              >
-                <h2 class="font-bold text-lg">Información Testigo</h2>
-              </div>
-              <div v-if="acta.tipo !== 'virtual'">
-                <b>Nombre:</b>
-                {{ acta.nombre_testigo || "N/A" }}
-              </div>
-              <div v-if="acta.tipo !== 'virtual'">
-                <b>identificacion:</b>
-                cc. {{ acta.identificacion_testigo || "N/A" }}
-              </div>
-              <div v-if="acta.tipo !== 'virtual'">
-                <b>contacto:</b>
-                {{ acta.contacto_testigo || "N/A" }}
-              </div>
+              
               <!-- Info votaciones -->
               <div class="md:col-span-2 mt-4 mb-2">
                 <h2 class="font-bold text-lg">Información votación</h2>
