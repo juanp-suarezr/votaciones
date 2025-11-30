@@ -15,17 +15,17 @@ class CargueVotantesFisicoController extends Controller
     public function index()
     {
         $votantes = Hash_votantes::where('validaciones', 'voto fisico')
-        ->with('votante')
-        ->paginate(5);
+            ->with('votante')
+            ->paginate(5);
 
         $votos_anulados = VotosDuplicados::with('votante:id,nombre,identificacion,genero')
-        ->with('evento:id,nombre')
-        ->paginate(5);
+            ->with('evento:id,nombre')
+            ->paginate(5);
 
         return Inertia::render('CargueVotantesFisico/Index', [
-                'votantes_fisicos' => $votantes,
-                'votos_anulados' => $votos_anulados,
-            ]);
+            'votantes_fisicos' => $votantes,
+            'votos_anulados' => $votos_anulados,
+        ]);
     }
 
     public function cargueMasivo(Request $request)
@@ -42,11 +42,21 @@ class CargueVotantesFisicoController extends Controller
             // Obtener el número de registros insertados correctamente
             $numRegistrosInsertados = $import->getNumRegistrosInsertados();
             $numInconsistencias = $import->getNumInconsistencias();
+
+            $votantes = Hash_votantes::where('validaciones', 'voto fisico')
+                ->with('votante')
+                ->paginate(5);
+
+            $votos_anulados = VotosDuplicados::with('votante:id,nombre,identificacion,genero')
+                ->with('evento:id,nombre')
+                ->paginate(5);
+
             return Inertia::render('CargueVotantesFisico/Index', [
+                'votantes_fisicos' => $votantes,
+                'votos_anulados' => $votos_anulados,
                 'numRegistrosInsertados' => $numRegistrosInsertados,
                 'numInconsistencias' => $numInconsistencias,
             ]);
-
         } catch (\Exception $e) {
             return back()->with('error', 'Error en el cargue masivo: ' . $e->getMessage());
         }
