@@ -134,7 +134,7 @@
       <div
         class="flex flex-col items-center border-t bg-white/40 mt-1 px-5 py-3 xs:flex-row xs:justify-between"
       >
-        <pagination :links="votos_anulados.links" />
+        <Pagination :links="votos_anulados.links" />
       </div>
     </div>
   </AuthenticatedLayout>
@@ -145,6 +145,7 @@ import { ref, inject, watch, onMounted } from "vue";
 import { Head, useForm, usePage, router } from "@inertiajs/vue3";
 import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Pagination from "@/Components/Pagination.vue";
 
 const swal = inject("$swal");
 
@@ -249,8 +250,8 @@ watch(
 
 // También en mounted si la prop ya venía en la carga inicial
 onMounted(() => {
-  const inserted = page.props.value.numRegistrosInsertados;
-  const inconsistencias = page.props.value.numInconsistencias;
+  const inserted = page.props.value.numRegistrosInsertados || undefined;
+  const inconsistencias = page.props.value.numInconsistencias || undefined;
   if (inserted !== undefined || inconsistencias !== undefined) {
     const i = inserted ?? 0;
     const inc = inconsistencias ?? 0;
