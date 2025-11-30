@@ -45,8 +45,8 @@ class CargueVotantesFisicoController extends Controller
             $numRegistrosInsertados = $import->getNumRegistrosInsertados();
             $numInconsistencias = $import->getNumInconsistencias();
 
-            // Redirigir a index con datos en sesión flash
-            return redirect()->route('votantesFisicos.index')
+            // Volver a la página anterior con datos en sesión flash
+            return back()
                 ->with('numRegistrosInsertados', $numRegistrosInsertados)
                 ->with('numInconsistencias', $numInconsistencias);
         } catch (\Exception $e) {
