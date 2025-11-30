@@ -141,8 +141,8 @@
 </template>
 
 <script setup>
-import { ref, inject } from "vue";
-import { Head, useForm } from "@inertiajs/vue3";
+import { ref, inject, watch, onMounted } from "vue";
+import { Head, useForm, usePage } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
 const swal = inject("$swal");
@@ -186,50 +186,11 @@ const enviarArchivo = () => {
   form.post(route("votantesFisicos.cargueMasivo"), {
     forceFormData: true,
     onSuccess: () => {
-      if (
-        props.numRegistrosInsertados !== undefined &&
-        props.numInconsistencias !== undefined
-      ) {
-        swal({
-          title: "Registros Cargados",
-          text: `Se han importado ${props.numRegistrosInsertados} nuevos registros correctamente y se ha generado ${props.numInconsistencias} inconsistencias`,
-          icon: "success",
-        });
-      } else if (
-        props.numRegistrosInsertados !== undefined &&
-        props.numInconsistencias == undefined
-      ) {
-        // Si 'success' no está presente en la respuesta, mostrar un mensaje de error genérico
-        swal({
-          title: "Registros Cargados",
-          text: `Se han importado ${props.numRegistrosInsertados} nuevos registros correctamente y 0 inconsistencias`,
-          icon: "success",
-        });
-      } else if (
-        props.numRegistrosInsertados == undefined &&
-        props.numRegistrosActualizados !== undefined
-      ) {
-        // Si 'success' no está presente en la respuesta, mostrar un mensaje de error genérico
-        swal({
-          title: "Registros Cargados",
-          text: `Se han importado 0 nuevos registros correctamente y se ha generado ${props.numInconsistencias} inconsistencias`,
-          icon: "success",
-        });
-      } else {
-        swal({
-          title: "Registros Cargados",
-          text: "Se han importado los registros de forma masiva",
-          icon: "success",
-        });
-      }
-
-      form.reset();
-      file.value = null;
-      window.location.reload();
+      // No hacer reload aquí. Esperamos a que Inertia actualice los props (flash en sesión)
+      // El `watch` sobre `page.props` mostrará el SweetAlert cuando lleguen los valores.
     },
     onError: () => {
       swal.fire("Error", "Hubo un problema al cargar el archivo.", "error");
-      window.location.reload();
     },
   });
 };
@@ -239,4 +200,48 @@ const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleString();
 };
+
+// Usar usePage para leer props que llegan desde el servidor (flash)
+const page = usePage();
+
+// Cuando lleguen los flashes desde el backend, mostrar el SweetAlert y limpiar el formulario
+watch(
+  () => ({
+    inserted: page.props.value.numRegistrosInsertados,
+    inconsistencias: page.props.value.numInconsistencias,
+  }),
+  (newVal) => {
+    const { inserted, inconsistencias } = newVal;
+    if (inserted !== undefined || inconsistencias !== undefined) {
+      const i = inserted ?? 0;
+      const inc = inconsistencias ?? 0;
+      swal({
+        title: "Registros Cargados",
+        text: `Se han importado ${i} nuevos registros correctamente y se ha generado ${inc} inconsistencias`,
+        icon: "success",
+      });
+
+      // limpiar formulario local
+      form.reset();
+      file.value = null;
+    }
+  }
+);
+
+// También en mounted si la prop ya venía en la carga inicial
+onMounted(() => {
+  const inserted = page.props.value.numRegistrosInsertados;
+  const inconsistencias = page.props.value.numInconsistencias;
+  if (inserted !== undefined || inconsistencias !== undefined) {
+    const i = inserted ?? 0;
+    const inc = inconsistencias ?? 0;
+    swal({
+      title: "Registros Cargados",
+      text: `Se han importado ${i} nuevos registros correctamente y se ha generado ${inc} inconsistencias`,
+      icon: "success",
+    });
+    form.reset();
+    file.value = null;
+  }
+});
 </script>
