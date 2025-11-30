@@ -16,11 +16,11 @@ class CargueVotantesFisicoController extends Controller
     {
         $votantes = Hash_votantes::where('validaciones', 'voto fisico')
             ->with('votante')
-            ->paginate(5);
+            ->paginate(5, ['*'], 'votantes_page');
 
         $votos_anulados = VotosDuplicados::with('votante:id,nombre,identificacion,genero')
             ->with('evento:id,nombre')
-            ->paginate(5);
+            ->paginate(5, ['*'], 'anulados_page');
 
         return Inertia::render('CargueVotantesFisico/Index', [
             'votantes_fisicos' => $votantes,
