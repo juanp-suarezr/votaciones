@@ -156,6 +156,8 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->save();
                             } else if ($votos_virtuales->count() === 1) {
 
+                                // Incrementar el contador de incosistencias encontradas
+                                $this->numInconsistencias++;
                                 //eliminar voto fisico
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
                                     ->where('comuna', $row[1])
@@ -191,6 +193,10 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->cantidad_anulada = 1;
                                 $voto_duplicado->save();
                             } else {
+
+                                // Incrementar el contador de incosistencias encontradas
+                                $this->numInconsistencias++;
+                                
                                 // Si no hay votos virtuales, verificar votos físicos
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
                                     ->where('comuna', $row[1])
