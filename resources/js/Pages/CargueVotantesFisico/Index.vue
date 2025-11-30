@@ -142,7 +142,8 @@
 
 <script setup>
 import { ref, inject, watch, onMounted } from "vue";
-import { Head, useForm, usePage } from "@inertiajs/vue3";
+import { Head, useForm, usePage, router } from "@inertiajs/vue3";
+import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
 const swal = inject("$swal");
@@ -183,16 +184,34 @@ const onFileChange = (e) => {
 
 const enviarArchivo = () => {
   if (!form.file) return;
-  form.post(route("votantesFisicos.cargueMasivo"), {
-    forceFormData: true,
-    onSuccess: () => {
-      // No hacer reload aquí. Esperamos a que Inertia actualice los props (flash en sesión)
-      // El `watch` sobre `page.props` mostrará el SweetAlert cuando lleguen los valores.
-    },
-    onError: () => {
+  // Enviar con axios para recibir JSON y evitar redirección que provoca full reload
+  const data = new FormData();
+  data.append("file", form.file);
+
+  axios
+    .post(route("votantesFisicos.cargueMasivo"), data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((res) => {
+      const inserted = res.data.numRegistrosInsertados ?? 0;
+      const inconsistencias = res.data.numInconsistencias ?? 0;
+      swal({
+        title: "Registros Cargados",
+        text: `Se han importado ${inserted} nuevos registros correctamente y se ha generado ${inconsistencias} inconsistencias`,
+        icon: "success",
+      });
+
+      // limpiar formulario local
+      form.reset();
+      file.value = null;
+
+      // refrescar datos de la página (sin full reload)
+      router.get(route("votantesFisicos.index"), {}, { preserveState: false });
+    })
+    .catch((err) => {
+      console.error(err);
       swal.fire("Error", "Hubo un problema al cargar el archivo.", "error");
-    },
-  });
+    });
 };
 
 const formatDate = (date) => {

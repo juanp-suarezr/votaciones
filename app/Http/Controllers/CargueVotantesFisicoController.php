@@ -45,7 +45,15 @@ class CargueVotantesFisicoController extends Controller
             $numRegistrosInsertados = $import->getNumRegistrosInsertados();
             $numInconsistencias = $import->getNumInconsistencias();
 
-            // Volver a la página anterior con datos en sesión flash
+            // Si la petición es AJAX/JSON, responder con JSON (evita redirect que fuerza reload)
+            if ($request->ajax() || $request->wantsJson() || $request->header('X-Inertia') === null) {
+                return response()->json([
+                    'numRegistrosInsertados' => $numRegistrosInsertados,
+                    'numInconsistencias' => $numInconsistencias,
+                ]);
+            }
+
+            // De lo contrario, volver a la página anterior con datos en sesión flash
             return back()
                 ->with('numRegistrosInsertados', $numRegistrosInsertados)
                 ->with('numInconsistencias', $numInconsistencias);
