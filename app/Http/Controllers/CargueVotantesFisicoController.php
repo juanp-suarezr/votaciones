@@ -25,6 +25,8 @@ class CargueVotantesFisicoController extends Controller
         return Inertia::render('CargueVotantesFisico/Index', [
             'votantes_fisicos' => $votantes,
             'votos_anulados' => $votos_anulados,
+            'numRegistrosInsertados' => session('numRegistrosInsertados'),
+            'numInconsistencias' => session('numInconsistencias'),
         ]);
     }
 
@@ -43,20 +45,10 @@ class CargueVotantesFisicoController extends Controller
             $numRegistrosInsertados = $import->getNumRegistrosInsertados();
             $numInconsistencias = $import->getNumInconsistencias();
 
-            $votantes = Hash_votantes::where('validaciones', 'voto fisico')
-                ->with('votante')
-                ->paginate(5);
-
-            $votos_anulados = VotosDuplicados::with('votante:id,nombre,identificacion,genero')
-                ->with('evento:id,nombre')
-                ->paginate(5);
-
-            return Inertia::render('CargueVotantesFisico/Index', [
-                'votantes_fisicos' => $votantes,
-                'votos_anulados' => $votos_anulados,
-                'numRegistrosInsertados' => $numRegistrosInsertados,
-                'numInconsistencias' => $numInconsistencias,
-            ]);
+            // Redirigir a index con datos en sesión flash
+            return redirect()->route('votantesFisicos.index')
+                ->with('numRegistrosInsertados', $numRegistrosInsertados)
+                ->with('numInconsistencias', $numInconsistencias);
         } catch (\Exception $e) {
             return back()->with('error', 'Error en el cargue masivo: ' . $e->getMessage());
         }
