@@ -76,7 +76,7 @@
       <div
         class="flex flex-col items-center border-t bg-white/40 mt-1 px-5 py-3 xs:flex-row xs:justify-between"
       >
-        <pagination :links="votantes_fisicos.links" />
+        <Pagination :links="votantes_fisicos.links" />
       </div>
     </div>
 
