@@ -74,10 +74,10 @@ class AnalisisPresupuestoController extends Controller
 
                 ->get();
 
-                if ($proyectos->isEmpty()) {
-                    // Si no hay proyectos para este evento y comuna, saltar al siguiente evento
-                    continue;
-                }
+            if ($proyectos->isEmpty()) {
+                // Si no hay proyectos para este evento y comuna, saltar al siguiente evento
+                continue;
+            }
 
             // Actas del evento y comuna
             $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco', 'total_ciudadanos')
@@ -97,10 +97,9 @@ class AnalisisPresupuestoController extends Controller
                 ->where('subtipo', $subtipo)
                 ->get();
 
-            $votos_fisicos = Votos_fisicos::whereHas('acta', function ($query) use ($subtipo, $evento) {
-                $query->where('id_evento', $evento->id)
-                    ->where('comuna', $subtipo);
-            })
+            $votos_fisicos = Votos_fisicos::join('acta_escrutino', 'votos_fisicos.id_acta', '=', 'acta_escrutino.id')
+                ->where('acta_escrutino.id_evento', $evento->id)
+                ->where('acta_escrutino.comuna', $subtipo)
                 ->get();
 
             // Agrupar y sumar votos por proyecto
@@ -177,7 +176,7 @@ class AnalisisPresupuestoController extends Controller
                 'resultados' => $resultados_ordenados,
                 'votos_nulos' => $votos_nulos,
                 'votos_no_marcados' => $votos_no_marcados,
-                'total_votos' => $total_ciudadanos_fisico+count($votos_virtuales),
+                'total_votos' => $total_ciudadanos_fisico + count($votos_virtuales),
             ];
         }
 

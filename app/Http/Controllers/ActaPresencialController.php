@@ -348,7 +348,7 @@ class ActaPresencialController extends Controller
 
             $imgExtension = $request->file('evidencia')->getClientOriginalExtension();
             $folder = 'actas';
-            $fileName = 'acta_escrutinio' . $request->id_jurado . '_' . $request->comuna . '_' . $request->puesto_votacion . '.' . $imgExtension;
+            $fileName = 'acta_escrutinio' .$request->id_evento. '_' .$request->id_jurado . '_' . $request->comuna . '_' . $request->puesto_votacion . '.' . $imgExtension;
             // Guardar la imagen
             $imagePath = $request->file('evidencia')->storeAs('uploads/' . $folder, $fileName, 'public');
 
