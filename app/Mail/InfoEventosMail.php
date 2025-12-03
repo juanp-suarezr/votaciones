@@ -30,10 +30,12 @@ class InfoEventosMail extends Mailable
     public function build()
     {
         foreach ($this->eventos as $evento) {
+            // Filtrar solo eventos activos
+            if ($evento->estado !== 'Activo') {
+                continue;
+            }
 
             $proyectos = [];
-
-
 
             foreach ($evento->hash_proyectos as $hash) {
 
@@ -51,7 +53,6 @@ class InfoEventosMail extends Mailable
             ];
 
             Log::info('InfoEventosMail - Proyectos para evento ' . $evento->nombre . ': ' . count($proyectos));
-
 
         }
 
