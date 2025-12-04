@@ -57,7 +57,9 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                 DB::transaction(function () use ($row) {
 
                     //votante
-                    $votante = Informacion_votantes::where('identificacion', $row[0])->first();
+                    $votante = Informacion_votantes::where('identificacion', $row[0])
+                    ->where('comuna', '!=', '0')
+                    ->first();
                     $votante_no_activo = Hash_votantes::where('id_votante', $votante->id)
                     ->where('estado', '!=', 'Activo')
                     ->where('fisico_info', '!=', 'ok')
