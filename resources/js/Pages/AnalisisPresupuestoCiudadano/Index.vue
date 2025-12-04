@@ -53,7 +53,7 @@ const submit = () => {
     <!-- contenido -->
     <div class="w-full flex justify-center my-auto sm:px-16 px-4">
       <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-4xl font-bold text-center">Informe de Resultados preeliminares</h2>
+        <h2 class="text-4xl font-bold text-center">Informe de Resultados Preliminares</h2>
         <p class="text-xl mt-2">Seleccione la comuna/corregimiento para ver los resultados</p>
         <!-- comunas -->
         <div class="w-auto mt-6">
