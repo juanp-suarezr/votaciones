@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class VotantesFisicosImport implements ToCollection, WithHeadingRow
+class VotantesFisicosImport1 implements ToCollection, WithHeadingRow
 {
     private $numRegistrosInsertados = 0;
 

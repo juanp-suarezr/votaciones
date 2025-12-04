@@ -125,7 +125,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                     ->where('tipo', 'fisico')
                                     ->first();
 
-                                    if ($acta) {
+                                if ($acta) {
                                     $acta->votos_nulos += 1;
                                     $acta->save();
 
@@ -149,7 +149,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 }
 
-                                
+
 
                                 // 5. Registrar duplicados anulados
                                 $voto_duplicado->cantidad_anulada = $all_votos->count() + 1;
@@ -194,9 +194,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->save();
                             } else {
 
-                                // Incrementar el contador de incosistencias encontradas
-                                $this->numInconsistencias++;
-                                
+
                                 // Si no hay votos virtuales, verificar votos físicos
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
                                     ->where('comuna', $row[1])
@@ -216,16 +214,18 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                         $voto_a_modificar->save();
                                     }
 
+                                    // Incrementar el contador de incosistencias encontradas
+                                    $this->numInconsistencias++;
+
+                                    // 5. Registrar duplicados anulados
+                                    $voto_duplicado->cantidad_anulada = 1;
+                                    $voto_duplicado->save();
                                 } else {
+
                                     Log::error('No se encontró acta física para evento hijo: ' . $evento_hijo->id_evento_hijo . ', comuna: ' . $row[1]);
                                     // Puedes continuar o manejar el error según tu lógica
 
                                 }
-
-
-                                // 5. Registrar duplicados anulados
-                                $voto_duplicado->cantidad_anulada = 1;
-                                $voto_duplicado->save();
                             }
                         }
                     }

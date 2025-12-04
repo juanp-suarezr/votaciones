@@ -96,6 +96,12 @@
                 Identificación de votante
               </th>
               <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
+                Comuna/Corregimiento
+              </th>
+              <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
+                Tipo
+              </th>
+              <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
                 Cantidad de votos anulados
               </th>
               <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
@@ -117,6 +123,12 @@
               </td>
               <td class="px-4 py-2 text-sm text-gray-900">
                 {{ voto.votante.identificacion || 'N/A' }}
+              </td>
+              <td class="px-4 py-2 text-sm text-gray-900">
+                {{ getComuna(voto.votante.comuna) || 'N/A' }}
+              </td>
+              <td class="px-4 py-2 text-sm text-gray-900">
+                {{ voto.votante.tipo || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ voto.cantidad_anulada }}
@@ -146,6 +158,7 @@ import { Head, useForm, usePage, router } from "@inertiajs/vue3";
 import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
+import comunas from "@/shared/comunas_completas.json";
 
 const swal = inject("$swal");
 
@@ -181,6 +194,12 @@ const form = useForm({
 const onFileChange = (e) => {
   file.value = e.target.files[0];
   form.file = file.value;
+};
+
+const getComuna = (idComuna) => {
+  console.log(idComuna);
+
+  return comunas.find((item) => item.value == idComuna)?.label;
 };
 
 const enviarArchivo = () => {

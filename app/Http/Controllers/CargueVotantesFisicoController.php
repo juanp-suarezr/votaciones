@@ -18,7 +18,7 @@ class CargueVotantesFisicoController extends Controller
             ->with('votante')
             ->paginate(5, ['*'], 'votantes_page');
 
-        $votos_anulados = VotosDuplicados::with('votante:id,nombre,identificacion,genero')
+        $votos_anulados = VotosDuplicados::with('votante:id,nombre,identificacion,genero,comuna')
             ->with('evento:id,nombre')
             ->paginate(5, ['*'], 'anulados_page');
 

@@ -19,6 +19,7 @@ class VotosDuplicados extends Model
     protected $fillable = [
         'id_votante',
         'id_evento',
+        'tipo',
         'cantidad',
 
     ];
