@@ -216,12 +216,12 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->save();
                             } else {
 
-                                if (!$votante_activo_voto_fisico) {
-                                    $votante_activo_voto_fisico = Hash_votantes::where('id_votante', $votante->id)
+                                if (!$votante_activo_voto_fisico && $votante->estado === 'Activo') {
+                                    $votante_activo = Hash_votantes::where('id_votante', $votante->id)
                                         ->where('estado', 'Activo')
                                         ->first();
-                                    $votante_activo_voto_fisico->fisico_info = 'ok';
-                                    $votante_activo_voto_fisico->save();
+                                    $votante_activo->fisico_info = 'ok';
+                                    $votante_activo->save();
                                     return;
                                 }
 
