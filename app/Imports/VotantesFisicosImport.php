@@ -222,7 +222,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                         ->first();
                                     $votante_activo_voto_fisico->fisico_info = 'ok';
                                     $votante_activo_voto_fisico->save();
-                                    continue;
+                                    return;
                                 }
 
 
