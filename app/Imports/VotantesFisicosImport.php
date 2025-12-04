@@ -60,12 +60,12 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                     $votante = Informacion_votantes::where('identificacion', $row[0])
                         ->where('comuna', '!=', '0')
                         ->first();
-                        //buscar si el votante tiene hash no activo (bloqueado, pendiente, rechazado)
+                    //buscar si el votante tiene hash no activo (bloqueado, pendiente, rechazado)
                     $votante_no_activo = Hash_votantes::where('id_votante', $votante->id)
                         ->where('estado', '!=', 'Activo')
                         ->where('fisico_info', '!=', 'ok')
                         ->first();
-                        //buscar si el votante tiene hash activo con voto fisico ok
+                    //buscar si el votante tiene hash activo con voto fisico ok
                     $votante_activo_voto_fisico = Hash_votantes::where('id_votante', $votante->id)
                         ->where('estado', 'Activo')
                         ->where('fisico_info', 'ok')
@@ -75,7 +75,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         $votante_create = new Informacion_votantes();
                         $votante_create->identificacion = $row[0];
                         $votante_create->comuna = $row[1];
-                        $votante_create->save(); 
+                        $votante_create->save();
 
                         Log::info('Votante físico creado: ' . $votante_create->identificacion);
 
@@ -94,7 +94,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         $hashVotante->save();
                     } else {
 
-                        
+
                         //buscar si ya voto por evento
                         $eventos = Eventos::where('id', 15)
                             ->with('eventos_hijos.eventos')
@@ -110,12 +110,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                             //     continue;
                             // }
 
-                            if ($votante_no_activo) {
-                            //actualizar hash_votante
-                            $votante_no_activo->fisico_info = 'ok';
-                            $votante_no_activo->save();
-                            return;
-                        }
+
 
                             //crear una parte de voto duplicado
                             $voto_duplicado = new VotosDuplicados();
@@ -219,7 +214,16 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->save();
                             } else {
 
-                                if (!$votante_activo_voto_fisico && $votante->estado === 'Activo') {
+                               
+                                // Si no hay votos virtuales, verificar votos físicos
+                                $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
+                                    ->where('comuna', $row[1])
+                                    ->where('tipo', 'fisico')
+                                    ->first();
+
+                                if ($acta) {
+
+                                    if (!$votante_activo_voto_fisico && $votante->estado === 'Activo') {
                                     $votante_activo = Hash_votantes::where('id_votante', $votante->id)
                                         ->where('estado', 'Activo')
                                         ->first();
@@ -228,17 +232,14 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                     Log::info('Votante con voto físico registrado correctamente: ' . $votante->identificacion);
                                     return;
                                 }
+                                
+                                    if ($votante_no_activo) {
+                                        //actualizar hash_votante
+                                        $votante_no_activo->fisico_info = 'ok';
+                                        $votante_no_activo->save();
+                                        return;
+                                    }
 
-                                Log::info('Votante con voto físico ya registrado y sin votos virtuales: ' . $votante->identificacion);
-
-
-                                // Si no hay votos virtuales, verificar votos físicos
-                                $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
-                                    ->where('comuna', $row[1])
-                                    ->where('tipo', 'fisico')
-                                    ->first();
-
-                                if ($acta) {
                                     $acta->votos_nulos += 1;
                                     $acta->save();
 
