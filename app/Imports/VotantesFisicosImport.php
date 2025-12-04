@@ -58,6 +58,14 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                     //votante
                     $votante = Informacion_votantes::where('identificacion', $row[0])->first();
+                    $votante_no_activo = Hash_votantes::where('id_votante', $votante->id)
+                    ->where('estado', '!=', 'Activo')
+                    ->where('fisico_info', '!=', 'ok')
+                    ->first();
+                    $votante_activo_voto_fisico = Hash_votantes::where('id_votante', $votante->id)
+                    ->where('estado', 'Activo')
+                    ->where('fisico_info', 'ok')
+                    ->first();
 
                     if (!$votante) {
                         $votante = new Informacion_votantes();
@@ -78,6 +86,13 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         ]);
                         $hashVotante->save();
                     } else {
+
+                        if ($votante_no_activo) {
+                            //actualizar hash_votante
+                            $votante_no_activo->fisico_info = 'ok';
+                            $votante_no_activo->save();
+                            return;
+                        } 
 
                         //buscar si ya voto por evento
                         $eventos = Eventos::where('id', 15)
@@ -195,6 +210,12 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->tipo = 'votos fisico y uno virtual duplicados';
                                 $voto_duplicado->save();
                             } else {
+
+                                if (!$votante_activo_voto_fisico) {
+                                    $votante_activo_voto_fisico->fisico_info = 'ok';
+                                    $votante_activo_voto_fisico->save();
+                                    continue;
+                                }
 
 
                                 // Si no hay votos virtuales, verificar votos físicos
