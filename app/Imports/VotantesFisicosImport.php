@@ -214,7 +214,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 $voto_duplicado->save();
                             } else {
 
-                               
+
                                 // Si no hay votos virtuales, verificar votos físicos
                                 $acta = Acta_escrutino::where('id_evento', $evento_hijo->id_evento_hijo)
                                     ->where('comuna', $row[1])
@@ -224,15 +224,15 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                 if ($acta) {
 
                                     if (!$votante_activo_voto_fisico && $votante->estado === 'Activo') {
-                                    $votante_activo = Hash_votantes::where('id_votante', $votante->id)
-                                        ->where('estado', 'Activo')
-                                        ->first();
-                                    $votante_activo->fisico_info = 'ok';
-                                    $votante_activo->save();
-                                    Log::info('Votante con voto físico registrado correctamente: ' . $votante->identificacion);
-                                    return;
-                                }
-                                
+                                        $votante_activo = Hash_votantes::where('id_votante', $votante->id)
+                                            ->where('estado', 'Activo')
+                                            ->first();
+                                        $votante_activo->fisico_info = 'ok';
+                                        $votante_activo->save();
+                                        Log::info('Votante con voto físico registrado correctamente: ' . $votante->identificacion);
+                                        return;
+                                    }
+
                                     if ($votante_no_activo) {
                                         //actualizar hash_votante
                                         $votante_no_activo->fisico_info = 'ok';
