@@ -61,13 +61,24 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         ->with('hashVotantes')
                         ->where('comuna', '!=', '0')
                         ->first();
+
+                        $id_votante = $votante ? $votante->id : null;
+
+                        $votante_Activo = Informacion_votantes::where('identificacion', $row[0])
+                        ->whereHas('hashVotantes', function ($query) {
+                            $query->where('estado', 'Activo');
+                        })
+                        ->where('comuna', '!=', '0')
+                        ->first();
+
+
                     //buscar si el votante tiene hash no activo (bloqueado, pendiente, rechazado)
-                    $votante_no_activo = Hash_votantes::where('id_votante', $votante->id)
+                    $votante_no_activo = Hash_votantes::where('id_votante', $id_votante)
                         ->where('estado', '!=', 'Activo')
                         ->where('fisico_info', '!=', 'ok')
                         ->first();
                     //buscar si el votante tiene hash activo con voto fisico ok
-                    $votante_activo_voto_fisico = Hash_votantes::where('id_votante', $votante->id)
+                    $votante_activo_voto_fisico = Hash_votantes::where('id_votante', $id_votante)
                         ->where('estado', 'Activo')
                         ->where('fisico_info', 'ok')
                         ->first();
@@ -227,7 +238,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 if ($acta) {
 
-                                    if (!$votante_activo_voto_fisico && $votante->hashVotantes->estado === 'Activo') {
+                                    if (!$votante_activo_voto_fisico && $votante_Activo) {
                                         $votante_activo = Hash_votantes::where('id_votante', $votante->id)
                                             ->where('estado', 'Activo')
                                             ->first();
