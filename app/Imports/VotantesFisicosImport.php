@@ -75,10 +75,14 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                     if (!$votante) {
                         $votante_create = new Informacion_votantes();
                         $votante_create->identificacion = $row[0];
+                        $votante_create->nombre = null;
+                        $votante_create->email = null;
                         $votante_create->comuna = $row[1];
+                        $votante_create->nacimiento = null;
+                        $votante_create->genero = null;
                         $votante_create->save();
-
-                        Log::info('Votante físico creado: ' . $votante_create->identificacion);
+                        
+                        Log::info('Votante físico creado: ' . $votante_create->id);
 
                         //crear hash_votante
                         $hashVotante = Hash_votantes::create([
