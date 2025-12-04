@@ -128,7 +128,7 @@
                 {{ getComuna(voto.votante.comuna) || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-900">
-                {{ voto.votante.tipo || 'N/A' }}
+                {{ voto.tipo || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ voto.cantidad_anulada }}
