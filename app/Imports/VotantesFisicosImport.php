@@ -72,14 +72,16 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         ->first();
 
                     if (!$votante) {
-                        $votante = new Informacion_votantes();
-                        $votante->identificacion = $row[0];
-                        $votante->comuna = $row[1];
-                        $votante->save(); 
+                        $votante_create = new Informacion_votantes();
+                        $votante_create->identificacion = $row[0];
+                        $votante_create->comuna = $row[1];
+                        $votante_create->save(); 
+
+                        Log::info('Votante físico creado: ' . $votante_create->identificacion);
 
                         //crear hash_votante
                         $hashVotante = Hash_votantes::create([
-                            'id_votante' => $votante->id,
+                            'id_votante' => $votante_create->id,
                             'id_evento' => 15,
                             'tipo' => 'Votante',
                             'subtipo' => $row[1],
@@ -223,8 +225,11 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                                         ->first();
                                     $votante_activo->fisico_info = 'ok';
                                     $votante_activo->save();
+                                    Log::info('Votante con voto físico registrado correctamente: ' . $votante->identificacion);
                                     return;
                                 }
+
+                                Log::info('Votante con voto físico ya registrado y sin votos virtuales: ' . $votante->identificacion);
 
 
                                 // Si no hay votos virtuales, verificar votos físicos
