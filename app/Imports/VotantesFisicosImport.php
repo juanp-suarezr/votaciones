@@ -58,6 +58,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                     //votante
                     $votante = Informacion_votantes::where('identificacion', $row[0])
+                        ->with('hash_votantes')
                         ->where('comuna', '!=', '0')
                         ->first();
                     //buscar si el votante tiene hash no activo (bloqueado, pendiente, rechazado)
@@ -223,7 +224,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 if ($acta) {
 
-                                    if (!$votante_activo_voto_fisico && $votante->estado === 'Activo') {
+                                    if (!$votante_activo_voto_fisico && $votante->hash_votantes->estado === 'Activo') {
                                         $votante_activo = Hash_votantes::where('id_votante', $votante->id)
                                             ->where('estado', 'Activo')
                                             ->first();
