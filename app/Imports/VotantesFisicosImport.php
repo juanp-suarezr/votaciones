@@ -58,7 +58,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                     //votante
                     $votante = Informacion_votantes::where('identificacion', $row[0])
-                        ->with('hash_votantes')
+                        ->with('hashVotantes')
                         ->where('comuna', '!=', '0')
                         ->first();
                     //buscar si el votante tiene hash no activo (bloqueado, pendiente, rechazado)
@@ -73,15 +73,14 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         ->first();
 
                     if (!$votante) {
-                        $votante_create = new Informacion_votantes();
-                        $votante_create->identificacion = $row[0];
-                        $votante_create->nombre = null;
-                        $votante_create->email = null;
-                        $votante_create->comuna = $row[1];
-                        $votante_create->nacimiento = null;
-                        $votante_create->genero = null;
+
+                        //crear votante
+                        $votante_create = Informacion_votantes::create([
+                            'identificacion' => $row[0],
+                            'comuna' => $row[1],
+                        ]);
                         $votante_create->save();
-                        
+
                         Log::info('Votante físico creado: ' . $votante_create->id);
 
                         //crear hash_votante
@@ -228,7 +227,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 if ($acta) {
 
-                                    if (!$votante_activo_voto_fisico && $votante->hash_votantes->estado === 'Activo') {
+                                    if (!$votante_activo_voto_fisico && $votante->hashVotantes->estado === 'Activo') {
                                         $votante_activo = Hash_votantes::where('id_votante', $votante->id)
                                             ->where('estado', 'Activo')
                                             ->first();
