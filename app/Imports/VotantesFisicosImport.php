@@ -92,13 +92,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         $hashVotante->save();
                     } else {
 
-                        if ($votante_no_activo) {
-                            //actualizar hash_votante
-                            $votante_no_activo->fisico_info = 'ok';
-                            $votante_no_activo->save();
-                            return;
-                        }
-
+                        
                         //buscar si ya voto por evento
                         $eventos = Eventos::where('id', 15)
                             ->with('eventos_hijos.eventos')
@@ -113,6 +107,13 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                             // if($evento_hijo->eventos->estado !== 'Activo'){
                             //     continue;
                             // }
+
+                            if ($votante_no_activo) {
+                            //actualizar hash_votante
+                            $votante_no_activo->fisico_info = 'ok';
+                            $votante_no_activo->save();
+                            return;
+                        }
 
                             //crear una parte de voto duplicado
                             $voto_duplicado = new VotosDuplicados();
