@@ -153,6 +153,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 // 5. Registrar duplicados anulados
                                 $voto_duplicado->cantidad_anulada = $all_votos->count() + 1;
+                                $voto_duplicado->tipo = 'votos fisicos-virtuales duplicados';
                                 $voto_duplicado->save();
                             } else if ($votos_virtuales->count() === 1) {
 
@@ -191,6 +192,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                 // 5. Registrar duplicados anulados
                                 $voto_duplicado->cantidad_anulada = 1;
+                                $voto_duplicado->tipo = 'votos fisico y uno virtual duplicados';
                                 $voto_duplicado->save();
                             } else {
 
@@ -219,6 +221,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
 
                                     // 5. Registrar duplicados anulados
                                     $voto_duplicado->cantidad_anulada = 1;
+                                    $voto_duplicado->tipo = 'votos fisico duplicado';
                                     $voto_duplicado->save();
                                 } else {
 
