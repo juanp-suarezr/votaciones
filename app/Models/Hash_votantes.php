@@ -27,7 +27,7 @@ class Hash_votantes extends Model
         'validaciones',
         'estado',
         'intentos',
-        'fisico_info',
+        'fisico_info', // Información adicional para votos físicos
         'created_at',
         'updated_at',
 

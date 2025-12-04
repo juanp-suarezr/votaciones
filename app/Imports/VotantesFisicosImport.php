@@ -75,7 +75,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         $votante = new Informacion_votantes();
                         $votante->identificacion = $row[0];
                         $votante->comuna = $row[1];
-                        $votante->save();
+                        $votante->save(); 
 
                         //crear hash_votante
                         $hashVotante = Hash_votantes::create([
