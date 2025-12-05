@@ -81,7 +81,7 @@ class ActaPresencialController extends Controller
         return Inertia::render('VotantesPresencial/Index', [
             'eventos' => $eventos,
             'actas' => $actas,
-            'parametros' => ParametrosDetalle::where('estado', 1)->get(),
+            'parametros' => ParametrosDetalle::get(),
         ]);
     }
 
