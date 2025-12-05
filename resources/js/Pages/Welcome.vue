@@ -506,8 +506,8 @@ const enviarSolicitud = () => {
               comunidad de forma más segura y moderna.
               <br />
               <i
-                >Tienes plazo para inscribirte del 1 de octubre al 22 de
-                noviembre</i
+                >Tienes plazo para inscribirte del 1 de octubre al 7 de
+                diciembre del 2025</i
               >
             </p>
             <Link
@@ -550,7 +550,7 @@ const enviarSolicitud = () => {
                 {{ comuna.detalle }}
               </h2>
               <p class="text-sm text-gray-600 italic">
-                {{ comuna.en_inscripcion ? "Votación del 8 al 14 de diciembre" : "Votación del 24 al 30 de noviembre" }}
+                Votación del 8 al 14 de diciembre
               </p>
             </div>
           </div>
