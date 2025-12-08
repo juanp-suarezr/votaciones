@@ -30,11 +30,7 @@ class InfoEventosMail extends Mailable
     public function build()
     {
         foreach ($this->eventos as $evento) {
-            // Filtrar solo eventos activos
-            if ($evento->estado !== 'Activo') {
-                continue;
-            }
-
+            
             $proyectos = [];
 
             foreach ($evento->hash_proyectos as $hash) {
@@ -45,6 +41,10 @@ class InfoEventosMail extends Mailable
                 ) {
                     $proyectos[] = $hash->proyecto;
                 }
+            }
+
+            if (empty($proyectos)) {
+                continue;
             }
 
             $this->proyectos_por_evento[] = [
@@ -58,7 +58,7 @@ class InfoEventosMail extends Mailable
 
 
         return $this
-            ->subject('Inicio de votaciones / Proyectos priorizados')
+            ->subject('Inicio de votaciones (prueba) / Proyectos priorizados')
             ->view('emails.inicio_eventos')
             ->with([
                 'nombre' => $this->votante->votante->nombre ?? 'Usuario',

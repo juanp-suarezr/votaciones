@@ -26,8 +26,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // $schedule->command('sanctum:prune-expired --hours=24')->daily();
-        // $schedule->command('events:update-status')->everyMinute()->sendOutputTo(storage_path('logs/events-status.log'));
-        $schedule->command('events:update-status')->dailyAt('08:00')->sendOutputTo(storage_path('logs/events-status.log'));
+        $schedule->command('events:update-status')->everyMinute()->sendOutputTo(storage_path('logs/events-status.log'));
+        // $schedule->command('events:update-status')->dailyAt('08:00')->sendOutputTo(storage_path('logs/events-status.log'));
         $schedule->command('password_resets:clean')->daily();
         $schedule->command('rutas:actualizar-estado')->daily();
         
