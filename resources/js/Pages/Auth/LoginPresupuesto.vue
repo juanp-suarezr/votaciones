@@ -18,10 +18,14 @@
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-3">
+            <div class="mt-3 relative">
                 <InputLabel for="password" value="Contraseña" />
-                <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required
+                <input id="password" :type="showPassword ? 'text' : 'password'" class="mt-1 block w-full rounded-md form-input focus:border-sky-600" v-model="form.password" required
                     autocomplete="current-password" />
+                <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600" @click="showPassword = !showPassword">
+                    <EyeIcon v-if="!showPassword" class="h-5 w-5" />
+                    <EyeSlashIcon v-else class="h-5 w-5" />
+                </button>
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
@@ -59,13 +63,17 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineProps({
     canResetPassword: Boolean,
     status: String,
 
 });
+
+const showPassword = ref(false);
 
 const form = useForm({
     email: '',

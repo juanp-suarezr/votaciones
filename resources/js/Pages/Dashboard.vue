@@ -1341,7 +1341,7 @@ onMounted(() => {
                     popover: {
                         title: "¡Bienvenido!",
                         description:
-                            "En este espacio podrás participar en las votaciones activas de tu comuna o corregimiento.",
+                            "Este es el tutorial de bienvenida para guiarte en el proceso de votación, si deseas puedes omitirlo.",
                         side: "bottom",
                         align: "center",
                     },
