@@ -58,7 +58,7 @@ class InfoEventosMail extends Mailable
 
 
         return $this
-            ->subject('Inicio de votaciones (prueba) / Proyectos priorizados')
+            ->subject('Inicio de votaciones / Proyectos priorizados')
             ->view('emails.inicio_eventos')
             ->with([
                 'nombre' => $this->votante->votante->nombre ?? 'Usuario',
