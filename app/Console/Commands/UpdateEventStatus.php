@@ -17,7 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-
+use PhpParser\Builder\Param;
 
 class UpdateEventStatus extends Command
 {
@@ -200,6 +200,9 @@ class UpdateEventStatus extends Command
         //
         if ($eventsToClose->contains('id', 15)) {
 
+            ParametrosDetalle::where('codParametro', 'com01')
+                ->whereIn('id', $comunas_activas)
+                ->update(['votos' => 1]);
 
             foreach ($votantes1 as $votante) {
 
