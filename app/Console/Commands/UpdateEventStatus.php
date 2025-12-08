@@ -162,12 +162,15 @@ class UpdateEventStatus extends Command
 
         //si de eventos update esta el evento de id 15
         if ($eventsToUpdate1->contains('id', 15)) {
-            
-            if ($eventsToUpdate1[15]->aviso_inicio_enviado == 1) {
+            // Obtener el evento 15 desde la colección (no por índice)
+            $event15 = $eventsToUpdate1->firstWhere('id', 15);
+
+            if ($event15 && $event15->aviso_inicio_enviado == 1) {
                 $this->info('correos ya enviados');
                 return;
             }
 
+            // Filtrar eventos que fueron actualizados y que tienen proyectos
             $evento_h = $eventsToUpdate->filter(function ($evento) {
                 return $evento->hash_proyectos->isNotEmpty();
             });
@@ -179,16 +182,16 @@ class UpdateEventStatus extends Command
                 if (!in_array($votante->subtipo, $comunas_activas)) {
                     continue; // Si no está, salta al siguiente votante
                 }
-                
-                if ($votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
+
+                if (isset($votante->votante) && $votante->votante->email !== null && $votante->votante->email !== '' && $votante->votante->email !== 'NA') {
                     Mail::to($votante->votante->email)->send(new InfoEventosMail($votante, $evento_h));
                 }
             }
 
             // Marcar que ya se enviaron los avisos de inicio
-            $eventToUpdate = Eventos::find(15);
-            $eventToUpdate->aviso_inicio_enviado = 1;
-            $eventToUpdate->save();
+            $eventToUpdate2 = Eventos::find(15);
+            $eventToUpdate2->aviso_inicio_enviado = 1;
+            $eventToUpdate2->save();
 
             
 
