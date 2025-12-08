@@ -4,11 +4,17 @@ import { ref, onMounted, inject, watch } from "vue";
 
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
-import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 import axios from "axios";
 import Select from "primevue/select";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 const swal = inject("$swal");
+
+const props = defineProps({
+  comunas: {
+    type: Array,
+    default: () => [],
+  },
+});
 
 const form = useForm({
   id_comuna: "",
@@ -53,7 +59,7 @@ const submit = () => {
     <!-- contenido -->
     <div class="w-full flex justify-center my-auto sm:px-16 px-4">
       <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-4xl font-bold text-center">Informe de Resultados finales</h2>
+        <h2 class="text-4xl font-bold text-center">Informe de Resultados</h2>
         <p class="text-xl mt-2">Seleccione la comuna/corregimiento para ver los resultados</p>
         <!-- comunas -->
         <div class="w-auto mt-6">

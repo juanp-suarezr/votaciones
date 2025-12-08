@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use PhpParser\Builder\Param;
 
 class AnalisisPresupuestoController extends Controller
 {
@@ -32,10 +33,25 @@ class AnalisisPresupuestoController extends Controller
     function indexComuna()
     {
 
+        $Comunas = ParametrosDetalle::where('codParametro', 'com01')
+            ->where('votos', 1)
+            ->select('id', 'detalle', 'preliminares', 'votos')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'value' => $item->id,
+                    'label' => $item->detalle,
+                    'preliminar' => $item->preliminares,
+                ];
+            });
+
+            
 
         return Inertia::render(
             'AnalisisPresupuestoCiudadano/Index',
-            []
+            [
+                'comunas' => $Comunas,
+            ]
         );
     }
 
@@ -185,6 +201,7 @@ class AnalisisPresupuestoController extends Controller
             [
 
                 'comuna' => ParametrosDetalle::where('id', $subtipo)->value('detalle'),
+                'es_preliminar' => ParametrosDetalle::where('id', $subtipo)->value('preliminares') == 1 ? true : false,
                 'resultados_eventos' => $resultados_eventos,
             ]
         );

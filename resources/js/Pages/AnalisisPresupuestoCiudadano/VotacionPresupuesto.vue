@@ -26,6 +26,10 @@ const props = defineProps({
     type: Object,
     default: () => "",
   },
+  es_preliminar: {
+    type: Boolean,
+    default: () => null,
+  },
 });
 
 console.log(props);
@@ -73,7 +77,7 @@ const getRealName = (text) => {
       <div
         class="w-full border border-gray-200 bg-white shadow-md rounded-b-lg p-4"
       >
-        <h2 class="font-bold mt-2 text-2xl">Resultados de Votación</h2>
+        <h2 class="font-bold mt-2 text-2xl">Resultados de Votación {{ es_preliminar ? 'Preliminar' : 'Final' }}</h2>
         <p class="mt-2 text-base">{{ comuna }}</p>
 
         <div class="mt-8 w-full sm:grid sm:grid-cols-2 gap-12 w-full px-4">

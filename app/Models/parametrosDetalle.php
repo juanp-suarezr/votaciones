@@ -24,6 +24,8 @@ class ParametrosDetalle extends Model
         'estado',
         'habilitada',
         'en_inscripcion',
+        'preliminares',
+        'votos',
 
     ];
 
