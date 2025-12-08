@@ -197,15 +197,8 @@
           >
         </p>
         <div class="flex flex-wrap gap-8 mt-4 text-base sm:text-4xl">
-          <div class="w-auto border-r pr-2 border-gray-600">
-            <span class="text-gray-600">Número Proyecto:</span>
-            {{
-              selectedProject
-                ? selectedProject.proyecto.numero_tarjeton
-                : "Elecciones presupuesto participativo 2025"
-            }}
-          </div>
-          <div class="w-auto pr-2">
+          
+          <div class="w-auto">
             <span class="text-gray-600">Comuna/Corregimiento:</span>
             {{
               selectedProject
