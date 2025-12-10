@@ -7,6 +7,7 @@ use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
 use App\Models\Eventos;
 use App\Models\Hash_eventos_hijos;
+use App\Models\Hash_proyectos;
 use App\Models\ParametrosDetalle;
 use App\Models\Puntos;
 use App\Models\Tipos;
@@ -194,5 +195,19 @@ class EventosController extends Controller
 
 
         return Redirect::route('eventos.edit', $eventos->id);
+    }
+
+    public function previewVotacion($id)
+    {
+        $evento = Eventos::findOrFail($id);
+
+        $proyectos = Hash_proyectos::where('id_evento', $id)
+            ->whereHas('proyecto', function ($query) {
+                $query->where('estado', 1);
+            })
+            ->with('proyecto.tipo_proyecto')
+            ->get();
+
+        return Inertia::render('Eventos/PreviewVotacion', compact('proyectos', 'evento'));
     }
 }

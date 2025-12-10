@@ -134,12 +134,12 @@ const Submit = (num, info) => {
         </p>
         <!-- total registros voto virtual -->
         <p class="flex gap-2 mt-2">
-          <b>Total registrados habilitados para votar virtualmente o tics: </b>
+          <b>Total registrados habilitados para votar en la modalidad de voto electrónico-virtual: </b>
           {{ evento.evento_hijo[0]?.evento_padre?.votantes_activos_count }}
         </p>
         <!-- total registros voto fisico -->
         <p class="flex gap-2 mt-2">
-          <b>Total registrados habilitados para votar presencial físico: </b>
+          <b>Total registrados habilitados para votar en la modalidad voto fisíco o tradicional: </b>
           {{
             evento.acta_escrutinio.reduce(
               (total, item) => total + item.total_ciudadanos,
@@ -326,33 +326,46 @@ const Submit = (num, info) => {
         Comuna/Corregimiento: {{ form.comuna }}
       </h2>
 
-      <div class="sm:flex gap-4 sm:text-2xl text-xl my-6 p-4">
-        <!-- info 1 -->
-        <div class="sm:w-1/2 px-4 mb-12">
-          <p class="mx-auto text-center">Ver votación por proyecto</p>
-          <button
-            type="button"
-            class="flex mx-auto mt-4 text-xl sm:text-2xl bg-primary hover:bg-secondary text-white rounded-lg shadow-md p-2"
-            @click="Submit(1)"
-            :class="{ 'opacity-25': form.processing }"
-            :disabled="form.processing"
-          >
-            Continuar
-          </button>
-        </div>
-        <!-- info 2 -->
-        <div class="sm:w-1/2 px-4 mb-8">
-          <p class="mx-auto text-center">Ver votación datos generales</p>
-          <button
-            type="button"
-            class="flex mx-auto mt-4 text-xl sm:text-2xl bg-azul hover:bg-azul/80 text-white rounded-lg shadow-md p-2"
-            @click="Submit(2)"
-            :class="{ 'opacity-25': form.processing }"
-            :disabled="form.processing"
-          >
-            Continuar
-          </button>
-        </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:text-2xl text-xl my-6 p-4">
+         <!-- info 1 -->
+         <div class="px-4 mb-12">
+            <p class="mx-auto text-center">Ver votación por proyecto</p>
+            <button
+               type="button"
+               class="flex mx-auto mt-4 text-xl sm:text-2xl bg-primary hover:bg-secondary text-white rounded-lg shadow-md p-2"
+               @click="Submit(1)"
+               :class="{ 'opacity-25': form.processing }"
+               :disabled="form.processing"
+            >
+               Continuar
+            </button>
+         </div>
+         <!-- info 2 -->
+         <div class="px-4 mb-8">
+            <p class="mx-auto text-center">Ver votación datos generales</p>
+            <button
+               type="button"
+               class="flex mx-auto mt-4 text-xl sm:text-2xl bg-azul hover:bg-azul/80 text-white rounded-lg shadow-md p-2"
+               @click="Submit(2)"
+               :class="{ 'opacity-25': form.processing }"
+               :disabled="form.processing"
+            >
+               Continuar
+            </button>
+         </div>
+         <!-- info 3 -->
+         <div class="px-4 mb-8">
+            <p class="mx-auto text-center">Ver vista previa de votación</p>
+            <button
+               type="button"
+               class="flex mx-auto mt-4 text-xl sm:text-2xl bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md p-2"
+               @click="Submit(3)"
+               :class="{ 'opacity-25': form.processing }"
+               :disabled="form.processing"
+            >
+               Continuar
+            </button>
+         </div>
       </div>
     </template>
   </Modal>
