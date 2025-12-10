@@ -286,7 +286,7 @@ Route::middleware('auth')->group(function () {
     //update proyectos
     Route::post('/proyecto-update', [ProyectosController::class, 'updateProyecto'])->name('proyectoUpdate');
     //mostrar preview proyectos
-    Route::get('/preview-votacion/{id}', [ProyectosController::class, 'previewVotacion'])->name('preview-votacion');
+    Route::get('/preview-votacion/{id}', [ProyectosController::class, 'previewProyecto'])->name('preview-votacion');
     //PLANTILLA EXCEL para cargue masivo
     //usuario
     Route::get('plantillaRes', [cargueMasivoController::class, 'plantillaRes'])->name('plantillaRes.excel');
