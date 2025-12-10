@@ -281,7 +281,7 @@ class ProyectosController extends Controller
             abort(404, 'Proyecto no asociado a ningún evento');
         }
 
-        $evento = Eventos::findOrFail($hashProyecto->id_evento);
+        $evento = Eventos::findOrFail($hashProyecto->id_evento)->nombre;
 
         
 

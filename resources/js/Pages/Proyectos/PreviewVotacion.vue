@@ -3,24 +3,23 @@
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header>
-      Vista Previa de Votación - {{ evento }}
+      Vista Previa de Votación - {{ evento }} <br>
+      Proyecto: {{ proyecto.detalle }}
     </template>
 
     <div class="items-center flex flex-col justify-center mx-2">
       <div class="sm:flex w-full sm:grid md:grid-cols-2 grid-cols-2 gap-4 mt-6">
         <!-- votos proyectos -->
         <div
-          v-for="pro in proyectos"
-          :key="pro.id"
           class="flex flex-col w-full h-full p-2 inline-block m-auto mb-4 rounded-lg shadow-xl bg-gray-200 text-gray-800"
         >
           <div class="mx-auto w-full flex justify-center items-center">
             <div
-              v-if="pro.proyecto.tipo_proyecto.imagen == null"
+              v-if="proyecto.tipo_proyecto.imagen == null"
               class="w-full flex justify-center items-center h-[200pt] sm:h-[300pt] bg-indigo-200 text-indigo-800"
             >
               <p class="m-auto sm:text-4xxl text-xxl object-cover">
-                {{ getInitials(pro.proyecto.detalle) }}
+                {{ getInitials(proyecto.detalle) }}
               </p>
             </div>
             <div
@@ -28,32 +27,32 @@
               class="w-full h-[200pt] sm:h-[300pt] bg-indigo-200 text-indigo-800"
             >
               <img
-                :src="getImageProyectoUrl(pro.proyecto.tipo_proyecto.imagen)"
+                :src="getImageProyectoUrl(proyecto.tipo_proyecto.imagen)"
                 alt="Imagen de proyecto"
                 class="w-full h-full object-cover"
               />
             </div>
           </div>
           <Tag
-            :value="getComuna(pro.proyecto.subtipo)"
+            :value="getComuna(proyecto.subtipo)"
             class="!bg-primary text-[8px] sm:text-sm !text-white w-full flex p-2"
           />
           <!-- proyecto -->
           <div class="mt-4 mx-auto">
             <h2 class="sm:text-4xl text-2xl font-bold capitalize text-justify">
-              Tarjetón -- {{ pro.proyecto.numero_tarjeton }}
+              Tarjetón -- {{ proyecto.numero_tarjeton }}
             </h2>
 
             <p class="sm:text-2xl text-xl text-justify">
               <b>Nombre Proyecto:</b> <br />
-              {{ pro.proyecto.detalle }}
+              {{ proyecto.detalle }}
             </p>
 
             <p class="sm:text-2xl text-xl text-justify">
               <b>Descripción:</b> <br />
-              {{ truncate(pro.proyecto.descripcion, 80) }}
+              {{ truncate(proyecto.descripcion, 80) }}
               <span
-                v-if="pro.proyecto.descripcion.length > 80"
+                v-if="proyecto.descripcion.length > 80"
                 class="text-blue-600 cursor-pointer underline"
                 @click="showModal(pro)"
               >
@@ -130,11 +129,11 @@ import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 
 const props = defineProps({
-  proyectos: Object,
+  proyecto: Object,
   evento: String
 });
 
-const breadcrumbLinks = [{ url: "", text: "Vista Previa de Votación" }];
+const breadcrumbLinks = [{ url: "", text: "Vista Previa de proyecto" }];
 //modales
 const modalVisible = ref(false);
 //info
@@ -156,10 +155,6 @@ const getInitials = function (name) {
 };
 
 //MOSTRAR IMAGEN EN TABLA
-const getImageUrl = (imageName) => {
-  return `/storage/uploads/usuarios/${imageName}`;
-};
-
 const getImageProyectoUrl = (imageName) => {
   return `/storage/uploads/proyectos/${imageName}`;
 };
