@@ -379,7 +379,7 @@ const props = defineProps({
   proyectos: Object,
   votante: Object,
   last_vote: Number,
-  
+  evento: String
 });
 
 console.log(props);
