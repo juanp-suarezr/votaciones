@@ -254,8 +254,8 @@
                         </h4>
                         <p class="m-auto w-full">
                             <span class="sm:text-xl text-sm text-gray-600 px-2"
-                                >{{ ev.fecha_inicio }} -
-                                {{ ev.fecha_fin }}</span
+                                >Desde {{ formatFecha(ev.fecha_inicio) }} hasta
+                                {{ formatFecha(ev.fecha_fin) }}</span
                             >
                             <br />
                             <span
