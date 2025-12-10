@@ -76,7 +76,11 @@
                                 Editar
                             </SecondaryLink>
 
-                            <DangerButton @click="confirmUserDeletion(tipo.id)">Eliminar</DangerButton>
+                            <SecondaryLink type="button" :href="route('preview-votacion', ev.id)" class="mb-3">
+                                Vista Previa
+                            </SecondaryLink>
+
+                            <DangerButton @click="confirmUserDeletion(ev.id)">Eliminar</DangerButton>
 
                         </td>
                     </tr>

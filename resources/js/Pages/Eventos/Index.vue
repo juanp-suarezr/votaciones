@@ -85,10 +85,6 @@
                                 Editar
                             </SecondaryLink>
 
-                            <SecondaryLink v-if="ev.tipos && ev.tipos.includes('Presupuesto Participativo')" :href="route('preview-votacion', ev.id)" class="mb-3">
-                                Vista Previa Votación
-                            </SecondaryLink>
-
                             <!-- <DangerButton @click="confirmUserDeletion(tipo.id)">Eliminar</DangerButton> -->
 
                         </td>

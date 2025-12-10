@@ -285,6 +285,8 @@ Route::middleware('auth')->group(function () {
 
     //update proyectos
     Route::post('/proyecto-update', [ProyectosController::class, 'updateProyecto'])->name('proyectoUpdate');
+    //mostrar preview proyectos
+    Route::get('/preview-votacion/{id}', [ProyectosController::class, 'previewVotacion'])->name('preview-votacion');
     //PLANTILLA EXCEL para cargue masivo
     //usuario
     Route::get('plantillaRes', [cargueMasivoController::class, 'plantillaRes'])->name('plantillaRes.excel');
@@ -367,7 +369,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('proyectos', ProyectosController::class);
 
     Route::resource('eventos', EventosController::class);
-    Route::get('/preview-votacion/{id}', [EventosController::class, 'previewVotacion'])->name('preview-votacion');
     Route::resource('votos', VotosController::class);
     Route::resource('candidatos', CandidatosController::class);
     Route::resource('analisis', AnalisisController::class);

@@ -270,4 +270,21 @@ class ProyectosController extends Controller
         return back()
             ->with('success', 'Recurso eliminado exitosamente');
     }
+
+    public function previewProyecto($id)
+    {
+        $proyecto = Proyectos::findOrFail($id);
+
+        // Obtener el primer evento asociado al proyecto
+        $hashProyecto = Hash_proyectos::where('id_proyecto', $id)->first();
+        if (!$hashProyecto) {
+            abort(404, 'Proyecto no asociado a ningún evento');
+        }
+
+        $evento = Eventos::findOrFail($hashProyecto->id_evento);
+
+        
+
+        return Inertia::render('Proyectos/PreviewVotacion', compact('proyecto', 'evento'));
+    }
 }
