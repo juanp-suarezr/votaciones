@@ -1351,7 +1351,7 @@ onMounted(() => {
                     popover: {
                         title: "Vigencias disponibles",
                         description:
-                            "Para votar verás los banners organizados por vigencia, según la comuna/corregimiento en la que te inscribiste.",
+                            "Para votar verás los proyectos organizados por vigencia pendiente de elección, de acuerdo con la comuna/corregimiento en la que te inscribiste.",
                         side: "top",
                         align: "start",
                     },
@@ -1361,7 +1361,7 @@ onMounted(() => {
                     popover: {
                         title: "¿Cómo votar?",
                         description:
-                            'Para votar en cada vigencia, presiona el botón azul "Votar". Irás al proceso de votación; al regresar al dashboard podrás continuar votando por las otras vigencias disponibles.',
+                            'Para votar en cada vigencia, presiona el botón azul "Votar". Esto te llevará al proceso de votación. Cuando termines y regresar a la pantalla principal, podrás continuar votando en las demas vigencias disponibles.',
                         side: "left",
                         align: "center",
                     },

@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class VotosController extends Controller
 {
@@ -99,6 +100,7 @@ class VotosController extends Controller
 
                     'votante' => $infoVotante,
                     'last_vote' => RequestFacade::input('last_vote'),
+                    'evento' => Eventos::find(RequestFacade::input('evento'))->nombre,
 
                 ]
 
