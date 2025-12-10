@@ -61,29 +61,7 @@
             </p>
           </div>
         </div>
-        <!-- VOTO EN BLANCO -->
-        <div
-          class="flex flex-col w-full h-full p-2 inline-block m-auto mb-4 rounded-lg shadow-xl bg-gray-200 text-gray-800"
-        >
-          <div class="mx-auto">
-            <div
-              class="w-full h-[200pt] sm:h-[300pt] bg-indigo-200 text-indigo-800"
-            >
-              <img
-                :src="getImageUrl('12345678_candidatos.jpg')"
-                alt="Imagen de voto en blanco"
-                class="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-          <!-- Candidato -->
-          <div class="mt-6 mx-auto">
-            <h2 class="sm:text-4xl text-2xl font-bold capitalize text-justify">
-              VOTO <br />
-              EN BLANCO
-            </h2>
-          </div>
-        </div>
+        
       </div>
 
       <!-- botón regresar -->
