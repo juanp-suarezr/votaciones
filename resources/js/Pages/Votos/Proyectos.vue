@@ -5,7 +5,7 @@
     <template #header>
       {{
         $page.props.auth.user.email == "ppt"
-          ? "Elecciones Presupuesto Participativo"
+          ? evento != '' && evento != null ? evento : "Elecciones Presupuesto Participativo"
           : "Votaciones"
       }}
     </template>
@@ -193,7 +193,7 @@
         </div>
         <p class="mb-4 text-base sm:text-4xl">
           <span class="text-lg sm:text-5xl font-bold"
-            >Está a punto de votar por el siguiente proyecto:</span
+            >Está a punto de votar por el siguiente proyecto de la {{ getVigencia(evento) }}:</span
           >
         </p>
         <div class="flex flex-wrap gap-8 mt-4 text-base sm:text-4xl">
@@ -420,6 +420,25 @@ const getInitials = function (name) {
   }
   return initials;
 };
+
+const getVigencia = (evento) => {
+  if (!evento || typeof evento !== "string") {
+    return "";
+  }
+
+  // Pasar todo a minúsculas para búsqueda segura
+  const lower = evento.toLowerCase();
+  const keyword = "vigencias";
+
+  // Si contiene "vigencias", recortar desde esa palabra hasta el final
+  if (lower.includes(keyword)) {
+    const index = lower.indexOf(keyword);
+    return evento.substring(index).trim();
+  }
+
+  return ""; // Si no se encuentra, retornar cadena vacía
+};
+
 
 //MOSTRAR IMAGEN EN TABLA
 //IMAGEN
