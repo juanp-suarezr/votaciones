@@ -273,7 +273,8 @@ class ProyectosController extends Controller
 
     public function previewProyecto($id)
     {
-        $proyecto = Proyectos::findOrFail($id);
+        $proyecto = Proyectos::with('tipo_proyecto')
+        ->findOrFail($id);
 
         // Obtener el primer evento asociado al proyecto
         $hashProyecto = Hash_proyectos::where('id_proyecto', $id)->first();
