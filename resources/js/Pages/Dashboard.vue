@@ -374,8 +374,8 @@
                             {{ ev.nombre }}
                             <br />
                             <span class="sm:text-xl text-sm text-gray-600"
-                                >{{ ev.fecha_inicio }} -
-                                {{ ev.fecha_fin }}</span
+                                >Desde {{ formatFecha(ev.fecha_inicio) }} hasta
+                                {{ formatFecha(ev.fecha_fin) }}</span
                             >
                             <br />
                             <span
@@ -837,6 +837,25 @@ const form = useForm({
     comuna: "",
     punto_votacion: "",
 });
+
+//formato de fecha dd/mm/yyyy hh:mm am/pm
+const formatFecha = (text) => {
+  const d = new Date(text.replace(" ", "T")); // compatible para Date()
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+
+  let hour = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hour >= 12 ? "PM" : "AM";
+
+  hour = hour % 12;
+  hour = hour === 0 ? 12 : hour;
+
+  return `${day}-${month}-${year} ${String(hour).padStart(2, "0")}:${minutes} ${ampm}`;
+};
+
 
 //subir acta
 const submitActa = () => {
