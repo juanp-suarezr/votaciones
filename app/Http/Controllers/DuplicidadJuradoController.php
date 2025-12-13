@@ -14,6 +14,7 @@ class DuplicidadJuradoController extends Controller
     {
         $comuna = ParametrosDetalle::where('id', $id)
             ->where('codParametro', 'com01')
+            ->where('estado', 1)
             ->firstOrFail();
 
         return Inertia::render('Duplicidad/Index', [
