@@ -53,15 +53,23 @@ const validar = async () => {
 <template>
     <Head :title="`Validación - ${comuna.detalle}`" />
 
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-            <h1 class="text-2xl font-bold text-center mb-6">
+    <!-- Header con logos -->
+    <div class="w-full bg-white shadow-md py-4 px-4 sm:px-8 md:px-16">
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <img src="/assets/img/logo1.png" alt="Logo Alcaldía" class="h-16 sm:h-20 md:h-24 w-auto" />
+            <img src="/assets/img/voto_electronico.png" alt="Logo Voto Electrónico" class="h-16 sm:h-20 md:h-24 w-auto" />
+        </div>
+    </div>
+
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center px-4 py-8">
+        <div class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">
                 Validación para {{ comuna.detalle }}
             </h1>
 
             <form @submit.prevent="validar">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                <div class="mb-3 sm:mb-4">
+                    <label class="block text-gray-700 text-xs sm:text-sm font-bold mb-2">
                         Número de Identificación
                     </label>
                     <TextInput
