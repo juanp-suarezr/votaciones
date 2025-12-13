@@ -29,6 +29,7 @@ use App\Http\Controllers\ValidacionesController;
 use App\Http\Controllers\ValidationController;
 use App\Http\Controllers\VotantesPresencialController;
 use App\Http\Controllers\VotosController;
+use App\Http\Controllers\DuplicidadJuradoController;
 use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
 use App\Models\Eventos;
@@ -149,6 +150,10 @@ Route::get('/cual-es-mi-sector', function () {
             ->exists(),
     ]);
 })->name('ComunasBarrios');
+
+//pagina validacion por comuna
+Route::get('/duplicidad/{id}', [DuplicidadJuradoController::class, 'index']);
+Route::post('/duplicidad/{id}/validar', [DuplicidadJuradoController::class, 'validar']);
 
 //GESTION CERTIFICADOS
 //descargar
