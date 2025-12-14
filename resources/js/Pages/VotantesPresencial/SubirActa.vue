@@ -331,7 +331,7 @@ const props = defineProps({
 console.log(props);
 
 const form = useForm({
-    id_evento: props.eventos_hijos_vigentes[(props.faltan_actas)-1].id,
+    id_evento: props.eventos_hijos_vigentes[0].id,
     id_jurado: props.id_jurado,
     comuna: props.comuna,
     puesto_votacion: props.puesto_votacion,

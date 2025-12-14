@@ -74,7 +74,7 @@ const validar = async () => {
                     </label>
                     <TextInput
                         v-model="form.numero_identificacion"
-                        type="text"
+                        type="number"
                         class="w-full"
                         required
                     />
