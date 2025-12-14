@@ -87,6 +87,8 @@ class DuplicidadJuradoController extends Controller
                 'intentos' => 0,
             ]);
             $hashVotante->save();
+
+            return response()->json(['valid' => true, 'message' => 'Votante registrado correctamente.']);
         } else {
 
 
