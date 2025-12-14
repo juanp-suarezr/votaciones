@@ -9,6 +9,7 @@ use App\Models\Acta_inicio;
 use App\Models\Caninos;
 use App\Models\InformacionUsuario;
 use App\Models\PageView;
+use App\Models\VotosDuplicados;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -377,7 +378,33 @@ class ActaPresencialController extends Controller
                 $votoFisico->save();
             }
 
+            // Procesar duplicados
+            $duplicados = VotosDuplicados::where('id_evento', $request->id_evento)
+                ->where('comuna', $request->comuna)
+                ->where('procesado', false)
+                ->get();
 
+            $total_anulados = $duplicados->sum('cantidad_anulada');
+
+            // Para cada voto anulado, reducir al azar de un proyecto físico
+            $votos_fisicos = Votos_fisicos::where('id_acta', $acta->id)->get();
+            for ($i = 0; $i < $total_anulados; $i++) {
+                if ($votos_fisicos->isNotEmpty()) {
+                    $voto_a_modificar = $votos_fisicos->random();
+                    if ($voto_a_modificar->cantidad > 0) {
+                        $voto_a_modificar->cantidad -= 1;
+                        $voto_a_modificar->save();
+                        $acta->votos_nulos += 1;
+                    }
+                }
+            }
+            $acta->save();
+
+            // Marcar duplicados como procesados
+            foreach ($duplicados as $duplicado) {
+                $duplicado->procesado = true;
+                $duplicado->save();
+            }
 
             DB::commit();
             return redirect()->back()->with('success', [
