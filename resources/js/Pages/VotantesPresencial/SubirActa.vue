@@ -515,8 +515,8 @@ const submit = () => {
                 title: "Éxito",
                 text: "Acta de escrutinio cargada correctamente.",
             });
-            form.reset();
-            imageUrl.value = null; // Limpiar la imagen después del envío
+            // Recargar la página para actualizar las vigencias pendientes
+            window.location.reload();
         },
         onError: (errors) => {
             console.error(errors);

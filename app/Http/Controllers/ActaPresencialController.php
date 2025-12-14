@@ -29,6 +29,7 @@ use App\Models\User;
 use App\Models\Votos;
 use App\Models\Votos_fisicos;
 use Carbon\Carbon;
+use Carbon\Traits\Timestamp;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -344,12 +345,24 @@ class ActaPresencialController extends Controller
 
         ]);
 
+        // Verificar si ya existe un acta para esta combinación
+        $existingActa = Acta_escrutino::where('id_evento', $request->id_evento)
+            ->where('comuna', $request->comuna)
+            ->where('puesto_votacion', $request->puesto_votacion)
+            ->first();
+
+        if ($existingActa) {
+            return redirect()->back()->withErrors('Ya existe un acta registrada para esta vigencia, jurado, comuna y puesto de votación.');
+        }
+
+
         DB::beginTransaction();
         try {
 
             $imgExtension = $request->file('evidencia')->getClientOriginalExtension();
             $folder = 'actas';
-            $fileName = 'acta_escrutinio' .$request->id_evento. '_' .$request->id_jurado . '_' . $request->comuna . '_' . $request->puesto_votacion . '.' . $imgExtension;
+            $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+            $fileName = 'acta_escrutinio_' . $timestamp . '_' . $request->id_evento . '_' . $request->id_jurado . '_' . $request->comuna . '_' . $request->puesto_votacion . '.' . $imgExtension;
             // Guardar la imagen
             $imagePath = $request->file('evidencia')->storeAs('uploads/' . $folder, $fileName, 'public');
 
