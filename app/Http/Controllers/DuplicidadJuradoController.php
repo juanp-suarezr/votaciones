@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Eventos;
+use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\ParametrosDetalle;
@@ -104,9 +105,18 @@ class DuplicidadJuradoController extends Controller
                             //     continue;
                             // }
 
+                           // Verificar si el evento tiene proyectos en la comuna actual
+                           $tiene_proyectos_en_comuna = Hash_proyectos::where('id_evento', $evento_hijo->id_evento_hijo)
+                               ->whereHas('proyecto', function ($query) use ($id) {
+                                   $query->where('subtipo', $id);
+                               })
+                               ->exists();
 
+                           if (!$tiene_proyectos_en_comuna) {
+                               continue;
+                           }
 
-                            //crear una parte de voto duplicado
+                           //crear una parte de voto duplicado
                             $voto_duplicado = new VotosDuplicados();
                             $voto_duplicado->id_votante = $votante->id;
                             $voto_duplicado->id_evento = $evento_hijo->id_evento_hijo;
