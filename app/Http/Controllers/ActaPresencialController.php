@@ -121,7 +121,7 @@ class ActaPresencialController extends Controller
 
         return Inertia::render('VotantesPresencial/Show', [
             'acta' => $acta,
-            'parametros' => ParametrosDetalle::where('estado', 1)->get(),
+            'parametros' => ParametrosDetalle::all(),
             'delegados' => $delegados,
             'votos_virtuales_proyectos' => $votos_virtuales_proyectos,
 

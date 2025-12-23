@@ -225,7 +225,7 @@ const chartOptionsBar = ref({
         <p class="mt-2 text-base">Comuna/corregimiento -- {{ comuna }}</p>
         <!-- total registros voto virtual -->
         <p class="flex gap-2 mt-2">
-          <b>Total registrados habilitados para votar virtualmente o tics: </b>
+          <b>Total registrados habilitados para votar virtualmente o electronico: </b>
           {{ total_votos_virtuales }}
         </p>
         <!-- total registros voto fisico -->
@@ -283,7 +283,7 @@ const chartOptionsBar = ref({
                         <th
                           class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                         >
-                          Votos presenciales TIC
+                          Votos electronicos
                         </th>
                         <th
                           class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"

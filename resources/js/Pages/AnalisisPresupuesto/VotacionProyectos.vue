@@ -214,7 +214,7 @@ const Submit = () => {
         <p class="mt-2 text-base">Comuna/corregimiento -- {{ comuna }}</p>
         <!-- total registros voto virtual -->
         <p class="flex gap-2 mt-2">
-          <b>Total registrados habilitados para votar virtualmente o tics: </b>
+          <b>Total registrados habilitados para votar virtualmente o electronico: </b>
           {{ total_votos_virtuales }}
         </p>
         <!-- total registros voto fisico -->
