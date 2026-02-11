@@ -42,6 +42,7 @@ class InformeActualizacionVotantesMail extends Mailable
                 'votantesNoActualizados' => $this->datos['votantesNoActualizados'],
                 'fechaProceso' => $this->datos['fechaProceso'],
                 'nombreEvento' => 'Presupuesto participativo',
+                'comunasProcesadas' => $this->datos['comunasProcesadas'] ?? [],
             ]);
     }
 }

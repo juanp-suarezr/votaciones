@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Informacion_votantes;
 use App\Models\Hash_votantes;
 use App\Models\Eventos;
+use App\Models\ParametrosDetalle;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -22,6 +23,7 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
     private $totalRegistros = 0;
     private $idEventoValidar = 15; // ID del evento a validar
     private $nombreEvento = '';
+    private $comunasProcesadas = []; // Para agrupar comunas
 
     /**
      * Constructor: Obtiene el nombre del evento automáticamente
@@ -142,9 +144,19 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
                 if (!empty($datosActualizar)) {
                     $votante->update($datosActualizar);
                     $this->numRegistrosActualizados++;
+                    
+                    // Trackear comuna si viene en los datos
+                    $idComuna = $datosActualizar['comuna'] ?? null;
+                    $nombreComuna = $this->obtenerNombreComuna($idComuna);
+                    if ($idComuna && !isset($this->comunasProcesadas[$idComuna])) {
+                        $this->comunasProcesadas[$idComuna] = $nombreComuna;
+                    }
+                    
                     $this->votantesActualizados[] = [
                         'identificacion' => $identificacion,
                         'nombre' => $votante->nombre,
+                        'comuna' => $nombreComuna,
+                        'id_comuna' => $idComuna,
                     ];
                     
                 } else {
@@ -397,6 +409,20 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
             'votantesNoActualizados' => $this->votantesNoActualizados,
             'fechaProceso' => now()->format('d/m/Y H:i:s'),
             'nombreEvento' => $this->nombreEvento,
+            'comunasProcesadas' => $this->comunasProcesadas,
         ];
+    }
+
+    /**
+     * Obtener el nombre de la comuna desde parametros_detalle
+     */
+    private function obtenerNombreComuna($idComuna)
+    {
+        if (empty($idComuna)) {
+            return 'Sin especificar';
+        }
+        
+        $comuna = ParametrosDetalle::find($idComuna);
+        return $comuna ? $comuna->detalle : 'Comuna ID ' . $idComuna;
     }
 }

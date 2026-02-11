@@ -117,6 +117,17 @@ const enviarArchivo = () => {
       const actualizados = res.data.numRegistrosActualizados ?? 0;
       const noEncontrados = res.data.numNoEncontrados ?? 0;
       const errores = res.data.numErrores ?? 0;
+      const comunasProcesadas = res.data.comunasProcesadas ?? {};
+
+      // Construir HTML de comunas
+      let comunasHtml = '';
+      if (Object.keys(comunasProcesadas).length > 0) {
+        comunasHtml = '<hr class="my-3"><p class="font-semibold">🏘️ Comunas procesadas:</p><ul class="list-disc list-inside ml-2">';
+        for (const [id, nombre] of Object.entries(comunasProcesadas)) {
+          comunasHtml += `<li><strong>ID ${id}:</strong> ${nombre}</li>`;
+        }
+        comunasHtml += '</ul>';
+      }
 
       // Solo mostrar datos generales en el modal
       swal({
@@ -126,11 +137,17 @@ const enviarArchivo = () => {
             <p>✅ <strong>Actualizados:</strong> ${actualizados}</p>
             <p>⚠️ <strong>No encontrados:</strong> ${noEncontrados}</p>
             <p>🚨 <strong>Errores:</strong> ${errores}</p>
+            ${comunasHtml}
             <hr class="my-3">
             <p class="text-green-600 font-semibold">📧 El informe detallado ha sido enviado al correo configurado.</p>
           </div>
         `,
         icon: "success",
+        showConfirmButton: true,
+        confirmButtonText: "Aceptar",
+        timer: 0, // 0 = no se cierra automáticamente
+        allowOutsideClick: false,
+        allowEscapeKey: false,
       });
 
       // Limpiar formulario local
@@ -142,7 +159,14 @@ const enviarArchivo = () => {
       swal.fire(
         "Error",
         err.response?.data?.message || "Hubo un problema al procesar el archivo.",
-        "error"
+        "error",
+        {
+          showConfirmButton: true,
+          confirmButtonText: "Aceptar",
+          timer: 0,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        }
       );
     })
     .finally(() => {

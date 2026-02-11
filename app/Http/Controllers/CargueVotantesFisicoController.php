@@ -68,6 +68,7 @@ class CargueVotantesFisicoController extends Controller
             $votantesActualizados = $import->getVotantesActualizados();
             $votantesNoActualizados = $import->getVotantesNoActualizados();
             $totalRegistros = $import->getTotalRegistros();
+            $resumen = $import->getResumen();
 
             // Enviar correo con el informe
             $this->enviarInformePorCorreo([
@@ -78,6 +79,7 @@ class CargueVotantesFisicoController extends Controller
                 'votantesActualizados' => $votantesActualizados,
                 'votantesNoActualizados' => $votantesNoActualizados,
                 'fechaProceso' => now()->format('d/m/Y H:i:s'),
+                'comunasProcesadas' => $resumen['comunasProcesadas'] ?? [],
             ]);
 
             if ($request->ajax() || $request->wantsJson() || $request->header('X-Inertia') === null) {
@@ -86,6 +88,7 @@ class CargueVotantesFisicoController extends Controller
                     'numNoEncontrados' => $numNoEncontrados,
                     'numErrores' => $numErrores,
                     'erroresDetallados' => $erroresDetallados,
+                    'comunasProcesadas' => $resumen['comunasProcesadas'] ?? [],
                 ]);
             }
 

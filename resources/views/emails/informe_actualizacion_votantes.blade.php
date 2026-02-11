@@ -191,6 +191,18 @@
             </div>
         </div>
 
+        @if(isset($comunasProcesadas) && count($comunasProcesadas) > 0)
+        <div class="section" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 5px; padding: 15px;">
+            <h3 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">🏘️ Comunas Procesadas</h3>
+            <p>Las siguientes comunas fueron encontradas en la actualización:</p>
+            <ul>
+                @foreach($comunasProcesadas as $id => $nombre)
+                <li><strong>ID {{ $id }}:</strong> {{ $nombre }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         @if(count($votantesNoActualizados) > 0)
         <div class="section no-actualizados">
             <h3>⚠️ Votantes NO Actualizados (Requieren Atención)</h3>
@@ -229,6 +241,7 @@
                         <tr>
                             <th>Cédula</th>
                             <th>Nombre</th>
+                            <th>Comuna</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -236,6 +249,7 @@
                         <tr>
                             <td>{{ $votante['identificacion'] }}</td>
                             <td>{{ $votante['nombre'] }}</td>
+                            <td>{{ $votante['comuna'] ?? 'N/A' }}</td>
                         </tr>
                         @endforeach
                     </tbody>
