@@ -4,8 +4,9 @@
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header> Cargue de votantes físicos </template>
 
-    <!-- Input de cargue de archivos -->
-    <div class="flex items-center gap-4 mb-8">
+    <!-- Botones de acción -->
+    <div class="flex flex-wrap gap-4 mb-8">
+      <!-- Botón para carga masiva -->
       <div class="flex flex-col">
         <label for="carga-masiva" class="text-xs font-semibold mb-1"
           >Carga masiva de votantes físicos</label
@@ -25,6 +26,20 @@
           <span v-if="form.processing">Cargando...</span>
           <span v-else>Enviar archivo</span>
         </button>
+      </div>
+
+      <!-- Botón para cargar información de votantes -->
+      <div class="flex flex-col">
+        <label class="text-xs font-semibold mb-1">Actualizar información</label>
+        <Link
+          :href="route('votantesFisicos.cargarInformacion')"
+          class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center justify-center"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          Cargar información de votantes
+        </Link>
       </div>
     </div>
 
@@ -154,7 +169,7 @@
 
 <script setup>
 import { ref, inject, watch, onMounted } from "vue";
-import { Head, useForm, usePage, router } from "@inertiajs/vue3";
+import { Head, useForm, usePage, router, Link } from "@inertiajs/vue3";
 import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
@@ -240,14 +255,13 @@ const formatDate = (date) => {
   return d.toLocaleString();
 };
 
-// Usar usePage para leer props que llegan desde el servidor (flash)
 const page = usePage();
 
 // Cuando lleguen los flashes desde el backend, mostrar el SweetAlert y limpiar el formulario
 watch(
   () => ({
-    inserted: page.props.value.numRegistrosInsertados,
-    inconsistencias: page.props.value.numInconsistencias,
+    inserted: page.props.numRegistrosInsertados,
+    inconsistencias: page.props.numInconsistencias,
   }),
   (newVal) => {
     const { inserted, inconsistencias } = newVal;
@@ -269,8 +283,8 @@ watch(
 
 // También en mounted si la prop ya venía en la carga inicial
 onMounted(() => {
-  const inserted = page.props.value.numRegistrosInsertados || undefined;
-  const inconsistencias = page.props.value.numInconsistencias || undefined;
+  const inserted = page.props.numRegistrosInsertados || undefined;
+  const inconsistencias = page.props.numInconsistencias || undefined;
   if (inserted !== undefined || inconsistencias !== undefined) {
     const i = inserted ?? 0;
     const inc = inconsistencias ?? 0;

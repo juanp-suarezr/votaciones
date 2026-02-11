@@ -63,7 +63,6 @@ use Inertia\Inertia;
 
 
 
-
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
@@ -227,7 +226,6 @@ Route::get('/dashboard', function () {
 
 
 
-
         $evento_padre = Eventos::where('id', Auth::user()->jurado->id_evento)
             ->with(['eventos_hijos.eventos' => function ($q) {
                 $q->whereHas('hash_proyectos'); // solo trae los hijos que tienen proyectos
@@ -363,7 +361,11 @@ Route::middleware('auth')->group(function () {
     //RUTAS PARA CARGUE VOTANTES FISICO
     Route::get('/votantesFisicos', [CargueVotantesFisicoController::class, 'index'])->name('votantesFisicos.index');
     Route::post('/votantesFisicos/cargueMasivo', [CargueVotantesFisicoController::class, 'cargueMasivo'])->name('votantesFisicos.cargueMasivo');
-});
+
+    //RUTA PARA CARGAR INFORMACIÓN DE VOTANTES
+    Route::get('/votantesFisicos/cargarInformacion', [CargueVotantesFisicoController::class, 'paginaCargarInformacion'])->name('votantesFisicos.cargarInformacion');
+    Route::post('/votantesFisicos/cargarInformacion', [CargueVotantesFisicoController::class, 'cargarInformacion'])->name('votantesFisicos.cargarInformacion');
+ });
 
 Route::group(['middleware' => ['auth']], function () {
     Route::resource('users', UserController::class)->middleware('auth');

@@ -56,63 +56,63 @@
 
             <SeparadorMenu v-if="$page.props.user.permissions.includes('eventos-editar')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"
-                :active="route().current().includes('analisis')">
+                :active="route().current() && route().current().includes('analisis')">
                 <ChartBarIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Análisis de resultados </span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.index')"
-                :active="route().current().includes('eventos')">
+                :active="route().current() && route().current().includes('eventos')">
                 <ShareIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Eventos </span>
             </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.permissions.includes('usuarios-listar')">Configuración</SeparadorMenu>
-            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('gestion_registros.index')" :active="route().current().includes('gestion_registros')">
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('gestion_registros.index')" :active="route().current() && route().current().includes('gestion_registros')">
                 <CheckIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Gestión registros</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('historial_registros')" :active="route().current().includes('historial_registros')">
+            <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('historial_registros')" :active="route().current() && route().current().includes('historial_registros')">
                 <CircleStackIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Historial registros</span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('candidatos-editar')" :href="route('candidatos.index')"
-                :active="route().current().includes('candidatos')">
+                :active="route().current() && route().current().includes('candidatos')">
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Candidatos</span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('delegados-editar')" :href="route('delegados.index')"
-                :active="route().current().includes('delegados')">
+                :active="route().current() && route().current().includes('delegados')">
                 <ClipboardDocumentIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Delegados/Jurados</span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('proyectos.index')"
-                :active="route().current().includes('proyectos')">
+                :active="route().current() && route().current().includes('proyectos')">
                 <PaperClipIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Proyectos </span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('tipos-listar')" :href="route('tipos.index')"
-                :active="route().current().includes('tipos')">
+                :active="route().current() && route().current().includes('tipos')">
                 <FireIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Tipos</span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('usuarios-editar')" :href="route('parametros.index')"
-                :active="route().current().includes('parametros')">
+                :active="route().current() && route().current().includes('parametros')">
                 <AdjustmentsHorizontalIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Parametros</span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('rutas-listar')" :href="route('rutas.index')"
-                :active="route().current().includes('rutas')">
+                :active="route().current() && route().current().includes('rutas')">
                 <LinkIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Rutas/path </span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('usuarios-editar')" :href="route('users.index')"
-                :active="route().current().includes('users')">
+                :active="route().current() && route().current().includes('users')">
                 <UserGroupIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Usuarios</span>
             </nav-link>
 
             <nav-link class="flex items-center " v-if="$page.props.user.permissions.includes('rol-listar')"
-                :href="route('roles.index')" :active="route().current().includes('roles')">
+                :href="route('roles.index')" :active="route().current() && route().current().includes('roles')">
                 <FingerPrintIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Roles</span>
 
