@@ -424,12 +424,24 @@ class AnalisisPresupuestoController extends Controller
         $resultados = [];
 
         //total votantes virtuales habilitados
-        $total_votantes_virtual = $proyectos[0]->evento->evento_hijo[0]->evento_padre->votantes->count();
+        // Se verifica que existan proyectos, que el evento tenga relaciones cargadas
+        $total_votantes_virtual = 0;
+        if ($proyectos->isNotEmpty() && $proyectos[0]->evento) {
+            $evento = $proyectos[0]->evento;
+            if ($evento->evento_hijo && $evento->evento_hijo->isNotEmpty()) {
+                $eventoHijo = $evento->evento_hijo->first();
+                if ($eventoHijo && $eventoHijo->evento_padre) {
+                    $total_votantes_virtual = $eventoHijo->evento_padre->votantes->count();
+                }
+            }
+        }
 
         // Inicializar resultados con los proyectos
         foreach ($proyectos as $proyecto) {
-
-
+            // Verificar que el proyecto relacionado exista
+            if (!$proyecto->proyecto) {
+                continue;
+            }
 
             $resultados[$proyecto->id_proyecto] = [
                 'id_proyecto' => $proyecto->id_proyecto,
