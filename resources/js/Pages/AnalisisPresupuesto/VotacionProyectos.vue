@@ -71,6 +71,18 @@ const props = defineProps({
     type: Number,
     default: () => "",
   },
+  total_votos_virtuales_proyectos: {
+    type: Number,
+    default: () => 0,
+  },
+  total_votos_fisicos_proyectos: {
+    type: Number,
+    default: () => 0,
+  },
+  total_general: {
+    type: Number,
+    default: () => 0,
+  },
 });
 
 console.log(props);
@@ -212,16 +224,38 @@ const Submit = () => {
       >
         <h2 class="font-bold mt-2 text-2xl">Resultados de Votación</h2>
         <p class="mt-2 text-base">Comuna/corregimiento -- {{ comuna }}</p>
-        <!-- total registros voto virtual -->
+        <!-- total registrados voto virtual -->
         <p class="flex gap-2 mt-2">
           <b>Total registrados habilitados para votar virtualmente o electronico: </b>
           {{ total_votos_virtuales }}
         </p>
-        <!-- total registros voto fisico -->
+        <!-- total registrados voto fisico -->
         <p class="flex gap-2 mt-2">
           <b>Total registrados habilitados para votar presencial físico: </b>
           {{ total_votos_fisicos }}
         </p>
+        <!-- resumen de votos generados -->
+        <div class="mt-4 p-4 bg-gray-100 rounded-lg border border-gray-300">
+          <h3 class="font-bold text-lg mb-2">Resumen de Votos Generados</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-2 rounded shadow">
+              <p class="text-sm text-gray-600">Votos Virtuales</p>
+              <p class="text-xl font-bold text-blue-600">{{ total_votos_virtuales_proyectos }}</p>
+            </div>
+            <div class="bg-white p-2 rounded shadow">
+              <p class="text-sm text-gray-600">Votos Físicos</p>
+              <p class="text-xl font-bold text-green-600">{{ total_votos_fisicos_proyectos }}</p>
+            </div>
+            <div class="bg-white p-2 rounded shadow">
+              <p class="text-sm text-gray-600">Votos Nulos</p>
+              <p class="text-xl font-bold text-red-600">{{ votos_nulos }}</p>
+            </div>
+            <div class="bg-white p-2 rounded shadow">
+              <p class="text-sm text-gray-600">Total General</p>
+              <p class="text-xl font-bold text-gray-800">{{ total_general }}</p>
+            </div>
+          </div>
+        </div>
         <!-- contenido graficas y tabla resultados -->
         <div class="mt-6">
           <!-- graficas -->
@@ -327,6 +361,15 @@ const Submit = () => {
                             <p class="text-gray-900 whitespace-no-wrap">
                               {{ votos_no_marcados }}
                             </p>
+                          </td>
+                        </tr>
+                        <!-- Fila de totales -->
+                        <tr class="bg-gray-200 font-bold text-gray-900">
+                          <td class="border-b-2 border-gray-400 px-5 py-3 text-sm">
+                            TOTALES
+                          </td>
+                          <td class="border-b-2 border-gray-400 px-5 py-3 text-sm">
+                            {{ total_general }}
                           </td>
                         </tr>
                       </tbody>

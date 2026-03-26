@@ -381,16 +381,41 @@ class AnalisisPresupuestoController extends Controller
             ->with(['proyecto' => function ($query) {
                 $query->select('id', 'detalle', 'subtipo');
             }])
-            ->with(['evento.evento_hijo.evento_padre.votantes' => function ($query) use ($request) {
-                $query->where('subtipo', $request->subtipo) // Requerimiento fundamental
+            ->get();
+
+        // Obtener el evento actual
+        $eventoActual = Eventos::find($request->id_evento);
+        
+        //total votantes virtuales habilitados
+        // Buscar el evento padre y sus votantes
+        $total_votantes_virtual = 0;
+        if ($eventoActual && $eventoActual->evento_padre) {
+            // El evento actual es un evento hijo, buscar voters en el padre
+            $eventoPadre = Eventos::with(['votantes' => function ($query) use ($request) {
+                $query->where('subtipo', $request->subtipo)
                     ->where(function ($q) {
                         $q->where('estado', 'Activo')
                             ->orWhere('validaciones', 'voto presencial - virtual');
                     });
-            }])
-            ->get();
-
-        $total_votantes_virtual = 0;
+            }])->find($eventoActual->evento_padre);
+            
+            if ($eventoPadre && $eventoPadre->votantes) {
+                $total_votantes_virtual = $eventoPadre->votantes->count();
+            }
+        } else {
+            // El evento ya es el padre, buscar voters directamente
+            $eventoActual = Eventos::with(['votantes' => function ($query) use ($request) {
+                $query->where('subtipo', $request->subtipo)
+                    ->where(function ($q) {
+                        $q->where('estado', 'Activo')
+                            ->orWhere('validaciones', 'voto presencial - virtual');
+                    });
+            }])->find($request->id_evento);
+            
+            if ($eventoActual && $eventoActual->votantes) {
+                $total_votantes_virtual = $eventoActual->votantes->count();
+            }
+        }
 
 
 
@@ -507,6 +532,11 @@ class AnalisisPresupuestoController extends Controller
         // Ordenar de mayor a menor por total
         $resultados = collect($resultados)->sortByDesc('total')->values()->all();
 
+        // Calcular totales generales
+        $total_votos_virtuales_proyectos = collect($resultados)->sum('votos_virtuales');
+        $total_votos_fisicos_proyectos = collect($resultados)->sum('votos_fisicos');
+        $total_general = $total_votos_virtuales_proyectos + $total_votos_fisicos_proyectos + $votos_nulos + $votos_no_marcados;
+
 
 
         return Inertia::render(
@@ -519,7 +549,10 @@ class AnalisisPresupuestoController extends Controller
                 'votos_nulos' => $votos_nulos,
                 'votos_no_marcados' => $votos_no_marcados,
                 'total_votos_virtuales' => $total_votantes_virtual,
-                'total_votos_fisicos' => $total_ciudadanos_fisico
+                'total_votos_fisicos' => $total_ciudadanos_fisico,
+                'total_votos_virtuales_proyectos' => $total_votos_virtuales_proyectos,
+                'total_votos_fisicos_proyectos' => $total_votos_fisicos_proyectos,
+                'total_general' => $total_general
 
             ]
         );
