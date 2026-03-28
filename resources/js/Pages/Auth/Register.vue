@@ -290,6 +290,19 @@
               class="w-full"
             />
             <InputError class="mt-2" :message="form.errors.comuna" />
+            <!-- Nota comunas habilitadas -->
+            <div class="mt-2 bg-blue-50 border border-blue-200 rounded-md p-3">
+              <p class="text-sm text-blue-800">
+                <strong>Nota:</strong> Las comunas o corregimientos que aparecen en el listado son los que participarán en el próximo evento de Presupuesto Participativo.
+                <a
+                  :href="route('welcome') + '#comunas-habilitadas'"
+                  target="_blank"
+                  class="underline text-blue-600 font-semibold hover:text-blue-800 ml-1"
+                >
+                  Más información
+                </a>
+              </p>
+            </div>
           </div>
 
           <!-- Barrio -->

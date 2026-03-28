@@ -24,6 +24,7 @@ const props = defineProps({
   puntos_votacion: Object,
   isActive: Boolean,
   comunas: Object,
+  registerBloqueado: Boolean,
 });
 
 console.log(props);
@@ -393,8 +394,13 @@ const enviarSolicitud = () => {
               Instructivo
             </Link>
             <Link
-              :href="route('register')"
-              class="mt-2 px-4 py-2 bg-blue-600 text-white text-lg md:text-xl rounded-lg shadow hover:bg-red-700 transition"
+              :href="registerBloqueado ? null : route('register')"
+              @click.prevent="registerBloqueado ? null : $inertia.visit(route('register'))"
+              class="mt-2 px-4 py-2 text-white text-lg md:text-xl rounded-lg shadow transition"
+              :class="{
+                'bg-blue-600 hover:bg-red-700': !registerBloqueado,
+                'bg-blue-600/60 cursor-not-allowed': registerBloqueado,
+              }"
             >
               ¡Regístrate -- Presupuesto Participativo!
             </Link>
@@ -505,21 +511,26 @@ const enviarSolicitud = () => {
               Participa y vota por los proyectos que más beneficien a tu
               comunidad de forma más segura y moderna.
               <br />
-              <i
+              <i v-if="!registerBloqueado"
                 >Tienes plazo para inscribirte del 1 de octubre al 7 de
                 diciembre del 2025</i
               >
             </p>
             <Link
-              :href="route('register')"
-              class="mt-4 px-6 py-3 bg-red-600 text-white text-lg md:text-xl rounded-lg shadow hover:bg-red-700 transition"
+              :href="registerBloqueado ? null : route('register')"
+              @click.prevent="registerBloqueado ? null : $inertia.visit(route('register'))"
+              class="mt-4 px-6 py-3 text-white text-lg md:text-xl rounded-lg shadow transition"
+              :class="{
+                'bg-red-600 hover:bg-red-700': !registerBloqueado,
+                'bg-red-600/60 cursor-not-allowed': registerBloqueado,
+              }"
             >
               ¡Regístrate -- Presupuesto Participativo!
             </Link>
           </div>
         </div>
         <!-- Comunas habilitadas -->
-        <div
+        <div id="comunas-habilitadas"
           class="min-h-screen bg-gray-200 py-12 px-6 flex flex-col items-center"
         >
           <h1 class="text-4xl font-extrabold text-blue-800 mb-3 text-center">

@@ -126,6 +126,10 @@ Route::get('/consulta-funcionario/{identificacion}/{id}', function ($identificac
 
 //landing welcome
 Route::get('/welcome', function () {
+    // Verificar si la ruta de register está bloqueada
+    $rutaRegister = \App\Models\RutasVotaciones::where('path', 'register')->first();
+    $registerBloqueado = $rutaRegister && $rutaRegister->estado == 0;
+
     return Inertia::render('Welcome', [
         'eventos' => Eventos::where('estado', 'Activo')->get(),
         'puntos_votacion' => ParametrosDetalle::where('estado', 1)
@@ -137,6 +141,7 @@ Route::get('/welcome', function () {
         'comunas' => ParametrosDetalle::where('codParametro', 'com01')
             ->where('habilitada', 1)
             ->get(),
+        'registerBloqueado' => $registerBloqueado,
     ]);
 })->name('welcome');
 
