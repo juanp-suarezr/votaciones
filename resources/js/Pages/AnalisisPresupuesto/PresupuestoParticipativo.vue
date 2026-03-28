@@ -41,16 +41,22 @@ const form = useForm({
 const comuna = ref("");
 const evento_hijo = ref(props.evento.id);
 
+watch(evento_hijo, (value) => {
+  form.id_evento = value;
+});
+
 const comunas = props.resultados.data;
 //modales
 const showModal = ref(false);
 
 const handleEnterKey = () => {
+  form.id_evento = evento_hijo.value;
+
   router.get(
     "/resultado-comunas",
     {
       id_evento: props.evento.evento_hijo[0]?.id_evento_padre,
-      subtipo: comuna.value.value,
+      subtipo: comuna.value?.value,
       id_evento_hijo: evento_hijo.value,
     },
     {
@@ -69,6 +75,7 @@ const limpiar = () => {
     {
       id_evento: props.evento.evento_hijo[0]?.id_evento_padre,
       subtipo: comuna.value,
+      id_evento_hijo: evento_hijo.value,
     },
     {
       preserveState: true,
@@ -79,13 +86,20 @@ const limpiar = () => {
 
 const openModal = (info) => {
   showModal.value = true;
-  form.subtipo = info.value;
-  form.comuna = info.label;
+  if (info) {
+    form.subtipo = info.value;
+    form.comuna = info.label;
+  }
 };
 
 const Submit = (num, info) => {
-  form.subtipo = info.value;
-  form.comuna = info.label;
+  form.id_evento = evento_hijo.value;
+
+  if (info) {
+    form.subtipo = info.value;
+    form.comuna = info.label;
+  }
+
   if (num == 1) {
     form.get(route("resultado-proyectos"), {
       preserveState: true,
