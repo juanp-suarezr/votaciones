@@ -46,7 +46,7 @@ class VotantesPresencialController extends Controller
     {
 
         $id_evento = 16;
-        $anio_actual = Carbon::now()->year;
+        $anio_actual = RequestFacade::input('anio') ?? Carbon::now()->year;
 
 
 
@@ -78,10 +78,16 @@ class VotantesPresencialController extends Controller
                 });
             })
             ->with('votante')->with(['votante' => function ($query) {
-                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'created_at'); // agrega aquí solo los campos necesarios
+                $query->select('id', 'nombre', 'tipo_documento', 'identificacion', 'genero', 'comuna', 'created_at'); // agrega aquí solo los campos necesarios
             }])
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL
+        
+        // Transformar los votantes para incluir el nombre de la comuna
+        $votantes->getCollection()->transform(function ($voto) {
+            $voto->votante->comuna_nombre = ParametrosDetalle::where('id', $voto->votante->comuna)->value('detalle') ?? 'N/A';
+            return $voto;
+        });
 
         // Obtener comunas que tienen votos para el evento seleccionado
         $comunas = Votos::where('id_eventos', $id_evento)
@@ -110,7 +116,7 @@ class VotantesPresencialController extends Controller
             'votantes_voto' => $votantes,
             'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->where('evento_padre', 0)->where('tipos', 'LIKE', '%Presupuesto Participativo%')->get(),
             'comunas' => $comunasFormateadas,
-            'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo']),
+            'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo', 'anio']),
         ]);
     }
 
@@ -382,10 +388,11 @@ class VotantesPresencialController extends Controller
 
         $subtipo = RequestFacade::input('subtipo');
         $search = RequestFacade::input('search');
+        $anio = RequestFacade::input('anio') ?? Carbon::now()->year;
 
 
 
 
-        return Excel::download(new VotantesVotoExports($id_evento, $subtipo, $search), 'votantes_voto.xls', \Maatwebsite\Excel\Excel::XLS);
+        return Excel::download(new VotantesVotoExports($id_evento, $subtipo, $search, $anio), 'votantes_voto.xls', \Maatwebsite\Excel\Excel::XLS);
     }
 }

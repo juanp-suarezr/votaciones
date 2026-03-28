@@ -20,12 +20,14 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
     protected $search;
     protected $subtipo;
     protected $id_evento;
+    protected $anio;
 
-    public function __construct($id_evento, $subtipo, $search)
+    public function __construct($id_evento, $subtipo, $search, $anio = null)
     {
         $this->search = $search;
         $this->subtipo = $subtipo;
         $this->id_evento = $id_evento;
+        $this->anio = $anio ?? Carbon::now()->year;
     }
 
     /**
@@ -34,7 +36,7 @@ class VotantesVotoExports implements FromCollection, WithHeadings, WithStyles, S
     public function collection()
     {
 
-        $anio_actual = Carbon::now()->year;
+        $anio_actual = $this->anio;
 
         
         $votantes = Votos::select(

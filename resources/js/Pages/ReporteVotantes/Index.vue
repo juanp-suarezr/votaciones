@@ -4,7 +4,7 @@
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header> Votantes x evento </template>
 
-    <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4">
+    <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-4 gap-4">
       <div>
         <Select
           id="eventos"
@@ -13,6 +13,20 @@
           filter
           optionLabel="nombre"
           placeholder="Seleccione el evento"
+          checkmark
+          :highlightOnSelect="false"
+          @change="handleEnterKey"
+          class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <Select
+          id="anio"
+          v-model="anio"
+          :options="aniosDisponibles"
+          filter
+          optionLabel="label"
+          placeholder="Seleccione el año"
           checkmark
           :highlightOnSelect="false"
           @change="handleEnterKey"
@@ -89,6 +103,7 @@
               search: search,
               id_evento: id_evento.id,
               subtipo: comuna.value,
+              anio: anio,
             })
           "
           class="flex inline-flex h-full text-white bg-green-800 hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2"
@@ -132,6 +147,11 @@
                   >
                     Fecha de votación
                   </th>
+                  <th
+                    class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                  >
+                    Comuna
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -172,6 +192,11 @@
                   <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p class="text-gray-900 whitespace-no-wrap">
                       {{ formatDate(user.created_at) }}
+                    </p>
+                  </td>
+                  <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">
+                      {{ user.votante.comuna_nombre }}
                     </p>
                   </td>
                 </tr>
@@ -230,6 +255,14 @@ const breadcrumbLinks = [{ url: "", text: "Reporte de votantes x evento" }];
 let search = ref(props.filters.search);
 let comuna = ref(props.filters.comuna ?? "");
 let comunasDisponibles = ref(props.comunas);
+let anio = ref(props.filters.anio ?? new Date().getFullYear());
+
+// Generar lista de años disponibles (desde 2020 hasta el año actual)
+const aniosDisponibles = [];
+const anioActual = new Date().getFullYear();
+for (let i = anioActual; i >= 2020; i--) {
+  aniosDisponibles.push({ value: i, label: i.toString() });
+}
 
 let id_evento = ref(props.eventos[0]);
 
@@ -244,7 +277,7 @@ const formatDate = (date) => {
 const handleEnterKey = () => {
   router.get(
     "/votantesPresencial",
-    { search: search.value, id_evento: id_evento.value.id, subtipo: comuna.value.value },
+    { search: search.value, id_evento: id_evento.value.id, subtipo: comuna.value.value, anio: anio.value },
     {
       preserveState: true,
       replace: true,
@@ -256,10 +289,11 @@ const limpiar = () => {
   search.value = "";
   id_evento.value = props.eventos.find((item) => item.id == 16);
   comuna.value = "";
+  anio.value = new Date().getFullYear();
 
   router.get(
     "/votantesPresencial",
-    { search: search.value, id_evento: id_evento.value, subtipo: comuna.value },
+    { search: search.value, id_evento: id_evento.value, subtipo: comuna.value, anio: anio.value },
     {
       preserveState: true,
       replace: true,
