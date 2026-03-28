@@ -1,5 +1,5 @@
 <template>
-  <Head title="Agregar ruta" />
+  <Head title="Editar ruta" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header> Editar Ruta </template>
@@ -88,7 +88,7 @@
               :class="{ 'opacity-25': form.processing || isFechaFinInvalida }"
               :disabled="form.processing || isFechaFinInvalida"
             >
-              Registrar Ruta
+              Actualizar Ruta
             </PrimaryButton>
           </div>
         </form>
@@ -187,7 +187,7 @@ const submit = () => {
     });
     return;
   }
-  form.patch(route("rutas.update"), {
+  form.patch(route("rutas.update", props.ruta.id), {
     onSuccess: () =>
       swal({
         title: "Registro Actualizado",

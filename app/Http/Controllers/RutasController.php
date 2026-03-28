@@ -17,7 +17,7 @@ class RutasController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:rutas-listar|rutas-crear|rutas-editar|rutas-eliminar', ['only' => ['index', 'store']]);
+        $this->middleware('permission:rutas-listar|rutas-crear|rutas-editar|rutas-eliminar', ['only' => ['index', 'store', 'show']]);
         $this->middleware('permission:rutas-crear', ['only' => ['create', 'store']]);
         $this->middleware('permission:rutas-editar', ['only' => ['edit', 'update']]);
         $this->middleware('permission:rutas-eliminar', ['only' => ['destroy']]);
@@ -70,6 +70,18 @@ class RutasController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $ruta = RutasVotaciones::findOrFail($id);
+        return Inertia::render('Rutas/Show', compact('ruta'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
@@ -99,5 +111,19 @@ class RutasController extends Controller
         $ruta->update($request->all());
         return redirect()->route('rutas.index')
             ->with('success', 'Ruta actualizada exitosamente.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $ruta = RutasVotaciones::findOrFail($id);
+        $ruta->delete();
+        return redirect()->route('rutas.index')
+            ->with('success', 'Ruta eliminada exitosamente.');
     }
 }

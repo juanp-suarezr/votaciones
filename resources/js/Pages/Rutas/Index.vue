@@ -93,13 +93,29 @@
                   <td
                     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                   >
-                    <SecondaryLink
-                      type="button"
-                      :href="route('rutas.edit', ruta.id)"
-                      class="mb-2"
-                    >
-                      Editar
-                    </SecondaryLink>
+                    <div class="flex gap-2">
+                      <SecondaryLink
+                        type="button"
+                        :href="route('rutas.show', ruta.id)"
+                        class="mb-2"
+                      >
+                        Ver
+                      </SecondaryLink>
+                      <SecondaryLink
+                        type="button"
+                        :href="route('rutas.edit', ruta.id)"
+                        class="mb-2"
+                      >
+                        Editar
+                      </SecondaryLink>
+                      <DangerButton
+                        type="button"
+                        @click="eliminarRuta(ruta.id)"
+                        class="mb-2"
+                      >
+                        Eliminar
+                      </DangerButton>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -129,6 +145,10 @@ import { router } from "@inertiajs/vue3";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
+import DangerButton from "@/Components/DangerButton.vue";
+import { inject } from "vue";
+
+const swal = inject("$swal");
 
 const props = defineProps({
   rutas: {
@@ -142,6 +162,38 @@ const breadcrumbLinks = [{ url: "", text: "listado de rutas de votaciones" }];
 const formatDate = (date) => {
   const [year, month, day] = date.split("T")[0].split("-");
   return `${year}-${month}-${day}`;
+};
+
+const eliminarRuta = (id) => {
+  swal({
+    title: "¿Estás seguro?",
+    text: "Esta acción no se puede deshacer",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.delete(route("rutas.destroy", id), {
+        onSuccess: () => {
+          swal({
+            title: "Eliminado",
+            text: "La ruta ha sido eliminada exitosamente",
+            icon: "success",
+          });
+        },
+        onError: () => {
+          swal({
+            title: "Error",
+            text: "Ocurrió un error al eliminar la ruta",
+            icon: "error",
+          });
+        },
+      });
+    }
+  });
 };
 
 </script>
