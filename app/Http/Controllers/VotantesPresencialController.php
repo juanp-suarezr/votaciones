@@ -83,9 +83,33 @@ class VotantesPresencialController extends Controller
             ->paginate(5)
             ->withQueryString(); // Mantener los parámetros en la URL
 
+        // Obtener comunas que tienen votos para el evento seleccionado
+        $comunas = Votos::where('id_eventos', $id_evento)
+            ->whereHas('votante', function ($query) {
+                $query->whereNotNull('comuna')
+                    ->where('comuna', '!=', 0);
+            })
+            ->with(['votante' => function ($query) {
+                $query->select('id', 'comuna');
+            }])
+            ->get()
+            ->pluck('votante.comuna')
+            ->unique()
+            ->sort()
+            ->values();
+
+        // Mapear las comunas a formato {value, label}
+        $comunasFormateadas = $comunas->map(function ($comuna) {
+            return [
+                'value' => (string) $comuna,
+                'label' => $this->getNombreComuna($comuna)
+            ];
+        });
+
         return Inertia::render('ReporteVotantes/Index', [
             'votantes_voto' => $votantes,
             'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->where('evento_padre', 0)->where('tipos', 'LIKE', '%Presupuesto Participativo%')->get(),
+            'comunas' => $comunasFormateadas,
             'filters' => RequestFacade::only(['search', 'id_evento', 'subtipo']),
         ]);
     }
@@ -263,6 +287,85 @@ class VotantesPresencialController extends Controller
             Log::error('Error al registrar jurado: ' . $e->getMessage());
             return redirect()->back()->withErrors('error', 'Error al registrar el votante.' . $e->getMessage());
         }
+    }
+
+    /**
+     * Obtener comunas que tienen votos para un evento específico
+     */
+    public function getComunasPorEvento()
+    {
+        $id_evento = RequestFacade::input('id_evento');
+        
+        if (!$id_evento) {
+            return response()->json([]);
+        }
+
+        // Obtener comunas únicas que tienen votos en este evento
+        $comunas = Votos::where('id_eventos', $id_evento)
+            ->whereHas('votante', function ($query) {
+                $query->whereNotNull('comuna')
+                    ->where('comuna', '!=', 0);
+            })
+            ->with(['votante' => function ($query) {
+                $query->select('id', 'comuna');
+            }])
+            ->get()
+            ->pluck('votante.comuna')
+            ->unique()
+            ->sort()
+            ->values();
+
+        // Mapear las comunas a formato {value, label}
+        $comunasFormateadas = $comunas->map(function ($comuna) {
+            return [
+                'value' => (string) $comuna,
+                'label' => $this->getNombreComuna($comuna)
+            ];
+        });
+
+        return response()->json($comunasFormateadas);
+    }
+
+    /**
+     * Obtener nombre de comuna por su valor
+     */
+    private function getNombreComuna($valor)
+    {
+        $comunas = [
+            '1' => 'Centro',
+            '2' => 'Universidad',
+            '3' => 'El Oso',
+            '4' => 'Consota',
+            '5' => 'El Jardín',
+            '6' => 'San Joaquin',
+            '7' => 'Ferrocarril',
+            '8' => 'Olímpica',
+            '9' => 'Del Cafe',
+            '10' => 'El Poblado',
+            '11' => 'Cuba',
+            '12' => 'Villasantana',
+            '13' => 'Rio Otún',
+            '14' => 'San Nicolas',
+            '15' => 'Perla Del Otún',
+            '16' => 'Villavicencio',
+            '17' => 'Boston',
+            '18' => 'Oriente',
+            '19' => 'El Rocío',
+            '21' => 'Altagracia',
+            '22' => 'Arabia',
+            '23' => 'Caimalito',
+            '24' => 'Cerritos',
+            '25' => 'Combia Baja',
+            '26' => 'La Bella',
+            '27' => 'Combia Alta',
+            '28' => 'La Estrella -- La palmilla',
+            '29' => 'La Florida',
+            '30' => 'Morelia',
+            '31' => 'Tribunas Córcega',
+            '32' => 'Puerto Caldas',
+        ];
+
+        return $comunas[$valor] ?? "Comuna {$valor}";
     }
 
     public function excel()

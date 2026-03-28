@@ -355,6 +355,8 @@ Route::middleware('auth')->group(function () {
 
     //descargar excel
     Route::get('/votantes/exportar', [VotantesPresencialController::class, 'excel'])->name('votantes.excel');
+    //obtener comunas por evento
+    Route::get('/votantes/comunas-por-evento', [VotantesPresencialController::class, 'getComunasPorEvento'])->name('votantes.comunasPorEvento');
     //descargar excel funcionarios planeacion
     Route::get('/funcionarios/exportar', [FuncionariosController::class, 'zip'])->name('funcionarios.zip');
 

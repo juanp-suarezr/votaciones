@@ -23,7 +23,7 @@
         <Select
           id="comuna"
           v-model="comuna"
-          :options="comunas"
+          :options="comunasDisponibles"
           filter
           optionLabel="label"
           placeholder="Seleccione la comuna/corregimiento"
@@ -203,8 +203,6 @@ import Avatar from "primevue/avatar";
 import Select from "primevue/select";
 import { DocumentArrowDownIcon } from "@heroicons/vue/24/solid";
 
-import comunas from "@/shared/comunas_completas.json"; // Importa el JSON
-
 const props = defineProps({
   votantes_voto: {
     type: Object,
@@ -213,6 +211,10 @@ const props = defineProps({
   eventos: {
     type: Object,
     default: () => ({}),
+  },
+  comunas: {
+    type: Array,
+    default: () => [],
   },
   filters: {
     type: Object,
@@ -227,6 +229,7 @@ const breadcrumbLinks = [{ url: "", text: "Reporte de votantes x evento" }];
 // pass filters in search
 let search = ref(props.filters.search);
 let comuna = ref(props.filters.comuna ?? "");
+let comunasDisponibles = ref(props.comunas);
 
 let id_evento = ref(props.eventos[0]);
 
@@ -277,6 +280,36 @@ const getInitials = function (name) {
   }
   return initials;
 };
+
+// Función para cargar comunas dinámicamente según el evento seleccionado
+const cargarComunasPorEvento = async (eventoId) => {
+  if (!eventoId) {
+    comunasDisponibles.value = [];
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/votantes/comunas-por-evento?id_evento=${eventoId}`);
+    const data = await response.json();
+    comunasDisponibles.value = data;
+    
+    // Si la comuna seleccionada no está en las nuevas comunas, limpiarla
+    if (comuna.value && !data.find(c => c.value === comuna.value.value)) {
+      comuna.value = "";
+    }
+  } catch (error) {
+    console.error('Error al cargar comunas:', error);
+    comunasDisponibles.value = [];
+  }
+};
+
+// Watcher para actualizar comunas cuando cambie el evento
+watch(id_evento, (newEvento) => {
+  if (newEvento && newEvento.id) {
+    cargarComunasPorEvento(newEvento.id);
+  }
+});
+
 watch(search, (value) => {
   console.log("Valor de búsqueda actualizado:", value);
 });
