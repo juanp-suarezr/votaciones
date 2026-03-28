@@ -135,25 +135,33 @@ class CargueVotantesFisicoController extends Controller
      */
     private function obtenerDestinatarios()
     {
-        // Opción 1: Verificar variable de entorno
+        // Opción 1: Verificar variable de entorno (prioridad máxima)
         if (env('EMAIL_INFORME_VOTANTES')) {
-            return array_map('trim', explode(',', env('EMAIL_INFORME_VOTANTES')));
+            $emails = array_map('trim', explode(',', env('EMAIL_INFORME_VOTANTES')));
+            // Filtrar emails vacíos y duplicados
+            $emails = array_unique(array_filter($emails, function($email) {
+                return !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
+            }));
+            return array_values($emails);
         }
 
-        // Opción 2: Buscar administradores
-        $admins = User::role(['admin', 'superadmin'])->pluck('email')->toArray();
-
-        if (!empty($admins)) {
-            return $admins;
-        }
-
-        // Opción 3: Buscar el primer usuario con email verificado
-        $admin = User::whereNotNull('email_verified_at')
+        // Opción 2: Buscar solo UN administrador (el primero con email verificado)
+        $admin = User::role(['admin', 'superadmin'])
+            ->whereNotNull('email_verified_at')
             ->orderBy('id')
             ->first();
 
         if ($admin && $admin->email) {
             return [$admin->email];
+        }
+
+        // Opción 3: Buscar el primer usuario con email verificado (sin rol específico)
+        $usuario = User::whereNotNull('email_verified_at')
+            ->orderBy('id')
+            ->first();
+
+        if ($usuario && $usuario->email) {
+            return [$usuario->email];
         }
 
         return [];
