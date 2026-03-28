@@ -153,7 +153,7 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
                             'validaciones' => 'voto fisico',
                             'subtipo' => $comuna,
                             'tipo' => 'Votante',
-                            'estado' => 'pendiente',
+                            'estado' => 'Activo',
                             'fisico_info' => 'ok',
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -206,22 +206,78 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
                     ->first();
 
                 if (!$hashVotante) {
-                    $this->numNoEncontrados++;
-                    $this->erroresDetallados[] = [
+                    // Votante existe en informacion_votantes pero no pertenece al evento actual
+                    // Registrarlo en el evento con hash_votantes
+                    $this->numWarnings++;
+                    $this->votantesWarnings[] = [
                         'fila' => $filaExcel,
                         'identificacion' => $identificacion,
                         'nombre' => $nombre,
-                        'error' => "No encontrado en el evento {$this->nombreEvento}"
+                        'warning' => 'Votante registrado en otros eventos, sin registro en primera fase de validación',
                     ];
-                    $this->votantesNoActualizados[] = [
-                        'fila' => $filaExcel,
-                        'identificacion' => $identificacion,
-                        'nombre' => $nombre,
-                        'error' => "No encontrado en el evento {$this->nombreEvento}"
-                    ];
-                    $filaExcel++;
-                    $index++;
-                    continue;
+                    
+                    try {
+                        // Obtener comuna de los datos del Excel
+                        $comuna = $rowData[11] ?? null;
+                        
+                        // Crear registro en hash_votantes para el evento actual
+                        Hash_votantes::create([
+                            'id_evento' => $this->idEventoValidar,
+                            'id_votante' => $votante->id,
+                            'validaciones' => 'voto fisico',
+                            'subtipo' => $comuna,
+                            'tipo' => 'Votante',
+                            'estado' => 'Activo',
+                            'fisico_info' => 'ok',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        
+                        // Preparar datos para actualizar
+                        $datosActualizar = $this->prepararDatos($rowData, $row);
+                        
+                        // Actualizar solo si hay datos para actualizar
+                        if (!empty($datosActualizar)) {
+                            $votante->update($datosActualizar);
+                        }
+                        
+                        $this->numRegistrosActualizados++;
+                        
+                        // Trackear comuna si viene en los datos
+                        $nombreComuna = $this->obtenerNombreComuna($comuna);
+                        if ($comuna && !isset($this->comunasProcesadas[$comuna])) {
+                            $this->comunasProcesadas[$comuna] = $nombreComuna;
+                        }
+                        
+                        $this->votantesActualizados[] = [
+                            'identificacion' => $identificacion,
+                            'nombre' => $votante->nombre,
+                            'comuna' => $nombreComuna,
+                            'id_comuna' => $comuna,
+                            'accion' => 'Registrado en evento (votante de otros eventos)',
+                        ];
+                        
+                        $filaExcel++;
+                        $index++;
+                        continue;
+                    } catch (\Exception $e) {
+                        $this->numErrores++;
+                        $this->erroresDetallados[] = [
+                            'fila' => $filaExcel,
+                            'identificacion' => $identificacion,
+                            'nombre' => $nombre,
+                            'error' => 'Error al registrar en evento: ' . $e->getMessage(),
+                        ];
+                        $this->votantesNoActualizados[] = [
+                            'fila' => $filaExcel,
+                            'identificacion' => $identificacion,
+                            'nombre' => $nombre,
+                            'error' => 'Error al registrar en evento: ' . $e->getMessage(),
+                        ];
+                        $filaExcel++;
+                        $index++;
+                        continue;
+                    }
                 }
 
                 // Obtener el votante desde hash_votante
