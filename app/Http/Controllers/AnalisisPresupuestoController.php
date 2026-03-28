@@ -372,6 +372,7 @@ class AnalisisPresupuestoController extends Controller
 
     function ResultadosProyectos(Request $request)
     {
+        dd($request->all());
 
         // 1. Traer los proyectos del evento y subtipo (comuna)
         $proyectos = Hash_proyectos::where('id_evento', $request->id_evento)
