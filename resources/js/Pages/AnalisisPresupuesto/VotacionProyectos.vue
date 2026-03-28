@@ -258,28 +258,6 @@ const Submit = () => {
         </div>
         <!-- contenido graficas y tabla resultados -->
         <div class="mt-6">
-          <!-- graficas -->
-          <div class="w-full mt-6">
-            <!-- pie chart -->
-            <!-- <div class="w-full items-center mb-4 md:col-span-2">
-            <Chart
-              type="doughnut"
-              :data="chartData"
-              :options="chartOptions"
-              class="h-full w-full mt-4"
-            />
-          </div> -->
-
-            <!-- bar chart -->
-            <div class="w-full h-full mt-4">
-              <Chart
-                type="bar"
-                :data="chartDataBar"
-                :options="chartOptionsBar"
-                class="w-full mt-4"
-              />
-            </div>
-          </div>
           <!-- tabla resultados -->
           <div class="w-full mb-4">
             <!-- table -->
@@ -304,7 +282,19 @@ const Submit = () => {
                           <th
                             class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
                           >
-                            Votos
+                            Votos Virtuales
+                          </th>
+
+                          <th
+                            class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                          >
+                            Votos Físicos
+                          </th>
+
+                          <th
+                            class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                          >
+                            Total
                           </th>
                         </tr>
                       </thead>
@@ -319,6 +309,20 @@ const Submit = () => {
                           >
                             <p class="text-gray-900 whitespace-no-wrap">
                               {{ res.nombre }}
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              {{ res.votos_virtuales }}
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              {{ res.votos_fisicos }}
                             </p>
                           </td>
                           <td
@@ -342,6 +346,20 @@ const Submit = () => {
                             class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                           >
                             <p class="text-gray-900 whitespace-no-wrap">
+                              -
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              -
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
                               {{ votos_nulos }}
                             </p>
                           </td>
@@ -359,6 +377,20 @@ const Submit = () => {
                             class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                           >
                             <p class="text-gray-900 whitespace-no-wrap">
+                              -
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
+                              -
+                            </p>
+                          </td>
+                          <td
+                            class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          >
+                            <p class="text-gray-900 whitespace-no-wrap">
                               {{ votos_no_marcados }}
                             </p>
                           </td>
@@ -367,6 +399,12 @@ const Submit = () => {
                         <tr class="bg-gray-200 font-bold text-gray-900">
                           <td class="border-b-2 border-gray-400 px-5 py-3 text-sm">
                             TOTALES
+                          </td>
+                          <td class="border-b-2 border-gray-400 px-5 py-3 text-sm">
+                            {{ total_votos_virtuales_proyectos }}
+                          </td>
+                          <td class="border-b-2 border-gray-400 px-5 py-3 text-sm">
+                            {{ total_votos_fisicos_proyectos }}
                           </td>
                           <td class="border-b-2 border-gray-400 px-5 py-3 text-sm">
                             {{ total_general }}
@@ -384,6 +422,28 @@ const Submit = () => {
               class="flex flex-col overflow-x-auto justify-center items-center"
             >
               <em> No hay datos con votaciones realizadas </em>
+            </div>
+          </div>
+          <!-- graficas -->
+          <div class="w-full mt-6">
+            <!-- pie chart -->
+            <!-- <div class="w-full items-center mb-4 md:col-span-2">
+            <Chart
+              type="doughnut"
+              :data="chartData"
+              :options="chartOptions"
+              class="h-full w-full mt-4"
+            />
+          </div> -->
+
+            <!-- bar chart -->
+            <div class="w-full h-full mt-4">
+              <Chart
+                type="bar"
+                :data="chartDataBar"
+                :options="chartOptionsBar"
+                class="w-full mt-4"
+              />
             </div>
           </div>
         </div>
