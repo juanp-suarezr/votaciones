@@ -17,9 +17,11 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
     private $numRegistrosActualizados = 0;
     private $numNoEncontrados = 0;
     private $numErrores = 0;
+    private $numWarnings = 0;
     private $erroresDetallados = [];
     private $votantesActualizados = [];
     private $votantesNoActualizados = [];
+    private $votantesWarnings = [];
     private $totalRegistros = 0;
     private $idEventoValidar = 15; // ID del evento a validar
     private $nombreEvento = '';
@@ -104,9 +106,99 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
             }
 
             try {
-                // PRIMERA VALIDACIÓN (PRINCIPAL): Verificar directamente en hash_votantes para el evento
-                // Usamos whereHas para buscar solo registros del evento cuyo votante tenga esa identificación
-                // Esto evita el problema de encontrar primero registros de otros eventos
+                // PRIMERA VALIDACIÓN: Verificar si la identificación existe como votante
+                $votante = Informacion_votantes::where('identificacion', $identificacion)->first();
+
+                if (!$votante) {
+                    // Crear el votante con los datos del Excel
+                    $datosVotante = $this->prepararDatosVotante($rowData);
+                    
+                    if (empty($datosVotante['identificacion']) || empty($datosVotante['nombre'])) {
+                        $this->numErrores++;
+                        $this->erroresDetallados[] = [
+                            'fila' => $filaExcel,
+                            'identificacion' => $identificacion,
+                            'nombre' => $nombre,
+                            'error' => 'Datos insuficientes para crear el votante (falta identificación o nombre)',
+                        ];
+                        $this->votantesNoActualizados[] = [
+                            'fila' => $filaExcel,
+                            'identificacion' => $identificacion,
+                            'nombre' => $nombre,
+                            'error' => 'Datos insuficientes para crear el votante',
+                        ];
+                        $filaExcel++;
+                        $index++;
+                        continue;
+                    }
+                    
+                    // No es votante - agregar como warning (no como error)
+                    $this->numWarnings++;
+                    $this->votantesWarnings[] = [
+                        'fila' => $filaExcel,
+                        'identificacion' => $identificacion,
+                        'nombre' => $nombre,
+                        'warning' => 'No registrado como votante en la primera fase de validación',
+                    ];
+                    
+                    try {
+                        // Crear el votante en la tabla votantes
+                        $votante = Informacion_votantes::create($datosVotante);
+                        
+                        // Crear registro en hash_votantes con id_evento = 15
+                        $comuna = $datosVotante['comuna'] ?? null;
+                        Hash_votantes::create([
+                            'id_evento' => $this->idEventoValidar,
+                            'id_votante' => $votante->id,
+                            'validaciones' => 'voto fisico',
+                            'subtipo' => $comuna,
+                            'tipo' => 'Votante',
+                            'estado' => 'pendiente',
+                            'fisico_info' => 'ok',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        
+                        $this->numRegistrosActualizados++;
+                        
+                        // Trackear comuna si viene en los datos
+                        $nombreComuna = $this->obtenerNombreComuna($comuna);
+                        if ($comuna && !isset($this->comunasProcesadas[$comuna])) {
+                            $this->comunasProcesadas[$comuna] = $nombreComuna;
+                        }
+                        
+                        $this->votantesActualizados[] = [
+                            'identificacion' => $identificacion,
+                            'nombre' => $votante->nombre,
+                            'comuna' => $nombreComuna,
+                            'id_comuna' => $comuna,
+                            'accion' => 'Creado nuevo votante',
+                        ];
+                        
+                        $filaExcel++;
+                        $index++;
+                        continue;
+                    } catch (\Exception $e) {
+                        $this->numErrores++;
+                        $this->erroresDetallados[] = [
+                            'fila' => $filaExcel,
+                            'identificacion' => $identificacion,
+                            'nombre' => $nombre,
+                            'error' => 'Error al crear votante: ' . $e->getMessage(),
+                        ];
+                        $this->votantesNoActualizados[] = [
+                            'fila' => $filaExcel,
+                            'identificacion' => $identificacion,
+                            'nombre' => $nombre,
+                            'error' => 'Error al crear votante: ' . $e->getMessage(),
+                        ];
+                        $filaExcel++;
+                        $index++;
+                        continue;
+                    }
+                }
+
+                // SEGUNDA VALIDACIÓN: Verificar si el votante pertenece al evento
                 $hashVotante = Hash_votantes::where('id_evento', $this->idEventoValidar)
                     ->whereHas('votante', function ($query) use ($identificacion) {
                         $query->where('identificacion', $identificacion);
@@ -320,6 +412,79 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
     }
 
     /**
+     * Preparar los datos para crear un nuevo votante desde el Excel
+     */
+    private function prepararDatosVotante($rowData)
+    {
+        $datos = [];
+
+        // [0] nombre
+        if (isset($rowData[0]) && trim($rowData[0]) !== '') {
+            $datos['nombre'] = trim($rowData[0]);
+        }
+
+        // [1] tipo documento
+        if (isset($rowData[1]) && !empty($rowData[1])) {
+            $datos['tipo_documento'] = trim($rowData[1]);
+        }
+
+        // [2] identificacion
+        if (isset($rowData[2]) && !empty($rowData[2])) {
+            $datos['identificacion'] = trim($rowData[2]);
+        }
+
+        // [3] email (opcional)
+        if (isset($rowData[3]) && !empty($rowData[3])) {
+            $datos['email'] = trim(strtolower($rowData[3]));
+        }
+
+        // [4] fecha nacimiento (formato: dd/mm/yyyy)
+        if (isset($rowData[4]) && !empty($rowData[4])) {
+            $fechaFormateada = $this->formatearFecha($rowData[4]);
+            if ($fechaFormateada) {
+                $datos['nacimiento'] = $fechaFormateada;
+            }
+        }
+
+        // [5] Genero
+        if (isset($rowData[5]) && !empty($rowData[5])) {
+            $datos['genero'] = trim($rowData[5]);
+        }
+
+        // [6] Grupo poblacional (etnia)
+        if (isset($rowData[6]) && !empty($rowData[6])) {
+            $datos['etnia'] = trim($rowData[6]);
+        }
+
+        // [7] condicion
+        if (isset($rowData[7]) && !empty($rowData[7])) {
+            $datos['condicion'] = trim($rowData[7]);
+        }
+
+        // [8] numero telefono (opcional) - celular
+        if (isset($rowData[8]) && !empty($rowData[8])) {
+            $datos['celular'] = trim($rowData[8]);
+        }
+
+        // [9] direccion
+        if (isset($rowData[9]) && !empty($rowData[9])) {
+            $datos['direccion'] = trim($rowData[9]);
+        }
+
+        // [10] barrio
+        if (isset($rowData[10]) && !empty($rowData[10])) {
+            $datos['barrio'] = trim($rowData[10]);
+        }
+
+        // [11] comuna (ya viene con el ID)
+        if (isset($rowData[11]) && $rowData[11] !== null && $rowData[11] !== '') {
+            $datos['comuna'] = trim($rowData[11]);
+        }
+
+        return $datos;
+    }
+
+    /**
      * Formatear fecha de dd/mm/yyyy a formato MySQL (yyyy-mm-dd)
      */
     private function formatearFecha($fecha)
@@ -395,6 +560,16 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
         return $this->totalRegistros;
     }
 
+    public function getNumWarnings()
+    {
+        return $this->numWarnings;
+    }
+
+    public function getVotantesWarnings()
+    {
+        return $this->votantesWarnings;
+    }
+
     /**
      * Obtener resumen de la importación
      */
@@ -405,8 +580,10 @@ class ActualizarInformacionVotantesImport implements ToCollection, WithHeadingRo
             'actualizados' => $this->numRegistrosActualizados,
             'noEncontrados' => $this->numNoEncontrados,
             'errores' => $this->numErrores,
+            'warnings' => $this->numWarnings,
             'votantesActualizados' => $this->votantesActualizados,
             'votantesNoActualizados' => $this->votantesNoActualizados,
+            'votantesWarnings' => $this->votantesWarnings,
             'fechaProceso' => now()->format('d/m/Y H:i:s'),
             'nombreEvento' => $this->nombreEvento,
             'comunasProcesadas' => $this->comunasProcesadas,
