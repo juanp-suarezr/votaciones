@@ -76,8 +76,10 @@ class CargueVotantesFisicoController extends Controller
                 'actualizados' => $numRegistrosActualizados,
                 'noEncontrados' => $numNoEncontrados,
                 'errores' => $numErrores,
+                'warnings' => $resumen['warnings'] ?? 0,
                 'votantesActualizados' => $votantesActualizados,
                 'votantesNoActualizados' => $votantesNoActualizados,
+                'votantesWarnings' => $resumen['votantesWarnings'] ?? [],
                 'fechaProceso' => now()->format('d/m/Y H:i:s'),
                 'comunasProcesadas' => $resumen['comunasProcesadas'] ?? [],
             ]);

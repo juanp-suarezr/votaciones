@@ -81,6 +81,7 @@
         .stat-no-encontrados { color: #f59e0b; }
         .stat-errores { color: #dc2626; }
         .stat-total { color: #2563eb; }
+        .stat-warnings { color: #f59e0b; }
 
         .section {
             margin: 20px 0;
@@ -133,6 +134,16 @@
         .actualizados h3 {
             color: #16a34a;
             border-bottom: 2px solid #16a34a;
+        }
+
+        .warnings {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+
+        .warnings h3 {
+            color: #d97706;
+            border-bottom: 2px solid #d97706;
         }
 
         .footer {
@@ -188,6 +199,10 @@
                     <div class="stat-number stat-errores">{{ $errores }}</div>
                     <div class="stat-label">Errores</div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-number stat-warnings">{{ $warnings }}</div>
+                    <div class="stat-label">Warnings</div>
+                </div>
             </div>
         </div>
 
@@ -224,6 +239,35 @@
                             <td>{{ $votante['identificacion'] }}</td>
                             <td>{{ $votante['nombre'] ?? 'N/A' }}</td>
                             <td>{{ $votante['error'] }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        @if(count($votantesWarnings) > 0)
+        <div class="section warnings">
+            <h3>⚠️ Warnings (Advertencias)</h3>
+            <p>Estos registros generaron advertencias durante el proceso:</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fila Excel</th>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Advertencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($votantesWarnings as $votante)
+                        <tr>
+                            <td>{{ $votante['fila'] }}</td>
+                            <td>{{ $votante['identificacion'] }}</td>
+                            <td>{{ $votante['nombre'] ?? 'N/A' }}</td>
+                            <td>{{ $votante['warning'] }}</td>
                         </tr>
                         @endforeach
                     </tbody>
