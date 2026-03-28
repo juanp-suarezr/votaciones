@@ -62,6 +62,9 @@
                 Género
               </th>
               <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
+                Comuna
+              </th>
+              <th class="px-4 py-2 text-left text-xs font-bold text-gray-700">
                 Fecha de creación
               </th>
             </tr>
@@ -80,6 +83,9 @@
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ votante.votante.genero || 'N/A' }}
+              </td>
+              <td class="px-4 py-2 text-sm text-gray-700">
+                {{ getComuna(votante.votante.comuna) || 'N/A' }}
               </td>
               <td class="px-4 py-2 text-sm text-gray-700">
                 {{ formatDate(votante.created_at) }}
