@@ -39,6 +39,7 @@ use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Parametros;
 use App\Models\ParametrosDetalle;
+use App\Models\RutasVotaciones;
 use App\Models\UsuariosBiometricos;
 use App\Models\Votos;
 use Carbon\Carbon;
@@ -127,7 +128,7 @@ Route::get('/consulta-funcionario/{identificacion}/{id}', function ($identificac
 //landing welcome
 Route::get('/welcome', function () {
     // Verificar si la ruta de register está bloqueada
-    $rutaRegister = \App\Models\RutasVotaciones::where('path', 'register')->first();
+    $rutaRegister = RutasVotaciones::where('path', 'register')->first();
     $registerBloqueado = $rutaRegister && $rutaRegister->estado == 0;
 
     return Inertia::render('Welcome', [
