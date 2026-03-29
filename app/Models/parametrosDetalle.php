@@ -26,6 +26,7 @@ class ParametrosDetalle extends Model
         'en_inscripcion',
         'preliminares',
         'votos',
+        'comuna',
 
     ];
 

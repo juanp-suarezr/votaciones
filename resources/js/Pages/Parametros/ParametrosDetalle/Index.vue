@@ -131,6 +131,12 @@
               Votos
             </th>
             <th
+              v-if="filters.codParametro === 'pt_v'"
+              class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+            >
+              Comuna
+            </th>
+            <th
               class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
             >
               Acciones
@@ -204,6 +210,14 @@
                 :class="{ '!bg-green-400': ev.votos === 1 }"
               >
                 {{ ev.votos ? "Sí" : "No" }}
+              </p>
+            </td>
+            <td
+              v-if="filters.codParametro === 'pt_v'"
+              class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs"
+            >
+              <p class="text-gray-900 whitespace-no-wrap">
+                {{ getComuna(ev.comuna) }}
               </p>
             </td>
             <td
@@ -363,6 +377,28 @@
             <InputError class="mt-1" :message="form.errors.votos" />
           </div>
         </div>
+        <!-- Campo comuna (solo para codParametro pt_v) -->
+        <div v-if="filters.codParametro === 'pt_v'">
+          <div class="mt-4">
+            <InputLabel
+              class="sm:text-sm text-xs"
+              for="comuna"
+              value="Comuna"
+            />
+            <Select
+              id="comuna"
+              name="comuna"
+              v-model="form.comuna"
+              :options="comunas"
+              optionLabel="label"
+              optionValue="value"
+              filter
+              placeholder="Seleccione una comuna"
+              class="mt-1 block w-full"
+            />
+            <InputError class="mt-1" :message="form.errors.comuna" />
+          </div>
+        </div>
         <!-- botones -->
         <div class="flex items-center justify-end mt-6">
           <Button
@@ -433,6 +469,8 @@ import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import SecondaryLink from "@/Components/SecondaryLink.vue";
 import Button from "primevue/button";
+import Select from "primevue/select";
+import comunas from "@/shared/comunas.json";
 
 const props = defineProps({
   parametros: {
@@ -461,6 +499,7 @@ const form = useForm({
   en_inscripcion: 0,
   preliminares: 0,
   votos: 0,
+  comuna: null,
   file: null,
 });
 
@@ -493,6 +532,11 @@ const Actualizar = (id) => {
     form.en_inscripcion = parametro ? parametro.en_inscripcion : 0;
     form.preliminares = parametro ? parametro.preliminares : 0;
     form.votos = parametro ? parametro.votos : 0;
+  }
+  
+  // Cargar campo comuna si codParametro es pt_v
+  if (props.filters.codParametro === 'pt_v') {
+    form.comuna = parametro ? parametro.comuna : null;
   }
   
   visible.value = true;
@@ -604,5 +648,9 @@ const clearFilters = () => {
   search.value = "";
   estado.value = "";
   handleEnterKey();
+};
+
+const getComuna = (idComuna) => {
+  return comunas.find((item) => item.value == idComuna)?.label;
 };
 </script>

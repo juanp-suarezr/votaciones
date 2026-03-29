@@ -78,6 +78,7 @@ class ParametrosDetalleController extends Controller
             'en_inscripcion' => '',
             'preliminares' => '',
             'votos' => '',
+            'comuna' => '',
 
         ]);
 
@@ -97,6 +98,11 @@ class ParametrosDetalleController extends Controller
                 $parametroData['en_inscripcion'] = $request->en_inscripcion ?? 0;
                 $parametroData['preliminares'] = $request->preliminares ?? 0;
                 $parametroData['votos'] = $request->votos ?? 0;
+            }
+
+            // Si es de tipo pt_v, agregar el campo comuna
+            if ($request->codParametro === 'pt_v') {
+                $parametroData['comuna'] = $request->comuna ?? null;
             }
 
             $parametro = ParametrosDetalle::create($parametroData);
@@ -168,6 +174,7 @@ class ParametrosDetalleController extends Controller
             'en_inscripcion' => '',
             'preliminares' => '',
             'votos' => '',
+            'comuna' => '',
 
         ]);
 
@@ -245,6 +252,11 @@ class ParametrosDetalleController extends Controller
                 $updateData['en_inscripcion'] = $request->en_inscripcion ?? 0;
                 $updateData['preliminares'] = $request->preliminares ?? 0;
                 $updateData['votos'] = $request->votos ?? 0;
+            }
+
+            // Si es de tipo pt_v, agregar el campo comuna
+            if ($codParametro === 'pt_v') {
+                $updateData['comuna'] = $request->comuna ?? null;
             }
 
             $parametrosDetalle->update($updateData);
