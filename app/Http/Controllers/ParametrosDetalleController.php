@@ -74,18 +74,32 @@ class ParametrosDetalleController extends Controller
         $request->validate([
             'detalle' => 'required|string|max:100',
             'estado' => '',
+            'habilitada' => '',
+            'en_inscripcion' => '',
+            'preliminares' => '',
+            'votos' => '',
 
         ]);
 
         DB::beginTransaction(); // Iniciar la transacción
 
         try {
-            // Crear el usuario
-            $parametro = ParametrosDetalle::create([
+            // Crear el parámetro detalle
+            $parametroData = [
                 'codParametro' => $request->codParametro,
                 'detalle' => $request->detalle,
                 'estado' => 1,
-            ]);
+            ];
+
+            // Si es de tipo com01, agregar los campos de estado
+            if ($request->codParametro === 'com01') {
+                $parametroData['habilitada'] = $request->habilitada ?? 0;
+                $parametroData['en_inscripcion'] = $request->en_inscripcion ?? 0;
+                $parametroData['preliminares'] = $request->preliminares ?? 0;
+                $parametroData['votos'] = $request->votos ?? 0;
+            }
+
+            $parametro = ParametrosDetalle::create($parametroData);
 
 
             //save
@@ -150,6 +164,10 @@ class ParametrosDetalleController extends Controller
         $request->validate([
             'detalle' => 'required|string|max:100',
             'estado' => '',
+            'habilitada' => '',
+            'en_inscripcion' => '',
+            'preliminares' => '',
+            'votos' => '',
 
         ]);
 
@@ -218,7 +236,18 @@ class ParametrosDetalleController extends Controller
                 }
             }
 
-            $parametrosDetalle->update($request->only(['detalle', 'estado']));
+            // Preparar datos para actualización
+            $updateData = $request->only(['detalle', 'estado']);
+
+            // Si es de tipo com01, agregar los campos de estado
+            if ($codParametro === 'com01') {
+                $updateData['habilitada'] = $request->habilitada ?? 0;
+                $updateData['en_inscripcion'] = $request->en_inscripcion ?? 0;
+                $updateData['preliminares'] = $request->preliminares ?? 0;
+                $updateData['votos'] = $request->votos ?? 0;
+            }
+
+            $parametrosDetalle->update($updateData);
             // Confirmar la transacción
             DB::commit();
 

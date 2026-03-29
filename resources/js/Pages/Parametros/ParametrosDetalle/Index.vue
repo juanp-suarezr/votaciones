@@ -107,6 +107,30 @@
               Estado
             </th>
             <th
+              v-if="filters.codParametro === 'com01'"
+              class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+            >
+              Habilitada
+            </th>
+            <th
+              v-if="filters.codParametro === 'com01'"
+              class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+            >
+              En Inscripción
+            </th>
+            <th
+              v-if="filters.codParametro === 'com01'"
+              class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+            >
+              Preliminares
+            </th>
+            <th
+              v-if="filters.codParametro === 'com01'"
+              class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+            >
+              Votos
+            </th>
+            <th
               class="border-b-2 border-gray-200 bg-gray-100 sm:px-5 sm:py-3 p-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
             >
               Acciones
@@ -136,6 +160,50 @@
                 :class="{ '!bg-green-400': ev.estado === 1 }"
               >
                 {{ ev.estado ? "Activo" : "Bloqueado" }}
+              </p>
+            </td>
+            <td
+              v-if="filters.codParametro === 'com01'"
+              class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs"
+            >
+              <p
+                class="text-gray-900 whitespace-no-wrap inline-flex px-2 rounded-md bg-red-200"
+                :class="{ '!bg-green-400': ev.habilitada === 1 }"
+              >
+                {{ ev.habilitada ? "Sí" : "No" }}
+              </p>
+            </td>
+            <td
+              v-if="filters.codParametro === 'com01'"
+              class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs"
+            >
+              <p
+                class="text-gray-900 whitespace-no-wrap inline-flex px-2 rounded-md bg-red-200"
+                :class="{ '!bg-green-400': ev.en_inscripcion === 1 }"
+              >
+                {{ ev.en_inscripcion ? "Sí" : "No" }}
+              </p>
+            </td>
+            <td
+              v-if="filters.codParametro === 'com01'"
+              class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs"
+            >
+              <p
+                class="text-gray-900 whitespace-no-wrap inline-flex px-2 rounded-md bg-red-200"
+                :class="{ '!bg-green-400': ev.preliminares === 1 }"
+              >
+                {{ ev.preliminares ? "Sí" : "No" }}
+              </p>
+            </td>
+            <td
+              v-if="filters.codParametro === 'com01'"
+              class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs"
+            >
+              <p
+                class="text-gray-900 whitespace-no-wrap inline-flex px-2 rounded-md bg-red-200"
+                :class="{ '!bg-green-400': ev.votos === 1 }"
+              >
+                {{ ev.votos ? "Sí" : "No" }}
               </p>
             </td>
             <td
@@ -223,6 +291,77 @@
             <option value="0">Bloqueado</option>
           </select>
           <InputError class="mt-1" :message="form.errors.estado" />
+        </div>
+        <!-- Campos de comuna (solo para codParametro com01) -->
+        <div v-if="filters.codParametro === 'com01'">
+          <div class="mt-4">
+            <InputLabel
+              class="sm:text-sm text-xs"
+              for="habilitada"
+              value="Habilitada para votar"
+            />
+            <select
+              id="habilitada"
+              name="habilitada"
+              v-model="form.habilitada"
+              class="mt-1 block w-full p-0 sm:p-2"
+            >
+              <option value="1">Sí</option>
+              <option value="0">No</option>
+            </select>
+            <InputError class="mt-1" :message="form.errors.habilitada" />
+          </div>
+          <div class="mt-4">
+            <InputLabel
+              class="sm:text-sm text-xs"
+              for="en_inscripcion"
+              value="En etapa de inscripción"
+            />
+            <select
+              id="en_inscripcion"
+              name="en_inscripcion"
+              v-model="form.en_inscripcion"
+              class="mt-1 block w-full p-0 sm:p-2"
+            >
+              <option value="1">Sí</option>
+              <option value="0">No</option>
+            </select>
+            <InputError class="mt-1" :message="form.errors.en_inscripcion" />
+          </div>
+          <div class="mt-4">
+            <InputLabel
+              class="sm:text-sm text-xs"
+              for="preliminares"
+              value="Votación preliminar"
+            />
+            <select
+              id="preliminares"
+              name="preliminares"
+              v-model="form.preliminares"
+              class="mt-1 block w-full p-0 sm:p-2"
+            >
+              <option value="1">Sí</option>
+              <option value="0">No</option>
+            </select>
+            <InputError class="mt-1" :message="form.errors.preliminares" />
+          </div>
+          <div class="mt-4">
+            <InputLabel
+              class="sm:text-sm text-xs"
+              for="votos"
+              value="Votos generados"
+            />
+            <select
+              id="votos"
+              name="votos"
+              v-model="form.votos"
+              class="mt-1 block w-full p-0 sm:p-2"
+            >
+              <option value="1">Sí</option>
+              <option value="0">No</option>
+            </select>
+            <InputError class="mt-1" :message="form.errors.votos" />
+          </div>
         </div>
         <!-- botones -->
         <div class="flex items-center justify-end mt-6">
@@ -318,6 +457,10 @@ const form = useForm({
   detalle: "",
   codParametro: props.filters.codParametro,
   estado: "1",
+  habilitada: 0,
+  en_inscripcion: 0,
+  preliminares: 0,
+  votos: 0,
   file: null,
 });
 
@@ -342,8 +485,16 @@ const Actualizar = (id) => {
   let parametro = props.parametros.data.find((item) => item.id == id);
 
   form.detalle = parametro ? parametro.detalle : "";
-
   form.estado = parametro ? parametro.estado : "";
+  
+  // Cargar campos de comuna si codParametro es com01
+  if (props.filters.codParametro === 'com01') {
+    form.habilitada = parametro ? parametro.habilitada : 0;
+    form.en_inscripcion = parametro ? parametro.en_inscripcion : 0;
+    form.preliminares = parametro ? parametro.preliminares : 0;
+    form.votos = parametro ? parametro.votos : 0;
+  }
+  
   visible.value = true;
 
   parametroDetalle_id.value = id;
