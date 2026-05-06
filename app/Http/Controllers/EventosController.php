@@ -126,12 +126,15 @@ class EventosController extends Controller
             ->toArray();
 
 
+        $fecha_inicio = Carbon::parse($request->input('fecha_inicio'))->format('Y-m-d H:i:s');
+        $fecha_fin = Carbon::parse($request->input('fecha_fin'))->format('Y-m-d H:i:s');
+
         $eventos = Eventos::find($id_ev);
         $eventos->nombre = $request->nombre;
         $eventos->descripcion = $request->descripcion;
         $eventos->dependencias = $request->dependencias;
-        $eventos->fecha_inicio = $request->fecha_inicio;
-        $eventos->fecha_fin = $request->fecha_fin;
+        $eventos->fecha_inicio = $fecha_inicio;
+        $eventos->fecha_fin = $fecha_fin;
         $eventos->tipos = $request->tipos;
         $eventos->evento_padre = $request->is_evento_padre;
 
@@ -139,7 +142,6 @@ class EventosController extends Controller
         if ($eventos->estado != 'Pendiente' && $request->estado == 'Pendiente') {
 
             // El estado ha cambiado a Pendiente, setear aviso_inicio_enviado a 0
-            $eventos = Eventos::find(15);
             $eventos->aviso_inicio_enviado = 0;
         }
 
