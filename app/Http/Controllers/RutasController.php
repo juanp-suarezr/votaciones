@@ -105,7 +105,7 @@ class RutasController extends Controller
             'path' => 'required|string|max:255',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'estado' => 'required|in:activo,inactivo',
+            'estado' => 'required',
         ]);
         $ruta = RutasVotaciones::find($id);
         $ruta->update($request->all());
