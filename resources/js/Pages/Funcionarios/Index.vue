@@ -9,7 +9,7 @@
     </template>
 
     <div
-      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4"
+      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-4 gap-4"
     >
       <div>
         <Select
@@ -92,6 +92,34 @@
           <DocumentArrowDownIcon class="h-6 w-6 me-2" />Exportar
         </a>
       </div>
+
+      <!-- Import Section -->
+      <div class="p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-lg font-semibold mb-2">Importar Funcionarios</h3>
+        <form @submit.prevent="importFuncionarios" enctype="multipart/form-data">
+          <div class="mb-2">
+            <InputLabel for="import_file" value="Seleccionar archivo Excel" />
+            <input
+              type="file"
+              id="import_file"
+              ref="importFile"
+              accept=".xlsx,.xls,.csv"
+              class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+              required
+            />
+          </div>
+          <PrimaryButton
+            :class="{ 'opacity-25': importForm.processing }"
+            :disabled="importForm.processing"
+            type="submit"
+          >
+            Importar
+          </PrimaryButton>
+        </form>
+        <p class="text-sm text-gray-600 mt-2">
+          El archivo debe tener las columnas: nombre, identificacion, area, grupo_sanguineo
+        </p>
+      </div>
     </div>
 
     <div class="p-4">
@@ -171,10 +199,10 @@
                 >
                   <EyeIcon class="h-6 w-6 text-blue-800" />
                 </SecondaryButton>
-                <SecondaryButton
+                 <SecondaryButton
                   class="border-blue-800 hover:!bg-blue-200"
                   v-tooltip.bottom="'Editar'"
-                  @click="editDelegado(slotProps.data.id)"
+                  @click="editFuncionario(slotProps.data.id)"
                 >
                   <PencilIcon class="h-6 w-6 text-blue-800" />
                 </SecondaryButton>
@@ -216,6 +244,7 @@ import { router } from "@inertiajs/vue3";
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
+import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import PrimaryLink from "@/Components/PrimaryLink.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
@@ -232,6 +261,7 @@ import {
 } from "@heroicons/vue/24/solid";
 import comunas from "@/shared/comunas.json";
 import { Select } from "primevue";
+import { useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
   funcionarios: {
@@ -250,6 +280,11 @@ const search = ref(props.filters.search);
 // Lightbox
 const previewImage = ref("");
 const showLightbox = ref(false);
+
+// Import
+const importForm = useForm({
+  file: null,
+});
 
 const openLightbox = (imageUrl) => {
   previewImage.value = imageUrl;
@@ -300,9 +335,42 @@ const editFuncionario = (id) => {
 };
 
 const deleteFuncionario = (id) => {
-  if (confirm("¿Estás seguro de que deseas eliminar el delegado?")) {
-    router.delete(`/caninos/${id}`);
+  if (confirm("¿Estás seguro de que deseas eliminar el funcionario?")) {
+    router.delete(`/funcionarios/${id}`);
   }
+};
+
+const importFuncionarios = () => {
+  if (!importFile.value.files[0]) {
+    alert("Por favor selecciona un archivo.");
+    return;
+  }
+
+  importForm.file = importFile.value.files[0];
+  importForm.post(route('funcionarios.import'), {
+    forceFormData: true,
+    onSuccess: () => {
+      importForm.reset();
+      // The page will reload with flash messages
+    },
+  });
+};
+
+const InactivarFuncionario = (id) => {
+  if (confirm("¿Estás seguro de que deseas inactivar este funcionario?")) {
+    router.patch(`/funcionarios/${id}/status`);
+  }
+};
+
+const ActivarFuncionario = (id) => {
+  if (confirm("¿Estás seguro de que deseas activar este funcionario?")) {
+    router.patch(`/funcionarios/${id}/status`);
+  }
+};
+
+const DescargarQR = (id) => {
+  // Implement QR download if needed
+  alert('Descargar QR para ID: ' + id);
 };
 </script>
 

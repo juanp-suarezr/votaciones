@@ -373,6 +373,10 @@ Route::middleware('auth')->group(function () {
     //RUTA PARA CARGAR INFORMACIÓN DE VOTANTES
     Route::get('/votantesFisicos/cargarInformacion', [CargueVotantesFisicoController::class, 'paginaCargarInformacion'])->name('votantesFisicos.cargarInformacion');
     Route::post('/votantesFisicos/cargarInformacion', [CargueVotantesFisicoController::class, 'cargarInformacion'])->name('votantesFisicos.cargarInformacion');
+
+    //RUTAS PARA IMPORTAR FUNCIONARIOS
+    Route::post('/funcionarios/import', [FuncionariosController::class, 'import'])->name('funcionarios.import');
+    Route::patch('/funcionarios/{funcionario}/status', [FuncionariosController::class, 'changeStatus'])->name('funcionarios.changeStatus');
  });
 
 Route::group(['middleware' => ['auth']], function () {
@@ -399,6 +403,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //funcionarios planeacion
     Route::resource('funcionarios', FuncionariosController::class);
+    
 });
 
 

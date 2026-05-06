@@ -66,7 +66,7 @@ class FuncionariosController extends Controller
     {
 
 
-        return Inertia::render('Funcionarios/Create', []);
+        return Inertia::render('Funcionarios/Add', []);
     }
 
     /**
@@ -268,5 +268,42 @@ class FuncionariosController extends Controller
 
         Log::error("ZIP no encontrado al intentar descargar: {$zipFile}");
         return redirect()->back()->with('error', 'Error al preparar la descarga del ZIP.');
+    }
+
+    public function changeStatus($id)
+    {
+        $funcionario = Funcionarios_planeacion::findOrFail($id);
+        $funcionario->estado = $funcionario->estado == 1 ? 0 : 1;
+        $funcionario->save();
+
+        return redirect()->back()->with('success', 'Estado del funcionario actualizado correctamente.');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            $import = new \App\Imports\FuncionariosImport;
+            Excel::import($import, $request->file('file'));
+
+            $importedCount = $import->getImportedCount();
+            $errors = $import->getErrors();
+
+            if ($importedCount > 0) {
+                $message = "Se importaron {$importedCount} funcionarios correctamente.";
+                if (!empty($errors)) {
+                    $message .= " Errores encontrados: " . implode(', ', $errors);
+                }
+                return redirect()->back()->with('success', $message);
+            } else {
+                return redirect()->back()->withErrors(['file' => 'No se pudo importar ningún funcionario. Errores: ' . implode(', ', $errors)]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al importar funcionarios: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['file' => 'Error al importar el archivo: ' . $e->getMessage()]);
+        }
     }
 }

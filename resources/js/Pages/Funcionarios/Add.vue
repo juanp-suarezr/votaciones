@@ -1,15 +1,15 @@
 <template>
-  <Head title="Agregar delegado" />
+  <Head title="Agregar Funcionario" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
-    <template #header> Nuevo delegado </template>
+    <template #header> Nuevo Funcionario </template>
 
     <div class="px-4 mx-auto bg-white border shadow-sm rounded-xl mt-8">
       <div
         class="bg-gray-100 border-b rounded-t-xl py-3 px-4 md:py-4 md:px-5 flex justify-between items-center"
       >
-        <h3 class="text-gray-500">Nuevo delegado</h3>
-        <SecondaryLink :href="route('delegados.index')">
+        <h3 class="text-gray-500">Nuevo Funcionario</h3>
+        <SecondaryLink :href="route('funcionarios.index')">
           Regresar
         </SecondaryLink>
       </div>
@@ -42,121 +42,62 @@
               class="mt-1 block w-full"
               v-model="form.identificacion"
               required
-              autofocus
               autocomplete="off"
             />
             <InputError class="mt-2" :message="form.errors.identificacion" />
           </div>
 
-          <!-- cargo -->
+          <!-- area -->
           <div class="mb-2">
-            <InputLabel for="cargo" value="Cargo" />
+            <InputLabel for="area" value="Área(*)" />
             <TextInput
-              id="cargo"
+              id="area"
               type="text"
               class="mt-1 block w-full"
-              v-model="form.cargo"
+              v-model="form.area"
               required
               autocomplete="off"
             />
-            <InputError class="mt-2" :message="form.errors.cargo" />
+            <InputError class="mt-2" :message="form.errors.area" />
           </div>
-          <!-- tipo -->
+          <!-- grupo_sanguineo -->
           <div class="mb-2">
-            <InputLabel for="tipo" value="Tipo" />
+            <InputLabel for="grupo_sanguineo" value="Grupo Sanguíneo(*)" />
             <select
-              id="tipo"
-              v-model="form.tipo"
+              id="grupo_sanguineo"
+              v-model="form.grupo_sanguineo"
               class="block mt-1 w-full rounded-md form-select focus:border-sky-600"
             >
-              <option value="" disabled selected>Seleccione un tipo</option>
-              <option value="secretario">Secretario</option>
-
+              <option value="" disabled selected>Seleccione un grupo sanguíneo</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
             </select>
-            <InputError class="mt-2" :message="form.errors.tipo" />
+            <InputError class="mt-2" :message="form.errors.grupo_sanguineo" />
           </div>
 
-          <!-- firma -->
+          <!-- foto -->
           <div>
-            <InputLabel for="firma" value="Firma" />
-            <div class="flex gap-4 mb-2">
-              <button
-                type="button"
-                :class="[
-                  'px-2 py-1 rounded',
-                  firmaModo === 'imagen'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200',
-                ]"
-                @click="firmaModo = 'imagen'"
-              >
-                Cargar imagen
-              </button>
-              <button
-                type="button"
-                :class="[
-                  'px-2 py-1 rounded',
-                  firmaModo === 'canvas'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200',
-                ]"
-                @click="firmaModo = 'canvas'"
-              >
-                Dibujar firma
-              </button>
-            </div>
-            <div v-if="firmaModo === 'imagen'">
-              <TextInput
-                id="firma"
-                type="file"
-                class="mt-1 block w-full"
-                accept="image/*"
-                @change="onFileChange"
+            <InputLabel for="foto" value="Foto" />
+            <TextInput
+              id="foto"
+              type="file"
+              class="mt-1 block w-full"
+              accept="image/*"
+              @change="onFileChange"
+            />
+            <InputError class="mt-2" :message="form.errors.foto" />
+            <div v-if="fotoPreview" class="mt-2">
+              <img
+                :src="fotoPreview"
+                alt="Vista previa de la foto"
+                class="h-24 border rounded"
               />
-              <InputError class="mt-2" :message="form.errors.firma" />
-              <div v-if="firmaPreview" class="mt-2">
-                <img
-                  :src="firmaPreview"
-                  alt="Vista previa de la firma"
-                  class="h-24 border rounded"
-                />
-              </div>
-            </div>
-            <div v-else>
-              <canvas
-                ref="canvas"
-                width="200"
-                height="100"
-                class="border border-gray-400 rounded-md bg-white cursor-crosshair"
-                @mousedown="startDrawing"
-                @mousemove="draw"
-                @mouseup="stopDrawing"
-                @mouseleave="stopDrawing"
-              ></canvas>
-              <div class="flex gap-2 mt-1">
-                <button
-                  type="button"
-                  @click="clearCanvas"
-                  class="text-xl text-blue-600 underline"
-                >
-                  Limpiar
-                </button>
-                <button
-                  type="button"
-                  @click="saveCanvas"
-                  class="text-xl text-green-600 underline"
-                >
-                  Usar firma
-                </button>
-              </div>
-              <InputError class="mt-2" :message="form.errors.firma" />
-              <div v-if="firmaPreview" class="mt-2">
-                <img
-                  :src="firmaPreview"
-                  alt="Vista previa de la firma"
-                  class="h-24 border rounded"
-                />
-              </div>
             </div>
           </div>
           <div class="mt-4 flex flex-col items-end">
@@ -164,7 +105,7 @@
               :class="{ 'opacity-25': form.processing }"
               :disabled="form.processing"
             >
-              Registrar Delegado
+              Registrar Funcionario
             </PrimaryButton>
           </div>
         </form>
@@ -186,81 +127,43 @@ import comunas from "@/shared/comunas.json";
 import Select from "primevue/select";
 import { IdentificationIcon } from "@heroicons/vue/24/solid";
 
-const firmaPreview = ref(null);
-const firmaModo = ref("imagen"); // 'imagen' o 'canvas'
-const canvas = ref(null);
-let drawing = false;
+const fotoPreview = ref(null);
 
 const breadcrumbLinks = [
-  { url: route("delegados.index"), text: "Gestion de delegados" },
-  { url: "", text: "Añadir Delegado" },
+  { url: route("funcionarios.index"), text: "Gestión de Funcionarios" },
+  { url: "", text: "Añadir Funcionario" },
 ];
 
 const form = useForm({
   nombre: "",
   identificacion: "",
-  cargo: "",
-  tipo: "secretario",
-
-  firma: null,
+  area: "",
+  grupo_sanguineo: "",
+  foto: null,
 });
 
 const onFileChange = (e) => {
   const file = e.target.files[0];
-  form.firma = file;
+  form.foto = file;
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      firmaPreview.value = e.target.result;
+      fotoPreview.value = e.target.result;
     };
     reader.readAsDataURL(file);
   } else {
-    firmaPreview.value = null;
+    fotoPreview.value = null;
   }
 };
 
-// Canvas firma
-const startDrawing = (e) => {
-  drawing = true;
-  const ctx = canvas.value.getContext("2d");
-  ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
-};
-const draw = (e) => {
-  if (!drawing) return;
-  const ctx = canvas.value.getContext("2d");
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-};
-const stopDrawing = () => {
-  drawing = false;
-};
-const clearCanvas = () => {
-  const ctx = canvas.value.getContext("2d");
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-  firmaPreview.value = null;
-  form.firma = null;
-};
-const saveCanvas = () => {
-  canvas.value.toBlob((blob) => {
-    form.firma = new File([blob], "firma.webp", { type: "image/webp" });
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      firmaPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(form.firma);
-  }, "image/webp");
-};
+
 
 const submit = () => {
-  form.post(route("delegados.store"), {
+  form.post(route("funcionarios.store"), {
     forceFormData: true,
     onSuccess: () => {
       form.reset();
-      firmaPreview.value = null;
-      clearCanvas();
+      fotoPreview.value = null;
     },
   });
 };
