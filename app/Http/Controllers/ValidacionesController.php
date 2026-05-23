@@ -519,15 +519,9 @@ class ValidacionesController extends Controller
                 'descripcion' => $request->descripcion,
             ];
 
-            Mail::send([], [], function ($message) use ($datos) {
+            Mail::send('emails.solicitud_soporte', $datos, function ($message) use ($datos) {
                 $message->to('soportepresupuestopart@gmail.com')
-                    ->subject('Solicitud de soporte')
-                    ->html(
-                        "<p><strong>Nombre:</strong> {$datos['nombre']}</p>" .
-                            "<p><strong>Identificación:</strong> {$datos['identificacion']}</p>" .
-                            "<p><strong>Celular:</strong> {$datos['celular']}</p>" .
-                            "<p><strong>Descripción:</strong> {$datos['descripcion']}</p>"
-                    );
+                    ->subject('Solicitud de soporte');
             });
 
             DB::commit();
