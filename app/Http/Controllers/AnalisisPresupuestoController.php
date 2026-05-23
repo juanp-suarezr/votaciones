@@ -376,7 +376,7 @@ class AnalisisPresupuestoController extends Controller
         $actas = Acta_escrutino::select(
             'id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco',
             'puesto_votacion', 'total_ciudadanos', 'imagen', 'fecha_evento', 'id_jurado',
-            'observaciones', 'nombre_testigo', 'identificacion_testigo'
+            'observaciones', 'tipo',
         )
             ->where('id_evento', $request->id_evento)
             ->where('comuna', $request->subtipo)

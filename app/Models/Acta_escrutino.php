@@ -21,9 +21,6 @@ class Acta_escrutino extends Model
         'id_jurado',
         'comuna',
         'puesto_votacion',
-        'nombre_testigo',
-        'identificacion_testigo',
-        'contacto_testigo',
         'fecha_evento',
         'votos_nulos',
         'votos_blanco',
@@ -32,6 +29,7 @@ class Acta_escrutino extends Model
         'total_votantes', 
         'observaciones',
         'imagen',
+        'tipo',
         'created_at',
         'updated_at',
 
