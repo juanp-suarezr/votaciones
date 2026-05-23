@@ -300,7 +300,7 @@ const chartOptionsBar = ref({
                           class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <p class="text-gray-900 whitespace-no-wrap">
-                            {{ res.votos_tic }} || 0
+                            {{ res.votos_tic }}
                           </p>
                         </td>
                         <td
@@ -319,37 +319,37 @@ const chartOptionsBar = ref({
                         </td>
                       </tr>
                       <!-- Voto virtual -->
-                      <tr class="text-gray-700 bg-blue-100/80">
+                      <tr class="text-gray-900">
                         <td
-                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <b class="text-gray-900 whitespace-no-wrap">
                             Votos virtuales
                           </b>
                         </td>
                         <td
-                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <b class="text-gray-900 whitespace-no-wrap">
                             {{ votos_virtuales }}
                           </b>
                         </td>
                         <td
-                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <b class="text-gray-900 whitespace-no-wrap">
                             0
                           </b>
                         </td>
                         <td
-                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <b class="text-gray-900 whitespace-no-wrap">
                             0
                           </b>
                         </td>
                         <td
-                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <b class="text-gray-900 whitespace-no-wrap">
                             {{ votos_virtuales }}
