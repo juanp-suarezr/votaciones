@@ -47,6 +47,16 @@ const getRealName = (text) => {
 
   return text.slice(index).trim();
 };
+
+const getTotalVirtuales = (resultados) => {
+  if (!Array.isArray(resultados)) return 0;
+  return resultados.reduce((sum, p) => sum + (p.votos_virtuales || 0), 0);
+};
+
+const getTotalFisicos = (resultados) => {
+  if (!Array.isArray(resultados)) return 0;
+  return resultados.reduce((sum, p) => sum + (p.votos_fisicos || 0), 0);
+};
 </script>
 
 <template>
@@ -177,6 +187,16 @@ const getRealName = (text) => {
                     <th
                       class="p-2 text-center text-base sm:text-xl font-bold text-gray-700"
                     >
+                      V. virtuales
+                    </th>
+                    <th
+                      class="p-2 text-center text-base sm:text-xl font-bold text-gray-700"
+                    >
+                      V. fisicos
+                    </th>
+                    <th
+                      class="p-2 text-center text-base sm:text-xl font-bold text-gray-700"
+                    >
                       Total votos
                     </th>
                     <th
@@ -198,6 +218,16 @@ const getRealName = (text) => {
                       <!-- 🥇 Medallita al primero -->
                       <span v-if="index === 0" class="text-yellow-500">🥇</span>
                       {{ proyecto.nombre }}
+                    </td>
+                    <td
+                      class="p-2 text-center text-base sm:text-xl font-bold text-primary"
+                    >
+                      {{ proyecto.votos_virtuales ?? 0 }}
+                    </td>
+                    <td
+                      class="p-2 text-center text-base sm:text-xl font-bold text-primary"
+                    >
+                      {{ proyecto.votos_fisicos ?? 0 }}
                     </td>
                     <td
                       class="p-2 text-center text-base sm:text-xl font-bold text-primary"
@@ -225,6 +255,16 @@ const getRealName = (text) => {
                       class="p-2 text-base sm:text-xl font-medium text-gray-900"
                     >
                       Total votos validos
+                    </td>
+                    <td
+                      class="p-2 text-center text-base sm:text-xl font-bold text-primary"
+                    >
+                      {{ getTotalVirtuales(evento.resultados) }}
+                    </td>
+                    <td
+                      class="p-2 text-center text-base sm:text-xl font-bold text-primary"
+                    >
+                      {{ getTotalFisicos(evento.resultados) }}
                     </td>
                     <td
                       class="p-2 text-center text-base sm:text-xl font-bold text-primary"
