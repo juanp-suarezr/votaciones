@@ -373,10 +373,14 @@ class AnalisisPresupuestoController extends Controller
     function ResultadosGenerales(Request $request)
     {
         //actas del evento y comuna
-        $actas = Acta_escrutino::select('id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco', 'puesto_votacion', 'total_ciudadanos')
+        $actas = Acta_escrutino::select(
+            'id', 'id_evento', 'comuna', 'votos_nulos', 'votos_no_marcados', 'votos_blanco',
+            'puesto_votacion', 'total_ciudadanos', 'imagen', 'fecha_evento', 'id_jurado',
+            'observaciones', 'nombre_testigo', 'identificacion_testigo'
+        )
             ->where('id_evento', $request->id_evento)
             ->where('comuna', $request->subtipo)
-            ->with(['votos_fisico', 'puntos_votacion_rp'])
+            ->with(['votos_fisico.proyecto', 'puntos_votacion_rp', 'jurado', 'evento', 'cordinador'])
             ->get();
 
         //evento para determinar total registros virtuales y tic
@@ -522,6 +526,7 @@ class AnalisisPresupuestoController extends Controller
                 'votos_fisicos' => $total_votos_fisicos,
                 'total_votos_fisicos' => $total_registros_fisicos,
                 'total_votos_virtuales' => $total_registros_virtuales,
+                'actas' => $actas,
             ]
         );
     }

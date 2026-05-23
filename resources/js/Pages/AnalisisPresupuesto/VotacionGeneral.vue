@@ -87,9 +87,27 @@ const props = defineProps({
     default: () => "",
   },
 
+  actas: {
+    type: Array,
+    default: () => [],
+  },
+
 });
 
 console.log(props);
+
+// Estado para el modal de reporte de actas
+const showReporteModal = ref(false);
+const selectedPuesto = ref(null);
+const actasDelPuesto = ref([]);
+
+function abrirReporteActas(puesto) {
+  selectedPuesto.value = puesto;
+  actasDelPuesto.value = (props.actas || []).filter(
+    (a) => Number(a.puesto_votacion) === Number(puesto.puesto_id)
+  );
+  showReporteModal.value = true;
+}
 
 const baseColors = [
   "#C20E1A", // primary
@@ -285,11 +303,15 @@ const chartOptionsBar = ref({
                         class="text-gray-700"
                       >
                         <td
-                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
+                          class="border-b border-gray-200 bg-white px-5 py-5 text-sm cursor-pointer hover:bg-blue-50 transition-colors"
+                          @click="abrirReporteActas(res)"
+                          title="Clic para ver reporte de actas"
                         >
-                          <p class="text-gray-900 whitespace-no-wrap">
+                          <p class="text-gray-900 whitespace-no-wrap font-medium text-blue-700 flex items-center gap-1">
                             {{ res.puesto_nombre }}
+                            <EyeIcon class="w-4 h-4 text-blue-600" />
                           </p>
+                          <span class="text-[10px] text-blue-500">Ver actas →</span>
                         </td>
                         <td
                           class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
@@ -431,7 +453,106 @@ const chartOptionsBar = ref({
           </div>
         </div>
       </div>
-    </div>
+     </div>
+
+    <!-- Modal: Reporte de Actas por Puesto de Votación -->
+    <Modal :show="showReporteModal" @close="showReporteModal = false" maxWidth="2xl">
+      <div class="p-6 max-h-[80vh] overflow-auto">
+        <div class="flex justify-between items-start mb-4 border-b pb-3">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-800">Reporte de Actas</h3>
+            <p class="text-base text-gray-600">{{ selectedPuesto?.puesto_nombre }}</p>
+          </div>
+          <button
+            @click="showReporteModal = false"
+            class="text-gray-400 hover:text-gray-600 text-3xl leading-none font-light"
+          >
+            &times;
+          </button>
+        </div>
+
+        <p class="text-sm mb-4 text-gray-500">
+          Se encontraron <b>{{ actasDelPuesto.length }}</b> acta(s) para este punto de votación.
+        </p>
+
+        <div v-if="actasDelPuesto.length" class="space-y-4">
+          <div
+            v-for="acta in actasDelPuesto"
+            :key="acta.id"
+            class="border border-gray-200 bg-white rounded-lg p-4 shadow-sm"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <div class="font-semibold text-gray-800">Acta #{{ acta.id }}</div>
+                <div class="text-sm text-gray-500">
+                  {{ acta.fecha_evento ? new Date(acta.fecha_evento).toLocaleDateString('es-CO', { dateStyle: 'medium' }) : 'Sin fecha' }}
+                </div>
+              </div>
+              <div class="text-sm text-right">
+                <div v-if="acta.jurado">
+                  <span class="text-gray-600">Jurado:</span> <b>{{ acta.jurado.nombre }}</b><br />
+                  <span class="text-xs text-gray-500">CC: {{ acta.jurado.identificacion }}</span>
+                </div>
+                <div v-else-if="acta.cordinador">
+                  <span class="text-gray-600">Coordinador:</span> <b>{{ acta.cordinador.name }}</b>
+                </div>
+                <div v-else class="text-gray-400 text-xs">Sin responsable asignado</div>
+              </div>
+            </div>
+
+            <!-- Resumen de votos -->
+            <div class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+              <div class="bg-gray-50 border rounded p-2">
+                Ciudadanos: <span class="font-bold">{{ acta.total_ciudadanos ?? 0 }}</span>
+              </div>
+              <div class="bg-red-50 border border-red-100 rounded p-2">
+                Nulos: <span class="font-bold text-red-700">{{ acta.votos_nulos ?? 0 }}</span>
+              </div>
+              <div class="bg-yellow-50 border border-yellow-100 rounded p-2">
+                No marcados: <span class="font-bold">{{ acta.votos_no_marcados ?? 0 }}</span>
+              </div>
+              <div class="bg-blue-50 border border-blue-100 rounded p-2">
+                En blanco: <span class="font-bold">{{ acta.votos_blanco ?? 0 }}</span>
+              </div>
+            </div>
+
+            <!-- Votos físicos por proyecto -->
+            <div v-if="acta.votos_fisico?.length" class="mt-3">
+              <div class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Votos por proyecto</div>
+              <div class="text-sm bg-gray-50 rounded p-2 max-h-32 overflow-auto border">
+                <div v-for="vf in acta.votos_fisico" :key="vf.id" class="flex justify-between py-0.5">
+                  <span class="truncate pr-2">{{ vf.proyecto?.nombre || ('Proyecto #' + vf.id_proyecto) }}</span>
+                  <span class="font-mono font-semibold">{{ vf.cantidad }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="acta.imagen" class="mt-3">
+              <a
+                :href="`/storage/uploads/actas/${acta.imagen}`"
+                target="_blank"
+                class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                📷 Ver imagen del acta de escrutinio
+              </a>
+            </div>
+
+            <div v-if="acta.observaciones" class="mt-2 text-xs text-gray-600 italic">
+              Observaciones: {{ acta.observaciones }}
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="py-8 text-center text-gray-500 border border-dashed rounded">
+          <p>No hay actas de escrutinio físico registradas para este puesto.</p>
+          <p class="text-xs mt-1">(Solo votos virtuales / TIC)</p>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <SecondaryButton @click="showReporteModal = false">Cerrar reporte</SecondaryButton>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
