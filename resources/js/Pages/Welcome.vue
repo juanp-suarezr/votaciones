@@ -3,6 +3,7 @@ import { Head, Link, useForm, usePage, router } from "@inertiajs/vue3";
 import { ref, onMounted, inject, watch } from "vue";
 import Pagination from "@/Components/Pagination.vue";
 import ProgressSpinner from "primevue/progressspinner";
+import Textarea from "primevue/textarea";
 import {
   XCircleIcon,
   InformationCircleIcon,

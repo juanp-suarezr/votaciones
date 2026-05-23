@@ -234,26 +234,7 @@ const chartOptionsBar = ref({
           {{ total_votos_fisicos }}
         </p>
 
-        <div class="md:grid md:grid-cols-5 md:gap-16 mt-6">
-          <!-- bar chart -->
-          <div class="w-full flex mb-4 md:col-span-3">
-            <Chart
-              type="bar"
-              :data="chartDataBar"
-              :options="chartOptionsBar"
-              class="h-full w-full mt-4"
-            />
-          </div>
-          <!-- pie chart -->
-          <div class="w-full items-center mb-4 md:col-span-2">
-            <Chart
-              type="doughnut"
-              :data="chartData"
-              :options="chartOptions"
-              class="h-full w-full mt-4"
-            />
-          </div>
-        </div>
+        
         <div class="w-full mb-4">
           <!-- table -->
           <!-- table -->
@@ -313,13 +294,13 @@ const chartOptionsBar = ref({
                         <td
                           class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
-                          <p class="text-gray-900 whitespace-no-wrap">N/A</p>
+                          <p class="text-gray-900 whitespace-no-wrap">0</p>
                         </td>
                         <td
                           class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
                         >
                           <p class="text-gray-900 whitespace-no-wrap">
-                            {{ res.votos_tic }}
+                            {{ res.votos_tic }} || 0
                           </p>
                         </td>
                         <td
@@ -334,6 +315,44 @@ const chartOptionsBar = ref({
                         >
                           <b class="text-gray-900 whitespace-no-wrap">
                             {{ res.votos_tic + res.votos_fisicos }}
+                          </b>
+                        </td>
+                      </tr>
+                      <!-- Voto virtual -->
+                      <tr class="text-gray-700 bg-blue-100/80">
+                        <td
+                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                        >
+                          <b class="text-gray-900 whitespace-no-wrap">
+                            Votos virtuales
+                          </b>
+                        </td>
+                        <td
+                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                        >
+                          <b class="text-gray-900 whitespace-no-wrap">
+                            {{ votos_virtuales }}
+                          </b>
+                        </td>
+                        <td
+                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                        >
+                          <b class="text-gray-900 whitespace-no-wrap">
+                            0
+                          </b>
+                        </td>
+                        <td
+                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                        >
+                          <b class="text-gray-900 whitespace-no-wrap">
+                            0
+                          </b>
+                        </td>
+                        <td
+                          class="border-b border-gray-200 px-5 py-5 text-sm"
+                        >
+                          <b class="text-gray-900 whitespace-no-wrap">
+                            {{ votos_virtuales }}
                           </b>
                         </td>
                       </tr>
@@ -388,6 +407,27 @@ const chartOptionsBar = ref({
             class="flex flex-col overflow-x-auto justify-center items-center"
           >
             <em> No hay datos con votaciones realizadas </em>
+          </div>
+        </div>
+        
+        <div class="md:grid md:grid-cols-5 md:gap-16 mt-6">
+          <!-- bar chart -->
+          <div class="w-full flex mb-4 md:col-span-3">
+            <Chart
+              type="bar"
+              :data="chartDataBar"
+              :options="chartOptionsBar"
+              class="h-full w-full mt-4"
+            />
+          </div>
+          <!-- pie chart -->
+          <div class="w-full items-center mb-4 md:col-span-2">
+            <Chart
+              type="doughnut"
+              :data="chartData"
+              :options="chartOptions"
+              class="h-full w-full mt-4"
+            />
           </div>
         </div>
       </div>
