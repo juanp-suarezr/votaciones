@@ -100,15 +100,9 @@ const Submit = (num, info) => {
     form.comuna = info.label;
   }
 
-  if (num == 1) {
-    form.get(route("resultado-proyectos"), {
-      preserveState: true,
-    });
-  } else {
-    form.get(route("resultado-generales"), {
-      preserveState: true,
-    });
-  }
+  form.get(route("resultado-generales"), {
+    preserveState: true,
+  });
 };
 </script>
 

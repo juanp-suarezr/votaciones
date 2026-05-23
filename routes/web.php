@@ -174,7 +174,6 @@ Route::get('/resultado-presupuesto', [AnalisisPresupuestoController::class, 'Res
 //pagina de resultados presupuesto participativo mas detallada
 Route::get('/resultado-evento', [AnalisisPresupuestoController::class, 'index']);
 Route::get('/resultado-comunas', [AnalisisPresupuestoController::class, 'ResultadosComunas'])->name('resultado-comunas');
-Route::get('/resultado-proyectos', [AnalisisPresupuestoController::class, 'ResultadosProyectos'])->name('resultado-proyectos');
 Route::get('/resultado-generales', [AnalisisPresupuestoController::class, 'ResultadosGenerales'])->name('resultado-generales');
 
 Route::get('/dashboard', function () {
