@@ -71,12 +71,9 @@
             "San Remo",
             "San Luis Gonzaga",
             "Villa Colombia",
-            "Terminal",
             "La Unidad",
             "Ciudad Pereira",
             "La Arboleda",
-            "Guaduales de Canaan",
-            "Caminos de Canaan",
             "Otro"
         ]
     },
@@ -179,7 +176,6 @@
             "Vendedores Ambulantes",
             "Villa Cecilia",
             "Villa Consota",
-            "Villa Verde",
             "Normandia",
             "Panorama I",
             "Villa Andrea",
@@ -301,13 +297,16 @@
             "Cachipay",
             "Samaria I",
             "Samaria II",
+            "Villa Verde",
+            "El Palmar de Villa Verde", 
+            "Multifamiliares  Villa Verde",
             "Otro"
         ]
     },
     {
         "id": 19,
         "comuna": "El Rocío",
-        "barrios": ["Rocio Alto *3", "Caracol La Curva *4", "El Palmar de Villa Verde", "Multifamiliares  Villa Verde", "Otro"]
+        "barrios": ["Rocio Alto *3", "Caracol La Curva *4", "Otro"]
     },
     {
         "id": 7,
@@ -360,9 +359,8 @@
             "Morron",
             "Mundo Nuevo",
             "Vista Hermosa",
-            "Quintanar Del Cerro *1, *3",
-            "El Bosque *1, *3",
-            "Tacaragua",
+            "Pacacué",
+            "Las delicias",
             "Otro"
         ]
     },
@@ -398,8 +396,6 @@
             "Santa Teresa",
             "Tres Puertas",
             "Quintas de Corazal",
-            "Bulevar de las Villas",
-            "ciudadela salamanca",
             "Otro"
         ]
     },
@@ -619,6 +615,16 @@
             "Coral Plaza",
             "san sebastian",
             "Batara",
+            "Toledo",
+            "Palo de agua",
+            "Kaoba",
+            "Torres de Alejandría",
+            "Guadualcanal",
+            "Ciudadela Villa de Leyva",
+            "Santa Clara",
+            "Villa Nova",
+            "Bulevar de las Villas",
+            "ciudadela salamanca",
             "Otro"
         ]
     },
@@ -682,13 +688,19 @@
             "Villa Los Alamos",
             "Canaan",
             "Favi Utp",
+            "Terminal",
             "La Sierra",
             "La Parcela",
             "Puerta de Abacanto",
             "Altos de Canaan",
             "Pinares Alto",
             "Bosques de Canaan",
+            "Guaduales de Canaan",
+            "Caminos de Canaan",
             "Rincon del Bosque",
+            "El Bosque *1, *3",
+            "Quintanar Del Cerro *1, *3",
+            "Tacaragua",
             "Otro"
         ]
     },
