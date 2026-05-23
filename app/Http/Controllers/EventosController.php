@@ -88,6 +88,8 @@ class EventosController extends Controller
                 'id_evento_padre' => $request->evento_padre,
                 'id_evento_hijo' => $eventos->id,
             ]);
+
+            $this->actualizarFechasYEstadoPadre($request->evento_padre);
         }
 
         $eventos->save();
@@ -176,7 +178,9 @@ class EventosController extends Controller
         $eventos->estado = $request->estado;
         $eventos->save();
 
-
+        // Capturar padre anterior antes de modificar el vínculo
+        $hash_anterior = Hash_eventos_hijos::where('id_evento_hijo', $eventos->id)->first();
+        $id_padre_anterior = $hash_anterior ? $hash_anterior->id_evento_padre : null;
 
         if ($request->evento_padre) {
             $hash_evento = Hash_eventos_hijos::where('id_evento_hijo', $eventos->id)->first();
@@ -195,7 +199,67 @@ class EventosController extends Controller
             Hash_eventos_hijos::where('id_evento_hijo', $eventos->id)->delete();
         }
 
+        // Propagar fechas y estado al/los evento(s) padre afectado(s)
+        if ($request->evento_padre) {
+            $this->actualizarFechasYEstadoPadre($request->evento_padre);
+        }
+        if ($id_padre_anterior && $id_padre_anterior != $request->evento_padre) {
+            $this->actualizarFechasYEstadoPadre($id_padre_anterior);
+        }
 
         return Redirect::route('eventos.edit', $eventos->id);
+    }
+
+    /**
+     * Actualiza las fechas de inicio/fin y el estado del evento padre
+     * basándose en los eventos hijos actuales (min/max fechas, y Activo si algún hijo está Activo).
+     */
+    private function actualizarFechasYEstadoPadre($id_padre)
+    {
+        $padre = Eventos::find($id_padre);
+        if (!$padre) {
+            return;
+        }
+
+        $hijos = Hash_eventos_hijos::where('id_evento_padre', $id_padre)
+            ->join('eventos', 'hash_eventos_hijos.id_evento_hijo', '=', 'eventos.id')
+            ->select('eventos.fecha_inicio', 'eventos.fecha_fin', 'eventos.estado')
+            ->get();
+
+        if ($hijos->isEmpty()) {
+            return;
+        }
+
+        $min_inicio = $hijos->min('fecha_inicio');
+        $max_fin = $hijos->max('fecha_fin');
+
+        $padre->fecha_inicio = $min_inicio;
+        $padre->fecha_fin = $max_fin;
+
+        $algun_activo = $hijos->contains(function ($hijo) {
+            return $hijo->estado === 'Activo';
+        });
+
+        if ($algun_activo && $padre->estado != 'Activo') {
+            $now = Carbon::now();
+
+            $comunas_activas = ParametrosDetalle::where('codParametro', 'com01')
+                ->where('estado', 1)
+                ->pluck('id')
+                ->toArray();
+
+            $acta_inicio = new Acta_inicio();
+            $acta_inicio->modalidad = 'virtual';
+            $acta_inicio->fecha_inicio = $now;
+            $acta_inicio->id_evento = $id_padre;
+            $acta_inicio->id_jurado = null;
+            $acta_inicio->comunas = implode('|', $comunas_activas);
+            $acta_inicio->puesto_votacion = null;
+            $acta_inicio->save();
+
+            $padre->estado = 'Activo';
+        }
+
+        $padre->save();
     }
 }
