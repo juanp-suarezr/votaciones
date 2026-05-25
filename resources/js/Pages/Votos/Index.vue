@@ -84,46 +84,86 @@
                         <p class="text-sm text-gray-600 mt-1 font-medium">Tipo: {{ candi.tipo }}</p>
                     </div>
 
-                    <!-- Botón seleccionar (solo selecciona, no vota aún) -->
+                    <!-- Botón seleccionar -->
                     <div class="mt-auto pt-4 mx-auto">
                         <PrimaryButton type="button" @click.stop="seleccionarCandidato(candi)" :class="{ 'opacity-25': form.processing }"
                             :disabled="form.processing">
-                            <span v-if="selectedCandidate && selectedCandidate.id === candi.id">✓ Seleccionado</span>
-                            <span v-else>Seleccionar</span>
+                            Seleccionar
                         </PrimaryButton>
                     </div>
                 </div>
             </div>
-
-            <!-- Acciones de confirmación / cancelar selección (desasociar) -->
-            <div v-if="selectedCandidate" class="mt-6 flex flex-col items-center gap-3">
-                <div class="text-center mb-1">
-                    <span class="text-lg font-semibold text-gray-700">Candidato seleccionado:</span>
-                    <span class="ml-2 text-xl font-bold text-red-600">{{ selectedCandidate.votante.nombre }}</span>
-                </div>
-
-                <div class="flex flex-wrap justify-center gap-4">
-                    <PrimaryButton
-                        type="button"
-                        @click="confirmarVoto"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        class="px-8 py-3 text-lg sm:text-xl">
-                        Confirmar y votar por este candidato
-                    </PrimaryButton>
-
-                    <button
-                        @click="desasociarCandidato"
-                        type="button"
-                        class="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-lg sm:text-xl shadow transition disabled:opacity-50"
-                        :disabled="form.processing">
-                        Cancelar selección / Desasociar
-                    </button>
-                </div>
-            </div>
-
         </div>
 
+        <!-- Modal de confirmación de voto para candidato -->
+        <div
+            v-if="ModalConfirmacion"
+            class="fixed inset-0 bg-black px-4 sm:px-44 bg-opacity-50 flex items-center justify-center z-50"
+        >
+            <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
+                <h2 class="sm:text-6xl text-2xl font-bold mb-6 pb-4 sm:py-6 border-b border-gray-300 text-center">
+                    🗳️ Confirmar voto
+                </h2>
+
+                <!-- Botón de voz -->
+                <div class="flex justify-end pr-2 mb-4">
+                    <button
+                        @click="leerCandidato(selectedCandidate)"
+                        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-base sm:text-lg shadow-md"
+                    >
+                        🔊 Escuchar
+                    </button>
+                </div>
+
+                <!-- Datos del candidato -->
+                <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start mb-8">
+                    <!-- Avatar / Foto -->
+                    <div class="w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0 rounded-2xl overflow-hidden ring-2 ring-gray-300 shadow">
+                        <div v-if="selectedCandidate.votante.imagen == 'user.png'"
+                            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-200 via-indigo-300 to-violet-200 text-indigo-900">
+                            <span class="text-6xl sm:text-7xl font-black tracking-[0.08em] select-none">
+                                {{ getInitials(selectedCandidate.votante.nombre) }}
+                            </span>
+                        </div>
+                        <img v-else
+                            :src="getImageUrl(selectedCandidate.votante.imagen)"
+                            :alt="`Foto de ${selectedCandidate.votante.nombre}`"
+                            class="w-full h-full object-cover" />
+                    </div>
+
+                    <div class="text-center sm:text-left">
+                        <h3 class="text-3xl sm:text-5xl font-bold capitalize text-gray-800">
+                            {{ selectedCandidate.votante.nombre }}
+                        </h3>
+                        <p v-if="selectedCandidate.votante.nombre !== 'Voto En Blanco'" class="mt-2 text-xl sm:text-2xl text-gray-600">
+                            CC {{ selectedCandidate.votante.identificacion }}
+                        </p>
+                        <p class="mt-1 text-xl sm:text-2xl font-medium text-gray-700">
+                            Tipo: {{ selectedCandidate.tipo }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-full flex flex-wrap justify-center gap-4 sm:gap-6 mt-4">
+                    <button
+                        @click="cerrarModalConfirmacion"
+                        type="button"
+                        class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded text-xl sm:text-2xl font-semibold"
+                    >
+                        Cancelar
+                    </button>
+                    <PrimaryButton
+                        type="button"
+                        @click="confirmarVotoDesdeModal"
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                        class="px-8 py-3 text-xl sm:text-2xl"
+                    >
+                        Confirmar
+                    </PrimaryButton>
+                </div>
+            </div>
+        </div>
 
     </AuthenticatedLayout>
 </template>
@@ -157,10 +197,10 @@ const breadcrumbLinks = [
 ];
 
 /* ===========================================
-   Selección de candidato (antes de votar)
-   Permite cancelar / desasociar antes de confirmar
+   Selección de candidato + Modal de confirmación
    =========================================== */
 const selectedCandidate = ref(null);
+const ModalConfirmacion = ref(false);
 
 /* ===========================================
    🔊 Estado y controles de lector de voz (pause/resume/stop)
@@ -269,19 +309,24 @@ const votar = candidato => {
 };
 
 /* ===========================================
-   Seleccionar / Desasociar candidato
+   Abrir modal de confirmación de voto para candidato
    =========================================== */
 const seleccionarCandidato = (candi) => {
     selectedCandidate.value = candi;
+    ModalConfirmacion.value = true;
 };
 
-const desasociarCandidato = () => {
-    selectedCandidate.value = null;
+const cerrarModalConfirmacion = () => {
+    ModalConfirmacion.value = false;
+    selectedCandidate.value = null; // desasocia / cancela la selección
 };
 
-const confirmarVoto = () => {
+const confirmarVotoDesdeModal = () => {
     if (selectedCandidate.value) {
+        // La función votar ya muestra el swal de éxito y redirige
         votar(selectedCandidate.value);
+        // Cerramos el modal inmediatamente (el swal se encarga del feedback)
+        ModalConfirmacion.value = false;
     }
 };
 
