@@ -201,6 +201,10 @@ Route::get('/dashboard', function () {
             ->pluck('id')
             ->toArray();
 
+        if (Auth::user()->email == 'ppt') {
+            
+        
+
         $comuna_usuario = Auth::user()->votantes->comuna ?? null;
 
         $eventos = Eventos::whereNot('nombre', '=', 'Admin')
@@ -217,6 +221,14 @@ Route::get('/dashboard', function () {
                 // Verifica si el usuario tiene comuna activa
                 return in_array($comuna_usuario, $comunas_activas);
             });
+
+        } else {
+            $eventos = Eventos::whereNot('nombre', '=', 'Admin')
+            ->with(['votantes' => function ($query) {
+                $query->where('id_votante', Auth::user()->votantes->id);
+            }])
+            ->get();
+        }
 
         $votos = Votos::where('id_votante', Auth::user()->votantes->id)
             ->select('id_votante', 'id_eventos', 'id_candidato', 'id_proyecto')
