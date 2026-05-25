@@ -68,7 +68,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/welcome');
+        if (Auth::user()->email == 'ppt'){
+            return redirect('/welcome');
+        }
+
+        return redirect('/login');
     }
 
     /**
