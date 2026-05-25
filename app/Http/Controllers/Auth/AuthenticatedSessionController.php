@@ -62,13 +62,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $isPPT = false;
+
+        if (Auth::user()->email == 'ppt'){
+            $isPPT = true;
+        }
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        if (Auth::user()->email == 'ppt'){
+        if($isPPT){
             return redirect('/welcome');
         }
 
