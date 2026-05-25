@@ -7,10 +7,8 @@
             Votaciones
         </template>
 
-        <div class="items-center flex justify-center mx-2">
-
-            <!-- Accesibilidad: Lector de voz global -->
-            <div class="w-full max-w-4xl mb-4 flex justify-end">
+        <!-- Accesibilidad: Lector de voz global -->
+            <div class="w-full max-w-4xl mt-2 flex justify-end">
                 <button
                     @click="leerTodasLasOpciones"
                     class="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base shadow transition"
@@ -18,6 +16,8 @@
                     🔊 Leer todas las opciones
                 </button>
             </div>
+
+        <div class="items-center flex  justify-center mx-2">
 
             <div class="sm:flex w-full sm:grid md:grid-cols-3 grid-cols-2 gap-4">
                 <div v-for="candi in candidatos" :key="candi.id"
@@ -49,7 +49,7 @@
                     <!-- Información del candidato -->
                     <div class="mt-4 mx-auto text-center px-1">
                         <h2 class="text-xl sm:text-2xl font-bold capitalize leading-tight">{{ candi.votante.nombre }}</h2>
-                        <h3 v-if="candi.votante.nombre == 'Voto En Blanco'" class="text-base text-gray-700 mt-0.5">CC {{ candi.votante.identificacion }}</h3>
+                        <h3 v-if="candi.votante.nombre !== 'Voto En Blanco'" class="text-base text-gray-700 mt-0.5">CC {{ candi.votante.identificacion }}</h3>
                         <p class="text-sm text-gray-600 mt-1 font-medium">Tipo: {{ candi.tipo }}</p>
                     </div>
 
