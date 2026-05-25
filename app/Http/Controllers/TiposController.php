@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tipos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request as RequestFacade;
 use Inertia\Inertia;
 
 class TiposController extends Controller
@@ -32,7 +33,15 @@ class TiposController extends Controller
             'Tipos/Index',
 
             [
-                'tipos' => Tipos::get(),
+                'tipos' => Tipos::query()
+                    ->when(RequestFacade::input('search'), function ($query, $search) {
+                        $query->where('nombre', 'like', '%' . $search . '%');
+                    })
+                    ->paginate(8)
+                    ->withQueryString(),
+
+                'filters' => RequestFacade::only(['search']),
+
             ]
         );
 

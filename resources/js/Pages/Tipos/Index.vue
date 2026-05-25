@@ -34,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="tipo in slicedTipos" :key="tipo.id" class="text-gray-700">
+                    <tr v-for="tipo in tipos.data" :key="tipo.id" class="text-gray-700">
                         <td class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
                             <p class="text-gray-900 whitespace-no-wrap">{{ tipo.nombre }}</p>
                         </td>
@@ -52,13 +52,8 @@
                 </tbody>
             </table>
 
-            <div
-                class="flex items-center border-b bg-gray-50 px-5 py-2 xs:flex-row justify-between text-gray-500 text-xs font-semibold">
-                <button class="hover:scale-125 transition duration-500 cursor-pointer" @click="previousPage"
-                    :disabled="currentPage === 0"><i class="fa-solid fa-arrow-left"></i></button>
-                <p>Pagina {{ currentPage + 1 }} de {{ totalPages }}</p>
-                <button class="hover:scale-125 transition duration-500 cursor-pointer" @click="nextPage"
-                    :disabled="currentPage === totalPages - 1"><i class="fa-solid fa-arrow-right"></i></button>
+            <div class="flex flex-col items-center border-t bg-white px-5 py-5 xs:flex-row xs:justify-between">
+                <pagination :links="tipos.links" />
             </div>
         </div>
 
@@ -108,11 +103,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue'
-import PrimaryLink from '@/Components/PrimaryLink.vue';
 import Modal from '@/Components/Modal.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { router } from '@inertiajs/vue3'
-import { ref, computed, watch, inject } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { ref, inject } from 'vue';
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
@@ -121,7 +114,14 @@ import TextInput from '@/Components/TextInput.vue';
 import Button from 'primevue/button';
 
 const props = defineProps({
-    tipos: Object
+    tipos: {
+        type: Object,
+        default: () => ({}),
+    },
+    filters: {
+        type: Object,
+        default: () => ({}),
+    },
 })
 const swal = inject('$swal');
 
@@ -212,43 +212,5 @@ const deleteTipo = () => {
         onFinish: () => form.reset(),
     });
 };
-
-//paginacion tutores
-const itemsPerPage = ref(8);
-const currentPage = ref(0);
-
-const totalPages = computed(() => Math.ceil(props.tipos.length / itemsPerPage.value));
-
-
-
-const previousPage = () => {
-    if (currentPage.value > 0) {
-        currentPage.value--;
-    }
-};
-
-const nextPage = () => {
-    if (currentPage.value < totalPages.value - 1) {
-        currentPage.value++;
-    }
-};
-//FIN Paginacion
-
-watch(itemsPerPage, () => {
-    currentPage.value = 0;
-});
-
-//SEARCH
-const searchTerm = ref('');
-
-//Paginacion y filtro
-const slicedTipos = computed(() => {
-    const start = currentPage.value * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    const filteredUsers = props.tipos.filter(tipos =>
-        tipos.nombre.toLowerCase().includes(searchTerm.value.toLowerCase())
-    );
-    return filteredUsers.slice(start, end);
-});
 
 </script>
