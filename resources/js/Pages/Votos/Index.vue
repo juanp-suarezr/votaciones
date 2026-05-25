@@ -9,35 +9,59 @@
 
         <div class="items-center flex justify-center mx-2">
 
+            <!-- Accesibilidad: Lector de voz global -->
+            <div class="w-full max-w-4xl mb-4 flex justify-end">
+                <button
+                    @click="leerTodasLasOpciones"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base shadow transition"
+                    aria-label="Escuchar en voz alta todas las opciones de candidatos">
+                    🔊 Leer todas las opciones
+                </button>
+            </div>
+
             <div class="sm:flex w-full sm:grid md:grid-cols-3 grid-cols-2 gap-4">
                 <div v-for="candi in candidatos" :key="candi.id"
-                    class="flex flex-col w-full h-full p-2 inline-block m-auto mb-4 rounded-lg shadow-xl bg-gray-200 hover:bg-gray-300 text-gray-800">
-                    <div class="mx-auto sm:w-3/6 lg:2/6">
-                        <Avatar v-if="candi.votante.imagen == 'user.png'" :label="getInitials(candi.votante.nombre)"
-                            class="w-full h-[60pt] sm:h-[100pt] bg-indigo-200 text-indigo-800 p-4 text-4xl"
-                            shape="circle" />
-                        <Avatar v-else :image="getImageUrl(candi.votante.imagen)"
-                            class="w-full h-[60pt] sm:h-[100pt] bg-indigo-200 text-indigo-800 text-4xl"
-                            shape="circle" />
+                    class="flex flex-col w-full h-full p-3 inline-block m-auto mb-4 rounded-2xl shadow-xl bg-gray-200 hover:bg-gray-300 text-gray-800 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
+                    
+                    <!-- Foto / Avatar cuadrado con estilo -->
+                    <div class="relative w-full mx-auto overflow-hidden rounded-2xl shadow-md ring-1 ring-gray-300 bg-gray-100 aspect-[4/3] sm:aspect-square">
+                        <div v-if="candi.votante.imagen == 'user.png'"
+                            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-200 via-indigo-300 to-violet-200 text-indigo-900">
+                            <span class="text-[3.2rem] sm:text-[4.5rem] font-black tracking-[0.08em] select-none drop-shadow">
+                                {{ getInitials(candi.votante.nombre) }}
+                            </span>
+                        </div>
+                        <img v-else
+                            :src="getImageUrl(candi.votante.imagen)"
+                            :alt="`Foto de ${candi.votante.nombre}`"
+                            class="w-full h-full object-cover" />
+
+                        <!-- Botón accesibilidad por candidato -->
+                        <button
+                            @click.stop="leerCandidato(candi)"
+                            class="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 hover:bg-white shadow text-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            :aria-label="`Escuchar información de ${candi.votante.nombre}`"
+                            title="Escuchar información del candidato">
+                            🔊
+                        </button>
                     </div>
-                    <!-- Candidato -->
-                    <div class="mt-4 mx-auto">
-                        <h2 class="text-xl font-bold capitalize">{{ candi.votante.nombre }}</h2>
-                        <h3 v-if="candi.votante.nombre == 'Voto En Blanco'" class="text-base text-gray-800"> CC {{ candi.votante.identificacion }}</h3>
-                        <p class="text-sm text-gray-600"> Tipo: {{ candi.tipo }}</p>
+
+                    <!-- Información del candidato -->
+                    <div class="mt-4 mx-auto text-center px-1">
+                        <h2 class="text-xl sm:text-2xl font-bold capitalize leading-tight">{{ candi.votante.nombre }}</h2>
+                        <h3 v-if="candi.votante.nombre == 'Voto En Blanco'" class="text-base text-gray-700 mt-0.5">CC {{ candi.votante.identificacion }}</h3>
+                        <p class="text-sm text-gray-600 mt-1 font-medium">Tipo: {{ candi.tipo }}</p>
                     </div>
-                    <!-- votacion -->
-                    <div class="mt-4 mx-auto">
+
+                    <!-- Botón votar -->
+                    <div class="mt-auto pt-4 mx-auto">
                         <PrimaryButton type="button" @click="votar(candi)" :class="{ 'opacity-25': form.processing }"
                             :disabled="form.processing">
                             Seleccionar
                         </PrimaryButton>
-
                     </div>
                 </div>
             </div>
-
-
 
         </div>
 
@@ -47,11 +71,9 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import Avatar from 'primevue/avatar';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryLink from "@/Components/SecondaryLink.vue";
-import InputError from '@/Components/InputError.vue';
 import { inject } from 'vue';
 const swal = inject('$swal');
 
@@ -119,6 +141,37 @@ const votar = candidato => {
             icon: "error"
         })
     });
+};
+
+/* ===========================================
+   🔊 Funciones de accesibilidad - Lector de voz
+   =========================================== */
+const leerTexto = (texto) => {
+    window.speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(texto);
+    speech.lang = "es-CO";
+    speech.rate = 0.95;
+    speech.pitch = 1.05;
+    window.speechSynthesis.speak(speech);
+};
+
+const leerCandidato = (candi) => {
+    let texto = `Opción de votación. Candidato: ${candi.votante.nombre}. `;
+    if (candi.votante.nombre !== 'Voto En Blanco' && candi.votante.identificacion) {
+        texto += `Identificación: ${candi.votante.identificacion}. `;
+    }
+    texto += `Tipo: ${candi.tipo}. `;
+    leerTexto(texto);
+};
+
+const leerTodasLasOpciones = () => {
+    let texto = "Opciones disponibles para votar. ";
+    if (props.candidatos && props.candidatos.length) {
+        props.candidatos.forEach((c, i) => {
+            texto += `Opción ${i + 1}: ${c.votante.nombre}. Tipo ${c.tipo}. `;
+        });
+    }
+    leerTexto(texto);
 };
 
 </script>
