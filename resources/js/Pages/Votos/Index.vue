@@ -50,7 +50,9 @@
 
             <div class="sm:flex w-full sm:grid md:grid-cols-3 grid-cols-2 gap-4">
                 <div v-for="candi in candidatos" :key="candi.id"
-                    class="flex flex-col w-full h-full p-3 inline-block m-auto mb-4 rounded-2xl shadow-xl bg-gray-200 hover:bg-gray-300 text-gray-800 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
+                    @click="seleccionarCandidato(candi)"
+                    class="flex flex-col w-full h-full p-3 inline-block m-auto mb-4 rounded-2xl shadow-xl bg-gray-200 hover:bg-gray-300 text-gray-800 focus-within:ring-2 focus-within:ring-indigo-500 transition-all cursor-pointer"
+                    :class="selectedCandidate && selectedCandidate.id === candi.id ? 'border-4 border-red-500 ring-2 ring-red-300' : ''">
                     
                     <!-- Foto / Avatar cuadrado con estilo -->
                     <div class="relative w-full mx-auto overflow-hidden rounded-2xl shadow-md ring-1 ring-gray-300 bg-gray-100 aspect-[4/3] sm:aspect-square">
@@ -82,13 +84,41 @@
                         <p class="text-sm text-gray-600 mt-1 font-medium">Tipo: {{ candi.tipo }}</p>
                     </div>
 
-                    <!-- Botón votar -->
+                    <!-- Botón seleccionar (solo selecciona, no vota aún) -->
                     <div class="mt-auto pt-4 mx-auto">
-                        <PrimaryButton type="button" @click="votar(candi)" :class="{ 'opacity-25': form.processing }"
+                        <PrimaryButton type="button" @click.stop="seleccionarCandidato(candi)" :class="{ 'opacity-25': form.processing }"
                             :disabled="form.processing">
-                            Seleccionar
+                            <span v-if="selectedCandidate && selectedCandidate.id === candi.id">✓ Seleccionado</span>
+                            <span v-else>Seleccionar</span>
                         </PrimaryButton>
                     </div>
+                </div>
+            </div>
+
+            <!-- Acciones de confirmación / cancelar selección (desasociar) -->
+            <div v-if="selectedCandidate" class="mt-6 flex flex-col items-center gap-3">
+                <div class="text-center mb-1">
+                    <span class="text-lg font-semibold text-gray-700">Candidato seleccionado:</span>
+                    <span class="ml-2 text-xl font-bold text-red-600">{{ selectedCandidate.votante.nombre }}</span>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <PrimaryButton
+                        type="button"
+                        @click="confirmarVoto"
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                        class="px-8 py-3 text-lg sm:text-xl">
+                        Confirmar y votar por este candidato
+                    </PrimaryButton>
+
+                    <button
+                        @click="desasociarCandidato"
+                        type="button"
+                        class="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-lg sm:text-xl shadow transition disabled:opacity-50"
+                        :disabled="form.processing">
+                        Cancelar selección / Desasociar
+                    </button>
                 </div>
             </div>
 
@@ -125,6 +155,12 @@ const form = useForm({
 const breadcrumbLinks = [
     { url: '', text: 'Votaciones' },
 ];
+
+/* ===========================================
+   Selección de candidato (antes de votar)
+   Permite cancelar / desasociar antes de confirmar
+   =========================================== */
+const selectedCandidate = ref(null);
 
 /* ===========================================
    🔊 Estado y controles de lector de voz (pause/resume/stop)
@@ -230,6 +266,23 @@ const votar = candidato => {
             icon: "error"
         })
     });
+};
+
+/* ===========================================
+   Seleccionar / Desasociar candidato
+   =========================================== */
+const seleccionarCandidato = (candi) => {
+    selectedCandidate.value = candi;
+};
+
+const desasociarCandidato = () => {
+    selectedCandidate.value = null;
+};
+
+const confirmarVoto = () => {
+    if (selectedCandidate.value) {
+        votar(selectedCandidate.value);
+    }
 };
 
 const leerCandidato = (candi) => {
