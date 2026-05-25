@@ -10,6 +10,37 @@
       }}
     </template>
 
+    <!-- Controles de reproducción de voz (accesibilidad) -->
+    <div class="w-full max-w-5xl mx-auto px-2 flex justify-end mb-3">
+      <div class="flex items-center gap-2 bg-white/95 border border-gray-300 rounded-xl px-2 py-1 shadow-sm">
+        <button
+          @click="toggleReproducir"
+          :disabled="!lastSpokenText"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+          :class="paused ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-800 hover:bg-gray-900 text-white'"
+          :aria-label="paused ? 'Continuar lectura' : 'Reproducir última lectura'">
+          <span v-if="paused">▶️ Continuar</span>
+          <span v-else>▶️ Reproducir</span>
+        </button>
+
+        <button
+          @click="pausarLectura"
+          :disabled="!speaking"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Pausar lectura">
+          ⏸️ Pausar
+        </button>
+
+        <button
+          @click="detenerLectura"
+          :disabled="!speaking && !paused"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Detener lectura completamente">
+          ⏹️ Detener
+        </button>
+      </div>
+    </div>
+
     <div class="items-center flex flex-col justify-center mx-2">
       <div class="sm:flex w-full sm:grid md:grid-cols-2 grid-cols-2 gap-4 mt-6">
         <!-- votos proyectos -->
@@ -523,16 +554,59 @@ const votar = () => {
   });
 };
 
+/* ===========================================
+   🔊 Estado y controles de lector de voz (pause/resume/stop)
+   =========================================== */
+const speaking = ref(false);
+const paused = ref(false);
+const lastSpokenText = ref('');
+
 const leerTexto = (texto) => {
-  // Cancelar si ya está leyendo algo
+  lastSpokenText.value = texto;
+
   window.speechSynthesis.cancel();
 
   const speech = new SpeechSynthesisUtterance(texto);
-  speech.lang = "es-CO"; // Español Colombia
-  speech.rate = 1; // Velocidad natural
-  speech.pitch = 1; // Tono
+  speech.lang = "es-CO";
+  speech.rate = 1;
+  speech.pitch = 1;
+
+  speech.onend = () => {
+    speaking.value = false;
+    paused.value = false;
+  };
+  speech.onerror = () => {
+    speaking.value = false;
+    paused.value = false;
+  };
 
   window.speechSynthesis.speak(speech);
+  speaking.value = true;
+  paused.value = false;
+};
+
+const toggleReproducir = () => {
+  if (paused.value) {
+    window.speechSynthesis.resume();
+    paused.value = false;
+    speaking.value = true;
+  } else if (lastSpokenText.value) {
+    leerTexto(lastSpokenText.value);
+  }
+};
+
+const pausarLectura = () => {
+  if (window.speechSynthesis.speaking && !paused.value) {
+    window.speechSynthesis.pause();
+    paused.value = true;
+    speaking.value = false;
+  }
+};
+
+const detenerLectura = () => {
+  window.speechSynthesis.cancel();
+  speaking.value = false;
+  paused.value = false;
 };
 
 //lector de voz para aviso inicial

@@ -8,13 +8,42 @@
         </template>
 
         <!-- Accesibilidad: Lector de voz global -->
-            <div class="w-full max-w-4xl mt-2 flex justify-end">
+            <div class="w-full max-w-4xl mt-2 flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3">
                 <button
                     @click="leerTodasLasOpciones"
                     class="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base shadow transition"
                     aria-label="Escuchar en voz alta todas las opciones de candidatos">
                     🔊 Leer todas las opciones
                 </button>
+
+                <!-- Controles de reproducción de voz -->
+                <div class="flex items-center gap-2 bg-white/90 border border-gray-300 rounded-xl px-2 py-1 shadow-sm">
+                    <button
+                        @click="toggleReproducir"
+                        :disabled="!lastSpokenText"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+                        :class="paused ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-800 hover:bg-gray-900 text-white'"
+                        :aria-label="paused ? 'Continuar lectura' : 'Reproducir última lectura'">
+                        <span v-if="paused">▶️ Continuar</span>
+                        <span v-else>▶️ Reproducir</span>
+                    </button>
+
+                    <button
+                        @click="pausarLectura"
+                        :disabled="!speaking"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+                        aria-label="Pausar lectura">
+                        ⏸️ Pausar
+                    </button>
+
+                    <button
+                        @click="detenerLectura"
+                        :disabled="!speaking && !paused"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+                        aria-label="Detener lectura completamente">
+                        ⏹️ Detener
+                    </button>
+                </div>
             </div>
 
         <div class="items-center flex  justify-center mx-2">
@@ -74,7 +103,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryLink from "@/Components/SecondaryLink.vue";
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 const swal = inject('$swal');
 
 const props = defineProps({
@@ -96,6 +125,66 @@ const form = useForm({
 const breadcrumbLinks = [
     { url: '', text: 'Votaciones' },
 ];
+
+/* ===========================================
+   🔊 Estado y controles de lector de voz (pause/resume/stop)
+   =========================================== */
+const speaking = ref(false);
+const paused = ref(false);
+const lastSpokenText = ref('');
+
+const leerTexto = (texto) => {
+    // Guardar el último texto solicitado
+    lastSpokenText.value = texto;
+
+    // Detener cualquier reproducción anterior
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(texto);
+    speech.lang = "es-CO";
+    speech.rate = 0.95;
+    speech.pitch = 1.05;
+
+    speech.onend = () => {
+        speaking.value = false;
+        paused.value = false;
+    };
+    speech.onerror = () => {
+        speaking.value = false;
+        paused.value = false;
+    };
+
+    window.speechSynthesis.speak(speech);
+    speaking.value = true;
+    paused.value = false;
+};
+
+const toggleReproducir = () => {
+    if (paused.value) {
+        // Reanudar desde donde se pausó
+        window.speechSynthesis.resume();
+        paused.value = false;
+        speaking.value = true;
+    } else if (lastSpokenText.value) {
+        // Reproducir desde el inicio el último texto (después de stop o nuevo)
+        leerTexto(lastSpokenText.value);
+    }
+};
+
+const pausarLectura = () => {
+    if (window.speechSynthesis.speaking && !paused.value) {
+        window.speechSynthesis.pause();
+        paused.value = true;
+        speaking.value = false;
+    }
+};
+
+const detenerLectura = () => {
+    window.speechSynthesis.cancel();
+    speaking.value = false;
+    paused.value = false;
+    // NO limpiamos lastSpokenText: el botón Reproducir lo usará desde el inicio
+};
 
 
 //funtion para avatar letter
@@ -141,18 +230,6 @@ const votar = candidato => {
             icon: "error"
         })
     });
-};
-
-/* ===========================================
-   🔊 Funciones de accesibilidad - Lector de voz
-   =========================================== */
-const leerTexto = (texto) => {
-    window.speechSynthesis.cancel();
-    const speech = new SpeechSynthesisUtterance(texto);
-    speech.lang = "es-CO";
-    speech.rate = 0.95;
-    speech.pitch = 1.05;
-    window.speechSynthesis.speak(speech);
 };
 
 const leerCandidato = (candi) => {
