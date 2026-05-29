@@ -55,7 +55,7 @@ class VotersImport implements ToCollection, WithHeadingRow
                     ]);
 
                     //Asignar rol
-                    $user->assignRole('Votante');
+                    $user->assignRole('Usuario');
 
                     } else {
                         $user->nombre = $row['name'];
@@ -86,7 +86,7 @@ class VotersImport implements ToCollection, WithHeadingRow
                     ]);
 
                     //Asignar rol
-                    $user->assignRole('Votante');
+                    $user->assignRole('Usuario');
 
                     // Incrementar el contador de registros insertados correctamente
                     $this->numRegistrosInsertados++;
