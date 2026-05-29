@@ -58,7 +58,7 @@ class VotersImport implements ToCollection, WithHeadingRow
                     $user->assignRole('Usuarios');
 
                     } else {
-                        $user->nombre = $row['name'];
+                        $user->name = $row['name'];
                     $user->identificacion = $row['identificacion'];
                     $user->email = $row['email'];
                     $user->password = Hash::make($row['password']);
