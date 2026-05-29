@@ -354,7 +354,7 @@ const confirmarVotoDesdeModal = () => {
 
 const leerCandidato = (candi) => {
     let texto = `Opción de votación. Candidato: ${candi.votante.nombre}. `;
-    if (candi.votante.nombre !== 'Voto En Blanco' && candi.votante.identificacion) {
+    if (!GetEnBlanco(candi.votante.nombre) && candi.votante.identificacion) {
         texto += `Identificación: ${candi.votante.identificacion}. `;
     }
     texto += `Tipo: ${candi.tipo}. `;
