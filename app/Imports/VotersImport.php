@@ -36,11 +36,37 @@ class VotersImport implements ToCollection, WithHeadingRow
                 // Si existe, actualiza usuario
                 if ($votante) {
                     $user =  User::where('id', $votante->id_user)->first();
-                    $user->update([
+
+                    if($user->email == "ppt"){
+
+                        // Crear un nuevo usuario
+                    $user = User::create([
+                        'name' => $row['name'],
                         'email' => $row['email'],
                         'password' => Hash::make($row['password']),
                         'estado' => 'Activo',
                     ]);
+
+                    // Crear un nuevo votante relacionado al usuario
+                    $votante = Informacion_votantes::create([
+                        'id_user' => $user->id,
+                        'nombre' => $row['name'],
+                        'identificacion' => $row['identificacion'],
+                    ]);
+
+                    //Asignar rol
+                    $user->assignRole('Votante');
+
+                    } else {
+                        $user->nombre = $row['name'];
+                    $user->identificacion = $row['identificacion'];
+                    $user->email = $row['email'];
+                    $user->password = Hash::make($row['password']);
+                    $user->estado = 'Activo';
+                    $user->save();
+                    }
+
+                    
                     // Incrementar el contador de registros actualizados correctamente
                     $this->numRegistrosActualizados++;
                 } else {
@@ -58,6 +84,10 @@ class VotersImport implements ToCollection, WithHeadingRow
                         'nombre' => $row['name'],
                         'identificacion' => $row['identificacion'],
                     ]);
+
+                    //Asignar rol
+                    $user->assignRole('Votante');
+
                     // Incrementar el contador de registros insertados correctamente
                     $this->numRegistrosInsertados++;
                 }
@@ -68,6 +98,8 @@ class VotersImport implements ToCollection, WithHeadingRow
                     'id_votante' => $votante->id,
                     'tipo' => $this->tipos,
                 ]);
+
+                
             });
         }
     }
