@@ -37,7 +37,22 @@ class VotersImport implements ToCollection, WithHeadingRow
                 if ($votante) {
                     $user =  User::where('id', $votante->id_user)->first();
 
-                    dd($user->email);
+                    if(!$user) {
+                        $user = User::create([
+                        'name' => $row['name'],
+                        'email' => $row['email'],
+                        'password' => Hash::make($row['password']),
+                        'estado' => 'Activo',
+                    ]);
+
+                    //Asignar rol
+                    $user->assignRole('Usuarios');
+
+                    //Asignar a votante
+                    $votante->id_user = $user->id;
+                    $votante->save();
+
+                    }
 
                     if($user->email == "ppt"){
 
