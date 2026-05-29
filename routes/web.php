@@ -277,7 +277,7 @@ Route::get('/dashboard', function () {
         'eventos' => $eventos,
         'votos' => $votos,
         'proyectos' => Hash_proyectos::with('proyecto')->get(),
-        'candidatos' => Hash_votantes::where('candidato', 0)->whereIn('tipo', $tipos)->with('votante')->get(),
+        'candidatos' => Hash_votantes::where('candidato', 1)->whereIn('tipo', $tipos)->with('votante')->get(),
         'eventos_admin' => $eventos_admin,
         'votantes' => $votantes,
         'info_votante' => $info_votante ? $info_votante->where('subtipo', '!=', 0)->values() : 0,
