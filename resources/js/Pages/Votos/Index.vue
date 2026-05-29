@@ -56,7 +56,14 @@
                     
                     <!-- Foto / Avatar cuadrado con estilo -->
                     <div class="relative w-full mx-auto overflow-hidden rounded-2xl shadow-md ring-1 ring-gray-300 bg-gray-100 aspect-[4/3] sm:aspect-square">
-                        <div v-if="candi.votante.imagen == 'user.png'"
+
+                        <div v-if="candi.votante.nombre == 'Voto en Blanco' || candi.votante.nombre == 'VOTO EN BLANCO' || candi.votante.nombre == 'voto en blanco' || candi.votante.nombre == 'Voto blanco' || candi.votante.nombre == 'Voto en blanco'"
+                            class="w-full h-full flex items-center justify-center bg-white text-gray-400">
+                            <span class="text-[3.2rem] sm:text-[4.5rem] font-black tracking-[0.08em] select-none drop-shadow">
+                                VOTO EN BLANCO
+                            </span>
+                        </div>
+                        <div v-else-if="candi.votante.imagen == 'user.png'"
                             class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-200 via-indigo-300 to-violet-200 text-indigo-900">
                             <span class="text-[3.2rem] sm:text-[4.5rem] font-black tracking-[0.08em] select-none drop-shadow">
                                 {{ getInitials(candi.votante.nombre) }}
@@ -80,7 +87,7 @@
                     <!-- Información del candidato -->
                     <div class="mt-4 mx-auto text-center px-1">
                         <h2 class="text-xl sm:text-2xl font-bold capitalize leading-tight">{{ candi.votante.nombre }}</h2>
-                        <h3 v-if="candi.votante.nombre !== 'Voto En Blanco'" class="text-base text-gray-700 mt-0.5">CC {{ candi.votante.identificacion }}</h3>
+                        <h3 v-if="candi.votante.nombre !== 'Voto En Blanco' || candi.votante.nombre !== 'VOTO EN BLANCO' || candi.votante.nombre !== 'voto en blanco' || candi.votante.nombre !== 'Voto blanco' || candi.votante.nombre !== 'Voto en blanco'" class="text-base text-gray-700 mt-0.5">CC {{ candi.votante.identificacion }}</h3>
                         <p class="text-sm text-gray-600 mt-1 font-medium">Tipo: {{ candi.tipo }}</p>
                     </div>
 
@@ -119,7 +126,13 @@
                 <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start mb-8">
                     <!-- Avatar / Foto -->
                     <div class="w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0 rounded-2xl overflow-hidden ring-2 ring-gray-300 shadow">
-                        <div v-if="selectedCandidate.votante.imagen == 'user.png'"
+                        <div v-if="selectedCandidate.votante.nombre == 'Voto en Blanco' || selectedCandidate.votante.nombre == 'VOTO EN BLANCO' || selectedCandidate.votante.nombre == 'voto en blanco' || selectedCandidate.votante.nombre == 'Voto blanco' || selectedCandidate.votante.nombre == 'Voto en blanco'"
+                            class="w-full h-full flex items-center justify-center bg-white text-gray-400">
+                            <span class="text-6xl sm:text-7xl font-black tracking-[0.08em] select-none">
+                                VOTO EN BLANCO
+                            </span>
+                        </div>
+                        <div v-else-if="selectedCandidate.votante.imagen == 'user.png'"
                             class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-200 via-indigo-300 to-violet-200 text-indigo-900">
                             <span class="text-6xl sm:text-7xl font-black tracking-[0.08em] select-none">
                                 {{ getInitials(selectedCandidate.votante.nombre) }}
@@ -135,7 +148,7 @@
                         <h3 class="text-3xl sm:text-5xl font-bold capitalize text-gray-800">
                             {{ selectedCandidate.votante.nombre }}
                         </h3>
-                        <p v-if="selectedCandidate.votante.nombre !== 'Voto En Blanco'" class="mt-2 text-xl sm:text-2xl text-gray-600">
+                        <p v-if="selectedCandidate.votante.nombre !== 'Voto En Blanco' || selectedCandidate.votante.nombre !== 'VOTO EN BLANCO' || selectedCandidate.votante.nombre !== 'voto en blanco' || selectedCandidate.votante.nombre !== 'Voto blanco' || selectedCandidate.votante.nombre !== 'Voto en blanco'" class="mt-2 text-xl sm:text-2xl text-gray-600">
                             CC {{ selectedCandidate.votante.identificacion }}
                         </p>
                         <p class="mt-1 text-xl sm:text-2xl font-medium text-gray-700">
