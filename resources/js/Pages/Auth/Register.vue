@@ -22,21 +22,106 @@
         />
       </div>
 
-      <form class="m-auto py-4">
-        <!-- parte 1 -- validación -->
-        <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
-          <!-- Nombre -->
-          <div class="mb-2">
-            <InputLabel for="nombre" value="Nombre Completo(Nombres y Apellidos)" />
-            <TextInput
-              id="nombre"
-              type="text"
-              class="mt-1 block w-full"
-              v-model="form.nombre"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.nombre" />
-          </div>
+       <form class="m-auto py-4">
+         <!-- parte 1 -- validación -->
+         <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
+
+          <!-- Comuna -->
+           <div class="mb-2">
+             <InputLabel for="comuna" value="Comuna/Corregimiento" />
+<Select
+  id="comuna"
+  v-model="comunaSelected"
+  :options="props.comunas"
+  filter
+  optionLabel="detalle"
+  placeholder="Seleccione comuna/corregimiento de dirección"
+  checkmark
+  :highlightOnSelect="false"
+  class="w-full"
+             />
+             <InputError class="mt-2" :message="form.errors.comuna" />
+             <!-- Nota comunas habilitadas -->
+             <div class="mt-2 bg-blue-50 border border-blue-200 rounded-md p-3">
+               <p class="text-sm text-blue-800">
+                 <strong>Nota:</strong> Las comunas o corregimientos que aparecen en el listado son los que participarán en el próximo evento de Presupuesto Participativo.
+                 <a
+                   :href="route('welcome') + '#comunas-habilitadas'"
+                   target="_blank"
+                   class="underline text-blue-600 font-semibold hover:text-blue-800 ml-1"
+                 >
+                   Más información
+                 </a>
+               </p>
+             </div>
+           </div>
+           
+           <!-- Barrio -->
+           <div class="mb-2">
+             <InputLabel for="barrio" value="Barrio/Vereda" />
+             <Select
+               id="barrio"
+               v-model="form.barrio"
+               :options="barriosXComuna"
+               filter
+               placeholder="Seleccione barrio/vereda de dirección"
+               checkmark
+               :highlightOnSelect="false"
+               class="w-full"
+             />
+             <div class="w-full mt-2" v-if="isOtroBarrio">
+               <InputLabel for="barrio_otro" value="Cual?" />
+               <TextInput
+                 id="barrio_otro"
+                 type="text"
+                 class="mt-1 block w-full"
+                 v-model="form.barrio"
+               />
+             </div>
+             <InputError class="mt-2" :message="form.errors.barrio" />
+           </div>
+
+           <!-- Relación con la comuna/corregimiento -->
+           <div class="mb-2">
+             <InputLabel for="relacion" value="Seleccione la relación con la comuna o corregimiento" />
+             <select
+               id="relacion"
+               v-model="form.relacion"
+               class="mt-1 block w-full border-gray-300 rounded-lg"
+             >
+               <option value="" disabled>Seleccione una opción</option>
+               <option value="Residente">Residente</option>
+               <option value="Trabajador">Trabajador</option>
+               <option value="Estudiante">Estudiante</option>
+             </select>
+             <InputError class="mt-2" :message="form.errors.relacion" />
+           </div>
+           
+           <!-- Dirección -->
+           <div class="mb-2">
+             <InputLabel for="direccion" value="Dirección" />
+             <TextInput
+               id="direccion"
+               type="text"
+               class="mt-1 block w-full"
+               v-model="form.direccion"
+               required
+             />
+             <InputError class="mt-2" :message="form.errors.direccion" />
+           </div>
+           
+           <!-- Nombre -->
+           <div class="mb-2">
+             <InputLabel for="nombre" value="Nombre Completo(Nombres y Apellidos)" />
+             <TextInput
+               id="nombre"
+               type="text"
+               class="mt-1 block w-full"
+               v-model="form.nombre"
+               required
+             />
+             <InputError class="mt-2" :message="form.errors.nombre" />
+           </div>
 
           <!-- Identificación -->
           <div class="mb-2">
@@ -259,88 +344,21 @@
             </div>
           </div>
 
-          <!-- aviso comuna/barrios -->
-          <div class="mb-2 w-full col-span-2">
-            <div class="bg-azul rounded-md p-2 w-full h-full">
-              <p class="text-white text-base">
-                Si no esta seguro a que comuna/corregimiento o barrio/vereda
-                pertenece, puede consultar en el siguiente
-                <a
-                  :href="route('ComunasBarrios')"
-                  target="_blank"
-                  class="underline !text-white font-bold cursor-pointer"
-                  >enlace</a
-                >.
-              </p>
-            </div>
-          </div>
-
-          <!-- Comuna -->
-          <div class="mb-2">
-            <InputLabel for="comuna" value="Comuna/Corregimiento" />
-            <Select
-              id="comuna"
-              v-model="comunaSelected"
-              :options="comunas"
-              filter
-              optionLabel="detalle"
-              placeholder="Seleccione comuna/corregimiento de dirección"
-              checkmark
-              :highlightOnSelect="false"
-              class="w-full"
-            />
-            <InputError class="mt-2" :message="form.errors.comuna" />
-            <!-- Nota comunas habilitadas -->
-            <div class="mt-2 bg-blue-50 border border-blue-200 rounded-md p-3">
-              <p class="text-sm text-blue-800">
-                <strong>Nota:</strong> Las comunas o corregimientos que aparecen en el listado son los que participarán en el próximo evento de Presupuesto Participativo.
-                <a
-                  :href="route('welcome') + '#comunas-habilitadas'"
-                  target="_blank"
-                  class="underline text-blue-600 font-semibold hover:text-blue-800 ml-1"
-                >
-                  Más información
-                </a>
-              </p>
-            </div>
-          </div>
-
-          <!-- Barrio -->
-          <div class="mb-2">
-            <InputLabel for="barrio" value="Barrio/Vereda" />
-            <Select
-              id="barrio"
-              v-model="form.barrio"
-              :options="barriosXComuna"
-              filter
-              placeholder="Seleccione barrio/vereda de dirección"
-              checkmark
-              :highlightOnSelect="false"
-              class="w-full"
-            />
-            <div class="w-full mt-2" v-if="isOtroBarrio">
-              <InputLabel for="barrio_otro" value="Cual?" />
-              <TextInput
-                id="barrio_otro"
-                type="text"
-                class="mt-1 block w-full"
-                v-model="form.barrio"
-              />
-            </div>
-            <InputError class="mt-2" :message="form.errors.barrio" />
-          </div>
-          <!-- Dirección -->
-          <div class="mb-2">
-            <InputLabel for="direccion" value="Dirección" />
-            <TextInput
-              id="direccion"
-              type="text"
-              class="mt-1 block w-full"
-              v-model="form.direccion"
-              required
-            />
-            <InputError class="mt-2" :message="form.errors.direccion" />
-          </div>
+           <!-- aviso comuna/barrios -->
+           <div class="mb-2 w-full col-span-2">
+             <div class="bg-azul rounded-md p-2 w-full h-full">
+               <p class="text-white text-base">
+                 Si no esta seguro a que comuna/corregimiento o barrio/vereda
+                 pertenece, puede consultar en el siguiente
+                 <a
+                   :href="route('ComunasBarrios')"
+                   target="_blank"
+                   class="underline !text-white font-bold cursor-pointer"
+                   >enlace</a
+                 >.
+               </p>
+             </div>
+           </div>
           <!-- Correo -->
           <div class="mb-2">
             <InputLabel for="email" value="Correo Electrónico" />
@@ -667,21 +685,17 @@
       </h2>
 
       <div class="text-justify sm:text-2xl text-xl p-6 mt-6">
-        <p>
-          El dispositivo que utilice para registrarse debe contar con cámara, ya
-          que es un requisito indispensable para la validación de identidad.
-        </p>
-        <br />
-        <p>
-          Asegúrese de ingresar correctamente toda la información solicitada, ya
-          que cualquier error podría resultar en el rechazo.
-        </p>
-        <br />
-        <p>
-          Al momento de seleccionar su comuna o corregimiento, hágalo con
-          precisión. Recuerde que el derecho al voto solo podrá ejercerse una
-          única vez y no habrá posibilidad de repetir el proceso.
-        </p>
+        <ul class="list-disc pl-5 space-y-6">
+          <li>
+            Asegurese de tener la cámara activa. 
+          </li>
+          <li>
+            Tener disponible el documento de identidad
+          </li>
+          <li>
+            El derecho al voto solo podrá ejercerse en una (1) comuna o corregimiento.
+          </li>
+        </ul>
       </div>
 
       <div class="flex justify-center gap-4 text-center h-full my-6">
@@ -737,6 +751,9 @@ const props = defineProps({
   },
 });
 
+console.log("datos", props);
+
+
 const form = useForm({
   nombre: "",
   identificacion: "",
@@ -759,13 +776,15 @@ const form = useForm({
   declaracion: false,
   recaptcha_token: "",
   campoObligatorio: "",
+  relacion: "",
 });
 
 const { executeRecaptcha } = useReCaptcha();
 
+const departamentos = ref([]);
 const departamentoSelected = ref("");
 const ciudadesxDep = ref([]);
-const comunaSelected = ref("");
+const comunaSelected = ref(null);
 const barriosXComuna = ref([]);
 
 //fecha nacimiento
@@ -778,9 +797,6 @@ const loadingModal = ref(false);
 
 //modal Inicio
 const InicioModal = ref(true);
-
-//comunas habilitadas
-const comunas = ref(props.comunas);
 
 //ITEMS DEL STEP
 const items = ref([
@@ -843,6 +859,37 @@ const counterCamera = ref(0);
 //verificar si el barrio es otro
 const isOtroBarrio = ref(false);
 
+
+
+// Update the barrios list based on selected comuna or allowed comunas
+function updateBarriosList() {
+  if (comunaSelected.value) {
+    // If a specific comuna is selected, show only its barrios
+    const comunaData = barrios.find(item => item.id === parseInt(comunaSelected.value.id));
+    if (comunaData) {
+      barriosXComuna.value = [...comunaData.barrios];
+    } else {
+      barriosXComuna.value = [];
+    }
+  } else if (props.comunas && Array.isArray(props.comunas) && props.comunas.length > 0) {
+    // If no comuna selected but we have allowed comunas from props, show barrios from those comunas
+    const allowedComunaIds = props.comunas.map(item => parseInt(item.id));
+    const allowedBarrios = [];
+    
+    barrios.forEach(item => {
+      if (allowedComunaIds.includes(item.id)) {
+        allowedBarrios.push(...item.barrios);
+      }
+    });
+    
+    // Add "Otro" option at the end
+    barriosXComuna.value = [...allowedBarrios, "Otro"];
+  } else {
+    // If no comuna selected and no allowed comunas, show only "Otro"
+    barriosXComuna.value = ["Otro"];
+  }
+}
+
 //WATCH FECHA NACIMIENTO MOBIL
 watch([diaNacimiento, mesNacimiento, AnnioNacimiento], ([dia, mes, annio]) => {
   if (dia && mes && annio) {
@@ -872,26 +919,62 @@ watch(departamentoSelected, (newValue) => {
 //WATCH COMUNAS
 watch(comunaSelected, (newValue) => {
   if (newValue) {
-    form.comuna = newValue;
-    barriosXComuna.value = barrios.find(
-      (barrio) => barrio.id === parseInt(newValue.id)
-    ).barrios;
-    console.log(barriosXComuna.value);
+    form.comuna = newValue.id.toString();
+    form.barrio = ""; // Reset barrio when comuna changes
+    isOtroBarrio.value = false; // Reset Otros flag
+    updateBarriosList();
+  } else {
+    form.comuna = "";
+    form.barrio = ""; // Reset barrio when comuna is cleared
+    isOtroBarrio.value = false; // Reset Otros flag
+    updateBarriosList();
   }
 });
 
-//WATCH BARRIO -- OTROS
+//WATCH BARRIO -- AUTOMATICALLY SET COMUNA WHEN BARRIO IS SELECTED
 watch(
   () => form.barrio,
   (value) => {
-    console.log(value);
+    console.log("Barrio changed:", value);
 
+    // If "Otro" is selected, handle the special case
     if (value == "Otro") {
       form.barrio = "";
       isOtroBarrio.value = true;
+      return;
+    }
+
+    // Find the comuna for the selected barrio
+    const selectedItem = barrios.find(item => 
+      item.barrios.includes(value)
+    );
+
+    if (selectedItem) {
+      // Find the corresponding comuna object from props.comunas
+      const comunaObject = props.comunas.find(item => 
+        parseInt(item.id) === selectedItem.id
+      );
+      
+      if (comunaObject) {
+        // Set the comuna automatically (this will trigger the comuna watcher)
+        comunaSelected.value = comunaObject;
+        // form.comuna will be set by the comuna watcher
+        
+        // Update barriosXComuna to show only barrios from this comuna
+        updateBarriosList();
+        
+        isOtroBarrio.value = false;
+      } else {
+        // If comuna object not found in props.comunas, reset
+        isOtroBarrio.value = false;
+      }
+    } else {
+      // If barrio not found in any comuna (shouldn't happen), reset
+      isOtroBarrio.value = false;
     }
   }
 );
+
 
 // Observa todos los campos del formulario y elimina errores automáticamente
 watch(
@@ -1350,7 +1433,11 @@ const validateStep1 = async () => {
     form.nombre &&
     form.identificacion &&
     form.tipo_documento &&
-    form.nacimiento
+    form.nacimiento &&
+    form.relacion &&
+    form.comuna &&
+    form.barrio &&
+    form.direccion
   ) {
     console.log(form.nacimiento);
 
@@ -1393,6 +1480,22 @@ const validateStep1 = async () => {
     if (!form.nacimiento) {
       form.errors.nacimiento = "Este campo es requerido.";
     }
+    
+    if (!form.relacion) {
+      form.errors.relacion = "Este campo es requerido.";
+    }
+    
+    if (!form.comuna) {
+      form.errors.comuna = "Este campo es requerido.";
+    }
+    
+    if (!form.barrio) {
+      form.errors.barrio = "Este campo es requerido.";
+    }
+    
+    if (!form.direccion) {
+      form.errors.direccion = "Este campo es requerido.";
+    }
   }
 };
 
@@ -1434,9 +1537,6 @@ const validarDatos2 = () => {
     form.etnia &&
     form.condicion &&
     form.celular &&
-    form.comuna &&
-    form.barrio &&
-    form.direccion &&
     form.password &&
     form.checked &&
     form.declaracion
@@ -1468,16 +1568,6 @@ const validarDatos2 = () => {
     }
     if (!form.celular) {
       form.errors.celular = "Este campo es requerido.";
-    }
-    if (!form.comuna) {
-      form.errors.comuna = "Este campo es requerido.";
-    }
-
-    if (!form.barrio) {
-      form.errors.barrio = "Este campo es requerido.";
-    }
-    if (!form.direccion) {
-      form.errors.direccion = "Este campo es requerido.";
     }
     if (!form.password) {
       form.errors.password = "Este campo es requerido.";
@@ -1601,7 +1691,11 @@ watch(biometricoModal, (newVal) => {
 
 onMounted(() => {
   verificarCamaraONecesaria();
+  // Barrios initialization is handled by the updateBarriosList() call
+  // and watchers for comunaSelected and comunas prop
 });
+
+updateBarriosList();
 </script>
 
 <style scoped>
