@@ -26,6 +26,22 @@
          <!-- parte 1 -- validación -->
          <div class="sm:grid sm:grid-cols-2 gap-6 h-full" v-if="active == 0">
 
+          <!-- aviso comuna/barrios -->
+           <div class="mb-2 w-full col-span-2">
+             <div class="bg-azul rounded-md p-2 w-full h-full">
+               <p class="text-white text-base">
+                 Si no esta seguro a que comuna/corregimiento o barrio/vereda
+                 pertenece, puede consultar en el siguiente
+                 <a
+                   :href="route('ComunasBarrios')"
+                   target="_blank"
+                   class="underline !text-white font-bold cursor-pointer"
+                   >enlace</a
+                 >.
+               </p>
+             </div>
+           </div>
+
           <!-- Comuna -->
            <div class="mb-2">
              <InputLabel for="comuna" value="Comuna/Corregimiento" />
@@ -99,7 +115,7 @@
            
            <!-- Dirección -->
            <div class="mb-2">
-             <label for="direccion" class="block text-sm text-gray-700">Dirección {{ form.relacion ? 'De ' +getRelacionText(form.relacion) : '' }}</label>
+             <label for="direccion" class="block text-sm text-gray-700">Dirección {{ form.relacion ? 'de ' +getRelacionText(form.relacion) : '' }}</label>
              <TextInput
                id="direccion"
                type="text"
@@ -285,14 +301,14 @@
 
           <!-- Etnia -->
           <div class="mb-2">
-            <InputLabel for="etnia" value="Grupo poblacional" />
+            <InputLabel for="etnia" value="Grupo étnico poblacional" />
             <select
               id="etnia"
               v-model="form.etnia"
               class="mt-1 block w-full border-gray-300 rounded-lg"
             >
               <option value="" disabled>
-                Seleccione grupo poblacional perteneciente
+                Seleccione grupo étnico poblacional perteneciente
               </option>
               <option v-for="et in etnia" :key="et.id" :value="et.nombre">
                 {{ et.nombre }}
@@ -344,21 +360,7 @@
             </div>
           </div>
 
-           <!-- aviso comuna/barrios -->
-           <div class="mb-2 w-full col-span-2">
-             <div class="bg-azul rounded-md p-2 w-full h-full">
-               <p class="text-white text-base">
-                 Si no esta seguro a que comuna/corregimiento o barrio/vereda
-                 pertenece, puede consultar en el siguiente
-                 <a
-                   :href="route('ComunasBarrios')"
-                   target="_blank"
-                   class="underline !text-white font-bold cursor-pointer"
-                   >enlace</a
-                 >.
-               </p>
-             </div>
-           </div>
+
            <!-- Correo -->
            <div class="mb-2">
              <InputLabel for="email" value="Correo Electrónico" />
@@ -385,7 +387,7 @@
           <div class="mb-2">
             <div class="bg-azul rounded-md p-2 w-full h-full">
               <p class="text-white text-base">
-                Digite una contraseña fácil de recordar para luego acceder a
+                Cree una contraseña fácil de recordar para luego acceder a
                 votar.
               </p>
             </div>
@@ -882,7 +884,8 @@ function updateBarriosList() {
       barriosXComuna.value = [];
     }
   } else if (props.comunas && Array.isArray(props.comunas) && props.comunas.length > 0) {
-    // If no comuna selected but we have allowed comunas from props, show barrios from those comunas
+
+    // Si no hay comuna seleccionada pero tenemos comunas permitidas de las props, mostrar los barrios de esas comunas
     const allowedComunaIds = props.comunas.map(item => parseInt(item.id));
     const allowedBarrios = [];
     
@@ -948,7 +951,7 @@ watch(departamentoSelected, (newValue) => {
 //WATCH COMUNAS
 watch(comunaSelected, (newValue) => {
   if (newValue) {
-    form.comuna = newValue.id.toString();
+    form.comuna = newValue;
     form.barrio = ""; // Reset barrio when comuna changes
     isOtroBarrio.value = false; // Reset Otros flag
     updateBarriosList();
@@ -987,7 +990,7 @@ watch(
       if (comunaObject) {
         // Set the comuna automatically (this will trigger the comuna watcher)
         comunaSelected.value = comunaObject;
-        // form.comuna will be set by the comuna watcher
+        form.comuna = comunaObject; 
         
         // Update barriosXComuna to show only barrios from this comuna
         updateBarriosList();
@@ -1667,7 +1670,7 @@ const submit = async () => {
             El estado del trámite será notificado en un máximo de 72 horas al correo electrónico registrado.
           </li>
           <li>
-            Recuerde que su usuario corresponde a su número de identificación y la contraseña es la que creó en este registro.
+            Recuerde que su <b>usuario</b> corresponde a su número de identificación y la <b>contraseña</b> es la que creó en este registro.
           </li>
           
         </ul>
