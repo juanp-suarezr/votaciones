@@ -136,6 +136,7 @@ class ValidationController extends Controller
             'genero' => 'required|string',
             'etnia' => 'required|string',
             'condicion' => 'required|string',
+            'relacion' => 'required|string',
             'comuna' => 'required',
             'barrio' => 'string',
             'direccion' => 'string',
@@ -148,7 +149,6 @@ class ValidationController extends Controller
             'cedula_front' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'checked' => 'required',
             'declaracion' => 'required',
-
         ]);
 
 
@@ -257,20 +257,21 @@ class ValidationController extends Controller
 
             if ($Informacion_votantes) {
 
-                $Informacion_votantes->nombre = $request->nombre;
-                $Informacion_votantes->email = $request->email;
-                $Informacion_votantes->id_user = $user->id;
-                $Informacion_votantes->identificacion = $request->identificacion;
-                $Informacion_votantes->tipo_documento = $request->tipo_documento;
-                $Informacion_votantes->nacimiento = $request->nacimiento;
-                $Informacion_votantes->genero = $request->genero;
-                $Informacion_votantes->etnia = $request->etnia;
-                $Informacion_votantes->condicion = $request->condicion;
-                $Informacion_votantes->comuna = $request->input('comuna.id');
-                $Informacion_votantes->barrio = $request->barrio;
-                $Informacion_votantes->direccion = $request->direccion;
-                $Informacion_votantes->celular = $request->celular;
-                $Informacion_votantes->save();
+                 $Informacion_votantes->nombre = $request->nombre;
+                 $Informacion_votantes->email = $request->email;
+                 $Informacion_votantes->id_user = $user->id;
+                 $Informacion_votantes->identificacion = $request->identificacion;
+                 $Informacion_votantes->tipo_documento = $request->tipo_documento;
+                 $Informacion_votantes->nacimiento = $request->nacimiento;
+                 $Informacion_votantes->genero = $request->genero;
+                 $Informacion_votantes->etnia = $request->etnia;
+                 $Informacion_votantes->condicion = $request->condicion;
+                 $Informacion_votantes->relacion = $request->relacion;
+                 $Informacion_votantes->comuna = $request->input('comuna.id');
+                 $Informacion_votantes->barrio = $request->barrio;
+                 $Informacion_votantes->direccion = $request->direccion;
+                 $Informacion_votantes->celular = $request->celular;
+                 $Informacion_votantes->save();
 
 
                 $hashVotante = Hash_votantes::where('id_votante', $Informacion_votantes->id)->first();
@@ -283,24 +284,24 @@ class ValidationController extends Controller
                     $hashVotante->save();
 
 
-            } else {
-                // Crear la información del votante asociada al usuario
-                $informacionUsuario = new Informacion_votantes([
-                    'nombre' => $request->nombre,
-                    'email' => $request->email,
-                    'id_user' => $user->id,
-                    'identificacion' => $request->identificacion,
-                    'tipo_documento' => $request->tipo_documento,
-                    'nacimiento' => $request->nacimiento,
-                    'genero' => $request->genero,
-                    'etnia' => $request->etnia,
-                    'condicion' => $request->condicion,
-                    'comuna' => $request->input('comuna.id'),
-                    'barrio' => $request->barrio,
-                    'direccion' => $request->direccion,
-                    'celular' => $request->celular,
-
-                ]);
+             } else {
+                 // Crear la información del votante asociada al usuario
+                 $informacionUsuario = new Informacion_votantes([
+                     'nombre' => $request->nombre,
+                     'email' => $request->email,
+                     'id_user' => $user->id,
+                     'identificacion' => $request->identificacion,
+                     'tipo_documento' => $request->tipo_documento,
+                     'nacimiento' => $request->nacimiento,
+                     'genero' => $request->genero,
+                     'etnia' => $request->etnia,
+                     'condicion' => $request->condicion,
+                     'relacion' => $request->relacion,
+                     'comuna' => $request->input('comuna.id'),
+                     'barrio' => $request->barrio,
+                     'direccion' => $request->direccion,
+                     'celular' => $request->celular,
+                 ]);
                 $user->votantes()->save($informacionUsuario);
 
                 // Crear el registro de hash_votantes asociado a la información del votante
@@ -548,19 +549,20 @@ class ValidationController extends Controller
             $user->identificacion = $request->identificacion;
             $user->save();
 
-            // Actualizar la información del votante asociada al usuario
-            $votante->nombre = $request->nombre;
-            $votante->identificacion = $request->identificacion;
-            $votante->tipo_documento = $request->tipo_documento;
+             // Actualizar la información del votante asociada al usuario
+             $votante->nombre = $request->nombre;
+             $votante->identificacion = $request->identificacion;
+             $votante->tipo_documento = $request->tipo_documento;
 
-            $votante->nacimiento = $request->nacimiento;
-            $votante->genero = $request->genero;
-            $votante->etnia = $request->etnia;
-            $votante->condicion = $request->condicion;
-            $votante->comuna = $request->input('comuna.id');
-            $votante->barrio = $request->barrio;
-            $votante->direccion = $request->direccion;
-            $votante->save();
+             $votante->nacimiento = $request->nacimiento;
+             $votante->genero = $request->genero;
+             $votante->etnia = $request->etnia;
+             $votante->condicion = $request->condicion;
+             $votante->relacion = $request->relacion;
+             $votante->comuna = $request->input('comuna.id');
+             $votante->barrio = $request->barrio;
+             $votante->direccion = $request->direccion;
+             $votante->save();
 
             // Actualizar el registro de hash_votantes asociado a la información del votante
             $hash_votante->subtipo = $request->input('comuna.id');

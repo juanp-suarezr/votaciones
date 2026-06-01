@@ -16,29 +16,30 @@ class Informacion_votantes extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'nombre',
-        'email',
-        'id_user',
-        'id_jurado',
-        'identificacion',
-        'tipo_documento',
-        // 'fecha_expedicion',
-        // 'lugar_expedicion',
-        'nacimiento',
-        'genero',
-        'etnia',
-        'condicion',
-        'direccion',
-        'celular',
-        'comuna',
-        'barrio',
-        'created_at',
-        'updated_at',
-        'imagen',
-        'Isdriver',
+     protected $fillable = [
+         'nombre',
+         'email',
+         'id_user',
+         'id_jurado',
+         'identificacion',
+         'tipo_documento',
+         // 'fecha_expedicion',
+         // 'lugar_expedicion',
+         'nacimiento',
+         'genero',
+         'etnia',
+         'condicion',
+         'relacion',
+         'direccion',
+         'celular',
+         'comuna',
+         'barrio',
+         'created_at',
+         'updated_at',
+         'imagen',
+         'Isdriver',
 
-    ];
+     ];
 
     public function user()
     {

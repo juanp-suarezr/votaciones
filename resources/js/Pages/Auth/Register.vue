@@ -99,7 +99,7 @@
            
            <!-- Dirección -->
            <div class="mb-2">
-             <InputLabel for="direccion" value="Dirección" />
+             <label for="direccion" class="block text-sm text-gray-700">Dirección {{ form.relacion ? 'De ' +getRelacionText(form.relacion) : '' }}</label>
              <TextInput
                id="direccion"
                type="text"
@@ -359,17 +359,28 @@
                </p>
              </div>
            </div>
-          <!-- Correo -->
-          <div class="mb-2">
-            <InputLabel for="email" value="Correo Electrónico" />
-            <TextInput
-              id="email"
-              type="email"
-              class="mt-1 block w-full"
-              v-model="form.email"
-            />
-            <InputError class="mt-2" :message="form.errors.email" />
-          </div>
+           <!-- Correo -->
+           <div class="mb-2">
+             <InputLabel for="email" value="Correo Electrónico" />
+             <TextInput
+               id="email"
+               type="email"
+               class="mt-1 block w-full"
+               v-model="form.email"
+             />
+             <InputError class="mt-2" :message="form.errors.email" />
+           </div>
+           <!-- Confirmar Correo -->
+           <div class="mb-2">
+             <InputLabel for="email_confirmation" value="Confirmar Correo Electrónico" />
+             <TextInput
+               id="email_confirmation"
+               type="email"
+               class="mt-1 block w-full"
+               v-model="form.email_confirmation"
+             />
+             <InputError class="mt-2" :message="form.errors.email_confirmation" />
+           </div>
           <!-- aviso contraseña -->
           <div class="mb-2">
             <div class="bg-azul rounded-md p-2 w-full h-full">
@@ -478,9 +489,7 @@
                 Cargue documento de identificación parte frontal
               </h3>
               <p>
-                Para cargar el documento frontal, asegúrese de que la imagen sea
-                clara y legible. El documento debe estar bien iluminado y sin
-                reflejos.
+                Para cargar el documento frontal, asegúrese de que la imagen sea clara y legible. El documento debe estar bien iluminado y sin reflejos.
               </p>
             </div>
             <!-- ejemplo de doc frontal -->
@@ -768,6 +777,7 @@ const form = useForm({
   comuna: "",
   barrio: "",
   email: "",
+  email_confirmation: "",
   password: "",
   embedding: "",
   photo: "",
@@ -887,6 +897,25 @@ function updateBarriosList() {
   } else {
     // If no comuna selected and no allowed comunas, show only "Otro"
     barriosXComuna.value = ["Otro"];
+  }
+}
+
+//relacion get name
+const getRelacionText = (relacion) => {
+  
+  if (relacion === "") {
+    return "";
+  }
+
+  switch (relacion) {
+    case "Residente":
+      return "residencía";
+    case "Trabajador":
+      return "trabajo";
+    case "Estudiante":
+      return "Estudio";
+    default:
+      return relacion;
   }
 }
 
@@ -1538,14 +1567,21 @@ const validarDatos2 = () => {
     form.condicion &&
     form.celular &&
     form.password &&
+    form.email &&
+    form.email_confirmation &&
     form.checked &&
     form.declaracion
   ) {
     console.log(form.password.length);
 
     if (form.password.length >= 8) {
-      isValidate.value = true;
-      active.value = 2;
+      // Validate emails match
+      if (form.email === form.email_confirmation) {
+        isValidate.value = true;
+        active.value = 2;
+      } else {
+        form.errors.email_confirmation = "Los correos electrónicos no coinciden.";
+      }
     }
   }
 
@@ -1568,6 +1604,12 @@ const validarDatos2 = () => {
     }
     if (!form.celular) {
       form.errors.celular = "Este campo es requerido.";
+    }
+    if (!form.email) {
+      form.errors.email = "Este campo es requerido.";
+    }
+    if (!form.email_confirmation) {
+      form.errors.email_confirmation = "Este campo es requerido.";
     }
     if (!form.password) {
       form.errors.password = "Este campo es requerido.";
@@ -1619,7 +1661,17 @@ const submit = async () => {
 
       swal({
         title: "Registro realizado",
-        text: "Registro de usuario realizado exitosamente. Para poder votar, se realizará una validación interna de su información. El estado del trámite será notificado en un máximo de 72 horas al correo electrónico registrado. Recuerde que su usuario corresponde a su número de identificación y la contraseña es la que creó al momento del registro.",
+        html: `
+    <ul class="list-disc pl-5 space-y-6">
+          <li>
+            El estado del trámite será notificado en un máximo de 72 horas al correo electrónico registrado.
+          </li>
+          <li>
+            Recuerde que su usuario corresponde a su número de identificación y la contraseña es la que creó en este registro.
+          </li>
+          
+        </ul>
+  `,
         icon: "success",
       }).then((result) => {
         window.location.href = route("welcome");
