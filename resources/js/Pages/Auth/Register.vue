@@ -9,6 +9,45 @@
         Registro votante
       </h1>
 
+      <!-- Ayuda auditiva -->
+      <div class="mt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+        <button
+          @click="leerPasoActual"
+          class="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm shadow transition"
+          aria-label="Escuchar instrucciones del paso actual"
+        >
+          🔊 Leer instrucciones
+        </button>
+        <div class="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-2 py-1 shadow-sm">
+          <button
+            @click="toggleReproducir"
+            :disabled="!lastSpokenText"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+            :class="paused ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-800 hover:bg-gray-900 text-white'"
+            :aria-label="paused ? 'Continuar lectura' : 'Reproducir última lectura'"
+          >
+            <span v-if="paused">▶️ Continuar</span>
+            <span v-else>▶️ Reproducir</span>
+          </button>
+          <button
+            @click="pausarLectura"
+            :disabled="!speaking && !paused"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Pausar lectura"
+          >
+            ⏸️ Pausar
+          </button>
+          <button
+            @click="detenerLectura"
+            :disabled="!speaking && !paused"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Detener lectura"
+          >
+            ⏹️ Detener
+          </button>
+        </div>
+      </div>
+
       <div class="mt-4 justify-center">
         <Steps
           class="hidden sm:block"
@@ -748,12 +787,16 @@ import axios from "axios";
 const swal = inject("$swal");
 import { useReCaptcha } from "vue-recaptcha-v3";
 import { PhotoIcon } from "@heroicons/vue/24/solid";
+import { useAudioHelp } from "@/composables/useAudioHelp";
 
 //imagen
 import frontEjemplo from "../../../../public/assets/img/cedulaFrontEjemplo.webp";
 import backEjemplo from "../../../../public/assets/img/cedulaBackEjemplo.webp";
 
 import * as faceapi from "face-api.js";
+
+// Composable de ayuda auditiva
+const { speaking, paused, lastSpokenText, leerTexto, toggleReproducir, pausarLectura, detenerLectura, estaHablando } = useAudioHelp();
 
 const props = defineProps({
   comunas: {
@@ -1015,6 +1058,20 @@ watch(
     Object.keys(form.errors).forEach((campo) => {
       if (nuevoValor[campo]) {
         form.errors[campo] = null;
+      }
+    });
+  },
+  { deep: true }
+);
+
+// Leer errores automáticamente para ayuda auditiva
+watch(
+  () => form.errors,
+  (nuevosErrores) => {
+    Object.keys(nuevosErrores).forEach((campo) => {
+      if (nuevosErrores[campo]) {
+        const texto = `Error en el campo ${campo}: ${nuevosErrores[campo]}.`;
+        leerTexto(texto);
       }
     });
   },
@@ -1745,12 +1802,31 @@ watch(biometricoModal, (newVal) => {
 });
 
 onMounted(() => {
-  verificarCamaraONecesaria();
-  // Barrios initialization is handled by the updateBarriosList() call
-  // and watchers for comunaSelected and comunas prop
+   verificarCamaraONecesaria();
+   // Barrios initialization is handled by the updateBarriosList() call
+   // and watchers for comunaSelected and comunas prop
 });
 
 updateBarriosList();
+
+// Ayuda auditiva - leer instrucciones del paso actual
+const leerPasoActual = () => {
+  let texto = "";
+  switch (active.value) {
+    case 0:
+      texto = "Paso 1: Información Personal. Complete los campos de comuna, barrio, relación con la comuna, dirección, nombre completo, número de identificación, tipo de documento y fecha de nacimiento.";
+      break;
+    case 1:
+      texto = "Paso 2: Datos Demográficos. Seleccione su identidad de género, grupo étnico, condición poblacional, número de celular, correo electrónico, contraseña y acepte las políticas de privacidad y la declaración juramentada.";
+      break;
+    case 2:
+      texto = "Paso 3: Registro de datos. Cargue la imagen de su documento de identidad frontal.";
+      break;
+    default:
+      texto = "Registro de votante. Complete todos los pasos para finalizar el registro.";
+  }
+  leerTexto(texto);
+};
 </script>
 
 <style scoped>
