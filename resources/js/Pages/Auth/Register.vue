@@ -60,7 +60,7 @@
           v-model:activeStep="active"
         />
         <div class="mt-4 max-w-2xl mx-auto">
-          <ProgressBar :value="progreso" class="h-3" />
+          <ProgressBar :value="progreso" :showValue="false" class="h-3" />
           <p class="text-center text-sm text-gray-600 mt-2">
             Paso {{ active + 1 }} de {{ items.length }}
           </p>
@@ -529,9 +529,9 @@
         <!-- parte 3 -- registro datos -->
         <div class="gap-6" v-if="active == 2">
           <!-- parte frontal documento -->
-          <div class="sm:grid sm:grid-cols-2 gap-2 h-full sm:px-16 px-4">
+          <div class="w-full max-w-5xl mx-auto sm:grid sm:grid-cols-2 gap-4 h-full sm:px-4 px-2" ref="documentoPanel">
             <!-- titulo -->
-            <div class="col-span-2 text-sm sm:text-base text-gray-800 pt-6">
+            <div class="col-span-2 text-sm sm:text-base text-gray-800 pt-4">
               <h3 class="text-lg font-semibold">
                 Cargue documento de identificación parte frontal
               </h3>
@@ -539,20 +539,72 @@
                 Para cargar el documento frontal, asegúrese de que la imagen sea clara y legible. El documento debe estar bien iluminado y sin reflejos.
               </p>
             </div>
+
+            <div class="col-span-2 rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-3 sm:p-4 shadow-sm">
+              <div class="flex gap-3">
+                <div class="shrink-0 rounded-full bg-white/80 p-2 shadow-sm">
+                  <ShieldCheckIcon class="w-5 h-5 sm:w-6 sm:h-6 text-orange-700" />
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm sm:text-base text-orange-950">Tus datos están protegidos</p>
+                  <p class="text-xs sm:text-sm leading-6 text-orange-900 mt-1">
+                    Por seguridad y Habeas Data, la imagen de tu cédula se usa únicamente para validar tu registro y cuidar tus datos personales. No se publica ni se usa para otros fines. Al continuar, aceptas la
+                    <a
+                      href="https://www.pereira.gov.co/publicaciones/38/politicas-de-privacidad-y-condiciones-de-uso/"
+                      target="_blank"
+                      class="font-semibold underline break-words hover:text-orange-950"
+                    >
+                      Política de Tratamiento de Datos
+                    </a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <!-- ejemplo de doc frontal -->
-            <div class="w-full h-full mt-4">
-              <div class="w-full">
-                <h4 class="text-2xl underline">Ejemplo parte frontal</h4>
+            <div class="w-full h-full mt-2 lg:col-span-1">
+              <div class="border border-gray-200 rounded-xl p-3 sm:p-4 bg-white shadow-sm">
+                <h4 class="text-base sm:text-lg font-semibold text-gray-800 underline">Ejemplo parte frontal</h4>
                 <img
                   :src="frontEjemplo"
                   alt="Documento Frontal ejemplo"
-                  class="w-full h-full object-contain mt-2"
+                  class="w-full h-48 sm:h-64 lg:h-72 object-contain mt-3 rounded-lg bg-gray-50"
                 />
               </div>
             </div>
-            <!-- Cédula Frontal -->
-            <div class="mb-2 h-full flex justify-center items-center mt-4">
-              <div class="border-2 border-gray-300 rounded-md p-2 h-full">
+
+            <!-- Selector de método -->
+            <div class="col-span-2 lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 mt-2">
+              <button
+                type="button"
+                @click="documentoMetodo = 'archivo'"
+                class="rounded-xl border-2 p-3 sm:p-4 text-left transition flex items-start gap-3"
+                :class="documentoMetodo === 'archivo' ? 'border-azul bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'"
+              >
+                <PhotoIcon class="w-7 h-7 text-azul shrink-0 mt-1" />
+                <span>
+                  <span class="font-semibold block text-sm sm:text-base text-gray-800">Subir archivo</span>
+                  <span class="text-sm text-gray-600">Selecciona una imagen guardada en tu dispositivo.</span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                @click="abrirCamaraDocumento"
+                class="rounded-xl border-2 p-3 sm:p-4 text-left transition flex items-start gap-3"
+                :class="documentoMetodo === 'camara' ? 'border-azul bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'"
+              >
+                <CameraIcon class="w-7 h-7 text-azul shrink-0 mt-1" />
+                <span>
+                  <span class="font-semibold block text-sm sm:text-base text-gray-800">Tomar foto</span>
+                  <span class="text-sm text-gray-600">Usa la cámara para capturar tu cédula en este momento.</span>
+                </span>
+              </button>
+            </div>
+
+            <!-- Cédula Frontal: subir archivo -->
+            <div v-if="documentoMetodo === 'archivo'" class="col-span-1 sm:col-span-2">
+              <div class="border-2 border-gray-300 rounded-xl p-4 bg-white">
                 <TextInput
                   id="cedula_front"
                   type="file"
@@ -563,27 +615,120 @@
                 />
                 <InputError class="mt-2" :message="form.errors.cedula_front" />
 
-                <div class="flex justify-center">
-                  <img
-                    v-if="imageUrl"
-                    :src="imageUrl"
-                    :alt="form.cedula_front"
-                    class="w-4/6 h-full object-contain"
-                  />
-                  <PhotoIcon
-                    v-else
-                    class="w-2/6 text-gray-300 flex justify-center items-center"
-                  />
+                <div v-if="imageUrl" class="mt-4">
+                  <p class="text-sm font-medium text-gray-700 mb-2 text-center">Vista previa</p>
+                  <div class="flex justify-center">
+                    <img
+                      :src="imageUrl"
+                      alt="Vista previa de la cédula frontal"
+                      class="max-w-full h-64 sm:h-80 object-contain rounded-lg bg-gray-50 border border-gray-200"
+                    />
+                  </div>
+                  <div class="flex justify-center mt-3">
+                    <button
+                      @click="removerDocumento"
+                      type="button"
+                      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
+                    >
+                      Eliminar imagen
+                    </button>
+                  </div>
                 </div>
-                <div v-if="imageUrl" class="flex justify-center mt-2">
-                  <button
-                    @click="removeImage(1)"
-                    type="button"
-                    class="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Eliminar Imagen
-                  </button>
+                <div v-else class="mt-4 rounded-lg bg-gray-50 border border-dashed border-gray-300 p-6 text-center">
+                  <PhotoIcon class="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <p class="text-sm text-gray-600">La imagen seleccionada aparecerá aquí antes de continuar.</p>
                 </div>
+              </div>
+            </div>
+
+            <!-- Cédula Frontal: tomar foto -->
+            <div v-else class="col-span-1 sm:col-span-2">
+              <div class="border-2 border-gray-300 rounded-xl p-4 bg-white">
+                <div v-if="!documentoCameraReady" class="rounded-xl bg-gray-50 border border-dashed border-gray-300 p-6 text-center">
+                  <CameraIcon class="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p class="text-sm sm:text-base text-gray-700">
+                    Permite el acceso a la cámara y enfoca toda la cédula antes de capturar la imagen.
+                  </p>
+                  <p v-if="documentoCameraError" class="text-sm text-red-600 mt-2">{{ documentoCameraError }}</p>
+                  <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
+                    <PrimaryButton type="button" @click="iniciarCamaraDocumento">
+                      Abrir cámara
+                    </PrimaryButton>
+                    <button
+                      type="button"
+                      @click="documentoMetodo = 'archivo'"
+                      class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl"
+                    >
+                      Volver a subir archivo
+                    </button>
+                  </div>
+                </div>
+
+                <div v-else class="grid gap-4 sm:grid-cols-2 items-center">
+                  <div class="relative rounded-xl overflow-hidden bg-black">
+                    <video
+                      ref="documentoVideo"
+                      autoplay
+                      muted
+                      playsinline
+                      class="w-full h-64 sm:h-96 object-contain"
+                    />
+                    <button
+                      type="button"
+                      @click="capturarDocumento"
+                      class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white text-azul hover:bg-blue-50 px-4 py-2 rounded-full text-sm font-semibold shadow-lg transition"
+                    >
+                      Capturar cédula
+                    </button>
+                  </div>
+
+                  <div class="text-center sm:text-left rounded-xl bg-blue-50 p-4">
+                    <p class="font-semibold text-gray-800">Consejos para una buena foto</p>
+                    <ul class="mt-2 text-sm text-gray-700 space-y-1 list-disc pl-5">
+                      <li>Coloca la cédula sobre una superficie clara.</li>
+                      <li>Evita reflejos, sombras y fotos borrosas.</li>
+                      <li>Asegúrate de que los datos sean legibles.</li>
+                    </ul>
+                    <div class="mt-4 flex flex-col sm:flex-row justify-center sm:justify-start gap-3">
+                      <button
+                        type="button"
+                        @click="reiniciarCamaraDocumento"
+                        class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl"
+                      >
+                        Reiniciar cámara
+                      </button>
+                      <button
+                        type="button"
+                        @click="documentoMetodo = 'archivo'"
+                        class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm px-4 py-2 rounded-md shadow-sm"
+                      >
+                        Cambiar a archivo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="imageUrl" class="mt-4">
+                  <p class="text-sm font-medium text-gray-700 mb-2 text-center">Vista previa de la foto tomada</p>
+                  <div class="flex justify-center">
+                    <img
+                      :src="imageUrl"
+                      alt="Vista previa de la cédula frontal tomada con cámara"
+                      class="max-w-full h-64 sm:h-80 object-contain rounded-lg bg-gray-50 border border-gray-200"
+                    />
+                  </div>
+                  <div class="flex justify-center mt-3">
+                    <button
+                      @click="removerDocumento"
+                      type="button"
+                      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
+                    >
+                      Eliminar imagen
+                    </button>
+                  </div>
+                </div>
+
+                <InputError class="mt-2" :message="form.errors.cedula_front" />
               </div>
             </div>
           </div>
@@ -789,11 +934,11 @@ import ciudades from "@/shared/ciudades.json"; // Importa el JSON
 import barrios from "@/shared/barrios.json"; // Importa el JSON
 import condicion from "@/shared/condicion.json"; // Importa el JSON
 import etnia from "@/shared/etnia.json"; // Importa el JSON
-import { inject, ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { inject, ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import axios from "axios";
 const swal = inject("$swal");
 import { useReCaptcha } from "vue-recaptcha-v3";
-import { PhotoIcon } from "@heroicons/vue/24/solid";
+import { PhotoIcon, CameraIcon, ShieldCheckIcon } from "@heroicons/vue/24/solid";
 import { useAudioHelp } from "@/composables/useAudioHelp";
 
 //imagen
@@ -886,7 +1031,7 @@ const itemsMobil = ref([
 ]);
 
 //step activo
-const active = ref(0);
+const active = ref(2);
 const progreso = computed(() => ((active.value + 1) / items.value.length) * 100);
 //mensaje error
 const errorMessage = ref("");
@@ -905,6 +1050,12 @@ const botonesValidarModal = ref(false);
 //imagenes documentos
 //variable de imagen frontal
 const imageUrl = ref(null);
+const documentoMetodo = ref("archivo");
+const documentoPanel = ref(null);
+const documentoVideo = ref(null);
+const documentoStream = ref(null);
+const documentoCameraReady = ref(false);
+const documentoCameraError = ref("");
 //variable de imagen documento posterior
 const imageUrl1 = ref(null);
 
@@ -1122,73 +1273,178 @@ async function verificarCamaraONecesaria() {
   }
 }
 
+const procesarImagen = (file, callback) => {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const maxWidth = 1024;
+      const maxHeight = 1024;
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        if (width > height) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return;
+
+          if (blob.size > 2e6) {
+            swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "La imagen supera los 2MB. Por favor, selecciona una imagen más liviana o toma una foto con mejor iluminación.",
+            });
+            return;
+          }
+
+          const compressedFile = new File([blob], file.name || "cedula_frontal.jpg", {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          });
+
+          callback(compressedFile, URL.createObjectURL(compressedFile));
+        },
+        "image/jpeg",
+        0.8
+      );
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
 const onFileChange = (field, event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  const processImage = (file, callback) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        const maxWidth = 1024;
-        const maxHeight = 1024;
-
-        let width = img.width;
-        let height = img.height;
-
-        // Redimensionar solo si excede el tamaño máximo
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Convertir a JPEG comprimido
-        canvas.toBlob(
-          (blob) => {
-            if (blob.size > 2e6) {
-              Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Incluso comprimida, la imagen supera los 2MB.",
-              });
-              return;
-            }
-            const compressedFile = new File([blob], file.name, {
-              type: "image/jpeg",
-              lastModified: Date.now(),
-            });
-            callback(compressedFile, URL.createObjectURL(compressedFile));
-          },
-          "image/jpeg",
-          0.8 // calidad
-        );
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Procesar y asignar dependiendo del campo
-  processImage(file, (finalFile, previewUrl) => {
+  procesarImagen(file, (finalFile, previewUrl) => {
     form[field] = finalFile;
 
     if (field === "cedula_front") {
       imageUrl.value = previewUrl;
     }
   });
+};
+
+const removerDocumento = () => {
+  if (imageUrl.value) {
+    URL.revokeObjectURL(imageUrl.value);
+  }
+
+  form.cedula_front = null;
+  imageUrl.value = null;
+};
+
+const abrirCamaraDocumento = async () => {
+  documentoMetodo.value = "camara";
+  documentoCameraError.value = "";
+  await nextTick();
+  await iniciarCamaraDocumento();
+};
+
+const iniciarCamaraDocumento = async () => {
+  documentoCameraError.value = "";
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    documentoCameraError.value = "Este navegador no permite usar la cámara.";
+    return;
+  }
+
+  try {
+    if (documentoStream.value) {
+      stopDocumentoCamera();
+    }
+
+    let stream;
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+    } catch {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false,
+      });
+    }
+
+    documentoStream.value = stream;
+    documentoVideo.value.srcObject = stream;
+    documentoCameraReady.value = true;
+  } catch (error) {
+    console.error("Error al abrir cámara del documento:", error);
+    documentoCameraReady.value = false;
+    documentoCameraError.value = "No se pudo abrir la cámara. Verifica los permisos del navegador.";
+  }
+};
+
+const capturarDocumento = () => {
+  if (!documentoVideo.value || !documentoVideo.value.videoWidth) {
+    documentoCameraError.value = "La cámara aún no está lista.";
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = documentoVideo.value.videoWidth;
+  canvas.height = documentoVideo.value.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(documentoVideo.value, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob(async (blob) => {
+    if (!blob) {
+      documentoCameraError.value = "No se pudo capturar la imagen.";
+      return;
+    }
+
+    const file = new File([blob], "cedula_frontal_camara.jpg", {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
+
+    procesarImagen(file, (finalFile, previewUrl) => {
+      form.cedula_front = finalFile;
+      imageUrl.value = previewUrl;
+    });
+  }, "image/jpeg", 0.85);
+};
+
+const reiniciarCamaraDocumento = async () => {
+  stopDocumentoCamera();
+  documentoCameraReady.value = false;
+  documentoCameraError.value = "";
+  await nextTick();
+  await iniciarCamaraDocumento();
+};
+
+const stopDocumentoCamera = () => {
+  if (documentoStream.value) {
+    documentoStream.value.getTracks().forEach((track) => track.stop());
+    documentoStream.value = null;
+  }
+
+  if (documentoVideo.value) {
+    documentoVideo.value.srcObject = null;
+  }
+
+  documentoCameraReady.value = false;
 };
 
 // Eliminar la imagen seleccionada
@@ -1791,6 +2047,12 @@ watch(selectedDeviceId, async (newDeviceId) => {
   }
 });
 
+watch(documentoMetodo, (value) => {
+  if (value === "archivo") {
+    stopDocumentoCamera();
+  }
+});
+
 const stopCamera = () => {
   try {
     if (video.value && video.value.srcObject) {
@@ -1807,6 +2069,11 @@ watch(biometricoModal, (newVal) => {
   if (newVal == false) {
     stopCamera();
   }
+});
+
+onUnmounted(() => {
+  stopCamera();
+  stopDocumentoCamera();
 });
 
 onMounted(() => {
