@@ -529,7 +529,7 @@
         <!-- parte 3 -- registro datos -->
         <div class="gap-6" v-if="active == 2">
           <!-- parte frontal documento -->
-          <div class="w-full max-w-5xl mx-auto sm:grid sm:grid-cols-2 gap-4 h-full sm:px-4 px-2" ref="documentoPanel">
+          <div class="w-full max-w-5xl mx-auto sm:grid sm:grid-cols-2 gap-4 h-full sm:px-4 px-2">
             <!-- titulo -->
             <div class="col-span-2 text-sm sm:text-base text-gray-800 pt-4">
               <h3 class="text-lg font-semibold">
@@ -574,162 +574,61 @@
             </div>
 
             <!-- Selector de método -->
-            <div class="col-span-2 lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 mt-2">
+            <div class="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
               <button
                 type="button"
-                @click="documentoMetodo = 'archivo'"
-                class="rounded-xl border-2 p-3 sm:p-4 text-left transition flex items-start gap-3"
-                :class="documentoMetodo === 'archivo' ? 'border-azul bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'"
+                @click="abrirModalDocumento('archivo')"
+                class="rounded-2xl border-2 border-gray-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-azul hover:bg-blue-50"
               >
-                <PhotoIcon class="w-7 h-7 text-azul shrink-0 mt-1" />
-                <span>
-                  <span class="font-semibold block text-sm sm:text-base text-gray-800">Subir archivo</span>
-                  <span class="text-sm text-gray-600">Selecciona una imagen guardada en tu dispositivo.</span>
-                </span>
+                <div class="flex items-start gap-3">
+                  <div class="rounded-xl bg-blue-100 p-3">
+                    <PhotoIcon class="w-7 h-7 text-azul shrink-0" />
+                  </div>
+                  <div>
+                    <span class="font-bold block text-base text-gray-900">Subir archivo</span>
+                    <span class="text-sm leading-5 text-gray-600">Selecciona una imagen guardada en tu celular o computador.</span>
+                  </div>
+                </div>
               </button>
 
               <button
                 type="button"
-                @click="abrirCamaraDocumento"
-                class="rounded-xl border-2 p-3 sm:p-4 text-left transition flex items-start gap-3"
-                :class="documentoMetodo === 'camara' ? 'border-azul bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'"
+                @click="abrirModalDocumento('camara')"
+                class="rounded-2xl border-2 border-gray-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-azul hover:bg-blue-50"
               >
-                <CameraIcon class="w-7 h-7 text-azul shrink-0 mt-1" />
-                <span>
-                  <span class="font-semibold block text-sm sm:text-base text-gray-800">Tomar foto</span>
-                  <span class="text-sm text-gray-600">Usa la cámara para capturar tu cédula en este momento.</span>
-                </span>
+                <div class="flex items-start gap-3">
+                  <div class="rounded-xl bg-blue-100 p-3">
+                    <CameraIcon class="w-7 h-7 text-azul shrink-0" />
+                  </div>
+                  <div>
+                    <span class="font-bold block text-base text-gray-900">Tomar foto</span>
+                    <span class="text-sm leading-5 text-gray-600">Usa la cámara para capturar tu cédula en este momento.</span>
+                  </div>
+                </div>
               </button>
             </div>
 
-            <!-- Cédula Frontal: subir archivo -->
-            <div v-if="documentoMetodo === 'archivo'" class="col-span-1 sm:col-span-2">
-              <div class="border-2 border-gray-300 rounded-xl p-4 bg-white">
-                <TextInput
-                  id="cedula_front"
-                  type="file"
-                  class="mt-1 !border-0"
-                  accept="image/jpeg,image/jpg,image/png,image/gif,image/svg+xml,image/webp"
-                  @input="onFileChange('cedula_front', $event)"
-                  :maxFileSize="2e6"
+            <div class="col-span-2 rounded-xl bg-gray-50 border border-dashed border-gray-300 p-4 text-center">
+              <p class="text-sm font-medium text-gray-700">
+                {{ form.cedula_front ? 'Ya tienes una imagen cargada. Puedes cambiarla cuando lo necesites.' : 'Selecciona una opción para cargar la parte frontal de tu documento.' }}
+              </p>
+              <div v-if="imageUrl" class="mt-3 flex justify-center">
+                <img
+                  :src="imageUrl"
+                  alt="Vista previa de la cédula frontal"
+                  class="max-w-full h-48 sm:h-56 object-contain rounded-lg bg-white border border-gray-200"
                 />
-                <InputError class="mt-2" :message="form.errors.cedula_front" />
-
-                <div v-if="imageUrl" class="mt-4">
-                  <p class="text-sm font-medium text-gray-700 mb-2 text-center">Vista previa</p>
-                  <div class="flex justify-center">
-                    <img
-                      :src="imageUrl"
-                      alt="Vista previa de la cédula frontal"
-                      class="max-w-full h-64 sm:h-80 object-contain rounded-lg bg-gray-50 border border-gray-200"
-                    />
-                  </div>
-                  <div class="flex justify-center mt-3">
-                    <button
-                      @click="removerDocumento"
-                      type="button"
-                      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
-                    >
-                      Eliminar imagen
-                    </button>
-                  </div>
-                </div>
-                <div v-else class="mt-4 rounded-lg bg-gray-50 border border-dashed border-gray-300 p-6 text-center">
-                  <PhotoIcon class="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                  <p class="text-sm text-gray-600">La imagen seleccionada aparecerá aquí antes de continuar.</p>
-                </div>
               </div>
-            </div>
-
-            <!-- Cédula Frontal: tomar foto -->
-            <div v-else class="col-span-1 sm:col-span-2">
-              <div class="border-2 border-gray-300 rounded-xl p-4 bg-white">
-                <div v-if="!documentoCameraReady" class="rounded-xl bg-gray-50 border border-dashed border-gray-300 p-6 text-center">
-                  <CameraIcon class="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p class="text-sm sm:text-base text-gray-700">
-                    Permite el acceso a la cámara y enfoca toda la cédula antes de capturar la imagen.
-                  </p>
-                  <p v-if="documentoCameraError" class="text-sm text-red-600 mt-2">{{ documentoCameraError }}</p>
-                  <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
-                    <PrimaryButton type="button" @click="iniciarCamaraDocumento">
-                      Abrir cámara
-                    </PrimaryButton>
-                    <button
-                      type="button"
-                      @click="documentoMetodo = 'archivo'"
-                      class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl"
-                    >
-                      Volver a subir archivo
-                    </button>
-                  </div>
-                </div>
-
-                <div v-else class="grid gap-4 sm:grid-cols-2 items-center">
-                  <div class="relative rounded-xl overflow-hidden bg-black">
-                    <video
-                      ref="documentoVideo"
-                      autoplay
-                      muted
-                      playsinline
-                      class="w-full h-64 sm:h-96 object-contain"
-                    />
-                    <button
-                      type="button"
-                      @click="capturarDocumento"
-                      class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white text-azul hover:bg-blue-50 px-4 py-2 rounded-full text-sm font-semibold shadow-lg transition"
-                    >
-                      Capturar cédula
-                    </button>
-                  </div>
-
-                  <div class="text-center sm:text-left rounded-xl bg-blue-50 p-4">
-                    <p class="font-semibold text-gray-800">Consejos para una buena foto</p>
-                    <ul class="mt-2 text-sm text-gray-700 space-y-1 list-disc pl-5">
-                      <li>Coloca la cédula sobre una superficie clara.</li>
-                      <li>Evita reflejos, sombras y fotos borrosas.</li>
-                      <li>Asegúrate de que los datos sean legibles.</li>
-                    </ul>
-                    <div class="mt-4 flex flex-col sm:flex-row justify-center sm:justify-start gap-3">
-                      <button
-                        type="button"
-                        @click="reiniciarCamaraDocumento"
-                        class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl"
-                      >
-                        Reiniciar cámara
-                      </button>
-                      <button
-                        type="button"
-                        @click="documentoMetodo = 'archivo'"
-                        class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm px-4 py-2 rounded-md shadow-sm"
-                      >
-                        Cambiar a archivo
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div v-if="imageUrl" class="mt-4">
-                  <p class="text-sm font-medium text-gray-700 mb-2 text-center">Vista previa de la foto tomada</p>
-                  <div class="flex justify-center">
-                    <img
-                      :src="imageUrl"
-                      alt="Vista previa de la cédula frontal tomada con cámara"
-                      class="max-w-full h-64 sm:h-80 object-contain rounded-lg bg-gray-50 border border-gray-200"
-                    />
-                  </div>
-                  <div class="flex justify-center mt-3">
-                    <button
-                      @click="removerDocumento"
-                      type="button"
-                      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
-                    >
-                      Eliminar imagen
-                    </button>
-                  </div>
-                </div>
-
-                <InputError class="mt-2" :message="form.errors.cedula_front" />
+              <div v-if="imageUrl" class="mt-3">
+                <button
+                  @click="removerDocumento"
+                  type="button"
+                  class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
+                >
+                  Eliminar imagen
+                </button>
               </div>
+              <InputError class="mt-2" :message="form.errors.cedula_front" />
             </div>
           </div>
 
@@ -768,6 +667,149 @@
       </form>
     </div>
   </PageLayout>
+
+  <Modal :show="documentoModal" @close="cerrarModalDocumento" maxWidth="2xl" height="auto">
+    <div class="bg-white rounded-lg">
+      <div class="flex items-start justify-between gap-3 border-b border-gray-200 p-4">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900">
+            {{ documentoModalOpcion === 'camara' ? 'Tomar foto de la cédula' : 'Subir archivo de la cédula' }}
+          </h2>
+          <p class="text-sm text-gray-600 mt-1">
+            {{ documentoModalOpcion === 'camara' ? 'Permite el uso de la cámara y enfoca toda la cédula antes de capturar.' : 'Selecciona una imagen clara y legible desde tu dispositivo.' }}
+          </p>
+        </div>
+        <button
+          type="button"
+          @click="cerrarModalDocumento"
+          class="rounded-full bg-gray-100 hover:bg-gray-200 w-9 h-9 text-gray-600"
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-5 max-h-[78vh] overflow-y-auto">
+        <div v-if="documentoModalOpcion === 'archivo'">
+          <TextInput
+            id="cedula_front_modal"
+            type="file"
+            class="mt-1 !border-0"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/svg+xml,image/webp"
+            @input="onFileChange('cedula_front', $event)"
+            :maxFileSize="2e6"
+          />
+          <InputError class="mt-2" :message="form.errors.cedula_front" />
+        </div>
+
+        <div v-else>
+          <div v-if="!documentoCameraReady" class="rounded-2xl bg-gray-50 border border-dashed border-gray-300 p-6 text-center">
+            <CameraIcon class="w-14 h-14 text-gray-400 mx-auto mb-3" />
+            <p class="text-sm sm:text-base text-gray-700">
+              Para tomar la foto, autoriza el permiso de cámara cuando el navegador lo solicite.
+            </p>
+            <p v-if="documentoCameraError" class="text-sm text-red-600 mt-3">
+              {{ documentoCameraError }}
+            </p>
+            <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
+              <PrimaryButton type="button" @click="iniciarCamaraDocumento">
+                Activar cámara
+              </PrimaryButton>
+              <button
+                type="button"
+                @click="abrirModalDocumento('archivo')"
+                class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl"
+              >
+                Cambiar a archivo
+              </button>
+            </div>
+          </div>
+
+          <div v-else class="grid gap-4">
+            <div class="relative rounded-2xl overflow-hidden bg-black">
+              <video
+                ref="documentoVideo"
+                autoplay
+                muted
+                playsinline
+                class="w-full h-72 sm:h-96 object-contain"
+              />
+              <button
+                type="button"
+                @click="capturarDocumento"
+                class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white text-azul hover:bg-blue-50 px-4 py-2 rounded-full text-sm font-semibold shadow-lg transition"
+              >
+                Capturar cédula
+              </button>
+            </div>
+
+            <div class="rounded-2xl bg-blue-50 p-4">
+              <p class="font-semibold text-gray-800">Consejos para una buena foto</p>
+              <ul class="mt-2 text-sm text-gray-700 space-y-1 list-disc pl-5">
+                <li>Coloca la cédula sobre una superficie clara.</li>
+                <li>Evita reflejos, sombras y fotos borrosas.</li>
+                <li>Asegúrate de que los datos sean legibles.</li>
+              </ul>
+              <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  @click="reiniciarCamaraDocumento"
+                  class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl flex-1"
+                >
+                  Reiniciar cámara
+                </button>
+                <button
+                  type="button"
+                  @click="abrirModalDocumento('archivo')"
+                  class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm px-4 py-2 rounded-md shadow-sm flex-1"
+                >
+                  Cambiar a archivo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="imageUrl" class="mt-5 rounded-2xl bg-gray-50 border border-gray-200 p-4">
+          <p class="text-sm font-semibold text-gray-700 mb-3 text-center">Vista previa</p>
+          <div class="flex justify-center">
+            <img
+              :src="imageUrl"
+              alt="Vista previa de la cédula frontal"
+              class="max-w-full h-56 sm:h-72 object-contain rounded-xl bg-white border border-gray-200"
+            />
+          </div>
+          <div class="flex justify-center mt-3">
+            <button
+              @click="removerDocumento"
+              type="button"
+              class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
+            >
+              Eliminar imagen
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-200 p-3 flex flex-col-reverse sm:flex-row justify-end gap-2">
+        <button
+          type="button"
+          @click="cerrarModalDocumento"
+          class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md text-sm shadow-sm"
+        >
+          Cancelar
+        </button>
+        <PrimaryButton
+          type="button"
+          :disabled="!form.cedula_front"
+          :class="{ 'opacity-25': !form.cedula_front }"
+          @click="cerrarModalDocumento"
+        >
+          Listo
+        </PrimaryButton>
+      </div>
+    </div>
+  </Modal>
 
   <!-- Modal loading -->
   <Modal :show="loadingModal" :closeable="false">
@@ -1050,8 +1092,8 @@ const botonesValidarModal = ref(false);
 //imagenes documentos
 //variable de imagen frontal
 const imageUrl = ref(null);
-const documentoMetodo = ref("archivo");
-const documentoPanel = ref(null);
+const documentoModal = ref(false);
+const documentoModalOpcion = ref("archivo");
 const documentoVideo = ref(null);
 const documentoStream = ref(null);
 const documentoCameraReady = ref(false);
@@ -1352,15 +1394,29 @@ const removerDocumento = () => {
   imageUrl.value = null;
 };
 
-const abrirCamaraDocumento = async () => {
-  documentoMetodo.value = "camara";
+const abrirModalDocumento = async (opcion) => {
+  documentoModalOpcion.value = opcion;
+  documentoModal.value = true;
   documentoCameraError.value = "";
-  await nextTick();
-  await iniciarCamaraDocumento();
+
+  if (opcion === "camara") {
+    await nextTick();
+    await iniciarCamaraDocumento();
+  }
+};
+
+const cerrarModalDocumento = () => {
+  documentoModal.value = false;
+  stopDocumentoCamera();
 };
 
 const iniciarCamaraDocumento = async () => {
   documentoCameraError.value = "";
+
+  if (!window.isSecureContext) {
+    documentoCameraError.value = "La cámara solo funciona en sitios seguros. Usa https:// o localhost.";
+    return;
+  }
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     documentoCameraError.value = "Este navegador no permite usar la cámara.";
@@ -1372,11 +1428,22 @@ const iniciarCamaraDocumento = async () => {
       stopDocumentoCamera();
     }
 
+    await nextTick();
+
+    if (!documentoVideo.value) {
+      documentoCameraError.value = "No se encontró la vista de cámara. Cierra y vuelve a abrir la opción.";
+      return;
+    }
+
     let stream;
 
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
     } catch {
@@ -1388,11 +1455,13 @@ const iniciarCamaraDocumento = async () => {
 
     documentoStream.value = stream;
     documentoVideo.value.srcObject = stream;
+    await nextTick();
+    documentoVideo.value.play().catch(() => {});
     documentoCameraReady.value = true;
   } catch (error) {
     console.error("Error al abrir cámara del documento:", error);
     documentoCameraReady.value = false;
-    documentoCameraError.value = "No se pudo abrir la cámara. Verifica los permisos del navegador.";
+    documentoCameraError.value = "No se pudo abrir la cámara. Revisa los permisos del navegador o intenta en otro navegador.";
   }
 };
 
@@ -2044,12 +2113,6 @@ const startCamera = async (deviceId) => {
 watch(selectedDeviceId, async (newDeviceId) => {
   if (newDeviceId) {
     await startCamera(newDeviceId);
-  }
-});
-
-watch(documentoMetodo, (value) => {
-  if (value === "archivo") {
-    stopDocumentoCamera();
   }
 });
 
