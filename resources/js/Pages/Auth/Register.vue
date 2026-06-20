@@ -876,7 +876,7 @@
           />
 
           <!-- BOTÓN FLOTANTE -->
-          <transition name="fade">
+          <!-- <transition name="fade">
             <button
               v-if="!loadingButtonBiometric"
               type="button"
@@ -885,7 +885,7 @@
             >
               Continuar
             </button>
-          </transition>
+          </transition> -->
 
           <!-- INDICADOR DE CARGA -->
           <transition name="fade">
@@ -958,6 +958,63 @@
           Continuar
         </PrimaryButton>
       </div>
+    </template>
+  </Modal>
+
+  <!-- Modal aviso biométrico (Habeas Data) -->
+  <Modal :show="biometricoAvisoModal" :closeable="false">
+    <template #default>
+      <h2
+        class="py-4 text-2xl font-semibold text-gray-800 flex justify-center bg-azul text-white"
+      >
+        Aviso de Protección de Datos
+      </h2>
+
+      <div class="px-6 py-6">
+        <div class="border-b border-gray-200 p-4 flex justify-center">
+        <PrimaryButton
+          type="button"
+          @click="iniciarCamaraBiometricoDesdeAviso"
+        >
+          Activar cámara
+        </PrimaryButton>
+      </div>
+        
+        <!-- Aviso: validación automática -->
+        <div class="mt-2 rounded-xl border border-amber-200 bg-amber-50 p-3 sm:p-4">
+          <p class="text-xs sm:text-sm font-semibold text-amber-800">
+            ⚡ Al presionar "Activar cámara" la validación será automática.
+            Prepárese: rostro iluminado, sin gorras, tapabocas ni gafas oscuras. 😊
+          </p>
+        </div>
+
+        <!-- Aviso de Proteccion de datos -->
+        <div class="mt-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 shadow-sm">
+          <div class="flex gap-3">
+            <div class="shrink-0 rounded-full bg-white/80 p-2 shadow-sm">
+              <ShieldCheckIcon class="w-6 h-6 sm:w-8 sm:h-8 text-blue-700" />
+            </div>
+            <div class="min-w-0">
+              <p class="font-bold text-sm sm:text-base text-blue-950">
+                Tratamiento de datos biométricos (Habeas Data)
+              </p>
+              <p class="text-xs sm:text-sm leading-6 text-blue-900 mt-2">
+                El registro biométrico se realiza únicamente para fines de validación de identidad
+                en el proceso de registro de votantes. La imagen de su rostro <strong>no se almacena</strong>
+                ni se utiliza con fines distintos a la verificación de su identidad. Sus datos biométricos
+                están protegidos conforme a la Política de Tratamiento de Datos Personales.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador de preparación en segundo plano -->
+        <div v-if="biometricoPreparando && !biometricoPreparacionCompletada" class="mt-6 flex flex-col items-center">
+          <ProgressSpinner aria-label="Preparando cámara..." />
+          <p class="text-sm text-gray-600 mt-3">Preparando cámara y modelos de validación...</p>
+        </div>
+      </div>
+
     </template>
   </Modal>
 </template>
@@ -1079,7 +1136,7 @@ const itemsMobil = ref([
 ]);
 
 //step activo
-const active = ref(2);
+const active = ref(0);
 const progreso = computed(() => ((active.value + 1) / items.value.length) * 100);
 //mensaje error
 const errorMessage = ref("");
@@ -1117,6 +1174,12 @@ const loadingButtonBiometric = ref(false);
 
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
+
+// Modal de aviso biométrico (Habeas Data)
+const biometricoAvisoModal = ref(false);
+const biometricoPreparando = ref(false);
+const biometricoPreparacionCompletada = ref(false);
+let preferredDeviceIdTemp = "";
 
 //verificar si el barrio es otro
 const isOtroBarrio = ref(false);
@@ -1604,8 +1667,130 @@ const showModalBiometrico = async () => {
   }
 };
 
+//abrir modal de aviso e iniciar preparación en segundo plano
+const abrirAvisoBiometrico = async () => {
+  biometricoAvisoModal.value = true;
+  biometricoPreparando.value = true;
+  biometricoPreparacionCompletada.value = false;
+
+  // Iniciar carga de modelos y solicitud de permiso en segundo plano
+  iniciarPrecargaBiometrica();
+};
+
+// Precarga en segundo plano: permiso de cámara, modelos face-api y dispositivos
+const iniciarPrecargaBiometrica = async () => {
+  try {
+    // ✅ Solicitar permiso para la cámara (se cierra inmediatamente)
+    const permiso = await navigator.mediaDevices.getUserMedia({ video: true });
+    permiso.getTracks().forEach((track) => track.stop());
+
+    // Cargar modelos face-api.js
+    await faceapi.nets.tinyFaceDetector.loadFromUri(
+      "/models/tiny_face_detector"
+    );
+    await faceapi.nets.faceRecognitionNet.loadFromUri(
+      "/models/face_recognition"
+    );
+    await faceapi.nets.faceLandmark68Net.loadFromUri(
+      "/models/face_landmark_68"
+    );
+
+    // Obtener dispositivos de cámara
+    const allDevices = await navigator.mediaDevices.enumerateDevices();
+    devices.value = allDevices.filter((device) => device.kind === "videoinput");
+
+    // Seleccionar por defecto la cámara integrada (si la hay)
+    const preferida =
+      devices.value.find((d) => d.label.toLowerCase().includes("user")) ||
+      devices.value[0];
+    preferredDeviceIdTemp = preferida?.deviceId || "";
+
+    biometricoPreparacionCompletada.value = true;
+    biometricoPreparando.value = false;
+  } catch (error) {
+    biometricoPreparando.value = false;
+    biometricoPreparacionCompletada.value = false;
+    console.error("Error en precarga biométrica:", error);
+    biometricoAvisoModal.value = false;
+    swal.fire({
+      icon: "error",
+      title: "Error al acceder a la cámara",
+      text: "No se pudo acceder a la cámara. Por favor, asegúrese de que su dispositivo tenga una cámara y que haya otorgado los permisos necesarios.",
+    });
+    message.value = "No se pudo acceder a la cámara.";
+  }
+};
+
+// Activar cámara desde el modal de aviso y abrir modal biométrico
+const iniciarCamaraBiometricoDesdeAviso = async () => {
+  console.log("[DEBUG] iniciarCamaraBiometricoDesdeAviso - INICIO");
+  biometricoAvisoModal.value = false;
+
+  // Si la preparación aún no ha terminado, mostrar loading y esperar
+  if (biometricoPreparando.value) {
+    console.log("[DEBUG] Esperando preparación...");
+    loadingModal.value = true;
+    while (biometricoPreparando.value) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    loadingModal.value = false;
+    console.log("[DEBUG] Preparación completada");
+  }
+
+  // Si la preparación falló, mostrar error y no continuar
+  if (!biometricoPreparacionCompletada.value) {
+    console.log("[DEBUG] Preparación falló");
+    swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo preparar la cámara. Verifique los permisos e intente nuevamente.",
+    });
+    return;
+  }
+
+  console.log("[DEBUG] Abriendo modal biométrico");
+  // Abrir modal biométrico
+  biometricoModal.value = true;
+  await nextTick();
+  console.log("[DEBUG] Modal abierto, video ref:", video.value);
+
+  console.log("[DEBUG] Asignando selectedDeviceId:", preferredDeviceIdTemp);
+  // Asignar deviceId para que el watcher inicie la cámara y auto-valide
+  selectedDeviceId.value = preferredDeviceIdTemp;
+
+  // Esperar a que la cámara esté lista (el watcher llama a startCamera)
+  let esperas = 0;
+  console.log("[DEBUG] Esperando isCameraReady... (false actual)");
+  while (!isCameraReady.value) {
+    esperas++;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    if (esperas > 50) {
+      // Timeout de 10 segundos
+      console.log("[DEBUG] TIMEOUT esperando isCameraReady");
+      break;
+    }
+  }
+  console.log("[DEBUG] isCameraReady:", isCameraReady.value, "esperas:", esperas);
+
+  if (isCameraReady.value) {
+    // Pequeña pausa para que la cámara estabilice y tenga al menos un frame
+    console.log("[DEBUG] Cámara lista, esperando 800ms para estabilizar...");
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log("[DEBUG] Auto-ejecutando registerAndValidate");
+    // Auto-ejecutar validación biométrica (la cámara ya está lista)
+    registerAndValidate();
+  } else {
+    console.log("[DEBUG] Cámara no lista, no se puede validar");
+    loadingButtonBiometric.value = false;
+    loadingModal.value = false;
+  }
+};
+
 //validar registro biometrico
 const registerAndValidate = async () => {
+  // Evitar re-ejecución si ya hay una validación en curso
+  if (loadingButtonBiometric.value) return;
+
   loadingButtonBiometric.value = true;
   loadingModal.value = true;
 
@@ -2038,7 +2223,8 @@ const validarDatos3 = () => {
   }
 
   if (isValidate.value) {
-    showModalBiometrico();
+    // Abrir modal de aviso e iniciar preparación en segundo plano
+    abrirAvisoBiometrico();
   } else {
     if (!form.cedula_front) {
       form.errors.cedula_front = "Este campo es requerido.";
@@ -2112,22 +2298,42 @@ const submit = async () => {
 
 //funciones camara
 const startCamera = async (deviceId) => {
+  console.log("[DEBUG startCamera] deviceId:", deviceId, "video:", !!video.value);
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { deviceId: { exact: deviceId } },
     });
-    video.value.srcObject = stream;
+    console.log("[DEBUG startCamera] Stream obtenido");
+    if (video.value) {
+      video.value.srcObject = stream;
+      console.log("[DEBUG startCamera] srcObject asignado");
+    } else {
+      console.log("[DEBUG startCamera] ERROR: video ref es null");
+    }
     isCameraReady.value = true;
+    console.log("[DEBUG startCamera] isCameraReady = true");
   } catch (error) {
-    console.error("Error al iniciar cámara:", error);
+    console.error("[DEBUG startCamera] Error:", error);
     message.value = "Error al iniciar la cámara.";
   }
 };
 
-// Si el usuario cambia la cámara, reiniciamos el stream
+// Si el usuario cambia la cámara, reiniciamos el stream y auto-validamos
 watch(selectedDeviceId, async (newDeviceId) => {
+  console.log("[DEBUG watcher] selectedDeviceId cambió a:", newDeviceId);
   if (newDeviceId) {
     await startCamera(newDeviceId);
+    // Auto-ejecutar validación si el modal biométrico está abierto
+    if (biometricoModal.value) {
+      console.log("[DEBUG watcher] Esperando estabilización de cámara...");
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      console.log("[DEBUG watcher] Auto-validando...");
+      registerAndValidate();
+    } else {
+      console.log("[DEBUG watcher] Modal no abierto, no se valida");
+    }
+  } else {
+    console.log("[DEBUG watcher] newDeviceId vacío, ignorando");
   }
 });
 
