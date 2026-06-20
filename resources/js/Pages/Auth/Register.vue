@@ -8,6 +8,9 @@
       <h1 class="text-2xl font-bold text-center text-gray-800">
         Registro votante
       </h1>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Los campos marcados con <span class="text-red-500 font-bold">*</span> son obligatorios.
+      </p>
 
       <!-- Ayuda auditiva -->
       <div class="mt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
@@ -89,7 +92,9 @@
 
           <!-- Comuna -->
            <div class="mb-2">
-             <InputLabel for="comuna" value="Comuna/Corregimiento" />
+             <InputLabel for="comuna">
+               Comuna/Corregimiento <span class="text-red-500" aria-hidden="true">*</span>
+             </InputLabel>
 <Select
   id="comuna"
   v-model="comunaSelected"
@@ -119,7 +124,9 @@
            
            <!-- Barrio -->
            <div class="mb-2">
-             <InputLabel for="barrio" value="Barrio/Vereda" />
+             <InputLabel for="barrio">
+               Barrio/Vereda <span class="text-red-500" aria-hidden="true">*</span>
+             </InputLabel>
              <Select
                id="barrio"
                v-model="form.barrio"
@@ -131,7 +138,9 @@
                class="w-full"
              />
              <div class="w-full mt-2" v-if="isOtroBarrio">
-               <InputLabel for="barrio_otro" value="Cual?" />
+              <InputLabel for="barrio_otro">
+                Cual? <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
                <TextInput
                  id="barrio_otro"
                  type="text"
@@ -144,7 +153,9 @@
 
            <!-- Relación con la comuna/corregimiento -->
            <div class="mb-2">
-             <InputLabel for="relacion" value="Seleccione la relación con la comuna o corregimiento" />
+              <InputLabel for="relacion">
+                Seleccione la relación con la comuna o corregimiento <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
              <select
                id="relacion"
                v-model="form.relacion"
@@ -160,7 +171,7 @@
            
            <!-- Dirección -->
            <div class="mb-2">
-             <label for="direccion" class="block text-sm text-gray-700">Dirección {{ form.relacion ? 'de ' +getRelacionText(form.relacion) : '' }}</label>
+              <label for="direccion" class="block text-sm text-gray-700">Dirección {{ form.relacion ? 'de ' +getRelacionText(form.relacion) : '' }} <span class="text-red-500" aria-hidden="true">*</span></label>
              <TextInput
                id="direccion"
                type="text"
@@ -173,7 +184,9 @@
            
            <!-- Nombre -->
            <div class="mb-2">
-             <InputLabel for="nombre" value="Nombre Completo(Nombres y Apellidos)" />
+              <InputLabel for="nombre">
+                Nombre Completo(Nombres y Apellidos) <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
              <TextInput
                id="nombre"
                type="text"
@@ -186,7 +199,9 @@
 
           <!-- Identificación -->
           <div class="mb-2">
-            <InputLabel for="identificacion" value="Número de identificación" />
+            <InputLabel for="identificacion">
+              Número de identificación <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <TextInput
               id="identificacion"
               type="number"
@@ -204,7 +219,9 @@
 
           <!-- Tipo de Documento -->
           <div class="mb-2">
-            <InputLabel for="tipo_documento" value="Tipo de Documento" />
+            <InputLabel for="tipo_documento">
+              Tipo de Documento <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <select
               id="tipo_documento"
               v-model="form.tipo_documento"
@@ -224,7 +241,9 @@
 
           <!-- Fecha de Nacimiento -->
           <div class="mb-2 sm:block hidden">
-            <InputLabel for="nacimiento" value="Fecha de Nacimiento" />
+            <InputLabel for="nacimiento">
+              Fecha de Nacimiento <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <TextInput
               id="nacimiento"
               type="date"
@@ -240,11 +259,14 @@
             <InputLabel
               class="col-span-3"
               for="nacimiento"
-              value="Fecha de Nacimiento"
-            />
+            >
+              Fecha de Nacimiento <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <!-- dia -->
             <div class="w-auto mt-1">
-              <InputLabel for="nacimientoDia" value="Día" />
+              <InputLabel for="nacimientoDia">
+                Día <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
               <TextInput
                 id="nacimientoDia"
                 type="number"
@@ -254,7 +276,9 @@
             </div>
             <!-- mes -->
             <div class="w-auto mt-1">
-              <InputLabel for="nacimientoMes" value="Mes" />
+              <InputLabel for="nacimientoMes">
+                Mes <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
               <TextInput
                 id="nacimientoMes"
                 type="number"
@@ -264,7 +288,9 @@
             </div>
             <!-- Annio -->
             <div class="w-auto mt-1">
-              <InputLabel for="nacimientoAnnio" value="Año" />
+              <InputLabel for="nacimientoAnnio">
+                Año <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
               <TextInput
                 id="nacimientoAnnio"
                 type="number"
@@ -291,7 +317,9 @@
         <div class="sm:grid sm:grid-cols-2 gap-6" v-if="active == 1">
           <!-- Género -->
           <div class="mb-2">
-            <InputLabel for="genero" value="Identidad de Género" />
+            <InputLabel for="genero">
+              Identidad de Género <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <div class="mt-2 block sm:flex">
               <div class="">
                 <input
@@ -320,8 +348,9 @@
                 <InputLabel
                   class="sm:text-sm text-xs"
                   for="genero"
-                  value="¿Cual?"
-                />
+                >
+                  ¿Cual? <span class="text-red-500" aria-hidden="true">*</span>
+                </InputLabel>
                 <TextInput
                   id="genero"
                   type="text"
@@ -346,7 +375,9 @@
 
           <!-- Etnia -->
           <div class="mb-2">
-            <InputLabel for="etnia" value="Grupo étnico poblacional" />
+            <InputLabel for="etnia">
+              Grupo étnico poblacional <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <select
               id="etnia"
               v-model="form.etnia"
@@ -363,7 +394,9 @@
           </div>
           <!-- Condicion -->
           <div class="mb-2">
-            <InputLabel for="condicion" value="Condición poblacional" />
+            <InputLabel for="condicion">
+              Condición poblacional <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <select
               id="condicion"
               v-model="form.condicion"
@@ -383,7 +416,9 @@
           <div class="w-full mb-2">
             <!-- celular -->
             <div>
-              <InputLabel for="celular" value="Celular" />
+              <InputLabel for="celular">
+                Celular <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
               <div class="w-full flex flex-wrap gap-2 mt-1">
                 <!-- indicativo bloqueado -->
                 <div
@@ -408,7 +443,9 @@
 
            <!-- Correo -->
            <div class="mb-2">
-             <InputLabel for="email" value="Correo Electrónico" />
+             <InputLabel for="email">
+               Correo Electrónico <span class="text-red-500" aria-hidden="true">*</span>
+             </InputLabel>
              <TextInput
                id="email"
                type="email"
@@ -419,7 +456,9 @@
            </div>
            <!-- Confirmar Correo -->
            <div class="mb-2">
-             <InputLabel for="email_confirmation" value="Confirmar Correo Electrónico" />
+             <InputLabel for="email_confirmation">
+               Confirmar Correo Electrónico <span class="text-red-500" aria-hidden="true">*</span>
+             </InputLabel>
              <TextInput
                id="email_confirmation"
                type="email"
@@ -439,10 +478,9 @@
           </div>
           <!-- Contraseña -->
           <div class="mb-2">
-            <InputLabel
-              for="password"
-              value="Contraseña (mínimo: 8 caracteres)"
-            />
+            <InputLabel for="password">
+              Contraseña (mínimo: 8 caracteres) <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
             <Password
               id="password"
               v-model="form.password"
