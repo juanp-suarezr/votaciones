@@ -59,6 +59,12 @@
           :model="itemsMobil"
           v-model:activeStep="active"
         />
+        <div class="mt-4 max-w-2xl mx-auto">
+          <ProgressBar :value="progreso" class="h-3" />
+          <p class="text-center text-sm text-gray-600 mt-2">
+            Paso {{ active + 1 }} de {{ items.length }}
+          </p>
+        </div>
       </div>
 
        <form class="m-auto py-4">
@@ -773,6 +779,7 @@ import Modal from "@/Components/Modal.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { useForm, Head } from "@inertiajs/vue3";
 import Steps from "primevue/steps";
+import ProgressBar from "primevue/progressbar";
 import Select from "primevue/select";
 import ProgressSpinner from "primevue/progressspinner";
 import Password from "primevue/password";
@@ -880,6 +887,7 @@ const itemsMobil = ref([
 
 //step activo
 const active = ref(0);
+const progreso = computed(() => ((active.value + 1) / items.value.length) * 100);
 //mensaje error
 const errorMessage = ref("");
 //error fecha nacimiento
