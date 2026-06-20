@@ -703,29 +703,7 @@
         </div>
 
         <div v-else>
-          <div v-if="!documentoCameraReady" class="rounded-2xl bg-gray-50 border border-dashed border-gray-300 p-6 text-center">
-            <CameraIcon class="w-14 h-14 text-gray-400 mx-auto mb-3" />
-            <p class="text-sm sm:text-base text-gray-700">
-              Para tomar la foto, autoriza el permiso de cámara cuando el navegador lo solicite.
-            </p>
-            <p v-if="documentoCameraError" class="text-sm text-red-600 mt-3">
-              {{ documentoCameraError }}
-            </p>
-            <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
-              <PrimaryButton type="button" @click="iniciarCamaraDocumento">
-                Activar cámara
-              </PrimaryButton>
-              <button
-                type="button"
-                @click="abrirModalDocumento('archivo')"
-                class="bg-secondary hover:bg-primary text-xs sm:text-sm text-white px-4 py-2 rounded-md shadow-xl"
-              >
-                Cambiar a archivo
-              </button>
-            </div>
-          </div>
-
-          <div v-else class="grid gap-4">
+          <div class="rounded-2xl bg-gray-50 border border-dashed border-gray-300 p-4 sm:p-5">
             <div class="relative rounded-2xl overflow-hidden bg-black">
               <video
                 ref="documentoVideo"
@@ -733,8 +711,36 @@
                 muted
                 playsinline
                 class="w-full h-72 sm:h-96 object-contain"
+                :class="documentoCameraReady ? '' : 'opacity-30'"
               />
+
+              <div
+                v-if="!documentoCameraReady"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 p-4 text-center"
+              >
+                <CameraIcon class="w-14 h-14 text-white mb-3" />
+                <p class="text-sm sm:text-base text-white">
+                  Presiona activar cámara y autoriza el permiso cuando el navegador lo solicite.
+                </p>
+                <p v-if="documentoCameraError" class="text-sm text-orange-100 mt-2 max-w-md">
+                  {{ documentoCameraError }}
+                </p>
+                <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
+                  <PrimaryButton type="button" @click="iniciarCamaraDocumento">
+                    Activar cámara
+                  </PrimaryButton>
+                  <button
+                    type="button"
+                    @click="abrirModalDocumento('archivo')"
+                    class="bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 px-4 py-2 rounded-md text-xs sm:text-sm shadow-sm"
+                  >
+                    Cambiar a archivo
+                  </button>
+                </div>
+              </div>
+
               <button
+                v-if="documentoCameraReady"
                 type="button"
                 @click="capturarDocumento"
                 class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white text-azul hover:bg-blue-50 px-4 py-2 rounded-full text-sm font-semibold shadow-lg transition"
@@ -743,7 +749,7 @@
               </button>
             </div>
 
-            <div class="rounded-2xl bg-blue-50 p-4">
+            <div class="rounded-2xl bg-blue-50 p-4 mt-4">
               <p class="font-semibold text-gray-800">Consejos para una buena foto</p>
               <ul class="mt-2 text-sm text-gray-700 space-y-1 list-disc pl-5">
                 <li>Coloca la cédula sobre una superficie clara.</li>
@@ -1399,9 +1405,8 @@ const abrirModalDocumento = async (opcion) => {
   documentoModal.value = true;
   documentoCameraError.value = "";
 
-  if (opcion === "camara") {
-    await nextTick();
-    await iniciarCamaraDocumento();
+  if (opcion === "archivo") {
+    stopDocumentoCamera();
   }
 };
 
@@ -1414,7 +1419,7 @@ const iniciarCamaraDocumento = async () => {
   documentoCameraError.value = "";
 
   if (!window.isSecureContext) {
-    documentoCameraError.value = "La cámara solo funciona en sitios seguros. Usa https:// o localhost.";
+    documentoCameraError.value = "La cámara solo funciona en páginas seguras. Abre el sistema desde localhost o https://.";
     return;
   }
 
@@ -1422,6 +1427,16 @@ const iniciarCamaraDocumento = async () => {
     documentoCameraError.value = "Este navegador no permite usar la cámara.";
     return;
   }
+
+  try {
+    if (navigator.permissions && navigator.permissions.query) {
+      const permisoCamara = await navigator.permissions.query({ name: "camera" });
+      if (permisoCamara.state === "denied") {
+        documentoCameraError.value = "El permiso de cámara está bloqueado. Actívalo en la configuración del sitio o del navegador.";
+        return;
+      }
+    }
+  } catch {}
 
   try {
     if (documentoStream.value) {
