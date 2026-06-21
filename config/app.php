@@ -19,6 +19,7 @@ return [
     'name' => env('votaYa'),
     'emergency_login_code' => env('EMERGENCY_LOGIN_CODE'),
     'recaptcha_site_key' => env('RECAPTCHA_SITE_KEY'),
+    'votaciones_url' => env('VOTACIONES_URL', 'https://votaciones.servicios-alcaldiapereira.com'),
 
     /*
     |--------------------------------------------------------------------------
