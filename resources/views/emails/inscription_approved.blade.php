@@ -79,7 +79,7 @@
             <br>
             Una vez se habilite la fecha de votación, podrá ingresar al software de votaciones utilizando como usuario su número de identificación y la contraseña creada durante el proceso de inscripción. Allí podrá emitir su voto por el proyecto de su preferencia, en beneficio de la comunidad.
             </p>
-            <em>👉Link de acceso: <a href="https://votaciones.servicios-alcaldiapereira.com/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">https://votaciones.servicios-alcaldiapereira.com/login-pp</a></em>
+            <em>👉Link de acceso: <a href="{{ $votacionesUrl }}/login-pp" target="_blank" style="background-color: #007bff; color: white; padding: 4px 8px; text-decoration: none; border-radius: 5px;">{{ $votacionesUrl }}/login-pp</a></em>
 
         </div>
         <div class="footer">

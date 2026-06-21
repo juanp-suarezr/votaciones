@@ -38,6 +38,7 @@ class InscriptionApprovedMail extends Mailable
             ->view('emails.inscription_approved')
             ->with([
                 'nombre' => $this->votante->votante->nombre,
+                'votacionesUrl' => config('app.votaciones_url'),
             ]);
     }
 }

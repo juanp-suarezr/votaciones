@@ -38,6 +38,7 @@ class InscriptionDisapprovedMail extends Mailable
                 'nombre' => $this->votante->votante->nombre,
                 'motivo' => $this->votante->motivo,
                 'intentos' => $this->votante->intentos,
+                'votacionesUrl' => config('app.votaciones_url'),
             ]);
     }
 }
