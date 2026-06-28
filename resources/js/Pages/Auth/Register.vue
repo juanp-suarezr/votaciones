@@ -913,17 +913,17 @@
             class="rounded-xl shadow-lg"
           />
 
-          <!-- BOTÓN FLOTANTE -->
-          <!-- <transition name="fade">
+          <!-- BOTÓN FLOTANTE - REINTENTAR -->
+          <transition name="fade">
             <button
               v-if="!loadingButtonBiometric"
               type="button"
               class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-secondary hover:bg-primary text-white px-4 py-2 rounded-md shadow-lg"
-              @click="registerAndValidate()"
+              @click="retryBiometrico()"
             >
-              Continuar
+              Reintentar validación
             </button>
-          </transition> -->
+          </transition>
 
           <!-- INDICADOR DE CARGA -->
           <transition name="fade">
@@ -1822,6 +1822,15 @@ const iniciarCamaraBiometricoDesdeAviso = async () => {
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
   }
+};
+
+// Reintentar validación biométrica: resetea contadores y mensajes
+const retryBiometrico = () => {
+  counterCamera.value = 0;
+  message.value = "";
+  loadingButtonBiometric.value = false;
+  loadingModal.value = false;
+  registerAndValidate();
 };
 
 //validar registro biometrico
