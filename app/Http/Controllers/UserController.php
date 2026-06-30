@@ -40,6 +40,8 @@ class UserController extends Controller
     }
     public function index()
     {
+        $roles = Role::pluck('name', 'name')->all();
+
         return Inertia::render(
             'Users/Index',
             [
@@ -50,6 +52,11 @@ class UserController extends Controller
                     })
                     ->when(RequestFacade::input('estado_users'), function ($query, $estado) {
                         $query->where('estado', $estado);
+                    })
+                    ->when(RequestFacade::input('rol_users'), function ($query, $rol) {
+                        $query->whereHas('roles', function ($q) use ($rol) {
+                            $q->where('name', $rol);
+                        });
                     })
                     ->with('roles') // Cargar los roles de cada usuario
                     ->with(['votantes.hashVotantes' => function ($query) {
@@ -77,7 +84,8 @@ class UserController extends Controller
                         return $user;
                     }),
 
-                'filters' => RequestFacade::only(['search']),
+                'filters' => RequestFacade::only(['search', 'estado_users', 'rol_users']),
+                'roles' => $roles,
 
             ]
         );
