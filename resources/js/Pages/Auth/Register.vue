@@ -109,8 +109,8 @@
              <InputError class="mt-2" :message="form.errors.comuna" />
              <!-- Nota comunas habilitadas -->
              <div class="mt-2 bg-blue-50 border border-blue-200 rounded-md p-3">
-               <p class="text-sm text-blue-800">
-                 <strong>Nota:</strong> Las comunas o corregimientos que aparecen en el listado son los que participarán en el próximo evento de Presupuesto Participativo.
+               <p class="text-sm text-blue-800"> 
+                 <strong>Nota:</strong> Las comunas y corregimientos relacionados en el listado participarán en la agenda de elecciones {{ annioActual }} de Presupuesto Participativo.
                  <a
                    :href="route('welcome') + '#comunas-habilitadas'"
                    target="_blank"
@@ -1136,6 +1136,8 @@ const departamentoSelected = ref("");
 const ciudadesxDep = ref([]);
 const comunaSelected = ref(null);
 const barriosXComuna = ref([]);
+
+const annioActual = new Date().getFullYear();
 
 //fecha nacimiento
 const diaNacimiento = ref("");
