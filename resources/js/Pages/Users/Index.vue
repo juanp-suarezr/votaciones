@@ -6,13 +6,20 @@
             Usuarios
         </template>
 
-        <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4">
+        <div class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-4 gap-4">
             <div>
                 <select id="estado_users" name="estado_users" v-model="estado_users" @change="handleEnterKey"
                     class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
                     <option selected value="">Filtrar por estado</option>
                     <option value="Activo">Activo</option>
                     <option value="Bloqueado">Bloqueado</option>
+                </select>
+            </div>
+            <div>
+                <select id="rol_users" name="rol_users" v-model="rol_users" @change="handleEnterKey"
+                    class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
+                    <option selected value="">Filtrar por rol</option>
+                    <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
                 </select>
             </div>
             <div class="...">
@@ -147,6 +154,10 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    roles: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
 const breadcrumbLinks = [
@@ -158,10 +169,11 @@ const breadcrumbLinks = [
 // pass filters in search
 let search = ref(props.filters.search);
 let estado_users = ref(props.filters.estado_users ?? "");
+let rol_users = ref(props.filters.rol_users ?? "");
 const handleEnterKey = () => {
     router.get(
         "/users",
-        { search: search.value, estado_users: estado_users.value },
+        { search: search.value, estado_users: estado_users.value, rol_users: rol_users.value },
         {
             preserveState: true,
             replace: true,
