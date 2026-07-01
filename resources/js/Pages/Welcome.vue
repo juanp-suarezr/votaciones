@@ -513,8 +513,8 @@ const enviarSolicitud = () => {
               comunidad de forma más segura y moderna.
               <br />
               <i v-if="!registerBloqueado"
-                >Tienes plazo para inscribirte del 1 de octubre al 7 de
-                diciembre del 2025</i
+                >Tienes plazo para inscribirte del 1 de julio de 2026 al 01 de
+                octubre de 2026</i
               >
             </p>
             <Link
