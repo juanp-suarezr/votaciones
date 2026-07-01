@@ -561,9 +561,9 @@ const enviarSolicitud = () => {
               <h2 class="text-xl font-bold text-blue-700 mb-2">
                 {{ comuna.detalle }}
               </h2>
-              <p class="text-sm text-gray-600 italic">
+              <!-- <p class="text-sm text-gray-600 italic">
                 Votación del 8 al 14 de diciembre
-              </p>
+              </p> -->
             </div>
           </div>
 

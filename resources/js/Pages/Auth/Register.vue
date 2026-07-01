@@ -913,10 +913,10 @@
             class="rounded-xl shadow-lg"
           />
 
-          <!-- BOTÓN FLOTANTE - REINTENTAR -->
+          <!-- BOTÓN FLOTANTE - REINTENTAR (solo visible tras un primer intento fallido) -->
           <transition name="fade">
             <button
-              v-if="!loadingButtonBiometric"
+              v-if="validationAttempted && !loadingButtonBiometric"
               type="button"
               class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-secondary hover:bg-primary text-white px-4 py-2 rounded-md shadow-lg"
               @click="retryBiometrico()"
@@ -1214,6 +1214,9 @@ const loadingButtonBiometric = ref(false);
 
 //CONTADOR DE ERROR EN LA INICIALIZACION CAMARA
 const counterCamera = ref(0);
+
+// Controla si ya se ha realizado al menos un intento de validación
+const validationAttempted = ref(false);
 
 // Modal de aviso biométrico (Habeas Data)
 const biometricoAvisoModal = ref(false);
@@ -1765,6 +1768,7 @@ const iniciarPrecargaBiometrica = async () => {
 const iniciarCamaraBiometricoDesdeAviso = async () => {
   console.log("[DEBUG] iniciarCamaraBiometricoDesdeAviso - INICIO");
   biometricoAvisoModal.value = false;
+  validationAttempted.value = false; // Reiniciar flag al abrir el modal por primera vez
 
   // Si la preparación aún no ha terminado, mostrar loading y esperar
   if (biometricoPreparando.value) {
@@ -1821,6 +1825,7 @@ const iniciarCamaraBiometricoDesdeAviso = async () => {
     registerAndValidate();
   } else {
     console.log("[DEBUG] Cámara no lista, no se puede validar");
+    validationAttempted.value = true; // Si la cámara nunca se listó, marcar como intento fallido
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
   }
@@ -1832,6 +1837,7 @@ const retryBiometrico = () => {
   message.value = "";
   loadingButtonBiometric.value = false;
   loadingModal.value = false;
+  validationAttempted.value = false; // Reset para que el botón vuelva a ocultarse
   registerAndValidate();
 };
 
@@ -1854,6 +1860,7 @@ const registerAndValidate = async () => {
     const falloCamara = getCounter("fallo_camara") + 1;
 
     message.value = "La cámara no está lista.";
+    validationAttempted.value = true;
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
 
@@ -1900,6 +1907,7 @@ const registerAndValidate = async () => {
       loadingModal.value = false;
       loadingButtonBiometric.value = false;
       message.value = "No se detectó un rostro.";
+      validationAttempted.value = true;
 
       counterCamera.value += 1;
 
@@ -1926,6 +1934,7 @@ const registerAndValidate = async () => {
               console.log("Usuario decide volver a intentar");
               message.value = "";
               counterCamera.value = 0;
+              validationAttempted.value = false; // Reset al reintentar desde el swal
             }
           });
       }
@@ -2003,6 +2012,7 @@ const registerAndValidate = async () => {
         swal.close();
         loadingButtonBiometric.value = false;
         loadingModal.value = false;
+        validationAttempted.value = true;
         console.log(error);
 
         const falloRegistro = getCounter("fallo_registro") + 1;
@@ -2028,6 +2038,7 @@ const registerAndValidate = async () => {
             } else if (result.dismiss === swal.DismissReason.cancel) {
               // Volver a intentar
               console.log("Usuario decide volver a intentar");
+              validationAttempted.value = false; // Reset al reintentar desde el swal
             }
           });
       });
@@ -2035,6 +2046,7 @@ const registerAndValidate = async () => {
     console.error(error);
     loadingButtonBiometric.value = false;
     loadingModal.value = false;
+    validationAttempted.value = true;
 
     if (counterCamera.value == 3) {
       swal
@@ -2059,6 +2071,7 @@ const registerAndValidate = async () => {
             console.log("Usuario decide volver a intentar");
             message.value = "";
             counterCamera.value = 0;
+            validationAttempted.value = false; // Reset al reintentar desde el swal
           }
         });
     }
