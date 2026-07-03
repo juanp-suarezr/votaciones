@@ -133,10 +133,6 @@ class auditoriasController extends Controller
     public function excel()
     {
         try {
-            // limpiar buffers previos y preparar salida
-            @ob_end_clean();
-            ob_start();
-
             $id_evento = 15;
             if (RequestFacade::input('id_evento')) {
                 $id_evento = intval(RequestFacade::input('id_evento'));
@@ -145,9 +141,8 @@ class auditoriasController extends Controller
             $id_user = RequestFacade::input('id_user');
             $anio = RequestFacade::input('anio');
 
-            return Excel::download(new AuditoriaRegistrosExports($id_evento, $id_user, $anio), 'auditoria_registros.xls', \Maatwebsite\Excel\Excel::XLS);
+            return Excel::download(new AuditoriaRegistrosExports($id_evento, $id_user, $anio), 'auditoria_registros.xlsx');
         } catch (\Throwable $e) {
-            // registrar error con detalle para debugging
             Log::error('Error generando Excel de auditoria_registros', [
                 'message'   => $e->getMessage(),
                 'file'      => $e->getFile(),
@@ -157,10 +152,6 @@ class auditoriasController extends Controller
                 'request'   => RequestFacade::all(),
             ]);
 
-            // intentar limpiar buffers abiertos
-            @ob_end_clean();
-
-            // responder al cliente con mensaje de error visible
             return redirect()->back()->with('error', 'Ocurrió un error al generar el archivo. Revise los logs.');
         }
     }

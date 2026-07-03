@@ -5,9 +5,10 @@
     <template #header> Auditoria validaciones </template>
 
     <div
-      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-5 gap-4"
+      class="inline-block min-w-full overflow-hidden mb-3 grid grid-cols-1 md:grid-cols-5 gap-4"
     >
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Evento</label>
         <Select
           id="eventos"
           v-model="id_evento"
@@ -23,6 +24,7 @@
       </div>
 
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Usuario validador</label>
         <Select
           id="usuarios"
           v-model="selectedUser"
@@ -39,6 +41,7 @@
       </div>
 
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
         <Select
           id="anios"
           v-model="selectedYear"
@@ -51,30 +54,28 @@
         />
       </div>
 
-      <div class="flex gap-4 p-4 items-center">
-        <div class="mr-4" style="min-width:220px;">
-          <Select
-            id="comunas"
-            v-model="selectedComuna"
-            :options="comunas"
-            optionLabel="label"
-            optionValue="value"
-            filter
-            filterBy="label"
-            placeholder="Seleccione comuna"
-            showClear
-            class="block w-full"
-            @change="applyFilters"
-          />
-        </div>
-
-        <SecondaryButton class="me-4 py-2 h-full" @click="limpiar">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Comuna</label>
+        <Select
+          id="comunas"
+          v-model="selectedComuna"
+          :options="comunas"
+          optionLabel="label"
+          optionValue="value"
+          filter
+          filterBy="label"
+          placeholder="Seleccione comuna"
+          showClear
+          class="block w-full"
+          @change="applyFilters"
+        />
+      </div>
+      <div class="flex items-end gap-2">
+        <SecondaryButton class="flex-1 py-2" @click="limpiar">
           Limpiar
         </SecondaryButton>
-      </div>
-      <div class="flex gap-4 p-4 justify-end items-center">
         <SecondaryLink
-          class="me-4 py-2 h-full !bg-green-400 text-green-800"
+          class="flex-1 py-2 text-center !bg-green-400 text-green-800"
           :href="
             route('auditoriaVal.excel', {
               id_evento: id_evento ? (id_evento.id ?? id_evento) : null,

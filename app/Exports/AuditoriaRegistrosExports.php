@@ -39,9 +39,9 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
     public function collection()
     {
         try {
-            DB::beginTransaction();
-
-            $anio_actual = Carbon::now()->year;
+            $comunasMap = ParametrosDetalle::where('codParametro', 'com01')
+                ->get()
+                ->pluck('detalle', 'id');
 
             $auditoria_registro = AuditoriaRegistro::select('id_evento', 'accion', 'votante_id', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
                 ->where('id_evento', $this->id_evento)
@@ -54,27 +54,25 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
                 ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion,comuna')
                 ->get();
 
-            // Transform the collection
-            $auditoria_registro->transform(function ($registro) {
+            $auditoria_registro->transform(function ($registro) use ($comunasMap) {
+                $comunaId = optional($registro->hash_votante->votante)->comuna;
+                $comunaNombre = $comunaId && isset($comunasMap[$comunaId]) ? $comunasMap[$comunaId] : 'N/A';
+
                 return [
                     'usuario.name' => optional($registro->usuario)->name ?? 'N/A',
                     'accion' => $registro->accion,
                     'hash_votante.votante.nombre' => optional($registro->hash_votante->votante)->nombre ?? 'N/A',
                     'hash_votante.votante.identificacion' => optional($registro->hash_votante->votante)->identificacion ?? 'N/A',
-                    'hash_votante.votante.comuna' => $registro->hash_votante->votante->comuna ? ParametrosDetalle::where('id', $registro->hash_votante->votante->comuna)->value('detalle') ?? 'N/A' : 'N/A',
+                    'hash_votante.votante.comuna' => $comunaNombre,
                     'ip_address' => $registro->ip_address,
                     'user_agent' => $registro->user_agent,
                     'created_at' => $registro->created_at,
                 ];
             });
 
-            // Log::info('Exportando auditoria_registro: ', $auditoria_registro->toArray());
-
-            DB::commit();
             return $auditoria_registro;
 
         } catch (Throwable $e) {
-            DB::rollBack();
             Log::error('Error exportando auditoria_registro', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -82,7 +80,6 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
                 'trace' => $e->getTraceAsString(),
                 'id_evento' => $this->id_evento,
             ]);
-            // Devolver colección vacía para que la exportación genere un archivo vacío en lugar de fallar silenciosamente
             return collect([]);
         }
     }
