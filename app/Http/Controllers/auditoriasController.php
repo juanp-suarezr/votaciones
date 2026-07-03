@@ -12,6 +12,8 @@ use App\Models\ParametrosDetalle;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class auditoriasController extends Controller
 {
