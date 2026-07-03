@@ -22,11 +22,15 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
 {
 
     protected $id_evento;
+    protected $id_user;
+    protected $anio;
 
-    public function __construct($id_evento)
+    public function __construct($id_evento, $id_user = null, $anio = null)
     {
 
         $this->id_evento = $id_evento;
+        $this->id_user = $id_user;
+        $this->anio = $anio;
     }
 
     /**
@@ -41,6 +45,12 @@ class AuditoriaRegistrosExports implements FromCollection, WithHeadings, WithSty
 
             $auditoria_registro = AuditoriaRegistro::select('id_evento', 'accion', 'votante_id', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
                 ->where('id_evento', $this->id_evento)
+                ->when($this->id_user !== null && $this->id_user !== '', function ($query) {
+                    $query->where('usuario_id', $this->id_user);
+                })
+                ->when($this->anio, function ($query) {
+                    $query->whereYear('created_at', $this->anio);
+                })
                 ->with('usuario:id,name', 'hash_votante:id_votante,id', 'hash_votante.votante:id,nombre,identificacion,comuna')
                 ->get();
 

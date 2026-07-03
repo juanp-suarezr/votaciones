@@ -5,7 +5,7 @@
     <template #header> Auditoria validaciones </template>
 
     <div
-      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-3 gap-4"
+      class="inline-block min-w-full overflow-hidden mb-3 grid md:grid-cols-5 gap-4"
     >
       <div>
         <Select
@@ -17,18 +17,48 @@
           placeholder="Seleccione el evento"
           checkmark
           :highlightOnSelect="false"
-          @change="handleEnterKey"
+          @change="applyFilters"
           class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
-      <div class="flex gap 4 p-4 items-center">
+      <div>
+        <Select
+          id="usuarios"
+          v-model="selectedUser"
+          :options="usuarios"
+          optionLabel="name"
+          optionValue="id"
+          filter
+          placeholder="Seleccione el usuario"
+          checkmark
+          :highlightOnSelect="false"
+          @change="applyFilters"
+          class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <Select
+          id="anios"
+          v-model="selectedYear"
+          :options="years"
+          placeholder="Seleccione el año"
+          checkmark
+          :highlightOnSelect="false"
+          @change="applyFilters"
+          class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div class="flex gap-4 p-4 items-center">
         <div class="mr-4" style="min-width:220px;">
           <Select
             id="comunas"
             v-model="selectedComuna"
             :options="comunas"
             optionLabel="label"
+            optionValue="value"
             filter
             filterBy="label"
             placeholder="Seleccione comuna"
@@ -42,12 +72,15 @@
           Limpiar
         </SecondaryButton>
       </div>
-      <div class="flex gap 4 p-4 justify-end">
+      <div class="flex gap-4 p-4 justify-end items-center">
         <SecondaryLink
           class="me-4 py-2 h-full !bg-green-400 text-green-800"
           :href="
             route('auditoriaVal.excel', {
-              id_evento: id_evento,
+              id_evento: id_evento ? (id_evento.id ?? id_evento) : null,
+              id_user: selectedUser,
+              comuna: selectedComuna,
+              anio: selectedYear,
             })
           "
         >
@@ -205,22 +238,30 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  usuarios: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const breadcrumbLinks = [{ url: "", text: "auditoria/historial validaciones" }];
 
-let id_user = ref(props.filters.id_user ?? "");
-
 let id_evento = ref(props.eventos.find((item) => item.id == 15));
 let selectedComuna = ref(props.filters.comuna ?? null);
+let selectedUser = ref(props.filters.id_user ? Number(props.filters.id_user) : null);
+let selectedYear = ref(props.filters.anio ? Number(props.filters.anio) : null);
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
 const applyFilters = () => {
   router.get(
     "/auditoria-validaciones",
     {
       id_evento: id_evento.value ? (id_evento.value.id ?? id_evento.value) : null,
-      id_user: id_user.value ? (id_user.value.id ?? id_user.value) : null,
+      id_user: selectedUser.value,
       comuna: selectedComuna.value,
+      anio: selectedYear.value,
     },
     {
       preserveState: true,
@@ -241,24 +282,11 @@ const formatDate = (date) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-const handleEnterKey = () => {
-  router.get(
-    "/auditoria-validaciones",
-    {
-      id_evento: id_evento.value.id,
-      id_user: id_user.value.id,
-    },
-    {
-      preserveState: true,
-      replace: true,
-    }
-  );
-};
-
 const limpiar = () => {
-  id_user.value = null;
+  selectedUser.value = null;
   id_evento.value = props.eventos.find((item) => item.id == 15);
   selectedComuna.value = null;
+  selectedYear.value = null;
 
   router.get(
     "/auditoria-validaciones",
