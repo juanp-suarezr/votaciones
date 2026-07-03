@@ -5,9 +5,9 @@
     <template #header> Auditoria validaciones </template>
 
     <div
-      class="inline-block min-w-full overflow-hidden mb-3 grid grid-cols-1 md:grid-cols-5 gap-4"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end w-full"
     >
-      <div>
+      <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-1">Evento</label>
         <Select
           id="eventos"
@@ -23,7 +23,7 @@
         />
       </div>
 
-      <div>
+      <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-1">Usuario validador</label>
         <Select
           id="usuarios"
@@ -40,7 +40,7 @@
         />
       </div>
 
-      <div>
+      <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
         <Select
           id="anios"
@@ -54,7 +54,7 @@
         />
       </div>
 
-      <div>
+      <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-1">Comuna</label>
         <Select
           id="comunas"
@@ -70,12 +70,11 @@
           @change="applyFilters"
         />
       </div>
-      <div class="flex items-end gap-2">
-        <SecondaryButton class="flex-1 py-2" @click="limpiar">
+      <div class="flex items-center gap-2 w-full">
+        <SecondaryButton class="flex-1 justify-center" @click="limpiar">
           Limpiar
         </SecondaryButton>
-        <SecondaryLink
-          class="flex-1 py-2 text-center !bg-green-400 text-green-800"
+        <a
           :href="
             route('auditoriaVal.excel', {
               id_evento: id_evento ? (id_evento.id ?? id_evento) : null,
@@ -84,9 +83,10 @@
               anio: selectedYear,
             })
           "
+          class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 !bg-green-400 text-green-800"
         >
           Descargar Reporte
-        </SecondaryLink>
+        </a>
       </div>
     </div>
     <div class="flex flex-col overflow-x-auto">
@@ -220,7 +220,6 @@ import { Head } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
-import SecondaryLink from "@/Components/SecondaryLink.vue";
 
 const props = defineProps({
   auditoria_registro: {

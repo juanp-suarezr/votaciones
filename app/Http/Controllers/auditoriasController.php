@@ -152,7 +152,7 @@ class auditoriasController extends Controller
                 'request'   => RequestFacade::all(),
             ]);
 
-            return redirect()->back()->with('error', 'Ocurrió un error al generar el archivo. Revise los logs.');
+            return response('Error generando el archivo. Revise los logs.', 500);
         }
     }
 }
