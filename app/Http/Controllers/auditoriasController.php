@@ -8,11 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditoriaRegistro;
 use App\Models\AuditoriaVotos;
 use App\Models\Eventos;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Log;
 use App\Models\ParametrosDetalle;
+use App\Models\User;
 
 class auditoriasController extends Controller
 {
@@ -83,17 +80,16 @@ class auditoriasController extends Controller
         if(RequestFacade::input('id_evento')){
             $id_evento = RequestFacade::input('id_evento');
         }
-        $id_user = null;
-        if(RequestFacade::input('id_user')){
-            $id_user = RequestFacade::input('id_user');
-        }
+        $id_user = RequestFacade::input('id_user');
+        $anio = RequestFacade::input('anio');
 
         $auditoria_registro = AuditoriaRegistro::select('id_evento', 'accion', 'votante_id', 'usuario_id', 'ip_address', 'user_agent', 'created_at')
         ->where('id_evento', $id_evento)
-        ->where(function($query) use ($id_user) {
-            if ($id_user) {
-                $query->where('usuario_id', $id_user);
-            }
+        ->when($id_user !== null && $id_user !== '', function ($query) use ($id_user) {
+            $query->where('usuario_id', $id_user);
+        })
+        ->when($anio, function ($query) use ($anio) {
+            $query->whereYear('created_at', $anio);
         })
         ->when(RequestFacade::input('comuna'), function ($query) {
             $comuna = RequestFacade::input('comuna');
@@ -117,11 +113,14 @@ class auditoriasController extends Controller
                 ];
             });
 
+        $usuarios = User::select('id', 'name')->orderBy('name')->get();
+
         return Inertia::render('Auditoria/AuditoriaValidaciones',
             [
                 'auditoria_registro' => $auditoria_registro,
                 'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
-                'filters' => RequestFacade::only(['id_evento', 'comuna']),
+                'usuarios' => $usuarios,
+                'filters' => RequestFacade::only(['id_evento', 'comuna', 'id_user', 'anio']),
                 'comunas' => $comunas,
             ]
         );
@@ -139,7 +138,10 @@ class auditoriasController extends Controller
                 $id_evento = intval(RequestFacade::input('id_evento'));
             }
 
-            return Excel::download(new AuditoriaRegistrosExports($id_evento), 'auditoria_registros.xls', \Maatwebsite\Excel\Excel::XLS);
+            $id_user = RequestFacade::input('id_user');
+            $anio = RequestFacade::input('anio');
+
+            return Excel::download(new AuditoriaRegistrosExports($id_evento, $id_user, $anio), 'auditoria_registros.xls', \Maatwebsite\Excel\Excel::XLS);
         } catch (\Throwable $e) {
             // registrar error con detalle para debugging
             Log::error('Error generando Excel de auditoria_registros', [
