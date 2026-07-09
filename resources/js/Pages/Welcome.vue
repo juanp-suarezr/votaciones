@@ -146,7 +146,7 @@ const enviarSolicitud = () => {
   <link
     rel="preload"
     as="image"
-    href="/assets/img/Bannervotoelectronico.webP"
+    href="/assets/img/Bannervotoelectronico.webp"
   />
 
   <div
@@ -292,7 +292,7 @@ const enviarSolicitud = () => {
       <!-- banner inicial -->
       <div class="w-full shadow-md overflow-hidden">
         <img
-          src="/assets/img/Bannervotoelectronico.webP"
+          src="/assets/img/Bannervotoelectronico.webp"
           alt="Banner Principal"
           class="w-full h-full"
         />
