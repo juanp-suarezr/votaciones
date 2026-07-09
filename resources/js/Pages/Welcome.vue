@@ -146,7 +146,7 @@ const enviarSolicitud = () => {
   <link
     rel="preload"
     as="image"
-    href="/assets/img/Bannervotoelectronico_1.png"
+    href="/assets/img/Bannervotoelectronico.webP"
   />
 
   <div
