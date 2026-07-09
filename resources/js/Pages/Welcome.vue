@@ -292,7 +292,7 @@ const enviarSolicitud = () => {
       <!-- banner inicial -->
       <div class="w-full shadow-md overflow-hidden">
         <img
-          src="/assets/img/Bannervotoelectronico.png"
+          src="/assets/img/Bannervotoelectronico.webP"
           alt="Banner Principal"
           class="w-full h-full"
         />
