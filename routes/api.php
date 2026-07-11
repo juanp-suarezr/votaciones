@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\UserAuthController;
+use App\Http\Controllers\CentralDataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,3 +40,9 @@ Route::middleware('auth:sanctum')->group( function () {
 
 Route::post('login',[UserAuthController::class,'login']);
 Route::post('votos',[UserAuthController::class,'votar']);
+
+// Integración API Central Data
+Route::prefix('central-data')->group(function () {
+    Route::post('/persons/find', [CentralDataController::class, 'find']);
+    Route::post('/persons/sync', [CentralDataController::class, 'sync']);
+});

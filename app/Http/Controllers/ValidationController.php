@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\UsuariosBiometricos;
 use App\Models\VerificationCode;
+use App\Services\CentralDataService;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Cache;
@@ -26,6 +27,13 @@ use Twilio\Rest\Client;
 
 class ValidationController extends Controller
 {
+    protected CentralDataService $centralData;
+
+    public function __construct(CentralDataService $centralData)
+    {
+        $this->centralData = $centralData;
+    }
+
     //con codigo de verificacion -- no usado actualmente
     public function register(Request $request)
     {
@@ -273,6 +281,8 @@ class ValidationController extends Controller
                  $Informacion_votantes->celular = $request->celular;
                  $Informacion_votantes->save();
 
+                 $votanteModel = $Informacion_votantes;
+
 
                 $hashVotante = Hash_votantes::where('id_votante', $Informacion_votantes->id)->first();
 
@@ -303,6 +313,7 @@ class ValidationController extends Controller
                      'celular' => $request->celular,
                  ]);
                 $user->votantes()->save($informacionUsuario);
+                $votanteModel = $informacionUsuario;
 
                 // Crear el registro de hash_votantes asociado a la información del votante
                 $hash_votante = new Hash_votantes([
@@ -327,6 +338,59 @@ class ValidationController extends Controller
             // Eliminar el código de verificación
             // $verification->delete();
 
+            // Sincronizar la persona con Central Data (no bloquea el registro local)
+            try {
+                if (isset($votanteModel)) {
+                    $nombreCompleto = trim($request->nombre);
+                    $partes = preg_split('/\s+/', $nombreCompleto, 2);
+                    $nombres = $partes[0] ?? $nombreCompleto;
+                    $apellidos = $partes[1] ?? '';
+
+                    $edad = 0;
+                    if ($request->nacimiento) {
+                        $edad = Carbon::parse($request->nacimiento)->diffInYears(now());
+                    }
+
+                    $comunaDetalle = $this->centralData->limpiarNombreComuna($request->input('comuna.detalle'));
+                    $esOtro = $comunaDetalle === 'Otro';
+
+                    $payload = [
+                        'tipo_documento' => $this->centralData->getTipoDocumentoDataCenter($request->tipo_documento),
+                        'numero_documento' => $request->identificacion,
+                        'nombres' => $nombres,
+                        'apellidos' => $apellidos,
+                        'fecha_nacimiento' => $request->nacimiento,
+                        'edad' => $edad,
+                        'genero' => $this->centralData->getGeneroDataCenter($request->genero),
+                        'dignatario' => null,
+                        'condicion' => $this->centralData->getNombreCondicionDataCenter($request->condicion),
+                        'etnia' => $this->centralData->getNombreEtniaDataCenter($request->etnia),
+                        'nivel_estudio' => null,
+                        'correo' => $request->email,
+                        'telefono' => $request->celular,
+                        'comuna' => $comunaDetalle,
+                        'barrio' => $request->barrio,
+                        'direccion' => [
+                            'via principal' => trim($request->direccion),
+                            'municipio' => $esOtro ? '' : 'Pereira',
+                            'departamento' => $esOtro ? '' : 'Risaralda',
+                        ],
+                    ];
+
+                    $syncResult = $this->centralData->syncPerson($payload);
+
+                    if (!$syncResult['ok']) {
+                        Log::warning('CentralData: sync falló en registro', [
+                            'status' => $syncResult['status'] ?? null,
+                            'error' => $syncResult['error'] ?? null,
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error('CentralData: excepción al sincronizar votante en registro', [
+                    'exception' => $e->getMessage(),
+                ]);
+            }
 
             return back();
         } catch (\Exception $e) {
@@ -401,7 +465,13 @@ class ValidationController extends Controller
                 ->first();
         }
 
-        return response()->json(['existe' => $existe, 'votante' => $votante]);
+
+        return response()->json([
+            'existe' => $existe,
+            'votante' => $votante,
+            
+            
+        ]);
     }
 
     //editar registro corrección

@@ -182,42 +182,7 @@
              <InputError class="mt-2" :message="form.errors.direccion" />
            </div>
            
-           <!-- Nombre -->
-           <div class="mb-2">
-              <InputLabel for="nombre">
-                Nombre Completo(Nombres y Apellidos) <span class="text-red-500" aria-hidden="true">*</span>
-              </InputLabel>
-             <TextInput
-               id="nombre"
-               type="text"
-               class="mt-1 block w-full"
-               v-model="form.nombre"
-               required
-             />
-             <InputError class="mt-2" :message="form.errors.nombre" />
-           </div>
-
-          <!-- Identificación -->
-          <div class="mb-2">
-            <InputLabel for="identificacion">
-              Número de identificación <span class="text-red-500" aria-hidden="true">*</span>
-            </InputLabel>
-            <TextInput
-              id="identificacion"
-              type="number"
-              class="mt-1 block w-full"
-              v-model="form.identificacion"
-              required
-            />
-            <p
-              v-if="form.errors.identificacion"
-              class="mt-2 text-sm md:text-base text-red-600"
-            >
-              {{ form.errors.identificacion }}
-            </p>
-          </div>
-
-          <!-- Tipo de Documento -->
+           <!-- Tipo de Documento -->
           <div class="mb-2">
             <InputLabel for="tipo_documento">
               Tipo de Documento <span class="text-red-500" aria-hidden="true">*</span>
@@ -238,6 +203,53 @@
             </select>
             <InputError class="mt-2" :message="form.errors.tipo_documento" />
           </div>
+          
+          <!-- Identificación -->
+          <div class="mb-2">
+            <InputLabel for="identificacion">
+              Número de identificación <span class="text-red-500" aria-hidden="true">*</span>
+            </InputLabel>
+            <TextInput
+              id="identificacion"
+              type="number"
+              class="mt-1 block w-full"
+              v-model="form.identificacion"
+              required
+            />
+            <p
+              v-if="form.errors.identificacion"
+              class="mt-2 text-sm md:text-base text-red-600"
+            >
+              {{ form.errors.identificacion }}
+            </p>
+            <p
+              v-if="consultandoCentral"
+              class="mt-2 text-sm text-blue-600 flex items-center gap-1"
+            >
+              <ProgressSpinner
+                style="width: 16px; height: 16px"
+                strokeWidth="8"
+                aria-label="Buscando"
+              />
+              Buscando datos en Central Data...
+            </p>
+          </div>
+
+
+          <!-- Nombre -->
+           <div class="mb-2">
+              <InputLabel for="nombre">
+                Nombre Completo(Nombres y Apellidos) <span class="text-red-500" aria-hidden="true">*</span>
+              </InputLabel>
+             <TextInput
+               id="nombre"
+               type="text"
+               class="mt-1 block w-full"
+               v-model="form.nombre"
+               required
+             />
+             <InputError class="mt-2" :message="form.errors.nombre" />
+           </div>
 
           <!-- Fecha de Nacimiento -->
           <div class="mb-2 sm:block hidden">
@@ -1295,6 +1307,17 @@ watch(IsNewGenero, (value) => {
   }
 });
 
+//WATCH DOCUMENTO + TIPO -> consulta Central Data (autocompletar)
+watch(
+  () => [form.identificacion, form.tipo_documento],
+  () => {
+    if (temporizadorCentral) clearTimeout(temporizadorCentral);
+    temporizadorCentral = setTimeout(() => {
+      buscarEnCentralData();
+    }, 600);
+  }
+);
+
 //WATCH DEPARTAMENTOS
 watch(departamentoSelected, (newValue) => {
   if (newValue) {
@@ -1658,6 +1681,165 @@ const formatDate = (date) => {
 
 //STEP PART
 //prev
+
+// ===== Integración API Central Data (autocompletar desde el documento) =====
+const consultandoCentral = ref(false);
+
+// Mapas inverso: nombre que devuelve Central Data -> código local (etnia/condicion)
+const etniaCentralToCode = {
+  "No aplica": "NA",
+  Mestizo: "mestizo",
+  Afrodescendiente: "afro",
+  Indígena: "indigena",
+  Palanquero: "palanquero",
+  ROM: "rom",
+};
+
+const condicionCentralToCode = {
+  "Sin condición": "NA",
+  "Persona con discapacidad": "discapacitado",
+  Desplazados: "desplazados",
+  Victimas: "victimasConfArm",
+  "Mujer cabeza de hogar": "mujerCabHogar",
+  "Padre cabeza de hogar": "hombreCabHogar",
+  "Habitante de calle": "habitanteCalle",
+  Migrante: "migrante",
+};
+
+// Convierte el tipo de documento (nombre local) al código que espera Central Data
+const getCodigoTipoDocumento = (nombre) => {
+  const entry = tipo_documento.find((t) => t.nombre === nombre);
+  return entry ? entry.code : null;
+};
+
+// Llena los campos del formulario con los datos de Central Data sin sobrescribir lo ya digitado
+const autocompletarDesdeCentral = (p) => {
+  if (!p || typeof p !== "object") return;
+
+  const setIfEmpty = (key, val) => {
+    if (val === null || val === undefined || val === "") return;
+    if (!form[key]) form[key] = val;
+  };
+
+  // Nombre completo (nombres + apellidos)
+  const nombres = p.nombres || p.nombre || "";
+  const apellidos = p.apellidos || "";
+  const nombreCompleto = [nombres, apellidos].filter(Boolean).join(" ").trim();
+  setIfEmpty("nombre", nombreCompleto);
+
+  // Fecha de nacimiento (YYYY-MM-DD) + refs móviles
+  if (p.fecha_nacimiento && !form.nacimiento) {
+    form.nacimiento = p.fecha_nacimiento;
+    const partes = String(p.fecha_nacimiento).split("-");
+    if (partes.length === 3) {
+      AnnioNacimiento.value = partes[0];
+      mesNacimiento.value = String(Number(partes[1]));
+      diaNacimiento.value = String(Number(partes[2]));
+    }
+  }
+
+  //Comuna
+  if(!form.comuna && p.comuna){
+    
+    const entry = props.comunas.find((c) =>
+    c.detalle
+        .replace(/^(Comuna|Corregimiento|corregimiento|comuna)\s+/i, '')
+        .trim() === p.comuna
+);
+
+    if (entry) form.comuna = entry
+    comunaSelected.value = entry;
+    
+  }
+  
+  
+  
+
+  // Género (M/F/O -> Masculino/Femenino/Otro)
+  if (!form.genero && p.genero) {
+    if (p.genero === "M") form.genero = "Masculino";
+    else if (p.genero === "F") form.genero = "Femenino";
+  }
+
+  // Etnia por código
+  if (!form.etnia && p.etnia) {
+    
+    const entry = etnia.find((e) => e.code === p.etnia);
+    if (entry) form.etnia = entry.nombre;
+  }
+
+  // Condición por código
+  if (!form.condicion && p.condicion) {
+    
+    const entry = condicion.find((c) => c.code === p.condicion);
+    if (entry) form.condicion = entry.nombre;
+  }
+  
+  // Dirección
+  const direccion =
+  typeof p.direccion === "object" && p.direccion
+  ? p.direccion["via principal"] || ""
+  : p.direccion || "";
+  setIfEmpty("direccion", direccion);
+  
+  setIfEmpty("celular", p.telefono);
+  setIfEmpty("email", p.email);
+  setIfEmpty("email_confirmation", p.email);
+  //barrio
+  setIfEmpty("barrio", p.barrio);
+
+
+  
+
+  
+
+  
+
+};
+
+
+
+// Consulta Central Data por tipo + número de documento
+const buscarEnCentralData = async () => {
+  const tipo = form.tipo_documento;
+  const id = (form.identificacion || "").toString().trim();
+
+  if (!tipo || id.length < 5) return;
+
+  const codigo = getCodigoTipoDocumento(tipo);
+  if (!codigo) return;
+
+  const clave = `${codigo}|${id}`;
+  if (clave === ultimaConsultaCentral.value) return;
+  ultimaConsultaCentral.value = clave;
+
+  consultandoCentral.value = true;
+  try {
+    const response = await axios.post("/api/central-data/persons/find", {
+      tipo_documento: codigo,
+      numero_documento: id,
+      source_project: 'votaciones',
+    });
+
+    if (response.data && response.data.ok && response.data.data) {
+      let p = response.data.data.data;
+      console.log(p);
+      if (p && !p.nombres && !p.nombre && !p.fecha_nacimiento && p.person) {
+        p = p.person;
+      }
+      autocompletarDesdeCentral(p);
+    }
+  } catch (e) {
+    console.error("Central Data find error:", e);
+  } finally {
+    consultandoCentral.value = false;
+  }
+};
+
+const ultimaConsultaCentral = ref("");
+let temporizadorCentral = null;
+
+// ===== Fin integración Central Data =====
 const prevStep = (num) => {
   active.value = num;
   isValidate.value = true;

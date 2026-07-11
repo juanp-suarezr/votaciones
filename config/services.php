@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'central_data' => [
+        'url' => env('CENTRAL_DATA_URL'),
+        'slug' => env('CENTRAL_DATA_SLUG'),
+        'secret' => env('CENTRAL_DATA_SECRET'),
+        'project' => env('CENTRAL_DATA_PROJECT', 'votaciones'),
+    ],
+
 ];
