@@ -72,7 +72,7 @@ class DuplicidadJuradoController extends Controller
             ]);
             $votante_create->save();
 
-            Log::info('Votante físico creado: ' . $votante_create->id);
+            
 
             //crear hash_votante
             $hashVotante = Hash_votantes::create([
@@ -165,7 +165,7 @@ class DuplicidadJuradoController extends Controller
                             ->first();
                         $votante_activo->fisico_info = 'ok';
                         $votante_activo->save();
-                        Log::info('Votante con voto físico registrado correctamente: ' . $votante->identificacion);
+                        
                         return response()->json(['valid' => true, 'message' => 'Votante registrado correctamente.']);
                         return;
                     }

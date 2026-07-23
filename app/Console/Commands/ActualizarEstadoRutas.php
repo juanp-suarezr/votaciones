@@ -129,7 +129,7 @@ class ActualizarEstadoRutas extends Command
 
             $ruta->save();
             $contador++;
-            Log::info("Ruta actualizada: {$ruta->ruta} → estado {$ruta->estado}");
+            
         }
 
         $this->info("✅ Estados actualizados: {$contador} rutas procesadas correctamente.");

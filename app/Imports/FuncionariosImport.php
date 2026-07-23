@@ -20,7 +20,7 @@ class FuncionariosImport implements ToCollection, WithHeadingRow, WithValidation
         foreach ($collection as $key => $row) {
             // Saltar filas vacías
             if (empty(trim($row['nombre'] ?? '')) || empty(trim($row['identificacion'] ?? ''))) {
-                Log::info('Fila '.($key + 2).' saltada: nombre o identificación vacíos.');
+                
 
                 continue;
             }

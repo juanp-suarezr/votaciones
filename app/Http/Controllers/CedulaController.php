@@ -21,7 +21,7 @@ class CedulaController extends Controller
             'cedula_back' => 'required|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
-        Log::info($request->all());
+        
         set_time_limit(120); // 120 segundos
 
         if (!$request->file('cedula_front')->isValid() || !$request->file('cedula_back')->isValid()) {
@@ -52,7 +52,7 @@ class CedulaController extends Controller
             // Combinar textos extraídos
             $ocrTexts = [$frontTextClean, $backTextClean];
 
-            Log::info('Texto extraído:', ['Text' => $ocrTexts]);
+            
 
             // Validar identificación
             $identificacion = preg_replace('/[^0-9]/', '', $request->identificacion); // Limpia puntos o guiones
@@ -82,7 +82,7 @@ class CedulaController extends Controller
 
             // Validar lugar de expedición
             if ($request->lugar_expedicion != NULL) {
-                Log::info('lugar exp', ['lug_exp' => $request->lugar_expedicion]);
+                
                 $lugar = strtoupper($request->lugar_expedicion);
                 if (!$this->existsInOcr($lugar, $ocrTexts)) {
                     return response()->json(['message' => 'El lugar de expedición no coincide.'], 422);

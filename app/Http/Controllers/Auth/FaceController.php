@@ -155,7 +155,7 @@ class FaceController extends Controller
 
                 if (count($pair) === 2 && is_numeric($pair[0]) && is_numeric($pair[1])) {
                     $diff = $pair[0] - $pair[1];
-                    Log::info("Diff: {$pair[0]} - {$pair[1]} = {$diff}");
+                    
                     return $acc + pow($diff, 2);
                 } else {
                     Log::warning('Par inválido en zip:', ['pair' => $pair]);
@@ -165,7 +165,7 @@ class FaceController extends Controller
             }, 0));
 
 
-            Log::Info($distance);
+            
 
             // Guardar la distancia calculada
             $distancias[] = [

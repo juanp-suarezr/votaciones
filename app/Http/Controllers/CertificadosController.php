@@ -153,7 +153,7 @@ class CertificadosController extends Controller
         $delegado = Delegado::where('estado', 1)->first();
         $nombreLimpio = preg_replace('/[^A-Za-z0-9\-]/', '_', $canino->nombre);
 
-        Log::info('Datos para PDF', ['canino' => $canino, 'delegado' => $delegado]);
+        
 
         $qr = 'data:image/svg+xml;base64,' . base64_encode(QrCode::format('svg')->size(120)->generate(url('/consulta-certificado/' . $canino->id)));
 

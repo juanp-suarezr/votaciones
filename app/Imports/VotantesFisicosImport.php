@@ -92,7 +92,7 @@ class VotantesFisicosImport implements ToCollection, WithHeadingRow
                         ]);
                         $votante_create->save();
 
-                        Log::info('Votante físico creado: ' . $votante_create->id);
+                        
 
                         //crear hash_votante
                         $hashVotante = Hash_votantes::create([

@@ -217,7 +217,7 @@ class AnalisisPresupuestoController extends Controller
             ->get()
             ->filter(function ($evento) {
                 // Filtra eventos cuyo tipo contiene "proyectos" (mayúsculas o minúsculas)
-                Log::info(stripos($evento->tipos, 'presupuesto participativo'));
+                
                 return stripos($evento->tipos, 'presupuesto participativo') !== false;
             })
             ->values();

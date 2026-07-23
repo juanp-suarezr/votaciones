@@ -21,10 +21,7 @@ class UserAuthController extends Controller
             'password' => 'required|min:6'
         ]);
 
-        Log::info('Intento de login', [
-            'email' => $this->input('email'),
-            'password' => $this->input('password'),
-        ]);
+        
 
         $user = User::where('email', $loginUserData['email'])->first();
         if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
