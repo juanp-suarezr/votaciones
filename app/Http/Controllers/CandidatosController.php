@@ -67,7 +67,7 @@ class CandidatosController extends Controller
                         return $user;
                     }),
                 'filters' => RequestFacade::only(['search', 'id_evento', 'tipo', 'candidato']),
-                'eventos' => Eventos::whereNot('nombre', 'Admin')->where('evento_padre', 1)->get(['id', 'nombre']),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->get(['id', 'nombre']),
                 'tipos' => Tipos::pluck('nombre', 'nombre')->all(),
 
             ]
