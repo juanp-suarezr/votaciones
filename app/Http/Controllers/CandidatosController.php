@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Eventos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
+use App\Models\Tipos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -39,6 +40,16 @@ class CandidatosController extends Controller
                         $query->where('nombre', 'like', '%' . $search . '%')
                             ->orWhere('identificacion', 'like', '%' . $search . '%');
                     })
+                    ->when(RequestFacade::input('id_evento'), function ($query, $id_evento) {
+                        $query->whereHas('hashVotantes', function ($q) use ($id_evento) {
+                            $q->where('id_evento', $id_evento);
+                        });
+                    })
+                    ->when(RequestFacade::input('tipo'), function ($query, $tipo) {
+                        $query->whereHas('hashVotantes', function ($q) use ($tipo) {
+                            $q->where('tipo', 'like', '%' . $tipo . '%');
+                        });
+                    })
                     ->whereHas('hashVotantes', function ($query) {
                         $query->where('candidato', 1); // Filtrar por el campo candidato en hash_votantes
                     })
@@ -55,7 +66,9 @@ class CandidatosController extends Controller
                             ->implode('|');
                         return $user;
                     }),
-                'filters' => RequestFacade::only(['search', 'candidato']),
+                'filters' => RequestFacade::only(['search', 'id_evento', 'tipo', 'candidato']),
+                'eventos' => Eventos::whereNot('nombre', 'Admin')->where('evento_padre', 1)->get(['id', 'nombre']),
+                'tipos' => Tipos::pluck('nombre', 'nombre')->all(),
 
             ]
         );

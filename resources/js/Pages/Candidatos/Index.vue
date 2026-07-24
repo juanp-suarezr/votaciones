@@ -9,6 +9,20 @@
 
         <div class="inline-block min-w-full overflow-hidden mb-3 sm:flex flex-wrap gap-4">
             <div>
+                <select id="evento" name="evento" v-model="id_evento" @change="handleEnterKey"
+                    class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
+                    <option selected value="" disabled>Filtrar por evento</option>
+                    <option v-for="evento in eventos" :key="evento.id" :value="evento.id">{{ evento.nombre }}</option>
+                </select>
+            </div>
+            <div>
+                <select id="tipo" name="tipo" v-model="tipo" @change="handleEnterKey"
+                    class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
+                    <option selected value="" disabled>Filtrar por tipo</option>
+                    <option v-for="tipoItem in tipos" :key="tipoItem" :value="tipoItem">{{ tipoItem }}</option>
+                </select>
+            </div>
+            <div>
                 <!-- <select id="candidato" name="candidato" v-model="candidato" @change="handleEnterKey"
                     class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
                     <option selected value="" disabled>Tipos</option>
@@ -191,6 +205,14 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    eventos: {
+        type: Array,
+        default: () => ([]),
+    },
+    tipos: {
+        type: Array,
+        default: () => ([]),
+    },
 });
 
 
@@ -218,12 +240,14 @@ const isChange = ref(false);
 
 // pass filters in search
 let search = ref(props.filters.search);
+let id_evento = ref(props.filters.id_evento ?? "");
+let tipo = ref(props.filters.tipo ?? "");
 let candidato = ref(props.filters.candidato ?? "");
 //evento de busqueda
 const handleEnterKey = () => {
     router.get(
         "/candidatos",
-        { search: search.value, candidato: candidato.value },
+        { search: search.value, id_evento: id_evento.value, tipo: tipo.value, candidato: candidato.value },
         {
             preserveState: true,
             replace: true,
@@ -233,10 +257,12 @@ const handleEnterKey = () => {
 
 const ClearAll = () => {
     search.value = '';
+    id_evento.value = '';
+    tipo.value = '';
     candidato.value = '';
     router.get(
         "/candidatos",
-        { search: search.value, candidato: candidato.value },
+        { search: search.value, id_evento: id_evento.value, tipo: tipo.value, candidato: candidato.value },
         {
             preserveState: true,
             replace: true,
