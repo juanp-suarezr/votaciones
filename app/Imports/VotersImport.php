@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class VotersImport implements ToCollection, WithHeadingRow
+class VotersImport implements ToCollection, WithHeadingRow, WithChunkReading
 {
     private $numRegistrosInsertados = 0;
     private $numRegistrosActualizados = 0;
@@ -26,19 +27,30 @@ class VotersImport implements ToCollection, WithHeadingRow
         $this->tipos = $tipos;
     }
 
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
     public function collection($rows)
     {
         foreach ($rows as $row) {
-            DB::transaction(function () use ($row) {
-                // Buscar por identificación
-                $votante = Informacion_votantes::where('identificacion', $row['identificacion'])->first();
+            $this->processRow($row);
+        }
+    }
+
+    private function processRow($row)
+    {
+        DB::transaction(function () use ($row) {
+            // Buscar por identificación
+            $votante = Informacion_votantes::where('identificacion', $row['identificacion'])->first();
 
                 // Si existe, actualiza usuario
                 if ($votante) {
                     $user =  User::where('id', $votante->id_user)->first();
 
-                    if(!$user) {
-                        $user = User::create([
+                if (!$user) {
+                    $user = User::create([
                         'name' => $row['name'],
                         'email' => $row['email'],
                         'password' => Hash::make($row['password']),
@@ -51,42 +63,9 @@ class VotersImport implements ToCollection, WithHeadingRow
                     //Asignar a votante
                     $votante->id_user = $user->id;
                     $votante->save();
+                }
 
-                    }
-
-                    if($user->email == "ppt"){
-
-                        // Crear un nuevo usuario
-                    $user = User::create([
-                        'name' => $row['name'],
-                        'email' => $row['email'],
-                        'password' => Hash::make($row['password']),
-                        'estado' => 'Activo',
-                    ]);
-
-                    // Crear un nuevo votante relacionado al usuario
-                    $votante = Informacion_votantes::create([
-                        'id_user' => $user->id,
-                        'nombre' => $row['name'],
-                        'identificacion' => $row['identificacion'],
-                    ]);
-
-                    //Asignar rol
-                    $user->assignRole('Usuarios');
-
-                    } else {
-                        $user->name = $row['name'];
-                    $user->identificacion = $row['identificacion'];
-                    $user->email = $row['email'];
-                    $user->password = Hash::make($row['password']);
-                    $user->estado = 'Activo';
-                    $user->save();
-                    }
-
-                    
-                    // Incrementar el contador de registros actualizados correctamente
-                    $this->numRegistrosActualizados++;
-                } else {
+                if ($user->email == "ppt") {
                     // Crear un nuevo usuario
                     $user = User::create([
                         'name' => $row['name'],
@@ -104,21 +83,47 @@ class VotersImport implements ToCollection, WithHeadingRow
 
                     //Asignar rol
                     $user->assignRole('Usuarios');
-
-                    // Incrementar el contador de registros insertados correctamente
-                    $this->numRegistrosInsertados++;
+                } else {
+                    $user->name = $row['name'];
+                    $user->identificacion = $row['identificacion'];
+                    $user->email = $row['email'];
+                    $user->password = Hash::make($row['password']);
+                    $user->estado = 'Activo';
+                    $user->save();
                 }
 
-                // Relacionar votante con el evento en hash_votantes
-                Hash_votantes::firstOrCreate([
-                    'id_evento' => $this->eventId,
-                    'id_votante' => $votante->id,
-                    'tipo' => $this->tipos,
+                // Incrementar el contador de registros actualizados correctamente
+                $this->numRegistrosActualizados++;
+            } else {
+                // Crear un nuevo usuario
+                $user = User::create([
+                    'name' => $row['name'],
+                    'email' => $row['email'],
+                    'password' => Hash::make($row['password']),
+                    'estado' => 'Activo',
                 ]);
 
-                
-            });
-        }
+                 // Crear un nuevo votante relacionado al usuario
+                $votante = Informacion_votantes::create([
+                    'id_user' => $user->id,
+                    'nombre' => $row['name'],
+                    'identificacion' => $row['identificacion'],
+                ]);
+
+                //Asignar rol
+                $user->assignRole('Usuarios');
+
+                // Incrementar el contador de registros insertados correctamente
+                $this->numRegistrosInsertados++;
+            }
+
+            // Relacionar votante con el evento en hash_votantes
+            Hash_votantes::firstOrCreate([
+                'id_evento' => $this->eventId,
+                'id_votante' => $votante->id,
+                'tipo' => $this->tipos,
+            ]);
+        });
     }
 
     public function getNumRegistrosInsertados()
