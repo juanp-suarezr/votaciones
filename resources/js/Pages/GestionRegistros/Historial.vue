@@ -46,6 +46,15 @@
             :highlightOnSelect="false"
             class="w-full"
           />
+          <Select
+            id="anio"
+            v-model="selectedYear"
+            :options="years"
+            placeholder="Seleccione año"
+            checkmark
+            :highlightOnSelect="false"
+            class="w-full"
+          />
         </div>
         <div class="mt-4 flex justify-end">
           <PrimaryButton @click="handleSearch">Buscar</PrimaryButton>
@@ -111,13 +120,19 @@
             </template>
           </Column>
 
-          <Column header="# Intentos">
-            <template #body="slotProps">
-              {{ slotProps.data.intentos }}
-            </template>
-          </Column>
+<Column header="# Intentos">
+             <template #body="slotProps">
+               {{ slotProps.data.intentos }}
+             </template>
+           </Column>
 
-          <Column header="Acciones">
+           <Column header="Fecha de creación">
+             <template #body="slotProps">
+               {{ dayjs(slotProps.data.created_at).format('YYYY-MM-DD HH:mm') }}
+             </template>
+           </Column>
+
+           <Column header="Acciones">
             <template #body="slotProps">
               <div class="flex gap-2">
                 <SecondaryLink
@@ -175,11 +190,15 @@ let identificacion = ref(props.filters.identificacion || "");
 let nombre = ref(props.filters.nombre || "");
 let subtipo = ref(props.filters.subtipo || "");
 let estado = ref(props.filters.estado || "");
+let selectedYear = ref(props.filters.anio ? Number(props.filters.anio) : null);
 
 const opcionesEstado = [
   { label: "Activo", value: "Activo" },
   { label: "Rechazado", value: "Rechazado" },
 ];
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
 // Funciones
 const handleSearch = () => {
@@ -190,6 +209,7 @@ const handleSearch = () => {
       nombre: nombre.value,
       subtipo: subtipo.value,
       estado: estado.value,
+      anio: selectedYear.value,
     },
     {
       preserveState: true,
@@ -203,6 +223,7 @@ const clearAll = () => {
   nombre.value = "";
   subtipo.value = "";
   estado.value = "";
+  selectedYear.value = null;
   handleSearch();
 };
 

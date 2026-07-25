@@ -53,6 +53,9 @@ class ValidacionesController extends Controller
             ->when(RequestFacade::input('subtipo'), function ($query) {
                 $subtipo = RequestFacade::input('subtipo.value');
                 $query->where('subtipo', 'like', $subtipo);
+            })->when(RequestFacade::input('anio'), function ($query) {
+                $anio = RequestFacade::input('anio');
+                $query->whereYear('created_at', $anio);
             })->whereHas('votante', function ($query) use ($user) {
 
                 $identificacion = RequestFacade::input('identificacion');
@@ -84,7 +87,7 @@ class ValidacionesController extends Controller
             [
                 'votantes' => $votantes,
 
-                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo']),
+                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo', 'anio']),
             ]
         );
     }
@@ -313,6 +316,9 @@ class ValidacionesController extends Controller
                 if (is_numeric($nombre)) {
                         $query->where('id', (int) $nombre);
                     }
+            })->when(RequestFacade::input('anio'), function ($query) {
+                $anio = RequestFacade::input('anio');
+                $query->whereYear('created_at', $anio);
             })->whereHas('votante', function ($query) use ($user) {
 
                 $identificacion = RequestFacade::input('identificacion');
@@ -360,7 +366,7 @@ class ValidacionesController extends Controller
             [
                 'votantes' => $votantes,
 
-                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo', 'estado']),
+                'filters' => RequestFacade::only(['identificacion', 'nombre', 'subtipo', 'estado', 'anio']),
             ]
         );
     }

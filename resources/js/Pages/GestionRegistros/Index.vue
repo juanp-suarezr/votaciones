@@ -24,17 +24,26 @@
             placeholder="Nombre"
             class="w-full"
           />
-          <Select
-            id="comuna"
-            v-model="subtipo"
-            :options="comunas"
-            filter
-            optionLabel="label"
-            placeholder="Seleccione comuna/corregimiento"
-            checkmark
-            :highlightOnSelect="false"
-            class="w-full"
-          />
+<Select
+              id="comuna"
+              v-model="subtipo"
+              :options="comunas"
+              filter
+              optionLabel="label"
+              placeholder="Seleccione comuna/corregimiento"
+              checkmark
+              :highlightOnSelect="false"
+              class="w-full"
+            />
+            <Select
+              id="anio"
+              v-model="selectedYear"
+              :options="years"
+              placeholder="Seleccione año"
+              checkmark
+              :highlightOnSelect="false"
+              class="w-full"
+            />
         </div>
         <div class="mt-4 flex justify-end">
           <PrimaryButton @click="handleSearch">Buscar</PrimaryButton>
@@ -92,19 +101,25 @@
             </template>
           </Column>
 
-          <Column header="Tiempo de espera">
-            <template #body="slotProps">
-              <Tag
-                :severity="
-                  calcularTiempoEspera(slotProps.data.created_at).color
-                "
-                :value="calcularTiempoEspera(slotProps.data.created_at).texto"
-              >
-              </Tag>
-            </template>
-          </Column>
+<Column header="Tiempo de espera">
+             <template #body="slotProps">
+               <Tag
+                 :severity="
+                   calcularTiempoEspera(slotProps.data.created_at).color
+                 "
+                 :value="calcularTiempoEspera(slotProps.data.created_at).texto"
+               >
+               </Tag>
+             </template>
+           </Column>
 
-          <Column header="Acciones">
+           <Column header="Fecha de creación">
+             <template #body="slotProps">
+               {{ dayjs(slotProps.data.created_at).format('YYYY-MM-DD HH:mm') }}
+             </template>
+           </Column>
+
+           <Column header="Acciones">
             <template #body="slotProps">
               <div class="flex gap-2">
                 <SecondaryLink
@@ -167,6 +182,10 @@ console.log(props.votantes);
 let identificacion = ref(props.filters.identificacion || "");
 let nombre = ref(props.filters.nombre || "");
 let subtipo = ref(props.filters.subtipo || "");
+let selectedYear = ref(props.filters.anio ? Number(props.filters.anio) : null);
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
 // Funciones
 const handleSearch = () => {
@@ -176,6 +195,7 @@ const handleSearch = () => {
       identificacion: identificacion.value,
       nombre: nombre.value,
       subtipo: subtipo.value,
+      anio: selectedYear.value,
     },
     {
       preserveState: true,
@@ -188,6 +208,7 @@ const clearAll = () => {
   identificacion.value = "";
   nombre.value = "";
   subtipo.value = "";
+  selectedYear.value = null;
   handleSearch();
 };
 
