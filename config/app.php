@@ -58,7 +58,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://votaciones.sevicios-alcaldiapereira.com/'),
+    'url' => env('APP_URL', 'https://votaciones.servicios-alcaldiapereira.com/'),
 
     'asset_url' => env('ASSET_URL'),
 
