@@ -1201,6 +1201,18 @@ const biometricoModal = ref(false);
 //SABER SI SE ACTIVA EL INPUT DE OTROS
 const IsNewGenero = ref(false);
 
+const esMenorDeEdad = computed(() => {
+  if (!form.nacimiento) return false;
+  const hoy = new Date();
+  const [anioNac, mesNac, diaNac] = form.nacimiento.split("-").map(Number);
+  let edad = hoy.getFullYear() - anioNac;
+  const m = hoy.getMonth() - (mesNac - 1);
+  if (m < 0 || (m === 0 && hoy.getDate() < diaNac)) {
+    edad--;
+  }
+  return edad < 18;
+});
+
 //Modal botones de validar
 const botonesValidarModal = ref(false);
 
@@ -2467,8 +2479,11 @@ const validarDatos3 = () => {
   }
 
   if (isValidate.value) {
-    // Abrir modal de aviso e iniciar preparación en segundo plano
-    abrirAvisoBiometrico();
+    if (esMenorDeEdad.value) {
+      submit();
+    } else {
+      abrirAvisoBiometrico();
+    }
   } else {
     if (!form.cedula_front) {
       form.errors.cedula_front = "Este campo es requerido.";

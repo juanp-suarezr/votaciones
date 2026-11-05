@@ -64,6 +64,7 @@
 
       <div
         class="bg-white shadow-md rounded-lg p-6 flex flex-wrap gap-8 items-start"
+        v-if="!esMenorDeEdad"
       >
         <!-- Foto del votante -->
         <div class="sm:flex-shrink-0 flex flex-col items-center">
@@ -99,7 +100,12 @@
           <span v-else class="text-gray-400 italic">Sin foto</span>
         </div>
 
+      </div>
 
+      <div v-if="esMenorDeEdad" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+        <p class="text-sm text-yellow-800">
+          <strong>Nota:</strong> Este votante es menor de edad. No requiere validación biométrica.
+        </p>
       </div>
 
       <!-- Botones para ver PDFs -->
@@ -271,6 +277,10 @@ const props = defineProps({
   },
   duplicados: {
     type: Object,
+  },
+  esMenorDeEdad: {
+    type: Boolean,
+    default: false,
   },
 });
 

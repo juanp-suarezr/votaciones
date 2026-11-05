@@ -69,7 +69,7 @@ class ValidacionesController extends Controller
                     $query->where('nombre', 'like', '%' . $nombre . '%');
                 }
             })
-            ->with('votante.user.biometrico', 'evento')
+            ->with('votante.user', 'evento')
             ->where('estado', 'Pendiente')
             ->paginate(5)
             ->withQueryString();
@@ -96,13 +96,24 @@ class ValidacionesController extends Controller
     {
 
         $votante = Hash_votantes::query()
-            ->with('votante.user.biometrico')->findOrFail($id);
+            ->with('votante.user')->findOrFail($id);
+
+        $esMenorDeEdad = false;
+        if ($votante->votante && $votante->votante->nacimiento) {
+            $edad = Carbon::parse($votante->votante->nacimiento)->diffInYears(now());
+            $esMenorDeEdad = $edad < 18;
+        }
+
+        if (!$esMenorDeEdad) {
+            $votante->load('votante.user.biometrico');
+        }
 
 
         //duplicados
-        $raw = ($votante->votante->user->biometrico && $votante->votante->user->biometrico->embedding)
-            ? $votante->votante->user->biometrico->embedding
-            : null;
+        $raw = null;
+        if (!$esMenorDeEdad && $votante->votante->user->biometrico && $votante->votante->user->biometrico->embedding) {
+            $raw = $votante->votante->user->biometrico->embedding;
+        }
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('user_id', '!=', $votante->votante->user->id)
@@ -187,6 +198,7 @@ class ValidacionesController extends Controller
             [
                 'votante' => $votante,
                 'duplicados' => $duplicados,
+                'esMenorDeEdad' => $esMenorDeEdad,
             ]
         );
     }
@@ -316,7 +328,7 @@ class ValidacionesController extends Controller
                 if (is_numeric($nombre)) {
                         $query->where('id', (int) $nombre);
                     }
-            })->when(RequestFacade::input('anio'), function ($query) {
+            })            ->when(RequestFacade::input('anio'), function ($query) {
                 $anio = RequestFacade::input('anio');
                 $query->whereYear('created_at', $anio);
             })->whereHas('votante', function ($query) use ($user) {
@@ -348,7 +360,7 @@ class ValidacionesController extends Controller
 
                 $query->where('id_user', '!=', null);
             })
-            ->with('votante.user.biometrico', 'evento')
+            ->with('votante.user', 'evento')
 
             ->paginate(5)
             ->withQueryString();
@@ -376,13 +388,24 @@ class ValidacionesController extends Controller
     {
 
         $votante = Hash_votantes::query()
-            ->with('votante.user.biometrico')->findOrFail($id);
+            ->with('votante.user')->findOrFail($id);
+
+        $esMenorDeEdad = false;
+        if ($votante->votante && $votante->votante->nacimiento) {
+            $edad = Carbon::parse($votante->votante->nacimiento)->diffInYears(now());
+            $esMenorDeEdad = $edad < 18;
+        }
+
+        if (!$esMenorDeEdad) {
+            $votante->load('votante.user.biometrico');
+        }
 
 
         //duplicados
-        $raw = ($votante->votante->user->biometrico && $votante->votante->user->biometrico->embedding)
-            ? $votante->votante->user->biometrico->embedding
-            : null;
+        $raw = null;
+        if (!$esMenorDeEdad && $votante->votante->user->biometrico && $votante->votante->user->biometrico->embedding) {
+            $raw = $votante->votante->user->biometrico->embedding;
+        }
 
         $usuarios = UsuariosBiometricos::select('id', 'embedding', 'photo', 'estado', 'user_id')
             ->where('user_id', '!=', $votante->votante->user->id)
@@ -470,6 +493,7 @@ class ValidacionesController extends Controller
             [
                 'votante' => $votante,
                 'duplicados' => $duplicados,
+                'esMenorDeEdad' => $esMenorDeEdad,
             ]
         );
     }

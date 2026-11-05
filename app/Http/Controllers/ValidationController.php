@@ -157,6 +157,8 @@ class ValidationController extends Controller
             'cedula_front' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'checked' => 'required',
             'declaracion' => 'required',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'embedding' => 'nullable|string',
         ]);
 
 
@@ -205,10 +207,19 @@ class ValidationController extends Controller
 
             //foto evidencia
             $folderPhoto = 'fotos';
-            $fileNamePhoto = 'foto' . $request->identificacion . '.' . $request->file('photo')->getClientOriginalExtension();
+            $edad = Carbon::parse($request->nacimiento)->diffInYears(now());
+            $esMenorDeEdad = $edad < 18;
 
-            $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
+            if ($esMenorDeEdad) {
+                $fileNamePhoto = 'NA';
+                $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
+            } else {
+                $fileNamePhoto = 'foto' . $request->identificacion . '.' . $request->file('photo')->getClientOriginalExtension();
+                $fileNameFront = 'cedula_front_' . $request->identificacion . '.' . $frontExtension;
+                $fotoPath = $request->file('photo')->storeAs('uploads/' . $folderPhoto, $fileNamePhoto, 'public');
+            }
 
+            $frontPath = $request->file('cedula_front')->storeAs('uploads/' . $folderDoc, $fileNameFront, 'public');
 
             $validacion = $request->validaciones;
             // Log::info('embedding', ['embedding' => json_encode($request->embedding)]);
@@ -223,7 +234,16 @@ class ValidationController extends Controller
 
             ]);
 
-            if ($request->embedding && ($validacion == "" || $posibleSpam)) {
+            if ($esMenorDeEdad) {
+                $registroBiometrico = new UsuariosBiometricos([
+                    'user_id' => $user->id,
+                    'embedding' => 'NA',
+                    'photo' => 'NA',
+                    'cedula_front' => $fileNameFront,
+                    'estado' => 'Pendiente',
+                    'motivo' => 'Menor de edad - sin validación biométrica',
+                ]);
+            } elseif ($request->embedding && ($validacion == "" || $posibleSpam)) {
 
                 //CREAR REGISTRO BIOMETRICO
                 $registroBiometrico = new UsuariosBiometricos([
