@@ -11,7 +11,10 @@
         <h3 class="mt-1 text-gray-500">
           {{ evento.nombre }}
         </h3>
-        <div class="text-right">
+        <div class="text-right flex justify-end gap-2">
+          <SecondaryLink :href="route('eventos.migrar.view', { destino: evento.id })">
+            Asignar Votantes desde Otro Evento
+          </SecondaryLink>
           <SecondaryLink :href="route('eventos.index')">
             Regresar
           </SecondaryLink>

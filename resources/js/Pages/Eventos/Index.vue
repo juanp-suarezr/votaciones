@@ -8,12 +8,13 @@
         </template>
 
 
-        <div class="lg:w-1/2 md:w-2/3 overflow-x-scroll md:overflow-x-auto">
-            <div class="text-right p-4">
-                <PrimaryLink :href="route('eventos.create')">
-                    Agregar
-                </PrimaryLink>
-            </div>
+        <div class="w-full flex justify-end gap-3 p-4">
+            <SecondaryLink :href="route('eventos.migrar.view')">
+                Migrar / Asignar Votantes
+            </SecondaryLink>
+            <PrimaryLink :href="route('eventos.create')">
+                Agregar
+            </PrimaryLink>
         </div>
 
         <div class="w-full overflow-x-scroll md:overflow-x-auto rounded-lg shadow">
@@ -79,14 +80,15 @@
                             <p class="text-gray-900 whitespace-no-wrap">{{ ev.estado }}</p>
                         </td>
                         <td
-                            class="w-full inline-block border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
-
-                            <SecondaryLink type="button" :href="route('eventos.edit', ev.id)" class="mb-3">
-                                Editar
-                            </SecondaryLink>
-
-                            <!-- <DangerButton @click="confirmUserDeletion(tipo.id)">Eliminar</DangerButton> -->
-
+                            class="border-b border-gray-200 bg-white sm:px-5 sm:py-5 p-2 sm:text-sm text-xs">
+                            <div class="flex flex-wrap gap-2">
+                                <SecondaryLink type="button" :href="route('eventos.edit', ev.id)">
+                                    Editar
+                                </SecondaryLink>
+                                <SecondaryLink type="button" :href="route('eventos.migrar.view', { origen: ev.id })" title="Migrar o asignar usuarios de este evento a otro">
+                                    Migrar Votantes
+                                </SecondaryLink>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

@@ -8,13 +8,16 @@ use App\Models\Acta_inicio;
 use App\Models\Eventos;
 use App\Models\Hash_eventos_hijos;
 use App\Models\Hash_proyectos;
+use App\Models\Hash_votantes;
 use App\Models\ParametrosDetalle;
 use App\Models\Puntos;
 use App\Models\Tipos;
+use App\Models\Votos;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -24,9 +27,9 @@ class EventosController extends Controller
 
     function __construct()
     {
-        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'store']]);
+        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'store', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
         $this->middleware('permission:eventos-crear', ['only' => ['create', 'store']]);
-        $this->middleware('permission:eventos-editar', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:eventos-editar', ['only' => ['edit', 'update', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
         $this->middleware('permission:eventos-eliminar', ['only' => ['destroy']]);
     }
 
@@ -261,5 +264,277 @@ class EventosController extends Controller
         }
 
         $padre->save();
+    }
+
+    /**
+     * Muestra la vista para migrar / asignar usuarios de un evento a otro.
+     */
+    public function migrarUsuariosView(Request $request)
+    {
+        $eventos = Eventos::whereNot('nombre', 'Admin')
+            ->select('id', 'nombre', 'estado', 'fecha_inicio', 'fecha_fin', 'tipos')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $comunas = ParametrosDetalle::where('codParametro', 'com01')
+            ->select('id', 'detalle')
+            ->orderBy('detalle')
+            ->get();
+
+        $tipos = Tipos::pluck('nombre', 'nombre')->all();
+
+        return Inertia::render('Eventos/MigrarUsuarios', [
+            'eventos' => $eventos,
+            'comunas' => $comunas,
+            'tipos' => $tipos,
+            'origen_inicial' => $request->query('origen') ? (int) $request->query('origen') : null,
+            'destino_inicial' => $request->query('destino') ? (int) $request->query('destino') : null,
+        ]);
+    }
+
+    /**
+     * Retorna estadísticas en tiempo real de los votantes de un evento.
+     */
+    public function estadisticasVotantesEvento(Request $request, $id)
+    {
+        $origenId = (int) $id;
+        $destinoId = $request->query('destino_id') ? (int) $request->query('destino_id') : null;
+
+        $total = Hash_votantes::where('id_evento', $origenId)->count();
+        $soloVotantes = Hash_votantes::where('id_evento', $origenId)->where('candidato', 0)->count();
+        $candidatos = Hash_votantes::where('id_evento', $origenId)->where('candidato', 1)->count();
+        $activos = Hash_votantes::where('id_evento', $origenId)->where('estado', 'Activo')->count();
+        $pendientes = Hash_votantes::where('id_evento', $origenId)->where('estado', 'Pendiente')->count();
+        $rechazados = Hash_votantes::where('id_evento', $origenId)->where('estado', 'Rechazado')->count();
+
+        $yaEnDestino = null;
+        $nuevos = null;
+
+        if ($destinoId && $destinoId !== $origenId) {
+            $idsOrigen = Hash_votantes::where('id_evento', $origenId)->pluck('id_votante');
+            $yaEnDestino = Hash_votantes::where('id_evento', $destinoId)
+                ->whereIn('id_votante', $idsOrigen)
+                ->count();
+            $nuevos = max(0, $total - $yaEnDestino);
+        }
+
+        return response()->json([
+            'total' => $total,
+            'solo_votantes' => $soloVotantes,
+            'candidatos' => $candidatos,
+            'activos' => $activos,
+            'pendientes' => $pendientes,
+            'rechazados' => $rechazados,
+            'ya_en_destino' => $yaEnDestino,
+            'nuevos' => $nuevos,
+        ]);
+    }
+
+    /**
+     * Ejecuta el proceso de migración o asignación masiva de usuarios entre eventos.
+     */
+    public function ejecutarMigracionUsuarios(Request $request)
+    {
+        $request->validate([
+            'evento_origen_id' => 'required|integer|exists:eventos,id',
+            'evento_destino_id' => 'required|integer|exists:eventos,id|different:evento_origen_id',
+            'modo' => 'required|string|in:copiar,mover',
+            'filtro_estado' => 'required|string|in:todos,Activo,Pendiente,Rechazado',
+            'incluir_candidatos' => 'required|boolean',
+            'filtro_comuna' => 'nullable',
+            'estado_destino' => 'required|string|in:mantener,Activo,Pendiente',
+            'accion_duplicados' => 'required|string|in:omitir,actualizar',
+            'resetear_intentos' => 'required|boolean',
+        ]);
+
+        $origenId = (int) $request->evento_origen_id;
+        $destinoId = (int) $request->evento_destino_id;
+        $modo = $request->modo;
+        $filtroEstado = $request->filtro_estado;
+        $incluirCandidatos = (bool) $request->incluir_candidatos;
+        $filtroComuna = $request->filtro_comuna;
+        $estadoDestino = $request->estado_destino;
+        $accionDuplicados = $request->accion_duplicados;
+        $resetearIntentos = (bool) $request->resetear_intentos;
+
+        $eventoOrigen = Eventos::find($origenId);
+        $eventoDestino = Eventos::find($destinoId);
+
+        DB::beginTransaction();
+        try {
+            $query = Hash_votantes::where('id_evento', $origenId);
+
+            if ($filtroEstado !== 'todos') {
+                $query->where('estado', $filtroEstado);
+            }
+
+            if (!$incluirCandidatos) {
+                $query->where('candidato', 0);
+            }
+
+            if (!empty($filtroComuna)) {
+                $query->where('subtipo', $filtroComuna);
+            }
+
+            $totalEncontrados = $query->count();
+
+            if ($totalEncontrados === 0) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'No se encontraron usuarios en el evento de origen con los filtros seleccionados.');
+            }
+
+            $insertados = 0;
+            $actualizados = 0;
+            $omitidos = 0;
+            $noMovidosPorVoto = 0;
+
+            // Procesar por lotes de 500 para optimizar memoria y transacciones masivas
+            $query->chunkById(500, function ($votantesChunk) use (
+                $destinoId,
+                $origenId,
+                $modo,
+                $estadoDestino,
+                $accionDuplicados,
+                $resetearIntentos,
+                &$insertados,
+                &$actualizados,
+                &$omitidos,
+                &$noMovidosPorVoto
+            ) {
+                $votanteIds = $votantesChunk->pluck('id_votante')->toArray();
+
+                $existentesEnDestino = Hash_votantes::where('id_evento', $destinoId)
+                    ->whereIn('id_votante', $votanteIds)
+                    ->get()
+                    ->keyBy('id_votante');
+
+                $votantesConVoto = [];
+                if ($modo === 'mover') {
+                    $votantesConVoto = Votos::where('id_eventos', $origenId)
+                        ->whereIn('id_votante', $votanteIds)
+                        ->pluck('id_votante')
+                        ->flip()
+                        ->toArray();
+                }
+
+                foreach ($votantesChunk as $item) {
+                    $votanteId = $item->id_votante;
+                    $yaExiste = $existentesEnDestino->has($votanteId);
+
+                    $nuevoEstado = ($estadoDestino === 'mantener') ? $item->estado : $estadoDestino;
+                    $nuevosIntentos = $resetearIntentos ? 0 : $item->intentos;
+
+                    if ($modo === 'mover') {
+                        // Preservar integridad electoral si el usuario ya votó en el origen
+                        if (isset($votantesConVoto[$votanteId])) {
+                            $noMovidosPorVoto++;
+                            if (!$yaExiste) {
+                                Hash_votantes::create([
+                                    'id_evento' => $destinoId,
+                                    'id_votante' => $votanteId,
+                                    'candidato' => $item->candidato,
+                                    'tipo' => $item->tipo,
+                                    'subtipo' => $item->subtipo,
+                                    'motivo' => $item->motivo,
+                                    'validaciones' => $item->validaciones,
+                                    'estado' => $nuevoEstado,
+                                    'intentos' => $nuevosIntentos,
+                                    'fisico_info' => $item->fisico_info,
+                                ]);
+                                $insertados++;
+                            } else {
+                                $omitidos++;
+                            }
+                            continue;
+                        }
+
+                        if ($yaExiste) {
+                            if ($accionDuplicados === 'actualizar') {
+                                $existente = $existentesEnDestino->get($votanteId);
+                                $existente->update([
+                                    'tipo' => $item->tipo,
+                                    'subtipo' => $item->subtipo,
+                                    'estado' => $nuevoEstado,
+                                    'intentos' => $nuevosIntentos,
+                                ]);
+                                $actualizados++;
+                            } else {
+                                $omitidos++;
+                            }
+                            $item->delete();
+                        } else {
+                            $item->update([
+                                'id_evento' => $destinoId,
+                                'estado' => $nuevoEstado,
+                                'intentos' => $nuevosIntentos,
+                            ]);
+                            $insertados++;
+                        }
+                    } else {
+                        // Modo copiar (recomendado para nuevos eventos)
+                        if ($yaExiste) {
+                            if ($accionDuplicados === 'actualizar') {
+                                $existente = $existentesEnDestino->get($votanteId);
+                                $existente->update([
+                                    'tipo' => $item->tipo,
+                                    'subtipo' => $item->subtipo,
+                                    'estado' => $nuevoEstado,
+                                    'intentos' => $nuevosIntentos,
+                                ]);
+                                $actualizados++;
+                            } else {
+                                $omitidos++;
+                            }
+                        } else {
+                            Hash_votantes::create([
+                                'id_evento' => $destinoId,
+                                'id_votante' => $votanteId,
+                                'candidato' => $item->candidato,
+                                'tipo' => $item->tipo,
+                                'subtipo' => $item->subtipo,
+                                'motivo' => $item->motivo,
+                                'validaciones' => $item->validaciones,
+                                'estado' => $nuevoEstado,
+                                'intentos' => $nuevosIntentos,
+                                'fisico_info' => $item->fisico_info,
+                            ]);
+                            $insertados++;
+                        }
+                    }
+                }
+            });
+
+            DB::commit();
+
+            Cache::forget('votantes');
+            Cache::forget('eventos_admin');
+
+            $accionVerbo = ($modo === 'mover') ? 'migrados / movidos' : 'asignados / copiados';
+            $mensaje = "Proceso completado exitosamente desde '{$eventoOrigen->nombre}' hacia '{$eventoDestino->nombre}'. {$insertados} usuarios {$accionVerbo}";
+
+            if ($actualizados > 0) {
+                $mensaje .= ", {$actualizados} actualizados";
+            }
+            if ($omitidos > 0) {
+                $mensaje .= ", {$omitidos} omitidos por ya estar en el evento destino";
+            }
+            if ($noMovidosPorVoto > 0) {
+                $mensaje .= " ({$noMovidosPorVoto} usuarios conservaron su registro en el origen por haber ejercido el voto, pero fueron vinculados al nuevo evento)";
+            }
+
+            return redirect()->route('eventos.migrar.view', [
+                'origen' => $origenId,
+                'destino' => $destinoId
+            ])->with('success', $mensaje)->with('resumen', [
+                'total' => $totalEncontrados,
+                'insertados' => $insertados,
+                'actualizados' => $actualizados,
+                'omitidos' => $omitidos,
+                'no_movidos_por_voto' => $noMovidosPorVoto,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Error al procesar la asignación de usuarios: ' . $e->getMessage()]);
+        }
     }
 }

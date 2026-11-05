@@ -61,9 +61,14 @@
                 <span class="mx-3">Análisis de resultados </span>
             </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.index')"
-                :active="route().current() && route().current().includes('eventos')">
+                :active="route().current() && route().current().includes('eventos') && !route().current().includes('eventos.migrar')">
                 <ShareIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Eventos </span>
+            </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.migrar.view')"
+                :active="route().current() && route().current().includes('eventos.migrar')">
+                <ArrowPathIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Migrar Votantes</span>
             </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.permissions.includes('usuarios-listar')">Configuración</SeparadorMenu>
@@ -128,7 +133,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon, LinkIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon, LinkIcon, ArrowPathIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -149,6 +154,7 @@ export default {
         DocumentTextIcon,
         MagnifyingGlassIcon,
         LinkIcon,
+        ArrowPathIcon,
         SeparadorMenu
     },
 

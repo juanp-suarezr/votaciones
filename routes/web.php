@@ -398,6 +398,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('parametrosDetalle', ParametrosDetalleController::class);
     Route::resource('proyectos', ProyectosController::class);
 
+    // Rutas para migrar / asignar usuarios entre eventos de votación
+    Route::get('/eventos/migrar-usuarios', [EventosController::class, 'migrarUsuariosView'])->name('eventos.migrar.view');
+    Route::get('/eventos/estadisticas-votantes/{id}', [EventosController::class, 'estadisticasVotantesEvento'])->name('eventos.estadisticas.votantes');
+    Route::post('/eventos/ejecutar-migracion', [EventosController::class, 'ejecutarMigracionUsuarios'])->name('eventos.migrar.ejecutar');
+
     Route::resource('eventos', EventosController::class);
     Route::resource('votos', VotosController::class);
     Route::resource('candidatos', CandidatosController::class);
