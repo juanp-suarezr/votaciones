@@ -205,8 +205,23 @@
             </button>
           </div>
 
-          <!-- Filtros de Estado y Cantidad -->
+          <!-- Filtros de Rol, Estado y Cantidad -->
           <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            <!-- Filtro de Rol -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-gray-500 font-medium">Rol:</span>
+              <select
+                v-model="filtroVotantesRol"
+                @change="cargarVotantes(1)"
+                class="py-1.5 pl-2.5 pr-7 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs font-medium"
+              >
+                <option value="todos">Todos (Votantes y Candidatos)</option>
+                <option value="candidatos">★ Solo Candidatos ({{ conteo_votantes.candidatos }})</option>
+                <option value="votantes">Solo Votantes ({{ conteo_votantes.solo_votantes }})</option>
+              </select>
+            </div>
+
+            <!-- Filtro de Estado -->
             <div class="flex items-center gap-1.5">
               <span class="text-gray-500 font-medium">Estado:</span>
               <select
@@ -261,7 +276,7 @@
                   <th class="py-3 px-3.5">Identificación</th>
                   <th class="py-3 px-3.5">Tipo / Estamento</th>
                   <th class="py-3 px-3.5">Comuna / Sector</th>
-                  <th class="py-3 px-3.5 text-center">Rol</th>
+                  <th class="py-3 px-3.5 text-center">Rol / Candidatura</th>
                   <th class="py-3 px-3.5 text-center">Estado</th>
                   <th class="py-3 px-3.5 text-center">Intentos</th>
                   <th class="py-3 px-3.5 text-center">¿Votó?</th>
@@ -271,14 +286,27 @@
                 <tr
                   v-for="(item, idx) in votantesPaginados.data"
                   :key="'vot-main-' + item.id"
-                  class="hover:bg-slate-50 transition"
+                  :class="item.candidato || item.es_candidato
+                    ? 'bg-amber-50/70 hover:bg-amber-100/70 border-l-4 border-l-amber-500'
+                    : 'hover:bg-slate-50 border-l-4 border-l-transparent'"
+                  class="transition"
                 >
-                  <td class="py-3 px-3.5 font-mono text-gray-400 font-medium">
+                  <td class="py-3 px-3.5 font-mono text-gray-400 font-medium whitespace-nowrap">
+                    <span v-if="item.candidato || item.es_candidato" class="text-amber-600 font-bold mr-1">★</span>
                     {{ (votantesPaginados.current_page - 1) * votantesPaginados.per_page + idx + 1 }}
                   </td>
 
                   <td class="py-3 px-3.5">
-                    <div class="font-bold text-gray-900">{{ item.votante?.nombre || 'Sin nombre' }}</div>
+                    <div class="flex items-center gap-2">
+                      <div class="font-bold text-gray-900">{{ item.votante?.nombre || 'Sin nombre' }}</div>
+                      <span
+                        v-if="item.candidato || item.es_candidato"
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-200 text-amber-900 border border-amber-300 shadow-2xs"
+                      >
+                        <StarIcon class="w-3 h-3 text-amber-700" />
+                        <span>CANDIDATO</span>
+                      </span>
+                    </div>
                     <div class="text-[11px] text-gray-400">{{ item.votante?.email || 'Sin correo' }}</div>
                   </td>
 
@@ -297,13 +325,42 @@
                     {{ item.comuna_nombre || 'N/A' }}
                   </td>
 
-                  <td class="py-3 px-3.5 text-center whitespace-nowrap">
-                    <span
-                      class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
-                      :class="item.candidato ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
-                    >
-                      {{ item.candidato ? 'Candidato' : 'Votante' }}
-                    </span>
+                  <!-- Rol y Evento Específico de Candidatura -->
+                  <td class="py-3 px-3.5 text-center">
+                    <div v-if="item.candidato || item.es_candidato" class="flex flex-col items-center gap-1 py-0.5">
+                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400 shadow-xs">
+                        <StarIcon class="w-3 h-3 text-amber-600 fill-amber-500" />
+                        <span>Candidato</span>
+                      </span>
+
+                      <!-- Evento específico del que es candidato -->
+                      <div class="flex flex-col items-center gap-0.5 mt-0.5 max-w-[220px]">
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Candidato en:</span>
+                        <template v-if="item.eventos_candidato && item.eventos_candidato.length > 0">
+                          <span
+                            v-for="(evNom, evIdx) in item.eventos_candidato"
+                            :key="evIdx"
+                            class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs truncate max-w-full"
+                            :title="evNom"
+                          >
+                            {{ evNom }}
+                          </span>
+                        </template>
+                        <span
+                          v-else
+                          class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 truncate max-w-full"
+                        >
+                          {{ evento.nombre }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div v-else class="flex flex-col items-center">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                        Votante
+                      </span>
+                      <span class="text-[10px] text-gray-300 mt-0.5">—</span>
+                    </div>
                   </td>
 
                   <td class="py-3 px-3.5 text-center whitespace-nowrap">
@@ -735,6 +792,17 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+              <!-- Filtro de Rol en Modal -->
+              <select
+                v-model="filtroVotantesRol"
+                @change="cargarVotantes(1)"
+                class="py-2 pl-3 pr-8 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs font-medium"
+              >
+                <option value="todos">Todos (Votantes y Candidatos)</option>
+                <option value="candidatos">★ Solo Candidatos ({{ conteo_votantes.candidatos }})</option>
+                <option value="votantes">Solo Votantes ({{ conteo_votantes.solo_votantes }})</option>
+              </select>
+
               <select
                 v-model="filtroVotantesEstado"
                 @change="cargarVotantes(1)"
@@ -782,7 +850,7 @@
                     <th class="py-3 px-3.5">Identificación</th>
                     <th class="py-3 px-3.5">Tipo / Estamento</th>
                     <th class="py-3 px-3.5">Comuna / Sector</th>
-                    <th class="py-3 px-3.5 text-center">Rol</th>
+                    <th class="py-3 px-3.5 text-center">Rol / Candidatura</th>
                     <th class="py-3 px-3.5 text-center">Estado</th>
                     <th class="py-3 px-3.5 text-center">Intentos</th>
                     <th class="py-3 px-3.5 text-center">¿Votó?</th>
@@ -792,14 +860,27 @@
                   <tr
                     v-for="(item, idx) in votantesPaginados.data"
                     :key="'vot-modal-' + item.id"
-                    class="hover:bg-slate-50 transition"
+                    :class="item.candidato || item.es_candidato
+                      ? 'bg-amber-50/70 hover:bg-amber-100/70 border-l-4 border-l-amber-500'
+                      : 'hover:bg-slate-50 border-l-4 border-l-transparent'"
+                    class="transition"
                   >
-                    <td class="py-3 px-3.5 font-mono text-gray-400 font-medium">
+                    <td class="py-3 px-3.5 font-mono text-gray-400 font-medium whitespace-nowrap">
+                      <span v-if="item.candidato || item.es_candidato" class="text-amber-600 font-bold mr-1">★</span>
                       {{ (votantesPaginados.current_page - 1) * votantesPaginados.per_page + idx + 1 }}
                     </td>
 
                     <td class="py-3 px-3.5">
-                      <div class="font-bold text-gray-900">{{ item.votante?.nombre || 'Sin nombre' }}</div>
+                      <div class="flex items-center gap-2">
+                        <div class="font-bold text-gray-900">{{ item.votante?.nombre || 'Sin nombre' }}</div>
+                        <span
+                          v-if="item.candidato || item.es_candidato"
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-200 text-amber-900 border border-amber-300 shadow-2xs"
+                        >
+                          <StarIcon class="w-3 h-3 text-amber-700" />
+                          <span>CANDIDATO</span>
+                        </span>
+                      </div>
                       <div class="text-[11px] text-gray-400">{{ item.votante?.email || 'Sin correo' }}</div>
                     </td>
 
@@ -818,13 +899,41 @@
                       {{ item.comuna_nombre || 'N/A' }}
                     </td>
 
-                    <td class="py-3 px-3.5 text-center whitespace-nowrap">
-                      <span
-                        class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
-                        :class="item.candidato ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
-                      >
-                        {{ item.candidato ? 'Candidato' : 'Votante' }}
-                      </span>
+                    <!-- Rol y Evento Específico de Candidatura en Modal -->
+                    <td class="py-3 px-3.5 text-center">
+                      <div v-if="item.candidato || item.es_candidato" class="flex flex-col items-center gap-1 py-0.5">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400 shadow-xs">
+                          <StarIcon class="w-3 h-3 text-amber-600 fill-amber-500" />
+                          <span>Candidato</span>
+                        </span>
+
+                        <div class="flex flex-col items-center gap-0.5 mt-0.5 max-w-[220px]">
+                          <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Candidato en:</span>
+                          <template v-if="item.eventos_candidato && item.eventos_candidato.length > 0">
+                            <span
+                              v-for="(evNom, evIdx) in item.eventos_candidato"
+                              :key="evIdx"
+                              class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs truncate max-w-full"
+                              :title="evNom"
+                            >
+                              {{ evNom }}
+                            </span>
+                          </template>
+                          <span
+                            v-else
+                            class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 truncate max-w-full"
+                          >
+                            {{ evento.nombre }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div v-else class="flex flex-col items-center">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                          Votante
+                        </span>
+                        <span class="text-[10px] text-gray-300 mt-0.5">—</span>
+                      </div>
                     </td>
 
                     <td class="py-3 px-3.5 text-center whitespace-nowrap">
@@ -940,6 +1049,7 @@ import {
   XMarkIcon,
   MagnifyingGlassIcon,
   ArrowsPointingOutIcon,
+  StarIcon,
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
@@ -1007,6 +1117,7 @@ const cargandoVotantes = ref(false);
 const votantesPaginados = ref(props.votantes_iniciales);
 const filtroVotantesSearch = ref('');
 const filtroVotantesEstado = ref('todos');
+const filtroVotantesRol = ref('todos');
 const perPageVotantes = ref(10);
 
 const irAUsuarios = () => {
@@ -1039,6 +1150,7 @@ const cargarVotantes = async (pagina = 1) => {
         page: pagina,
         search: filtroVotantesSearch.value,
         estado: filtroVotantesEstado.value,
+        rol: filtroVotantesRol.value,
         per_page: perPageVotantes.value,
       },
     });

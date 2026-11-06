@@ -111,28 +111,14 @@ class EventosController extends Controller
             ->select('eventos.id', 'eventos.nombre', 'eventos.estado', 'eventos.fecha_inicio', 'eventos.fecha_fin')
             ->get();
 
-        // Primera página de usuarios asignados para mostrar inmediatamente en la vista
+        // Primera página de usuarios asignados para mostrar inmediatamente en la vista (candidatos de primero)
         $votantesPaginados = Hash_votantes::where('id_evento', $id)
             ->with(['votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
-            ->orderBy('id', 'desc')
+            ->orderByRaw('CASE WHEN hash_votantes.candidato = 1 THEN 0 ELSE 1 END ASC')
+            ->orderBy('hash_votantes.id', 'desc')
             ->paginate(10);
 
-        $votanteIds = $votantesPaginados->getCollection()->pluck('id_votante')->toArray();
-        $votaron = Votos::where('id_eventos', $id)
-            ->whereIn('id_votante', $votanteIds)
-            ->pluck('id_votante')
-            ->flip()
-            ->toArray();
-
-        $comunaIds = $votantesPaginados->getCollection()->pluck('votante.comuna')->filter()->unique()->toArray();
-        $nombresComunas = ParametrosDetalle::whereIn('id', $comunaIds)->pluck('detalle', 'id')->toArray();
-
-        $votantesPaginados->getCollection()->transform(function ($item) use ($votaron, $nombresComunas) {
-            $item->ya_voto = isset($votaron[$item->id_votante]);
-            $comunaId = $item->votante ? $item->votante->comuna : null;
-            $item->comuna_nombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
-            return $item;
-        });
+        $votantesPaginados = $this->enriquecerVotantes($votantesPaginados, $id, $evento->nombre);
 
         return Inertia::render('Eventos/Show', [
             'evento' => $evento,
@@ -147,12 +133,65 @@ class EventosController extends Controller
     }
 
     /**
+     * Enriquecer la colección de votantes con estado de sufragio, comuna y eventos de candidatura.
+     */
+    private function enriquecerVotantes($paginador, $idEvento, $nombreEventoActual = null)
+    {
+        $votanteIds = $paginador->getCollection()->pluck('id_votante')->filter()->unique()->toArray();
+
+        // Votantes que ya sufragaron en este evento
+        $votaron = Votos::where('id_eventos', $idEvento)
+            ->whereIn('id_votante', $votanteIds)
+            ->pluck('id_votante')
+            ->flip()
+            ->toArray();
+
+        // Nombres de comunas
+        $comunaIds = $paginador->getCollection()->pluck('votante.comuna')->filter()->unique()->toArray();
+        $nombresComunas = ParametrosDetalle::whereIn('id', $comunaIds)->pluck('detalle', 'id')->toArray();
+
+        // Eventos específicos donde cada votante es candidato
+        $candidaturas = Hash_votantes::whereIn('id_votante', $votanteIds)
+            ->where('candidato', 1)
+            ->join('eventos', 'hash_votantes.id_evento', '=', 'eventos.id')
+            ->select('hash_votantes.id_votante', 'hash_votantes.id_evento', 'eventos.id as evento_id', 'eventos.nombre as evento_nombre')
+            ->get()
+            ->groupBy('id_votante');
+
+        if (!$nombreEventoActual) {
+            $nombreEventoActual = Eventos::where('id', $idEvento)->value('nombre');
+        }
+
+        $paginador->getCollection()->transform(function ($item) use ($votaron, $nombresComunas, $candidaturas, $nombreEventoActual) {
+            $item->ya_voto = isset($votaron[$item->id_votante]);
+            $comunaId = $item->votante ? $item->votante->comuna : null;
+            $item->comuna_nombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
+
+            $candidaturasUser = $candidaturas->get($item->id_votante, collect());
+            $eventosCandidato = $candidaturasUser->pluck('evento_nombre')->unique()->values()->toArray();
+
+            // Si está marcado como candidato en este registro pero no tenía evento asociado en el join
+            if ($item->candidato == 1 && empty($eventosCandidato) && $nombreEventoActual) {
+                $eventosCandidato = [$nombreEventoActual];
+            }
+
+            $item->eventos_candidato = $eventosCandidato;
+            $item->es_candidato = ($item->candidato == 1) || (!empty($eventosCandidato));
+
+            return $item;
+        });
+
+        return $paginador;
+    }
+
+    /**
      * Retorna el listado paginado y con búsqueda de usuarios asignados a un evento.
      */
     public function listarVotantesEvento(Request $request, $id)
     {
         $search = $request->query('search');
         $estado = $request->query('estado');
+        $rol = $request->query('rol');
         $perPage = (int) ($request->query('per_page') ?: 10);
         $perPage = min(max($perPage, 5), 50);
 
@@ -168,28 +207,18 @@ class EventosController extends Controller
             ->when($estado && $estado !== 'todos', function ($q) use ($estado) {
                 $q->where('estado', $estado);
             })
-            ->orderBy('id', 'desc');
+            ->when($rol === 'candidatos', function ($q) {
+                $q->where('candidato', 1);
+            })
+            ->when($rol === 'votantes', function ($q) {
+                $q->where('candidato', 0);
+            })
+            ->orderByRaw('CASE WHEN hash_votantes.candidato = 1 THEN 0 ELSE 1 END ASC')
+            ->orderBy('hash_votantes.id', 'desc');
 
         $paginador = $query->paginate($perPage);
 
-        // Votantes que ya votaron en este evento
-        $votanteIds = $paginador->getCollection()->pluck('id_votante')->toArray();
-        $votaron = Votos::where('id_eventos', $id)
-            ->whereIn('id_votante', $votanteIds)
-            ->pluck('id_votante')
-            ->flip()
-            ->toArray();
-
-        // Nombres de comunas
-        $comunaIds = $paginador->getCollection()->pluck('votante.comuna')->filter()->unique()->toArray();
-        $nombresComunas = ParametrosDetalle::whereIn('id', $comunaIds)->pluck('detalle', 'id')->toArray();
-
-        $paginador->getCollection()->transform(function ($item) use ($votaron, $nombresComunas) {
-            $item->ya_voto = isset($votaron[$item->id_votante]);
-            $comunaId = $item->votante ? $item->votante->comuna : null;
-            $item->comuna_nombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
-            return $item;
-        });
+        $paginador = $this->enriquecerVotantes($paginador, $id);
 
         return response()->json($paginador);
     }
