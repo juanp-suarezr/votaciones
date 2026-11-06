@@ -113,7 +113,7 @@ class EventosController extends Controller
 
         // Primera página de usuarios asignados para mostrar inmediatamente en la vista (candidatos de primero)
         $votantesPaginados = Hash_votantes::where('id_evento', $id)
-            ->with(['votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
+            ->with(['evento:id,nombre', 'votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
             ->orderByRaw('CASE WHEN hash_votantes.candidato = 1 THEN 0 ELSE 1 END ASC')
             ->orderBy('hash_votantes.id', 'desc')
             ->paginate(10);
@@ -163,9 +163,10 @@ class EventosController extends Controller
         }
 
         $paginador->getCollection()->transform(function ($item) use ($votaron, $nombresComunas, $candidaturas, $nombreEventoActual) {
-            $item->ya_voto = isset($votaron[$item->id_votante]);
+            $item->setAttribute('ya_voto', isset($votaron[$item->id_votante]));
             $comunaId = $item->votante ? $item->votante->comuna : null;
-            $item->comuna_nombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
+            $comunaNombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
+            $item->setAttribute('comuna_nombre', $comunaNombre);
 
             $candidaturasUser = $candidaturas->get($item->id_votante, collect());
             $eventosCandidato = $candidaturasUser->pluck('evento_nombre')->unique()->values()->toArray();
@@ -175,8 +176,8 @@ class EventosController extends Controller
                 array_unshift($eventosCandidato, $nombreEventoActual);
             }
 
-            $item->eventos_candidato = $eventosCandidato;
-            $item->es_candidato = ($item->candidato == 1) || (!empty($eventosCandidato));
+            $item->setAttribute('eventos_candidato', $eventosCandidato);
+            $item->setAttribute('es_candidato', ($item->candidato == 1) || (!empty($eventosCandidato)));
 
             return $item;
         });
@@ -196,7 +197,7 @@ class EventosController extends Controller
         $perPage = min(max($perPage, 5), 50);
 
         $query = Hash_votantes::where('id_evento', $id)
-            ->with(['votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
+            ->with(['evento:id,nombre', 'votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
             ->when($search, function ($q, $search) {
                 $q->whereHas('votante', function ($sub) use ($search) {
                     $sub->where('nombre', 'like', '%' . $search . '%')

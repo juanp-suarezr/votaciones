@@ -60,15 +60,16 @@ class CandidatosController extends Controller
                     ->withQueryString() // Mantener los parámetros en la URL
                     ->through(function ($user) {
                         // Concatenamos los tipos de hashVotantes en una cadena separada por comas
-                        $user->tipos = $user->hashVotantes->pluck('tipo')
+                        $tiposStr = $user->hashVotantes->pluck('tipo')
                             ->flatMap(function ($tipo) {
-                                return explode('|', $tipo); // Dividir cada `tipo` en subtipos separados por '|'
+                                return explode('|', $tipo);
                             })
-                            ->unique() // Elimina valores duplicados
+                            ->unique()
                             ->implode('|');
+                        $user->setAttribute('tipos', $tiposStr);
 
                         // Nombres de eventos específicos donde es candidato
-                        $user->eventos = $user->hashVotantes
+                        $eventosNombres = $user->hashVotantes
                             ->map(function ($h) {
                                 return $h->evento ? $h->evento->nombre : null;
                             })
@@ -76,6 +77,7 @@ class CandidatosController extends Controller
                             ->unique()
                             ->values()
                             ->toArray();
+                        $user->setAttribute('eventos', $eventosNombres);
 
                         return $user;
                     }),

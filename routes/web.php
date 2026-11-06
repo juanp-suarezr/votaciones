@@ -15,6 +15,7 @@ use App\Http\Controllers\CertificadosController;
 use App\Http\Controllers\DelegadosController;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\FuncionariosController;
+use App\Http\Controllers\InscripcionCandidatosController;
 use App\Http\Controllers\JuradosController;
 use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\ParametrosDetalleController;
@@ -79,6 +80,12 @@ Route::get('/home', function () {
         return redirect()->route('welcome');
     }
 });
+
+// Formulario público de inscripción de candidatos - Comisión de Personal
+Route::get('/inscripcion-candidatos', [InscripcionCandidatosController::class, 'formulario'])->name('candidatos.inscripcion.publica');
+Route::get('/postulacion-candidato', [InscripcionCandidatosController::class, 'formulario'])->name('candidatos.postulacion.publica');
+Route::post('/inscripcion-candidatos/consultar', [InscripcionCandidatosController::class, 'consultarFuncionario'])->name('candidatos.inscripcion.consultar');
+Route::post('/inscripcion-candidatos/guardar', [InscripcionCandidatosController::class, 'store'])->name('candidatos.inscripcion.store');
 
 //pagina consulta de certificados para descargar
 Route::get('/certificado', function () {

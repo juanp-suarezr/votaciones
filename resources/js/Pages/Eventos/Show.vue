@@ -181,6 +181,38 @@
           </div>
         </div>
 
+        <!-- Botones de Acceso Rápido por Rol -->
+        <div class="flex flex-wrap items-center gap-2 pt-1 pb-1">
+          <button
+            type="button"
+            @click="filtroVotantesRol = 'todos'; cargarVotantes(1)"
+            :class="filtroVotantesRol === 'todos' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
+          >
+            <UserGroupIcon class="w-4 h-4" />
+            <span>Todos los Asignados ({{ conteo_votantes.total }})</span>
+          </button>
+
+          <button
+            type="button"
+            @click="filtroVotantesRol = 'candidatos'; cargarVotantes(1)"
+            :class="filtroVotantesRol === 'candidatos' ? 'bg-amber-500 text-white shadow-md ring-2 ring-amber-300' : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300'"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5"
+          >
+            <StarIcon class="w-4 h-4 text-amber-300 fill-amber-300" />
+            <span>Ver Solo Candidatos ({{ conteo_votantes.candidatos }})</span>
+          </button>
+
+          <button
+            type="button"
+            @click="filtroVotantesRol = 'votantes'; cargarVotantes(1)"
+            :class="filtroVotantesRol === 'votantes' ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200'"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
+          >
+            <span>Solo Votantes Regulares ({{ conteo_votantes.solo_votantes }})</span>
+          </button>
+        </div>
+
         <!-- Controles de Filtro y Búsqueda -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs">
           <!-- Buscador -->

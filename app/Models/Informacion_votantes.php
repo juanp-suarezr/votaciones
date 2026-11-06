@@ -38,7 +38,10 @@ class Informacion_votantes extends Model
          'updated_at',
          'imagen',
          'Isdriver',
-
+         'is_funcionario',
+         'dependencia',
+         'provision',
+         'planta',
      ];
 
     public function user()

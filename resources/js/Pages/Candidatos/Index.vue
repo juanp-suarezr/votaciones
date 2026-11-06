@@ -129,6 +129,15 @@
                                                 {{ evNom }}
                                             </span>
                                         </div>
+                                        <div v-else-if="(user.hash_votantes && user.hash_votantes.length > 0) || (user.hashVotantes && user.hashVotantes.length > 0)" class="flex flex-wrap gap-1">
+                                            <span
+                                                v-for="(h, hIdx) in (user.hash_votantes || user.hashVotantes)"
+                                                :key="hIdx"
+                                                class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs"
+                                            >
+                                                {{ h.evento?.nombre || ('Evento #' + h.id_evento) }}
+                                            </span>
+                                        </div>
                                         <span v-else class="text-xs text-gray-400 italic">Sin evento asignado</span>
                                     </td>
 
