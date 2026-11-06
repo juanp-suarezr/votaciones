@@ -9,6 +9,7 @@ use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Postulaciones_candidatos;
 use App\Models\User;
+use App\Services\CentralDataService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,11 +20,14 @@ use Inertia\Inertia;
 
 class InscripcionCandidatosController extends Controller
 {
+    protected CentralDataService $centralDataService;
+
     /**
-     * Configuración de permisos específicos para el validador de candidatos
+     * Configuración de permisos específicos para el validador de candidatos y servicios
      */
-    public function __construct()
+    public function __construct(CentralDataService $centralDataService)
     {
+        $this->centralDataService = $centralDataService;
         $this->middleware('permission:validador-candidatos-listar', ['only' => ['index']]);
         $this->middleware('permission:validador-candidatos-aprobar', ['only' => ['aprobar']]);
         $this->middleware('permission:validador-candidatos-rechazar', ['only' => ['rechazar']]);
@@ -250,32 +254,55 @@ class InscripcionCandidatosController extends Controller
 
             $votante = Informacion_votantes::where('identificacion', $identificacion)->first();
 
-            // Si el votante existe y no tenía dependencia/provisión/planta, actualizarlos
+            // 1. Modificar/actualizar información en votantes: tipo_documento, email, celular, planta, dependencia, provisión
             if ($votante) {
-                if (empty($votante->dependencia) && $request->filled('dependencia')) {
+                if ($request->filled('tipo_documento')) {
+                    $votante->tipo_documento = $request->tipo_documento;
+                }
+                if ($request->filled('email')) {
+                    $votante->email = trim($request->email);
+                }
+                if ($request->filled('celular')) {
+                    $votante->celular = trim($request->celular);
+                }
+                if ($request->filled('tipo_planta')) {
+                    $votante->planta = $request->tipo_planta;
+                }
+                if ($request->filled('dependencia')) {
                     $votante->dependencia = $request->dependencia;
                 }
-                if (empty($votante->provision) && $request->filled('provision')) {
+                if ($request->filled('provision')) {
                     $votante->provision = $request->provision;
-                }
-                if (empty($votante->planta) && $request->filled('planta')) {
-                    $votante->planta = $request->planta;
                 }
                 if ($fotoFileName && ($votante->imagen == 'user.png' || empty($votante->imagen))) {
                     $votante->imagen = $fotoFileName;
                 }
+                $votante->is_funcionario = 1;
                 $votante->save();
+            } else {
+                $votante = Informacion_votantes::create([
+                    'nombre' => $request->nombre,
+                    'identificacion' => $identificacion,
+                    'tipo_documento' => $request->tipo_documento ?: 'CC',
+                    'email' => $request->email ? trim($request->email) : null,
+                    'celular' => $request->celular ? trim($request->celular) : null,
+                    'planta' => $request->tipo_planta,
+                    'dependencia' => $request->dependencia,
+                    'provision' => $request->provision,
+                    'is_funcionario' => 1,
+                    'imagen' => $fotoFileName ?: 'user.png',
+                ]);
             }
 
             // Crear registro de postulación
-            Postulaciones_candidatos::create([
+            $postulacion = Postulaciones_candidatos::create([
                 'id_votante' => $votante ? $votante->id : null,
                 'id_evento' => $request->id_evento,
                 'identificacion' => $identificacion,
                 'tipo_documento' => $request->tipo_documento ?: 'CC',
                 'nombre' => $request->nombre,
-                'email' => $request->email ?: ($votante ? $votante->email : null),
-                'celular' => $request->celular ?: ($votante ? $votante->celular : null),
+                'email' => $request->email ? trim($request->email) : ($votante ? $votante->email : null),
+                'celular' => $request->celular ? trim($request->celular) : ($votante ? $votante->celular : null),
                 'dependencia' => $request->dependencia ?: ($votante ? $votante->dependencia : null),
                 'provision' => $request->provision ?: ($votante ? $votante->provision : null),
                 'planta' => $request->planta ?: ($votante ? $votante->planta : $request->tipo_planta),
@@ -290,6 +317,30 @@ class InscripcionCandidatosController extends Controller
             ]);
 
             DB::commit();
+
+            // 2. Sincronizar datos con Data Center (CENTRAL_DATA_URL) de forma tolerante a fallos
+            if ($votante) {
+                try {
+                    $syncResult = $this->centralDataService->syncVotante($votante, $request->email, $request->celular);
+                    if (isset($syncResult['ok']) && $syncResult['ok']) {
+                        Log::info('CentralData: candidato sincronizado exitosamente', [
+                            'identificacion' => $identificacion,
+                            'radicado' => $radicado,
+                        ]);
+                    } else {
+                        Log::warning('CentralData: sincronización no confirmada al inscribir candidato', [
+                            'identificacion' => $identificacion,
+                            'error' => $syncResult['error'] ?? 'Error desconocido',
+                            'status' => $syncResult['status'] ?? null,
+                        ]);
+                    }
+                } catch (\Throwable $eSync) {
+                    Log::error('CentralData: excepción sincronizando candidato en Central Data', [
+                        'identificacion' => $identificacion,
+                        'exception' => $eSync->getMessage(),
+                    ]);
+                }
+            }
 
             return redirect()->back()->with('success_postulacion', [
                 'radicado' => $radicado,
