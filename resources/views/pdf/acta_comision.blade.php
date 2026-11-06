@@ -244,7 +244,7 @@
             width: 50%;
             vertical-align: bottom;
             text-align: center;
-            padding: 10px 20px;
+            padding: 10px 18px;
         }
 
         .firma-imagen-wrapper {
@@ -313,7 +313,9 @@
                 </td>
                 <td class="title-col">
                     <h1 class="header-title">Alcaldía de Pereira</h1>
-                    <div class="header-subtitle">Elección Representantes de los Empleados - Comisión de Personal</div>
+                    <div class="header-subtitle">
+                        {{ $dependencia_evento ?? 'Secretaría / Dependencia Responsable' }}
+                    </div>
                     <span class="badge-codigo">{{ $config['codigo'] }}</span>
                 </td>
             </tr>
@@ -335,8 +337,12 @@
         <tr>
             <td class="meta-label">Evento Electoral:</td>
             <td class="meta-value">
-                [ID: {{ $evento->id ?? 25 }}] {{ $evento->nombre ?? 'Comisión de Personal' }}
+                [ID: {{ $evento->id ?? 25 }}] <strong>{{ $evento->nombre ?? 'Evento Institucional' }}</strong>
             </td>
+        </tr>
+        <tr>
+            <td class="meta-label">Dependencia Responsable:</td>
+            <td class="meta-value">{{ $dependencia_evento ?? 'Alcaldía de Pereira' }}</td>
         </tr>
         <tr>
             <td class="meta-label">Fecha y Hora Oficial:</td>
@@ -350,7 +356,7 @@
         </tr>
         <tr>
             <td class="meta-label">Plataforma Tecnológica:</td>
-            <td class="meta-value">Sistema Oficial de Votación y Postulación Virtual <strong>VOTA YA</strong></td>
+            <td class="meta-value">Sistema Oficial de Votación Virtual <strong>VOTA YA</strong></td>
         </tr>
     </table>
 
@@ -358,7 +364,7 @@
     <div class="section-title">1. OBJETO Y CONSIDERACIONES LEGALES</div>
     <p>{{ $config['objeto'] }}</p>
     <p>
-        El presente proceso se desarrolla conforme a lo preceptuado en la <strong>Ley 909 de 2004</strong>, el <strong>Decreto Único Reglamentario 1083 de 2015</strong>, el <strong>Decreto 498 de 2020</strong> y demás normas concordantes expedidas por la Comisión Nacional del Servicio Civil (CNSC), garantizando los principios constitucionales de igualdad, mérito, publicidad, transparencia y seguridad jurídica.
+        El presente proceso se desarrolla en estricto cumplimiento de la normatividad legal e institucional vigente, garantizando los principios constitucionales de transparencia, publicidad, imparcialidad, voto libre y secreto, y seguridad técnica del sufragio.
     </p>
 
     <!-- ------------------------------------------------------------- -->
@@ -368,7 +374,7 @@
     @if($tipo === 'inscripcion_apertura')
         <div class="section-title">2. CONDICIONES Y PARÁMETROS DE APERTURA</div>
         <p>
-            En la fecha y hora señaladas en el encabezado, el Administrador del Sistema y los Secretarios Electorales verifican la habilitación formal del formulario público digital para la recepción de postulaciones de los aspirantes a representar a los servidores públicos ante la Comisión de Personal.
+            En la fecha y hora señaladas en el encabezado, el Administrador del Sistema y los Secretarios Electorales verifican la habilitación formal del formulario público digital para la recepción de postulaciones e inscripciones para {{ $evento->nombre }}.
         </p>
 
         <table class="meta-table">
@@ -387,17 +393,17 @@
             <tr>
                 <td class="meta-label">Requisitos de Postulación:</td>
                 <td class="meta-value">
-                    1. Acreditar condición de funcionario de carrera administrativa inscrito en el censo oficial.<br>
+                    1. Acreditar condición de funcionario habilitado en el censo oficial.<br>
                     2. Cargar fotocopia legible del documento de identidad.<br>
-                    3. Cargar certificado vigente de antecedentes disciplinarios expedido por la Procuraduría General.<br>
-                    4. Foto digital en formato legible y formal.
+                    3. Cargar certificado vigente de antecedentes de la Procuraduría.<br>
+                    4. Foto digital formal para el tarjetón virtual.
                 </td>
             </tr>
         </table>
 
         <div class="section-title">3. CONSTANCIA DE APERTURA</div>
         <p>
-            Se deja expresa constancia de que los servidores de la base de datos se encuentran sincronizados y dispuestos para la radicación ininterrumpida de solicitudes digitales, asignando un código de radicado único, sellado de tiempo criptográfico y registro de auditoría de cada solicitud recibida.
+            Se deja expresa constancia de que los servidores se encuentran sincronizados y dispuestos para la radicación ininterrumpida de solicitudes digitales, asignando un código de radicado único, sellado de tiempo criptográfico y registro de auditoría de cada solicitud recibida.
         </p>
 
     @elseif($tipo === 'inscripcion_cierre')
@@ -438,7 +444,7 @@
         </div>
 
         <p style="font-size: 9pt; color: #475569; margin-top: 4px;">
-            * Desglose de Candidatos Habilitados por Planta: <strong>Planta Central: {{ $totales['aprobados_planta_central'] }}</strong> | <strong>SGP (Sistema General de Participaciones): {{ $totales['aprobados_sgp'] }}</strong>.
+            * Desglose de Candidatos Habilitados por Planta: <strong>Planta Central: {{ $totales['aprobados_planta_central'] }}</strong> | <strong>SGP: {{ $totales['aprobados_sgp'] }}</strong>.
         </p>
 
         <div class="section-title">3. LISTADO OFICIAL DE ASPIRANTES RADICADOS Y CANDIDATOS HABILITADOS</div>
@@ -481,7 +487,7 @@
 
         <div class="section-title">4. CONSTANCIA DE CIERRE Y BLOQUEO DE PLATAFORMA</div>
         <p>
-            Se certifica que la ruta digital fue cerrada oportunamente impidiendo la radicación de solicitudes extemporáneas, quedando en firme el listado de candidatos que conformarán el tarjetón electoral.
+            Se certifica que la ruta digital fue cerrada oportunamente impidiendo la radicación de solicitudes extemporáneas, quedando en firme el listado de candidatos habilitados para conformar el tarjetón electoral.
         </p>
 
     @elseif($tipo === 'votacion_apertura')
@@ -502,48 +508,48 @@
                     <td style="width: 50%;">
                         <div class="kpi-box">
                             <div class="kpi-num">{{ $totales['censo_votantes'] }}</div>
-                            <div class="kpi-txt">Funcionarios en Censo Habilitado</div>
+                            <div class="kpi-txt">Votantes en Censo Habilitado</div>
                         </div>
                     </td>
                 </tr>
             </table>
         </div>
 
-        <div class="section-title">3. CANDIDATOS HABILITADOS EN EL TARJETÓN VIRTUAL</div>
+        <div class="section-title">3. OPCIONES Y CANDIDATOS HABILITADOS EN EL TARJETÓN VIRTUAL</div>
         <p>
-            Se verificó la carga correcta de los candidatos debidamente aprobados en la plataforma, con sus respectivas opciones de voto:
+            Se verificó la carga correcta de las opciones electorales debidamente configuradas en la plataforma para este evento:
         </p>
 
-        @if($candidatos_aprobados->count() > 0)
+        @if(count($resultados_candidatos) > 0)
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 10%;">No.</th>
-                        <th style="width: 35%;">Candidato</th>
-                        <th style="width: 18%;">Identificación</th>
-                        <th style="width: 17%;">Planta</th>
-                        <th style="width: 20%;">Dependencia</th>
+                        <th style="width: 8%;">No.</th>
+                        <th style="width: 36%;">Opción / Candidato / Proyecto</th>
+                        <th style="width: 18%;">Identificador</th>
+                        <th style="width: 18%;">Categoría</th>
+                        <th style="width: 20%;">Dependencia / Detalle</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($candidatos_aprobados as $idx => $cand)
+                    @foreach($resultados_candidatos as $idx => $cand)
                         <tr>
                             <td>{{ $idx + 1 }}</td>
-                            <td><strong>{{ $cand->nombre }}</strong></td>
-                            <td>{{ $cand->identificacion }}</td>
-                            <td>{{ $cand->tipo_planta ?? 'N/A' }}</td>
-                            <td>{{ \Illuminate\Support\Str::limit($cand->dependencia ?? 'N/A', 25) }}</td>
+                            <td><strong>{{ $cand['nombre'] }}</strong></td>
+                            <td>{{ $cand['identificacion'] }}</td>
+                            <td>{{ $cand['subtitulo'] ?? 'N/A' }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($cand['dependencia'] ?? 'N/A', 25) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         @else
-            <p style="font-style: italic; color: #64748b;">No hay candidatos aprobados registrados para este evento.</p>
+            <p style="font-style: italic; color: #64748b;">No hay opciones o candidatos registrados para este evento.</p>
         @endif
 
         <div class="section-title">4. CANALES Y SEGURIDAD DEL VOTO</div>
         <p>
-            Se declara abierta formalmente la votación virtual para que todos los funcionarios habilitados ejerzan su derecho al sufragio secreto, libre y seguro a través de los mecanismos criptográficos de la plataforma VOTA YA.
+            Se declara abierta formalmente la votación virtual para que todos los ciudadanos y funcionarios habilitados ejerzan su derecho al sufragio secreto, libre y seguro a través de los mecanismos criptográficos de la plataforma VOTA YA.
         </p>
 
     @elseif($tipo === 'votacion_cierre')
@@ -577,7 +583,7 @@
             </table>
         </div>
 
-        <div class="section-title">3. ESCRUTINIO FINAL Y RESULTADOS POR CANDIDATO</div>
+        <div class="section-title">3. ESCRUTINIO FINAL Y RESULTADOS OFICIALES</div>
         <p>
             Efectuado el cómputo y discriminación informática de los sufragios depositados en la urna virtual, se obtuvieron los siguientes resultados oficiales:
         </p>
@@ -587,9 +593,9 @@
                 <thead>
                     <tr>
                         <th style="width: 8%;">Pos.</th>
-                        <th style="width: 34%;">Candidato</th>
-                        <th style="width: 18%;">Planta</th>
-                        <th style="width: 22%;">Dependencia</th>
+                        <th style="width: 34%;">Opción / Candidato / Proyecto</th>
+                        <th style="width: 18%;">Categoría</th>
+                        <th style="width: 22%;">Dependencia / Detalle</th>
                         <th style="width: 9%; text-align: right;">Votos</th>
                         <th style="width: 9%; text-align: right;">%</th>
                     </tr>
@@ -599,7 +605,7 @@
                         <tr>
                             <td><strong>#{{ $idx + 1 }}</strong></td>
                             <td><strong>{{ $r['nombre'] }}</strong></td>
-                            <td>{{ $r['tipo_planta'] ?? 'N/A' }}</td>
+                            <td>{{ $r['subtitulo'] ?? 'N/A' }}</td>
                             <td>{{ \Illuminate\Support\Str::limit($r['dependencia'] ?? 'N/A', 25) }}</td>
                             <td style="text-align: right; font-weight: bold; color: #0284c7;">{{ $r['votos'] }}</td>
                             <td style="text-align: right; font-weight: bold;">{{ $r['porcentaje'] }}%</td>
@@ -608,18 +614,18 @@
                 </tbody>
             </table>
         @else
-            <p style="font-style: italic; color: #64748b;">No se registraron candidatos o votos para este evento.</p>
+            <p style="font-style: italic; color: #64748b;">No se registraron votos o candidatos para este evento.</p>
         @endif
 
         <div class="section-title">4. CONSTANCIA DE TRANSPARENCIA Y DECLARATORIA</div>
         <p>
-            Los Secretarios y Supervisores certifican que el proceso se surtió sin alteraciones técnicas ni vulneraciones en la integridad del almacenamiento seguro de sufragios, garantizando la voluntad expresada por los votantes.
+            Los Secretarios y Supervisores certifican que el proceso se surtió sin alteraciones técnicas ni vulneraciones en la integridad del almacenamiento seguro de sufragios, garantizando la fidelidad de los resultados electorales.
         </p>
     @endif
 
     <!-- Constancia Final de Cierre -->
     <p style="margin-top: 14px;">
-        En constancia de lo actuado, se firma la presente acta en la ciudad de Pereira, a los <strong>{{ \Carbon\Carbon::parse($config['fecha_acta'])->translatedFormat('d \d\í\a\s \d\e\l \m\e\s \d\e F \d\e Y') }}</strong>, por los secretarios y delegados oficiales encargados del proceso.
+        En constancia de lo actuado, se firma la presente acta en la ciudad de Pereira, a los <strong>{{ \Carbon\Carbon::parse($config['fecha_acta'])->translatedFormat('d \d\í\a\s \d\e\l \m\e\s \d\e F \d\e Y') }}</strong>, por el Secretario de las TIC y los secretarios o delegados oficiales del evento.
     </p>
 
     <!-- Bloque de Firmas -->
@@ -639,7 +645,7 @@
                             <div class="firma-linea"></div>
                             <div class="firma-nombre">{{ $firmante['nombre'] }}</div>
                             <div class="firma-cargo">{{ $firmante['cargo'] }}</div>
-                            <div class="firma-id">C.C. {{ $firmante['identificacion'] }}</div>
+                            <div class="firma-id">{{ $firmante['identificacion'] }}</div>
                         </td>
                         @if(($index + 1) % 2 === 0 && ($index + 1) < count($firmantes_pdf))
                             </tr><tr>
@@ -653,15 +659,15 @@
                     <td class="firma-col">
                         <div class="firma-imagen-wrapper" style="height: 50px;"></div>
                         <div class="firma-linea"></div>
-                        <div class="firma-nombre">SECRETARIO DELEGADO 1</div>
-                        <div class="firma-cargo">Comisión de Personal</div>
+                        <div class="firma-nombre">SECRETARIO DE LAS TIC</div>
+                        <div class="firma-cargo">Secretario de las TIC</div>
                         <div class="firma-id">Alcaldía de Pereira</div>
                     </td>
                     <td class="firma-col">
                         <div class="firma-imagen-wrapper" style="height: 50px;"></div>
                         <div class="firma-linea"></div>
-                        <div class="firma-nombre">SECRETARIO DELEGADO 2</div>
-                        <div class="firma-cargo">Comisión de Personal</div>
+                        <div class="firma-nombre">SECRETARIO(A) / DELEGADO(A)</div>
+                        <div class="firma-cargo">{{ $dependencia_evento ?? 'Alcaldía de Pereira' }}</div>
                         <div class="firma-id">Alcaldía de Pereira</div>
                     </td>
                 </tr>
@@ -676,4 +682,3 @@
 
 </body>
 </html>
-

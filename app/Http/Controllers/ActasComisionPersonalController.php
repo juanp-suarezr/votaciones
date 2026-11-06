@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Delegados;
 use App\Models\Eventos;
+use App\Models\Hash_proyectos;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Postulaciones_candidatos;
@@ -19,7 +20,7 @@ use Inertia\Inertia;
 
 class ActasComisionPersonalController extends Controller
 {
-    protected int $eventoId = 25;
+    protected int $eventoDefaultId = 25;
 
     public function __construct()
     {
@@ -45,21 +46,42 @@ class ActasComisionPersonalController extends Controller
             return true;
         }
 
-        abort(403, 'Acceso restringido: Solo para validadores de candidatos y supervisores.');
+        abort(403, 'Acceso restringido: Solo para validadores de candidatos, supervisores y administradores.');
     }
 
     /**
-     * Resuelve el evento objetivo (ID 25 - Comisión de Personal).
+     * Resuelve el evento solicitado o el predeterminado (ID 25).
      */
-    private function getEvento()
+    private function getEvento($eventoId = null)
     {
-        $evento = Eventos::find($this->eventoId);
-        if (!$evento) {
-            $evento = Eventos::where('nombre', 'like', '%Comisi%')->first()
-                ?? Eventos::where('id', 25)->first()
-                ?? Eventos::orderBy('id', 'desc')->first();
+        if ($eventoId) {
+            $ev = Eventos::find($eventoId);
+            if ($ev) {
+                return $ev;
+            }
         }
-        return $evento;
+
+        return Eventos::find($this->eventoDefaultId)
+            ?? Eventos::where('nombre', 'like', '%Comisi%')->first()
+            ?? Eventos::orderBy('id', 'desc')->first();
+    }
+
+    /**
+     * Determina si el evento tiene proceso de inscripción/postulación de candidatos.
+     */
+    private function esEventoConInscripcion($evento)
+    {
+        if (!$evento) {
+            return false;
+        }
+        if ($evento->id == 25) {
+            return true;
+        }
+        if (str_contains(strtolower($evento->nombre), 'comisi')) {
+            return true;
+        }
+
+        return Postulaciones_candidatos::where('id_evento', $evento->id)->exists();
     }
 
     /**
@@ -69,6 +91,8 @@ class ActasComisionPersonalController extends Controller
      */
     private function getFechasCronograma($evento)
     {
+        $eventoId = $evento?->id ?? $this->eventoDefaultId;
+
         // 1. Detección automática en RutasVotaciones para inscripción de candidatos
         $rutaInscripcion = RutasVotaciones::where(function ($q) {
             $q->where('path', 'like', '%inscripcion-candidatos%')
@@ -76,19 +100,12 @@ class ActasComisionPersonalController extends Controller
               ->orWhere('path', 'like', '%candidatos%');
         })->orderBy('id', 'desc')->first();
 
-        $fechaInicioInscripcion = null;
-        $fechaFinInscripcion = null;
-        $rutaPath = null;
+        $fechaInicioInscripcion = $rutaInscripcion?->fecha_inicio;
+        $fechaFinInscripcion = $rutaInscripcion?->fecha_fin;
+        $rutaPath = $rutaInscripcion?->path;
 
-        if ($rutaInscripcion) {
-            $fechaInicioInscripcion = $rutaInscripcion->fecha_inicio;
-            $fechaFinInscripcion = $rutaInscripcion->fecha_fin;
-            $rutaPath = $rutaInscripcion->path;
-        }
-
-        // Si no está registrado en RutasVotaciones, usar primera postulación o fallback
         if (!$fechaInicioInscripcion) {
-            $primeraPostulacion = Postulaciones_candidatos::where('id_evento', $evento?->id ?? $this->eventoId)
+            $primeraPostulacion = Postulaciones_candidatos::where('id_evento', $eventoId)
                 ->orderBy('created_at', 'asc')->first();
             $fechaInicioInscripcion = $primeraPostulacion?->created_at ?? $evento?->fecha_inicio ?? now()->startOfDay()->format('Y-m-d H:i:s');
         }
@@ -111,40 +128,176 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Obtiene los secretarios firmantes asignados al evento
+     * Obtiene los secretarios firmantes:
+     * 1. Obligatorio en TODAS las actas: Secretario de las TIC (tabla delegados cargo = 'Secretario de las TIC').
+     * 2. Si el evento tiene secretarios específicos, se incluyen con sus firmas.
+     * 3. Si NO tiene secretarios específicos, se deja el espacio oficial con el nombre de la dependencia del evento.
      */
-    private function getFirmantes($eventoId)
+    private function getFirmantes($evento)
     {
-        $firmantes = Delegados::where('id_evento', $eventoId)
+        $eventoId = $evento?->id ?? $this->eventoDefaultId;
+
+        // 1. Buscar Secretario de las TIC en la tabla delegados
+        $secretarioTic = Delegados::where(function ($q) {
+            $q->where('cargo', 'like', '%Secretario de las TIC%')
+              ->orWhere('cargo', 'like', '%Secretaría de las TIC%')
+              ->orWhere('cargo', 'like', '%Secretario TIC%')
+              ->orWhere('cargo', 'like', '%TIC%');
+        })->where('estado', 1)->first();
+
+        if (!$secretarioTic) {
+            $secretarioTic = Delegados::where('cargo', 'like', '%TIC%')->first();
+        }
+
+        // 2. Secretarios asignados específicamente a este evento
+        $secretariosEvento = Delegados::where('id_evento', $eventoId)
             ->where('tipo', 'secretario')
             ->where('estado', 1)
+            ->when($secretarioTic, function ($q) use ($secretarioTic) {
+                $q->where('id', '!=', $secretarioTic->id);
+            })
             ->get();
 
-        // Si no hay específicos con id_evento = 25, fallback a secretarios activos generales
-        if ($firmantes->isEmpty()) {
-            $firmantes = Delegados::where('tipo', 'secretario')
-                ->where('estado', 1)
-                ->get();
+        $firmantes = collect();
+
+        // Agregar obligatoriamente al Secretario de las TIC
+        if ($secretarioTic) {
+            $firmantes->push($secretarioTic);
+        } else {
+            // Representación institucional en caso de no estar registrado aún en BD
+            $firmantes->push((object) [
+                'id' => -1,
+                'nombre' => 'SECRETARIO DE LAS TIC',
+                'cargo' => 'Secretario de las TIC',
+                'identificacion' => 'Alcaldía de Pereira',
+                'firma' => null,
+                'is_tic' => true,
+            ]);
+        }
+
+        // 3. Si el evento tiene secretarios específicos asignados
+        if ($secretariosEvento->isNotEmpty()) {
+            foreach ($secretariosEvento as $sec) {
+                $firmantes->push($sec);
+            }
+        } else {
+            // "si no tiene firmas de secretario en especifico dejar el nombre de la dependencia del evento"
+            $nombreDependencia = ($evento && !empty($evento->dependencias) && $evento->dependencias !== 'NA')
+                ? $evento->dependencias
+                : 'Secretaría / Dependencia Responsable del Evento';
+
+            $firmantes->push((object) [
+                'id' => 0,
+                'nombre' => 'SECRETARIO(A) / REPRESENTANTE DELEGADO(A)',
+                'cargo' => $nombreDependencia,
+                'identificacion' => 'Alcaldía de Pereira',
+                'firma' => null,
+                'is_dependencia' => true,
+            ]);
         }
 
         return $firmantes;
     }
 
     /**
-     * Dashboard principal de las 4 Actas de Comisión de Personal y Gestión de Firmantes
+     * Obtiene las opciones de votación (candidatos o proyectos) y sus votos
      */
-    public function index()
+    private function getOpcionesElectorales($eventoId)
+    {
+        $totalVotos = Votos::where('id_eventos', $eventoId)->count();
+
+        // 1. Postulaciones aprobadas (Comisión de Personal u otros con postulaciones)
+        $postulacionesAprobadas = Postulaciones_candidatos::where('id_evento', $eventoId)
+            ->where('estado', 'aprobado')
+            ->get();
+
+        if ($postulacionesAprobadas->isNotEmpty()) {
+            return $postulacionesAprobadas->map(function ($c) use ($eventoId, $totalVotos) {
+                $votos = Votos::where('id_eventos', $eventoId)
+                    ->where('id_candidato', $c->id_votante)
+                    ->count();
+                return [
+                    'id' => $c->id,
+                    'nombre' => $c->nombre,
+                    'identificacion' => $c->identificacion,
+                    'subtitulo' => $c->tipo_planta ?? 'Candidato',
+                    'dependencia' => $c->dependencia ?? 'N/A',
+                    'votos' => $votos,
+                    'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
+                    'tipo_opcion' => 'candidato',
+                ];
+            })->sortByDesc('votos')->values();
+        }
+
+        // 2. Candidatos en Hash_votantes (cuando se crean candidatos directamente para el evento)
+        $candidatosHash = Hash_votantes::where('id_evento', $eventoId)
+            ->where('candidato', 1)
+            ->with('votante')
+            ->get();
+
+        if ($candidatosHash->isNotEmpty()) {
+            return $candidatosHash->map(function ($h) use ($eventoId, $totalVotos) {
+                $nombre = $h->votante ? ($h->votante->nombre . ' ' . $h->votante->apellido) : ('Candidato #' . $h->id);
+                $identificacion = $h->votante ? $h->votante->identificacion : 'N/A';
+                $votos = Votos::where('id_eventos', $eventoId)
+                    ->where('id_candidato', $h->id_votante)
+                    ->count();
+                return [
+                    'id' => $h->id,
+                    'nombre' => $nombre,
+                    'identificacion' => $identificacion,
+                    'subtitulo' => $h->tipo ?? 'Candidato',
+                    'dependencia' => 'Candidato Habilitado',
+                    'votos' => $votos,
+                    'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
+                    'tipo_opcion' => 'candidato',
+                ];
+            })->sortByDesc('votos')->values();
+        }
+
+        // 3. Proyectos (Presupuesto Participativo u otros con proyectos)
+        $proyectos = Hash_proyectos::where('id_evento', $eventoId)
+            ->with('proyecto')
+            ->get();
+
+        if ($proyectos->isNotEmpty()) {
+            return $proyectos->map(function ($hp) use ($eventoId, $totalVotos) {
+                $nombre = $hp->proyecto ? $hp->proyecto->nombre : ('Proyecto #' . $hp->id_proyecto);
+                $votos = Votos::where('id_eventos', $eventoId)
+                    ->where('id_proyecto', $hp->id_proyecto)
+                    ->count();
+                return [
+                    'id' => $hp->id,
+                    'nombre' => $nombre,
+                    'identificacion' => 'PROY-' . $hp->id_proyecto,
+                    'subtitulo' => $hp->comuna ?? 'Presupuesto Participativo',
+                    'dependencia' => $hp->proyecto ? $hp->proyecto->descripcion : 'N/A',
+                    'votos' => $votos,
+                    'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
+                    'tipo_opcion' => 'proyecto',
+                ];
+            })->sortByDesc('votos')->values();
+        }
+
+        return collect();
+    }
+
+    /**
+     * Dashboard principal de Actas Oficiales y Gestión de Firmantes para cualquier evento
+     */
+    public function index(Request $request)
     {
         $this->checkAccess();
 
-        $evento = $this->getEvento();
-        $eventoId = $evento?->id ?? $this->eventoId;
+        $eventoId = $request->query('id_evento');
+        $evento = $this->getEvento($eventoId);
+        $eventoId = $evento?->id ?? $this->eventoDefaultId;
+
+        $esComision = $this->esEventoConInscripcion($evento);
         $fechas = $this->getFechasCronograma($evento);
-        $firmantes = $this->getFirmantes($eventoId);
+        $firmantes = $this->getFirmantes($evento);
 
         $now = Carbon::now();
-
-        // Estados de las actas según el cronograma
         $fechaInscripcionInicio = Carbon::parse($fechas['inscripcion_inicio']);
         $fechaInscripcionFin = Carbon::parse($fechas['inscripcion_fin']);
         $fechaVotacionInicio = Carbon::parse($fechas['votacion_inicio']);
@@ -159,8 +312,11 @@ class ActasComisionPersonalController extends Controller
         $totalCenso = Hash_votantes::where('id_evento', $eventoId)->count();
         $totalVotos = Votos::where('id_eventos', $eventoId)->count();
 
-        $actas = [
-            [
+        $actas = [];
+
+        // Si el evento tiene inscripciones de candidatos (como Comisión de Personal), incluir las 2 actas de inscripción
+        if ($esComision) {
+            $actas[] = [
                 'id' => 'inscripcion_apertura',
                 'codigo' => 'ACT-CP-01',
                 'nombre' => 'Acta de Apertura de Inscripción de Candidatos',
@@ -172,8 +328,9 @@ class ActasComisionPersonalController extends Controller
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'estado' => $now->gte($fechaInscripcionInicio) ? 'Disponible' : 'Programada',
                 'disponible' => true,
-            ],
-            [
+            ];
+
+            $actas[] = [
                 'id' => 'inscripcion_cierre',
                 'codigo' => 'ACT-CP-02',
                 'nombre' => 'Acta de Cierre de Inscripción de Candidatos',
@@ -185,43 +342,57 @@ class ActasComisionPersonalController extends Controller
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'estado' => $now->gte($fechaInscripcionFin) ? 'Disponible' : ($now->gte($fechaInscripcionInicio) ? 'En Curso' : 'Programada'),
                 'disponible' => true,
-            ],
-            [
-                'id' => 'votacion_apertura',
-                'codigo' => 'ACT-CP-03',
-                'nombre' => 'Acta de Apertura de Votaciones',
-                'categoria' => 'Jornada Electoral',
-                'tipo' => 'apertura',
-                'descripcion' => 'Certificación de puesta a cero de la urna electrónica y apertura formal de la votación virtual.',
-                'fecha_oficial' => $fechas['votacion_inicio'],
-                'fecha_texto' => Carbon::parse($fechas['votacion_inicio'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
-                'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
-                'estado' => $now->gte($fechaVotacionInicio) ? 'Disponible' : 'Programada',
-                'disponible' => true,
-            ],
-            [
-                'id' => 'votacion_cierre',
-                'codigo' => 'ACT-CP-04',
-                'nombre' => 'Acta de Cierre de Votaciones y Escrutinio',
-                'categoria' => 'Jornada Electoral',
-                'tipo' => 'cierre',
-                'descripcion' => 'Cierre de la jornada electoral, consolidación de sufragios y escrutinio final de resultados.',
-                'fecha_oficial' => $fechas['votacion_fin'],
-                'fecha_texto' => Carbon::parse($fechas['votacion_fin'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
-                'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
-                'estado' => $now->gte($fechaVotacionFin) ? 'Disponible' : ($now->gte($fechaVotacionInicio) ? 'En Curso' : 'Programada'),
-                'disponible' => true,
-            ],
+            ];
+        }
+
+        // Para TODOS los eventos: Actas de inicio y cierre de votaciones
+        $actas[] = [
+            'id' => 'votacion_apertura',
+            'codigo' => $esComision ? 'ACT-CP-03' : 'ACT-EV-01',
+            'nombre' => 'Acta de Apertura de la Jornada de Votación',
+            'categoria' => 'Jornada Electoral',
+            'tipo' => 'apertura',
+            'descripcion' => 'Certificación de puesta a cero de la urna electrónica y apertura formal de la votación virtual.',
+            'fecha_oficial' => $fechas['votacion_inicio'],
+            'fecha_texto' => Carbon::parse($fechas['votacion_inicio'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
+            'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
+            'estado' => $now->gte($fechaVotacionInicio) ? 'Disponible' : 'Programada',
+            'disponible' => true,
         ];
 
-        // Todos los eventos para el selector de asignación de firmantes
-        $todosEventos = Eventos::select('id', 'nombre')->get();
+        $actas[] = [
+            'id' => 'votacion_cierre',
+            'codigo' => $esComision ? 'ACT-CP-04' : 'ACT-EV-02',
+            'nombre' => 'Acta de Cierre de Votaciones y Escrutinio',
+            'categoria' => 'Jornada Electoral',
+            'tipo' => 'cierre',
+            'descripcion' => 'Cierre de la jornada electoral, consolidación de sufragios y escrutinio final de resultados.',
+            'fecha_oficial' => $fechas['votacion_fin'],
+            'fecha_texto' => Carbon::parse($fechas['votacion_fin'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
+            'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
+            'estado' => $now->gte($fechaVotacionFin) ? 'Disponible' : ($now->gte($fechaVotacionInicio) ? 'En Curso' : 'Programada'),
+            'disponible' => true,
+        ];
+
+        // Listado de todos los eventos para el selector dinámico
+        $todosEventos = Eventos::select('id', 'nombre', 'dependencias', 'fecha_inicio', 'fecha_fin', 'estado')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Buscar secretario TIC específico para destacarlo en la vista
+        $secretarioTic = Delegados::where(function ($q) {
+            $q->where('cargo', 'like', '%Secretario de las TIC%')
+              ->orWhere('cargo', 'like', '%Secretaría de las TIC%')
+              ->orWhere('cargo', 'like', '%TIC%');
+        })->where('estado', 1)->first();
 
         return Inertia::render('ActasComision/Index', [
             'evento' => $evento,
+            'es_comision' => $esComision,
             'fechas' => $fechas,
             'actas' => $actas,
             'firmantes' => $firmantes,
+            'secretario_tic' => $secretarioTic,
             'estadisticas' => [
                 'total_postulaciones' => $totalPostulaciones,
                 'total_aprobados' => $totalAprobados,
@@ -235,16 +406,18 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Compila y estructura la información detallada de una de las 4 actas
+     * Compila y estructura la información detallada de un acta para el evento dado
      */
-    private function generarDatosActa($tipo)
+    private function generarDatosActa($tipo, $eventoId = null)
     {
-        $evento = $this->getEvento();
-        $eventoId = $evento?->id ?? $this->eventoId;
-        $fechas = $this->getFechasCronograma($evento);
-        $firmantes = $this->getFirmantes($eventoId);
+        $evento = $this->getEvento($eventoId);
+        $eventoId = $evento?->id ?? $this->eventoDefaultId;
+        $esComision = $this->esEventoConInscripcion($evento);
 
-        // Candidatos y postulaciones
+        $fechas = $this->getFechasCronograma($evento);
+        $firmantes = $this->getFirmantes($evento);
+
+        // Postulaciones (si aplica)
         $postulaciones = Postulaciones_candidatos::where('id_evento', $eventoId)
             ->orderBy('id', 'asc')
             ->get();
@@ -261,65 +434,51 @@ class ActasComisionPersonalController extends Controller
         $censoVotantes = Hash_votantes::where('id_evento', $eventoId)->count();
         $totalVotos = Votos::where('id_eventos', $eventoId)->count();
 
-        // Votos por candidato
-        $resultadosCandidatos = [];
-        foreach ($candidatosAprobados as $candidato) {
-            $votosCandidato = Votos::where('id_eventos', $eventoId)
-                ->where('id_candidato', $candidato->id_votante)
-                ->count();
+        // Opciones electorales (candidatos o proyectos según el evento)
+        $opcionesElectorales = $this->getOpcionesElectorales($eventoId);
 
-            $porcentaje = $totalVotos > 0 ? round(($votosCandidato / $totalVotos) * 100, 2) : 0;
-
-            $resultadosCandidatos[] = [
-                'id' => $candidato->id,
-                'id_votante' => $candidato->id_votante,
-                'radicado' => $candidato->radicado,
-                'nombre' => $candidato->nombre,
-                'identificacion' => $candidato->identificacion,
-                'tipo_planta' => $candidato->tipo_planta,
-                'dependencia' => $candidato->dependencia,
-                'votos' => $votosCandidato,
-                'porcentaje' => $porcentaje,
-            ];
-        }
+        // Nombre de la dependencia oficial del evento
+        $dependenciaEvento = ($evento && !empty($evento->dependencias) && $evento->dependencias !== 'NA')
+            ? $evento->dependencias
+            : 'Secretaría / Dependencia Responsable';
 
         // Definiciones de cada tipo de acta
         $configActas = [
             'inscripcion_apertura' => [
                 'codigo' => 'ACT-CP-01',
                 'titulo' => 'ACTA DE APERTURA DEL PROCESO DE INSCRIPCIÓN Y POSTULACIÓN DE CANDIDATOS',
-                'subtitulo' => 'ELECCIÓN DE REPRESENTANTES DE LOS EMPLEADOS ANTE LA COMISIÓN DE PERSONAL',
+                'subtitulo' => 'PROCESO DE POSTULACIÓN - ' . strtoupper($evento->nombre ?? 'COMISIÓN DE PERSONAL'),
                 'fecha_acta' => $fechas['inscripcion_inicio'],
                 'fecha_cierre_prevista' => $fechas['inscripcion_fin'],
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
-                'objeto' => 'Dejar constancia formal y técnica de la apertura del proceso oficial de inscripción y postulación de funcionarios para conformar la Comisión de Personal de la Alcaldía de Pereira, a través de la plataforma virtual VOTA YA.',
+                'objeto' => 'Dejar constancia formal y técnica de la apertura del proceso oficial de recepción de postulaciones e inscripciones para ' . ($evento->nombre ?? 'el evento electoral') . ' de la Alcaldía de Pereira, a través de la plataforma virtual VOTA YA.',
             ],
             'inscripcion_cierre' => [
                 'codigo' => 'ACT-CP-02',
                 'titulo' => 'ACTA DE CIERRE DEL PROCESO DE INSCRIPCIÓN Y POSTULACIÓN DE CANDIDATOS',
-                'subtitulo' => 'ELECCIÓN DE REPRESENTANTES DE LOS EMPLEADOS ANTE LA COMISIÓN DE PERSONAL',
+                'subtitulo' => 'PROCESO DE POSTULACIÓN - ' . strtoupper($evento->nombre ?? 'COMISIÓN DE PERSONAL'),
                 'fecha_acta' => $fechas['inscripcion_fin'],
                 'fecha_apertura' => $fechas['inscripcion_inicio'],
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
-                'objeto' => 'Certificar la culminación y cierre del período de recepción de postulaciones, consolidando el número de aspirantes radicados, resultados del proceso de validación documental y la lista definitiva de candidatos habilitados para participar en la contienda electoral.',
+                'objeto' => 'Certificar la culminación y cierre del período de recepción de postulaciones, consolidando el número de aspirantes radicados, resultados de validación documental y la lista definitiva de candidatos habilitados.',
             ],
             'votacion_apertura' => [
-                'codigo' => 'ACT-CP-03',
+                'codigo' => $esComision ? 'ACT-CP-03' : 'ACT-EV-01',
                 'titulo' => 'ACTA DE APERTURA DE LA JORNADA ELECTORAL Y PUESTA A CERO',
-                'subtitulo' => 'ELECCIÓN DE REPRESENTANTES DE LOS EMPLEADOS ANTE LA COMISIÓN DE PERSONAL',
+                'subtitulo' => 'JORNADA OFICIAL DE VOTACIÓN - ' . strtoupper($evento->nombre ?? 'ELECCIONES INSTITUCIONALES'),
                 'fecha_acta' => $fechas['votacion_inicio'],
                 'fecha_cierre_prevista' => $fechas['votacion_fin'],
                 'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
-                'objeto' => 'Dejar constancia formal de la apertura de los canales electrónicos de sufragio en la plataforma VOTA YA, verificando y certificando la puesta a cero (0 votos registrados) de la urna virtual y la habilitación del censo electoral oficial.',
+                'objeto' => 'Dejar constancia formal de la apertura de los canales electrónicos de sufragio en la plataforma VOTA YA para el evento "' . ($evento->nombre ?? 'Votación Institucional') . '", verificando y certificando la puesta a cero (0 votos registrados) de la urna virtual y la habilitación del censo electoral oficial.',
             ],
             'votacion_cierre' => [
-                'codigo' => 'ACT-CP-04',
+                'codigo' => $esComision ? 'ACT-CP-04' : 'ACT-EV-02',
                 'titulo' => 'ACTA DE CIERRE DE LA JORNADA ELECTORAL Y ESCRUTINIO FINAL',
-                'subtitulo' => 'ELECCIÓN DE REPRESENTANTES DE LOS EMPLEADOS ANTE LA COMISIÓN DE PERSONAL',
+                'subtitulo' => 'JORNADA OFICIAL DE VOTACIÓN - ' . strtoupper($evento->nombre ?? 'ELECCIONES INSTITUCIONALES'),
                 'fecha_acta' => $fechas['votacion_fin'],
                 'fecha_apertura' => $fechas['votacion_inicio'],
                 'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
-                'objeto' => 'Certificar el cierre formal de la votación virtual, la inviolabilidad del sistema de sufragio electrónico, la consolidación del total de votos emitidos y los resultados del escrutinio final para la elección de los representantes ante la Comisión de Personal.',
+                'objeto' => 'Certificar el cierre formal de la votación virtual para "' . ($evento->nombre ?? 'Votación Institucional') . '", la inviolabilidad del sistema de sufragio electrónico, la consolidación del total de votos emitidos y los resultados del escrutinio final.',
             ],
         ];
 
@@ -333,6 +492,8 @@ class ActasComisionPersonalController extends Controller
             'tipo' => $tipo,
             'config' => $config,
             'evento' => $evento,
+            'dependencia_evento' => $dependenciaEvento,
+            'es_comision' => $esComision,
             'fechas' => $fechas,
             'firmantes' => $firmantes,
             'postulaciones' => $postulaciones,
@@ -350,7 +511,7 @@ class ActasComisionPersonalController extends Controller
                 'total_votos' => $totalVotos,
                 'porcentaje_participacion' => $censoVotantes > 0 ? round(($totalVotos / $censoVotantes) * 100, 2) : 0,
             ],
-            'resultados_candidatos' => $resultadosCandidatos,
+            'resultados_candidatos' => $opcionesElectorales,
             'fecha_generacion' => Carbon::now()->translatedFormat('d \d\e F \d\e Y - h:i A'),
         ];
     }
@@ -358,11 +519,12 @@ class ActasComisionPersonalController extends Controller
     /**
      * Muestra la vista web interactiva del Acta oficial
      */
-    public function show($tipo)
+    public function show(Request $request, $tipo)
     {
         $this->checkAccess();
 
-        $data = $this->generarDatosActa($tipo);
+        $eventoId = $request->query('id_evento');
+        $data = $this->generarDatosActa($tipo, $eventoId);
 
         return Inertia::render('ActasComision/Show', $data);
     }
@@ -370,11 +532,12 @@ class ActasComisionPersonalController extends Controller
     /**
      * Exporta el acta en formato PDF oficial institucional de la Alcaldía de Pereira
      */
-    public function pdf($tipo)
+    public function pdf(Request $request, $tipo)
     {
         $this->checkAccess();
 
-        $data = $this->generarDatosActa($tipo);
+        $eventoId = $request->query('id_evento');
+        $data = $this->generarDatosActa($tipo, $eventoId);
 
         // Convertir logos e imágenes a base64 para evitar errores de renderizado en DomPDF
         $logoPath = public_path('assets/img/logo.png');
@@ -386,18 +549,26 @@ class ActasComisionPersonalController extends Controller
         // Convertir firmas de secretarios a base64
         $firmantesData = [];
         foreach ($data['firmantes'] as $firmante) {
-            $firmaPath = storage_path('app/public/uploads/delegado/' . $firmante->firma);
+            $firmaBase64 = null;
+            if (!empty($firmante->firma)) {
+                $firmaPath = storage_path('app/public/uploads/delegado/' . $firmante->firma);
+                $firmaBase64 = $this->fileToBase64($firmaPath);
+            }
+
             $firmantesData[] = [
-                'id' => $firmante->id,
+                'id' => $firmante->id ?? 0,
                 'nombre' => $firmante->nombre,
                 'cargo' => $firmante->cargo,
                 'identificacion' => $firmante->identificacion,
-                'firma_base64' => $this->fileToBase64($firmaPath),
+                'is_dependencia' => !empty($firmante->is_dependencia),
+                'is_tic' => !empty($firmante->is_tic),
+                'firma_base64' => $firmaBase64,
             ];
         }
         $data['firmantes_pdf'] = $firmantesData;
 
-        $nombreArchivo = 'Acta_' . strtoupper($tipo) . '_Comision_Personal_' . date('Ymd_His') . '.pdf';
+        $eventoSlug = preg_replace('/[^A-Za-z0-9]/', '_', $data['evento']->nombre ?? 'Evento');
+        $nombreArchivo = 'Acta_' . strtoupper($tipo) . '_' . $eventoSlug . '_' . date('Ymd_His') . '.pdf';
 
         $pdf = Pdf::loadView('pdf.acta_comision', $data)
             ->setPaper('letter', 'portrait')
@@ -434,12 +605,13 @@ class ActasComisionPersonalController extends Controller
     /**
      * Lista los secretarios firmantes del evento
      */
-    public function firmantes()
+    public function firmantes(Request $request)
     {
         $this->checkAccess();
 
-        $evento = $this->getEvento();
-        $eventoId = $evento?->id ?? $this->eventoId;
+        $eventoId = $request->query('id_evento');
+        $evento = $this->getEvento($eventoId);
+        $eventoId = $evento?->id ?? $this->eventoDefaultId;
 
         $firmantes = Delegados::where('id_evento', $eventoId)
             ->where('tipo', 'secretario')
@@ -472,7 +644,7 @@ class ActasComisionPersonalController extends Controller
             'firma.required' => 'La firma digital es obligatoria (dibujada o imagen).',
         ]);
 
-        $eventoId = $request->id_evento ?? $this->eventoId;
+        $eventoId = $request->id_evento ?? $this->eventoDefaultId;
         $folder = 'delegado';
         $destinationPath = storage_path('app/public/uploads/' . $folder);
 
@@ -488,7 +660,6 @@ class ActasComisionPersonalController extends Controller
             $fileName = time() . '_secretario_' . preg_replace('/[^A-Za-z0-9]/', '', $request->identificacion) . '.' . $extension;
             $file->move($destinationPath, $fileName);
         } elseif (is_string($request->firma) && str_starts_with($request->firma, 'data:image')) {
-            // Manejar firma dibujada en canvas (base64)
             $imageParts = explode(";base64,", $request->firma);
             $imageBase64 = base64_decode($imageParts[1]);
             $fileName = time() . '_secretario_' . preg_replace('/[^A-Za-z0-9]/', '', $request->identificacion) . '.png';
@@ -568,4 +739,3 @@ class ActasComisionPersonalController extends Controller
         return redirect()->back()->with('success', 'Secretario firmante eliminado correctamente.');
     }
 }
-

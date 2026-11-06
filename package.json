@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js build",
         "load:test": "artillery run load-tests/votaciones-test.yml",
         "load:report": "node -e \"const d=new Date();const pad=n=>String(n).padStart(2,'0');const ts=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;const {execSync}=require('child_process');execSync(`artillery run --output load-tests/reports/${ts}.json load-tests/votaciones-test.yml && artillery report --output load-tests/reports/${ts}.html load-tests/reports/${ts}.json`, {stdio:'inherit'})\"",
         "load:report_ws": "node -e \"const fs=require('fs'); const dir='load-tests/reports'; if(!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); const timestamp=new Date().toISOString().replace(/[:.]/g,'-'); const json=`${dir}/report-${timestamp}.json`; const html=`${dir}/report-${timestamp}.html`; require('child_process').execSync(`npx artillery run --output ${json} load-tests/votaciones-test.yml && npx artillery report --output ${html} ${json}`, {stdio:'inherit'});\""

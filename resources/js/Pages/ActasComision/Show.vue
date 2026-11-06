@@ -17,7 +17,7 @@
         <!-- Botones de Acción -->
         <div class="flex items-center gap-2.5 print:hidden">
           <a
-            :href="route('actas-comision.index')"
+            :href="route('actas-comision.index', { id_evento: evento.id })"
             class="px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm inline-flex items-center gap-1.5"
           >
             <ArrowLeftIcon class="h-4 w-4" />
@@ -33,7 +33,7 @@
           </button>
 
           <a
-            :href="route('actas-comision.pdf', tipo)"
+            :href="route('actas-comision.pdf', { tipo: tipo, id_evento: evento.id })"
             class="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow-md inline-flex items-center gap-1.5"
           >
             <ArrowDownTrayIcon class="h-4 w-4" />
@@ -64,7 +64,7 @@
                   Alcaldía de Pereira
                 </div>
                 <div class="text-xs text-gray-500 font-semibold uppercase">
-                  Proceso de Elección Comisión de Personal
+                  {{ dependencia_evento || 'Secretaría / Dependencia Responsable' }}
                 </div>
                 <div class="text-[11px] text-sky-700 font-bold">
                   Plataforma Digital VOTA YA
@@ -109,10 +109,18 @@
                     Evento Electoral:
                   </td>
                   <td class="py-2.5 px-4 font-semibold text-gray-900">
-                    [ID: {{ evento?.id || 25 }}] {{ evento?.nombre || 'Comisión de Personal' }}
+                    [ID: {{ evento?.id }}] {{ evento?.nombre }}
                   </td>
                 </tr>
                 <tr class="bg-gray-50/60">
+                  <td class="py-2.5 px-4 font-bold text-gray-700 bg-gray-100/70 border-r border-gray-200">
+                    Dependencia Responsable:
+                  </td>
+                  <td class="py-2.5 px-4 font-semibold text-gray-800">
+                    {{ dependencia_evento }}
+                  </td>
+                </tr>
+                <tr>
                   <td class="py-2.5 px-4 font-bold text-gray-700 bg-gray-100/70 border-r border-gray-200">
                     Fecha y Hora Oficial:
                   </td>
@@ -120,7 +128,7 @@
                     {{ formatearFecha(config.fecha_acta) }}
                   </td>
                 </tr>
-                <tr>
+                <tr class="bg-gray-50/60">
                   <td class="py-2.5 px-4 font-bold text-gray-700 bg-gray-100/70 border-r border-gray-200">
                     Fuente de Detección:
                   </td>
@@ -130,12 +138,12 @@
                     </span>
                   </td>
                 </tr>
-                <tr class="bg-gray-50/60">
+                <tr>
                   <td class="py-2.5 px-4 font-bold text-gray-700 bg-gray-100/70 border-r border-gray-200">
                     Plataforma Tecnológica:
                   </td>
                   <td class="py-2.5 px-4 text-gray-700">
-                    Sistema de Votación y Postulación Virtual <strong>VOTA YA</strong> (Auditoría Criptográfica)
+                    Sistema de Votación Virtual <strong>VOTA YA</strong> (Auditoría Criptográfica)
                   </td>
                 </tr>
               </tbody>
@@ -151,7 +159,7 @@
               {{ config.objeto }}
             </p>
             <p class="text-xs text-gray-600 leading-relaxed text-justify">
-              El presente acto administrativo se fundamenta en lo dispuesto en la <strong>Ley 909 de 2004</strong>, el <strong>Decreto 1083 de 2015</strong>, el <strong>Decreto 498 de 2020</strong> y directrices emitidas por la Comisión Nacional del Servicio Civil (CNSC), garantizando el principio de legalidad, la participación democrática y el mérito institucional.
+              El presente proceso electoral se fundamenta en las disposiciones institucionales y legales vigentes, garantizando el principio de legalidad, la participación democrática, la transparencia del sufragio y la custodia de la información electoral.
             </p>
           </div>
 
@@ -159,7 +167,7 @@
           <!-- CONTENIDOS ESPECÍFICOS SEGÚN TIPO DE ACTA                -->
           <!-- ======================================================== -->
 
-          <!-- CASO 1: APERTURA DE INSCRIPCIÓN -->
+          <!-- CASO 1: APERTURA DE INSCRIPCIÓN (COMISIÓN DE PERSONAL) -->
           <div v-if="tipo === 'inscripcion_apertura'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
               <span class="text-sky-700">2.</span> CONDICIONES Y PARÁMETROS DE APERTURA
@@ -185,7 +193,7 @@
               <ul class="list-disc list-inside space-y-0.5 text-sky-800">
                 <li>Ser empleado con derechos de carrera administrativa inscrito en el censo.</li>
                 <li>Presentar documento de identidad y certificado de antecedentes disciplinarios de la Procuraduría.</li>
-                <li>Foto digital legible para el tarjetón de votación.</li>
+                <li>Foto digital formal para el tarjetón de votación.</li>
               </ul>
             </div>
           </div>
@@ -263,7 +271,7 @@
             </div>
           </div>
 
-          <!-- CASO 3: APERTURA DE VOTACIONES -->
+          <!-- CASO 3: APERTURA DE VOTACIONES (PARA TODOS LOS EVENTOS) -->
           <div v-else-if="tipo === 'votacion_apertura'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
               <span class="text-sky-700">2.</span> PUESTA A CERO DE LA URNA ELECTRÓNICA VIRTUAL
@@ -273,17 +281,17 @@
               <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
                 <div class="text-3xl font-black text-emerald-700">0 VOTOS</div>
                 <div class="text-xs font-bold text-emerald-900 uppercase mt-1">Urna Electrónica en Cero</div>
-                <p class="text-[11px] text-emerald-700 mt-1">Base de datos de sufragios inicializada y verificada</p>
+                <p class="text-[11px] text-emerald-700 mt-1">Base de datos de sufragios inicializada y verificada con cero registros</p>
               </div>
               <div class="p-4 bg-sky-50 rounded-xl border border-sky-200">
                 <div class="text-3xl font-black text-sky-800">{{ totales.censo_votantes }}</div>
-                <div class="text-xs font-bold text-sky-950 uppercase mt-1">Funcionarios Habilitados</div>
-                <p class="text-[11px] text-sky-700 mt-1">Censo oficial cargado en el sistema</p>
+                <div class="text-xs font-bold text-sky-950 uppercase mt-1">Votantes en Censo Habilitado</div>
+                <p class="text-[11px] text-sky-700 mt-1">Censo oficial cargado y validado en el sistema</p>
               </div>
             </div>
 
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5 pt-2">
-              <span class="text-sky-700">3.</span> CANDIDATOS HABILITADOS EN EL TARJETÓN VIRTUAL
+              <span class="text-sky-700">3.</span> OPCIONES Y CANDIDATOS HABILITADOS EN EL TARJETÓN VIRTUAL
             </h3>
 
             <div class="overflow-x-auto border border-gray-200 rounded-xl">
@@ -291,26 +299,31 @@
                 <thead class="bg-gray-800 text-white font-bold uppercase text-[10px]">
                   <tr>
                     <th class="py-2 px-3 text-center">No.</th>
-                    <th class="py-2 px-3">Candidato</th>
-                    <th class="py-2 px-3">Identificación</th>
-                    <th class="py-2 px-3">Planta</th>
-                    <th class="py-2 px-3">Dependencia</th>
+                    <th class="py-2 px-3">Opción / Candidato / Proyecto</th>
+                    <th class="py-2 px-3">Identificador</th>
+                    <th class="py-2 px-3">Categoría</th>
+                    <th class="py-2 px-3">Dependencia / Detalle</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  <tr v-for="(cand, idx) in candidatos_aprobados" :key="cand.id" class="hover:bg-gray-50">
+                  <tr v-for="(cand, idx) in resultados_candidatos" :key="cand.id" class="hover:bg-gray-50">
                     <td class="py-2 px-3 font-bold text-center text-sky-700">{{ idx + 1 }}</td>
                     <td class="py-2 px-3 font-bold text-gray-900">{{ cand.nombre }}</td>
-                    <td class="py-2 px-3 text-gray-600">{{ cand.identificacion }}</td>
-                    <td class="py-2 px-3">{{ cand.tipo_planta || 'N/A' }}</td>
+                    <td class="py-2 px-3 text-gray-600 font-mono text-[11px]">{{ cand.identificacion }}</td>
+                    <td class="py-2 px-3">{{ cand.subtitulo || 'N/A' }}</td>
                     <td class="py-2 px-3 text-gray-600">{{ cand.dependencia || 'N/A' }}</td>
+                  </tr>
+                  <tr v-if="resultados_candidatos.length === 0">
+                    <td colspan="5" class="py-4 text-center text-gray-400 italic">
+                      No hay opciones o candidatos registrados para este evento.
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- CASO 4: CIERRE DE VOTACIONES Y ESCRUTINIO -->
+          <!-- CASO 4: CIERRE DE VOTACIONES Y ESCRUTINIO (PARA TODOS LOS EVENTOS) -->
           <div v-else-if="tipo === 'votacion_cierre'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
               <span class="text-sky-700">2.</span> PARTICIPACIÓN ELECTORAL
@@ -332,7 +345,7 @@
             </div>
 
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5 pt-2">
-              <span class="text-sky-700">3.</span> ESCRUTINIO FINAL Y RESULTADOS POR CANDIDATO
+              <span class="text-sky-700">3.</span> ESCRUTINIO FINAL Y RESULTADOS OFICIALES
             </h3>
 
             <div class="overflow-x-auto border border-gray-200 rounded-xl">
@@ -340,9 +353,9 @@
                 <thead class="bg-gray-800 text-white font-bold uppercase text-[10px]">
                   <tr>
                     <th class="py-2.5 px-3 text-center">Posición</th>
-                    <th class="py-2.5 px-3">Candidato</th>
-                    <th class="py-2.5 px-3">Planta</th>
-                    <th class="py-2.5 px-3">Dependencia</th>
+                    <th class="py-2.5 px-3">Opción / Candidato / Proyecto</th>
+                    <th class="py-2.5 px-3">Categoría</th>
+                    <th class="py-2.5 px-3">Dependencia / Detalle</th>
                     <th class="py-2.5 px-3 text-right">Votos</th>
                     <th class="py-2.5 px-3 text-right">% Votación</th>
                   </tr>
@@ -351,10 +364,15 @@
                   <tr v-for="(r, idx) in resultados_candidatos" :key="r.id" class="hover:bg-gray-50">
                     <td class="py-2 px-3 font-bold text-center text-sky-800">#{{ idx + 1 }}</td>
                     <td class="py-2 px-3 font-bold text-gray-900">{{ r.nombre }}</td>
-                    <td class="py-2 px-3 text-gray-600">{{ r.tipo_planta || 'N/A' }}</td>
+                    <td class="py-2 px-3 text-gray-600">{{ r.subtitulo || 'N/A' }}</td>
                     <td class="py-2 px-3 text-gray-600">{{ r.dependencia || 'N/A' }}</td>
                     <td class="py-2 px-3 text-right font-black text-sky-800">{{ r.votos }}</td>
                     <td class="py-2 px-3 text-right font-bold text-emerald-700">{{ r.porcentaje }}%</td>
+                  </tr>
+                  <tr v-if="resultados_candidatos.length === 0">
+                    <td colspan="6" class="py-4 text-center text-gray-400 italic">
+                      No se registraron candidatos o votos para este evento.
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -364,14 +382,14 @@
           <!-- CONSTANCIA FORMAL DE CIERRE -->
           <div class="pt-4 border-t border-gray-200 text-xs text-gray-700 text-justify space-y-2">
             <p>
-              En constancia de lo actuado y para los fines legales y reglamentarios pertinentes, se suscribe la presente acta oficial en la ciudad de Pereira, el día <strong>{{ formatearFechaTexto(config.fecha_acta) }}</strong>, por quienes en ella intervinieron en calidad de secretarios y delegados oficiales.
+              En constancia de lo actuado y para los fines legales y reglamentarios pertinentes, se suscribe la presente acta oficial en la ciudad de Pereira, el día <strong>{{ formatearFechaTexto(config.fecha_acta) }}</strong>, por el Secretario de las TIC y los secretarios o delegados oficiales del evento.
             </p>
           </div>
 
-          <!-- BLOQUE DE FIRMAS DE LOS SECRETARIOS -->
+          <!-- BLOQUE DE FIRMAS -->
           <div class="pt-8 page-break-inside-avoid">
             <div class="text-center font-bold text-xs uppercase tracking-wider text-gray-500 mb-6">
-              Secretarios y Delegados Oficiales del Proceso
+              Firmas Oficiales del Proceso Electoral
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-3xl mx-auto">
@@ -388,6 +406,9 @@
                     alt="Firma"
                     class="max-h-16 max-w-[200px] object-contain"
                   />
+                  <div v-else-if="firmante.is_dependencia" class="text-xs text-amber-700 font-semibold px-2 py-1 bg-amber-50 rounded border border-amber-200">
+                    [Espacio para Firma y Sello Oficial]
+                  </div>
                   <div v-else class="text-xs text-gray-300 italic">
                     [Firma no registrada]
                   </div>
@@ -396,26 +417,8 @@
                 <div class="w-3/4 border-t-2 border-gray-800 mb-2"></div>
                 <div class="font-bold text-sm text-gray-900">{{ firmante.nombre }}</div>
                 <div class="text-xs text-sky-700 font-semibold uppercase">{{ firmante.cargo }}</div>
-                <div class="text-xs text-gray-500">C.C. {{ firmante.identificacion }}</div>
+                <div class="text-xs text-gray-500">{{ firmante.identificacion }}</div>
               </div>
-
-              <!-- Fallback si no hay firmantes asignados -->
-              <template v-if="firmantes.length === 0">
-                <div class="flex flex-col items-center text-center p-4">
-                  <div class="h-16"></div>
-                  <div class="w-3/4 border-t-2 border-gray-800 mb-2"></div>
-                  <div class="font-bold text-sm text-gray-900">SECRETARIO DELEGADO 1</div>
-                  <div class="text-xs text-sky-700 font-semibold">Comisión de Personal</div>
-                  <div class="text-xs text-gray-500">Alcaldía de Pereira</div>
-                </div>
-                <div class="flex flex-col items-center text-center p-4">
-                  <div class="h-16"></div>
-                  <div class="w-3/4 border-t-2 border-gray-800 mb-2"></div>
-                  <div class="font-bold text-sm text-gray-900">SECRETARIO DELEGADO 2</div>
-                  <div class="text-xs text-sky-700 font-semibold">Comisión de Personal</div>
-                  <div class="text-xs text-gray-500">Alcaldía de Pereira</div>
-                </div>
-              </template>
             </div>
           </div>
 
@@ -445,6 +448,8 @@ const props = defineProps({
   tipo: String,
   config: Object,
   evento: Object,
+  dependencia_evento: String,
+  es_comision: Boolean,
   fechas: Object,
   firmantes: Array,
   postulaciones: Array,
@@ -456,7 +461,7 @@ const props = defineProps({
 
 const breadcrumbLinks = [
   { url: '/dashboard', text: 'Inicio' },
-  { url: route('actas-comision.index'), text: 'Actas Oficiales' },
+  { url: route('actas-comision.index', { id_evento: props.evento?.id }), text: 'Actas Oficiales' },
   { url: '', text: props.config.codigo }
 ];
 
@@ -507,4 +512,3 @@ const imprimirActa = () => {
   }
 }
 </style>
-
