@@ -56,8 +56,8 @@ class InscripcionCandidatosController extends Controller
                 'anio' => $hoy->format('Y'),
                 'texto' => $hoy->translatedFormat('d \d\e F \d\e Y'),
             ],
-            'titulo_encabezado' => 'SECRETARÍA DE GESTIÓN ADMINISTRATIVA',
-            'subtitulo_encabezado' => 'DIRECCIÓN ADMINISTRATIVA DE TALENTO HUMANO',
+            'titulo_encabezado' => 'ALCALDÍA DE PEREIRA',
+            'subtitulo_encabezado' => '',
             'nombre_formulario' => 'FORMULARIO DE INSCRIPCIÓN CANDIDATOS – COMISIÓN DE PERSONAL',
         ]);
     }

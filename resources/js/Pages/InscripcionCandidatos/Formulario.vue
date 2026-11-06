@@ -5,7 +5,7 @@
     <!-- Contenedor Principal con estilo de Documento Institucional -->
     <div class="max-w-4xl mx-auto bg-white border-2 border-slate-300 rounded-2xl shadow-xl overflow-hidden print:border-none print:shadow-none">
       
-      <!-- ENCABEZADO INSTITUCIONAL SEGÚN LA IMAGEN -->
+      <!-- ENCABEZADO INSTITUCIONAL -->
       <div class="border-b-2 border-slate-300 p-6 sm:p-8 bg-slate-50/80 text-center relative">
         <div class="flex items-center justify-between mb-4">
           <Link
@@ -20,14 +20,23 @@
           </span>
         </div>
 
+        <!-- LOGO OFICIAL DE LA ALCALDÍA DE PEREIRA -->
+        <div class="flex justify-center mb-3">
+          <img
+            :src="logoAlcaldia"
+            alt="Alcaldía de Pereira"
+            class="h-16 sm:h-20 w-auto object-contain drop-shadow-xs"
+          />
+        </div>
+
         <div class="space-y-1">
-          <h2 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-900">
+          <h2 class="text-base sm:text-xl font-black uppercase tracking-wider text-slate-900">
             {{ titulo_encabezado }}
           </h2>
-          <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700">
+          <h3 v-if="subtitulo_encabezado" class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700">
             {{ subtitulo_encabezado }}
           </h3>
-          <h1 class="text-base sm:text-lg font-black uppercase tracking-tight text-indigo-900 pt-1">
+          <h1 class="text-xs sm:text-sm font-extrabold uppercase tracking-tight text-indigo-900 pt-0.5">
             {{ nombre_formulario }}
           </h1>
         </div>
@@ -590,7 +599,7 @@
 
       <!-- PIE DE PÁGINA INSTITUCIONAL -->
       <div class="p-4 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-500">
-        Plataforma Electoral Institucional • Dirección Administrativa de Talento Humano • Comisión de Personal
+        Plataforma Electoral Institucional • Alcaldía de Pereira • Comisión de Personal
       </div>
     </div>
   </div>
@@ -601,6 +610,7 @@ import { ref, computed } from 'vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import logoAlcaldia from '/public/assets/img/logo.png';
 import {
   ArrowLeftIcon,
   MagnifyingGlassIcon,
@@ -626,11 +636,11 @@ const props = defineProps({
   },
   titulo_encabezado: {
     type: String,
-    default: 'SECRETARÍA DE GESTIÓN ADMINISTRATIVA',
+    default: 'ALCALDÍA DE PEREIRA',
   },
   subtitulo_encabezado: {
     type: String,
-    default: 'DIRECCIÓN ADMINISTRATIVA DE TALENTO HUMANO',
+    default: '',
   },
   nombre_formulario: {
     type: String,
