@@ -40,14 +40,24 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
-          <!-- Botón para ver el listado de usuarios asignados en Modal -->
+          <!-- BOTÓN PRINCIPAL DESTACADO PARA VER USUARIOS -->
+          <button
+            type="button"
+            @click="irAUsuarios"
+            class="inline-flex items-center gap-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition shadow-sm ring-2 ring-blue-300"
+          >
+            <UserGroupIcon class="w-4 h-4 text-white" />
+            <span>Ver Usuarios Asignados ({{ conteo_votantes.total }})</span>
+          </button>
+
           <button
             type="button"
             @click="abrirModalVotantes"
-            class="inline-flex items-center gap-1.5 py-2 px-3.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-xs transition shadow-xs"
+            class="inline-flex items-center gap-1.5 py-2 px-3 border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg text-xs transition"
+            title="Abrir ventana modal flotante con los usuarios"
           >
-            <UserGroupIcon class="w-4 h-4" />
-            <span>Ver Usuarios Asignados ({{ conteo_votantes.total }})</span>
+            <ArrowsPointingOutIcon class="w-4 h-4" />
+            <span>Modal Flotante</span>
           </button>
 
           <SecondaryLink :href="route('eventos.migrar.view', { destino: evento.id })" class="inline-flex items-center gap-1.5 shadow-xs">
@@ -69,19 +79,19 @@
 
       <!-- Métricas Clave (KPIs) -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Votantes Asignados (Click abre modal) -->
+        <!-- Votantes Asignados (Click baja a la tabla de usuarios) -->
         <div
-          @click="abrirModalVotantes"
-          class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-start gap-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50/20 transition group"
-          title="Haga clic para ver el listado de usuarios"
+          @click="irAUsuarios"
+          class="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex items-start gap-4 cursor-pointer hover:border-blue-500 hover:bg-blue-50/30 transition group ring-1 ring-blue-100"
+          title="Haga clic para ver la tabla de usuarios asignados"
         >
-          <div class="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">
+          <div class="p-3 bg-blue-600 text-white rounded-lg shadow-xs group-hover:scale-105 transition transform">
             <UserGroupIcon class="w-6 h-6" />
           </div>
           <div>
-            <div class="flex items-center gap-1">
-              <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Censo Asignado</span>
-              <span class="text-[10px] text-blue-600 font-bold underline">Ver lista</span>
+            <div class="flex items-center gap-1.5">
+              <span class="block text-xs font-bold text-blue-900 uppercase tracking-wide">Censo Asignado</span>
+              <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.2 rounded">Ver tabla ↓</span>
             </div>
             <span class="text-2xl font-black text-gray-900">{{ conteo_votantes.total }}</span>
             <span class="block text-[11px] text-green-700 font-medium mt-0.5">
@@ -137,7 +147,255 @@
         </div>
       </div>
 
-      <!-- Fila: Información Detallada y Censo -->
+      <!-- SECCIÓN VISIBLE DIRECTA: TABLA DE USUARIOS ASIGNADOS AL EVENTO -->
+      <div id="seccion-usuarios" class="bg-white rounded-xl border-2 border-blue-200 shadow-md p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 bg-blue-100 text-blue-700 rounded-lg">
+              <UserGroupIcon class="w-6 h-6" />
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-gray-900">
+                Usuarios Asignados al Evento ({{ votantesPaginados.total }} en total)
+              </h2>
+              <p class="text-xs text-gray-500">
+                Listado completo del censo con búsqueda, verificación de sufragio previo y paginación.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              @click="abrirModalVotantes"
+              class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold shadow-xs"
+            >
+              <ArrowsPointingOutIcon class="w-4 h-4 text-gray-500" />
+              <span>Ver en Modal Flotante</span>
+            </button>
+
+            <SecondaryLink :href="route('eventos.migrar.view', { destino: evento.id })" class="inline-flex items-center gap-1.5 text-xs py-1.5 px-3">
+              <ArrowPathIcon class="w-4 h-4 text-indigo-600" />
+              <span>+ Migrar Más Votantes</span>
+            </SecondaryLink>
+          </div>
+        </div>
+
+        <!-- Controles de Filtro y Búsqueda -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs">
+          <!-- Buscador -->
+          <div class="relative w-full md:w-80">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <MagnifyingGlassIcon class="w-4 h-4" />
+            </div>
+            <input
+              type="text"
+              v-model="filtroVotantesSearch"
+              @keyup.enter="cargarVotantes(1)"
+              placeholder="Buscar por nombre, cédula o email..."
+              class="pl-9 pr-8 py-2 w-full text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs"
+            />
+            <button
+              v-if="filtroVotantesSearch"
+              type="button"
+              @click="limpiarFiltroSearch"
+              class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- Filtros de Estado y Cantidad -->
+          <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            <div class="flex items-center gap-1.5">
+              <span class="text-gray-500 font-medium">Estado:</span>
+              <select
+                v-model="filtroVotantesEstado"
+                @change="cargarVotantes(1)"
+                class="py-1.5 pl-2.5 pr-7 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs"
+              >
+                <option value="todos">Todos los estados</option>
+                <option value="Activo">Solo Activos</option>
+                <option value="Pendiente">Solo Pendientes</option>
+                <option value="Rechazado">Solo Rechazados</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-gray-500 font-medium">Por pág.:</span>
+              <select
+                v-model="perPageVotantes"
+                @change="cargarVotantes(1)"
+                class="py-1.5 pl-2.5 pr-7 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs"
+              >
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+              </select>
+            </div>
+
+            <button
+              type="button"
+              @click="cargarVotantes(votantesPaginados.current_page)"
+              class="p-1.5 rounded-lg border border-gray-300 hover:bg-white text-gray-600 transition shadow-xs"
+              title="Actualizar tabla"
+            >
+              <ArrowPathIcon class="w-4 h-4" :class="{ 'animate-spin': cargandoVotantes }" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla Responsive -->
+        <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-xs">
+          <div v-if="cargandoVotantes" class="py-16 text-center text-gray-500">
+            <ArrowPathIcon class="w-8 h-8 mx-auto animate-spin text-blue-600 mb-2" />
+            <p class="text-xs font-semibold">Consultando usuarios asignados...</p>
+          </div>
+
+          <div v-else-if="votantesPaginados.data && votantesPaginados.data.length > 0" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-gray-50 text-[11px] font-bold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                <tr>
+                  <th class="py-3 px-3.5">#</th>
+                  <th class="py-3 px-3.5">Nombre / Votante</th>
+                  <th class="py-3 px-3.5">Identificación</th>
+                  <th class="py-3 px-3.5">Tipo / Estamento</th>
+                  <th class="py-3 px-3.5">Comuna / Sector</th>
+                  <th class="py-3 px-3.5 text-center">Rol</th>
+                  <th class="py-3 px-3.5 text-center">Estado</th>
+                  <th class="py-3 px-3.5 text-center">Intentos</th>
+                  <th class="py-3 px-3.5 text-center">¿Votó?</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr
+                  v-for="(item, idx) in votantesPaginados.data"
+                  :key="'vot-main-' + item.id"
+                  class="hover:bg-slate-50 transition"
+                >
+                  <td class="py-3 px-3.5 font-mono text-gray-400 font-medium">
+                    {{ (votantesPaginados.current_page - 1) * votantesPaginados.per_page + idx + 1 }}
+                  </td>
+
+                  <td class="py-3 px-3.5">
+                    <div class="font-bold text-gray-900">{{ item.votante?.nombre || 'Sin nombre' }}</div>
+                    <div class="text-[11px] text-gray-400">{{ item.votante?.email || 'Sin correo' }}</div>
+                  </td>
+
+                  <td class="py-3 px-3.5 font-mono text-slate-700 whitespace-nowrap">
+                    <span class="text-[11px] text-gray-400 mr-1">{{ item.votante?.tipo_documento || 'CC' }}:</span>
+                    <b>{{ item.votante?.identificacion || 'N/A' }}</b>
+                  </td>
+
+                  <td class="py-3 px-3.5 whitespace-nowrap">
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                      {{ item.tipo || 'Votante' }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3.5 whitespace-nowrap text-gray-600">
+                    {{ item.comuna_nombre || 'N/A' }}
+                  </td>
+
+                  <td class="py-3 px-3.5 text-center whitespace-nowrap">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                      :class="item.candidato ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
+                    >
+                      {{ item.candidato ? 'Candidato' : 'Votante' }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3.5 text-center whitespace-nowrap">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-[11px] font-bold border"
+                      :class="{
+                        'bg-green-100 text-green-800 border-green-200': item.estado === 'Activo',
+                        'bg-amber-100 text-amber-800 border-amber-200': item.estado === 'Pendiente',
+                        'bg-red-100 text-red-800 border-red-200': item.estado === 'Rechazado',
+                      }"
+                    >
+                      {{ item.estado }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3.5 text-center font-mono font-semibold text-gray-700">
+                    {{ item.intentos ?? 0 }}
+                  </td>
+
+                  <td class="py-3 px-3.5 text-center whitespace-nowrap">
+                    <span
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
+                      :class="item.ya_voto ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-500 border-slate-200'"
+                    >
+                      {{ item.ya_voto ? '✓ Sí votó' : 'Pendiente' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-else class="py-14 text-center text-gray-400 bg-gray-50/50">
+            <UserGroupIcon class="w-10 h-10 mx-auto text-gray-300 mb-2" />
+            <p class="font-bold text-gray-700 text-sm">No se encontraron usuarios</p>
+            <p class="text-xs text-gray-400 mt-1">
+              No hay usuarios asignados a este evento o no coinciden con la búsqueda.
+            </p>
+          </div>
+
+          <!-- Paginador -->
+          <div class="px-5 py-3 bg-gray-50/80 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+            <div>
+              Mostrando del <b>{{ votantesPaginados.from || 0 }}</b> al <b>{{ votantesPaginados.to || 0 }}</b> de <b>{{ votantesPaginados.total || 0 }}</b> usuarios
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                :disabled="!votantesPaginados.prev_page_url"
+                @click="cargarVotantes(1)"
+                class="px-2.5 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+              >
+                « Primera
+              </button>
+
+              <button
+                type="button"
+                :disabled="!votantesPaginados.prev_page_url"
+                @click="cargarVotantes(votantesPaginados.current_page - 1)"
+                class="px-2.5 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+              >
+                ‹ Anterior
+              </button>
+
+              <span class="px-3 py-1.5 font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-md">
+                Pág. {{ votantesPaginados.current_page || 1 }} / {{ votantesPaginados.last_page || 1 }}
+              </span>
+
+              <button
+                type="button"
+                :disabled="!votantesPaginados.next_page_url"
+                @click="cargarVotantes(votantesPaginados.current_page + 1)"
+                class="px-2.5 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+              >
+                Siguiente ›
+              </button>
+
+              <button
+                type="button"
+                :disabled="!votantesPaginados.next_page_url"
+                @click="cargarVotantes(votantesPaginados.last_page)"
+                class="px-2.5 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+              >
+                Última »
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila: Información Detallada y Censo General -->
       <div class="grid md:grid-cols-3 gap-6">
         <!-- Columna 1 y 2: Información General del Evento -->
         <div class="md:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
@@ -221,20 +479,20 @@
           </div>
         </div>
 
-        <!-- Columna 3: Desglose del Censo Asignado -->
+        <!-- Columna 3: Desglose Estadístico del Censo -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between pb-3 border-b border-gray-100">
               <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
                 <UserGroupIcon class="w-5 h-5 text-blue-600" />
-                Desglose de Usuarios
+                Desglose Estadístico
               </h2>
               <button
                 type="button"
-                @click="abrirModalVotantes"
+                @click="irAUsuarios"
                 class="text-xs text-blue-600 hover:text-blue-800 font-bold underline"
               >
-                Ver todos
+                Ver tabla
               </button>
             </div>
 
@@ -269,11 +527,11 @@
           <div class="pt-4 border-t border-gray-100 space-y-2">
             <button
               type="button"
-              @click="abrirModalVotantes"
-              class="w-full justify-center inline-flex items-center gap-1.5 text-xs py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg border border-blue-200 transition"
+              @click="irAUsuarios"
+              class="w-full justify-center inline-flex items-center gap-1.5 text-xs py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-xs"
             >
               <EyeIcon class="w-4 h-4" />
-              <span>Explorar Listado con Paginación</span>
+              <span>Ver Lista de Usuarios Asignados</span>
             </button>
 
             <SecondaryLink
@@ -425,13 +683,12 @@
         </div>
       </div>
 
-      <!-- MODAL CON TABLA RESPONSIVE Y PAGINACIÓN DE USUARIOS ASIGNADOS -->
+      <!-- MODAL FLOTANTE (OPCIONAL EN VENTANA COMPLETA) -->
       <div
         v-if="modalVotantesAbierto"
         class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto"
       >
-        <div class="bg-white rounded-2xl max-w-6xl w-full shadow-2xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-150">
-          <!-- Cabecera del Modal -->
+        <div class="bg-white rounded-2xl max-w-6xl w-full shadow-2xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh]">
           <div class="px-6 py-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="p-2 bg-white/10 rounded-lg">
@@ -455,9 +712,7 @@
             </button>
           </div>
 
-          <!-- Filtros de búsqueda dentro del Modal -->
           <div class="p-4 bg-slate-50 border-b border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <!-- Buscador -->
             <div class="relative w-full sm:w-80">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <MagnifyingGlassIcon class="w-4 h-4" />
@@ -467,7 +722,7 @@
                 v-model="filtroVotantesSearch"
                 @keyup.enter="cargarVotantes(1)"
                 placeholder="Buscar por nombre, identificación..."
-                class="pl-9 pr-8 py-2 w-full text-xs border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                class="pl-9 pr-8 py-2 w-full text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs"
               />
               <button
                 v-if="filtroVotantesSearch"
@@ -479,12 +734,11 @@
               </button>
             </div>
 
-            <!-- Filtro de Estado y Per Page -->
             <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
               <select
                 v-model="filtroVotantesEstado"
                 @change="cargarVotantes(1)"
-                class="py-2 pl-3 pr-8 text-xs border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                class="py-2 pl-3 pr-8 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs"
               >
                 <option value="todos">Todos los estados</option>
                 <option value="Activo">Solo Activos</option>
@@ -495,7 +749,7 @@
               <select
                 v-model="perPageVotantes"
                 @change="cargarVotantes(1)"
-                class="py-2 pl-3 pr-8 text-xs border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                class="py-2 pl-3 pr-8 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-xs"
               >
                 <option :value="10">10 por pág.</option>
                 <option :value="20">20 por pág.</option>
@@ -513,10 +767,9 @@
             </div>
           </div>
 
-          <!-- Cuerpo: Tabla Responsive -->
           <div class="flex-1 overflow-y-auto">
             <div v-if="cargandoVotantes" class="py-16 text-center text-gray-500">
-              <ArrowPathIcon class="w-8 h-8 mx-auto animate-spin text-indigo-600 mb-2" />
+              <ArrowPathIcon class="w-8 h-8 mx-auto animate-spin text-blue-600 mb-2" />
               <p class="text-xs font-semibold">Consultando usuarios asignados...</p>
             </div>
 
@@ -538,39 +791,33 @@
                 <tbody class="divide-y divide-gray-100">
                   <tr
                     v-for="(item, idx) in votantesPaginados.data"
-                    :key="'vot-' + item.id"
+                    :key="'vot-modal-' + item.id"
                     class="hover:bg-slate-50 transition"
                   >
-                    <!-- Número / Posición -->
                     <td class="py-3 px-3.5 font-mono text-gray-400 font-medium">
                       {{ (votantesPaginados.current_page - 1) * votantesPaginados.per_page + idx + 1 }}
                     </td>
 
-                    <!-- Nombre y Email -->
                     <td class="py-3 px-3.5">
                       <div class="font-bold text-gray-900">{{ item.votante?.nombre || 'Sin nombre' }}</div>
-                      <div class="text-[11px] text-gray-400">{{ item.votante?.email || 'Sin correo registrado' }}</div>
+                      <div class="text-[11px] text-gray-400">{{ item.votante?.email || 'Sin correo' }}</div>
                     </td>
 
-                    <!-- Identificación -->
                     <td class="py-3 px-3.5 font-mono text-slate-700 whitespace-nowrap">
                       <span class="text-[11px] text-gray-400 mr-1">{{ item.votante?.tipo_documento || 'CC' }}:</span>
                       <b>{{ item.votante?.identificacion || 'N/A' }}</b>
                     </td>
 
-                    <!-- Tipo / Estamento -->
                     <td class="py-3 px-3.5 whitespace-nowrap">
                       <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
                         {{ item.tipo || 'Votante' }}
                       </span>
                     </td>
 
-                    <!-- Comuna -->
                     <td class="py-3 px-3.5 whitespace-nowrap text-gray-600">
                       {{ item.comuna_nombre || 'N/A' }}
                     </td>
 
-                    <!-- Rol (Candidato / Votante) -->
                     <td class="py-3 px-3.5 text-center whitespace-nowrap">
                       <span
                         class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
@@ -580,7 +827,6 @@
                       </span>
                     </td>
 
-                    <!-- Estado -->
                     <td class="py-3 px-3.5 text-center whitespace-nowrap">
                       <span
                         class="px-2 py-0.5 rounded-full text-[11px] font-bold border"
@@ -594,12 +840,10 @@
                       </span>
                     </td>
 
-                    <!-- Intentos -->
                     <td class="py-3 px-3.5 text-center font-mono font-semibold text-gray-700">
                       {{ item.intentos ?? 0 }}
                     </td>
 
-                    <!-- Ya Votó -->
                     <td class="py-3 px-3.5 text-center whitespace-nowrap">
                       <span
                         class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
@@ -613,30 +857,26 @@
               </table>
             </div>
 
-            <!-- Estado Vacío -->
             <div v-else class="py-16 text-center text-gray-400 bg-gray-50/50">
               <UserGroupIcon class="w-10 h-10 mx-auto text-gray-300 mb-2" />
               <p class="font-bold text-gray-700 text-sm">No se encontraron usuarios</p>
               <p class="text-xs text-gray-400 mt-1">
-                No hay usuarios que coincidan con los criterios de búsqueda en este evento.
+                No hay usuarios que coincidan con la búsqueda.
               </p>
             </div>
           </div>
 
-          <!-- Pie del Modal: Paginador Completo -->
           <div class="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
             <div>
-              Mostrando del <b>{{ votantesPaginados.from || 0 }}</b> al <b>{{ votantesPaginados.to || 0 }}</b> de <b>{{ votantesPaginados.total || 0 }}</b> usuarios asignados
+              Mostrando del <b>{{ votantesPaginados.from || 0 }}</b> al <b>{{ votantesPaginados.to || 0 }}</b> de <b>{{ votantesPaginados.total || 0 }}</b> usuarios
             </div>
 
-            <!-- Controles de Paginación -->
             <div class="flex items-center gap-1.5">
               <button
                 type="button"
                 :disabled="!votantesPaginados.prev_page_url"
                 @click="cargarVotantes(1)"
                 class="px-2.5 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
-                title="Primera página"
               >
                 « Primera
               </button>
@@ -650,7 +890,7 @@
                 ‹ Anterior
               </button>
 
-              <span class="px-3 py-1.5 font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-md">
+              <span class="px-3 py-1.5 font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-md">
                 Página {{ votantesPaginados.current_page || 1 }} de {{ votantesPaginados.last_page || 1 }}
               </span>
 
@@ -668,7 +908,6 @@
                 :disabled="!votantesPaginados.next_page_url"
                 @click="cargarVotantes(votantesPaginados.last_page)"
                 class="px-2.5 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
-                title="Última página"
               >
                 Última »
               </button>
@@ -700,6 +939,7 @@ import {
   EyeIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
+  ArrowsPointingOutIcon,
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
@@ -742,6 +982,18 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  votantes_iniciales: {
+    type: Object,
+    default: () => ({
+      data: [],
+      current_page: 1,
+      last_page: 1,
+      total: 0,
+      per_page: 10,
+      from: 0,
+      to: 0,
+    }),
+  },
 });
 
 const breadcrumbLinks = [
@@ -749,28 +1001,24 @@ const breadcrumbLinks = [
   { url: '', text: 'Detalle: ' + props.evento.nombre },
 ];
 
-// Estado del Modal de Usuarios Asignados
+// Estado de los Votantes Asignados (inicializado con la primera página enviada por el servidor)
 const modalVotantesAbierto = ref(false);
 const cargandoVotantes = ref(false);
-const votantesPaginados = ref({
-  data: [],
-  current_page: 1,
-  last_page: 1,
-  total: 0,
-  per_page: 10,
-  from: 0,
-  to: 0,
-});
+const votantesPaginados = ref(props.votantes_iniciales);
 const filtroVotantesSearch = ref('');
 const filtroVotantesEstado = ref('todos');
 const perPageVotantes = ref(10);
 
+const irAUsuarios = () => {
+  const el = document.getElementById('seccion-usuarios');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 const abrirModalVotantes = () => {
   modalVotantesAbierto.value = true;
   document.body.style.overflow = 'hidden';
-  if (votantesPaginados.value.data.length === 0) {
-    cargarVotantes(1);
-  }
 };
 
 const cerrarModalVotantes = () => {
@@ -802,7 +1050,6 @@ const cargarVotantes = async (pagina = 1) => {
   }
 };
 
-// Tecla Escape para cerrar modal
 const manejarEscape = (e) => {
   if (e.key === 'Escape' && modalVotantesAbierto.value) {
     cerrarModalVotantes();

@@ -111,6 +111,29 @@ class EventosController extends Controller
             ->select('eventos.id', 'eventos.nombre', 'eventos.estado', 'eventos.fecha_inicio', 'eventos.fecha_fin')
             ->get();
 
+        // Primera página de usuarios asignados para mostrar inmediatamente en la vista
+        $votantesPaginados = Hash_votantes::where('id_evento', $id)
+            ->with(['votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
+        $votanteIds = $votantesPaginados->getCollection()->pluck('id_votante')->toArray();
+        $votaron = Votos::where('id_eventos', $id)
+            ->whereIn('id_votante', $votanteIds)
+            ->pluck('id_votante')
+            ->flip()
+            ->toArray();
+
+        $comunaIds = $votantesPaginados->getCollection()->pluck('votante.comuna')->filter()->unique()->toArray();
+        $nombresComunas = ParametrosDetalle::whereIn('id', $comunaIds)->pluck('detalle', 'id')->toArray();
+
+        $votantesPaginados->getCollection()->transform(function ($item) use ($votaron, $nombresComunas) {
+            $item->ya_voto = isset($votaron[$item->id_votante]);
+            $comunaId = $item->votante ? $item->votante->comuna : null;
+            $item->comuna_nombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
+            return $item;
+        });
+
         return Inertia::render('Eventos/Show', [
             'evento' => $evento,
             'conteo_votantes' => $conteoVotantes,
@@ -119,6 +142,7 @@ class EventosController extends Controller
             'actas_fin' => $actasFin,
             'actas_escrutinio' => $actasEscrutinio,
             'eventos_hijos' => $eventosHijos,
+            'votantes_iniciales' => $votantesPaginados,
         ]);
     }
 

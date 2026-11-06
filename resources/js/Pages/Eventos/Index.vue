@@ -143,12 +143,16 @@
                   </div>
                 </td>
 
-                <!-- Censo Asignado -->
+                <!-- Censo Asignado (Clickeable para ver usuarios) -->
                 <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                  <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 font-semibold text-xs">
-                    <UserGroupIcon class="w-3.5 h-3.5 text-blue-600" />
+                  <Link
+                    :href="route('eventos.show', ev.id)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 font-bold text-xs transition shadow-xs group"
+                    title="Ver listado de usuarios asignados a este evento"
+                  >
+                    <UserGroupIcon class="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
                     <span>{{ ev.votantes_count ?? 0 }}</span>
-                  </div>
+                  </Link>
                 </td>
 
                 <!-- Votos Registrados -->
@@ -187,14 +191,24 @@
                 <!-- Acciones Claras -->
                 <td class="py-3.5 px-4 text-right whitespace-nowrap">
                   <div class="flex items-center justify-end gap-1.5">
-                    <!-- Ver Detalles (NUEVA OPCIÓN) -->
+                    <!-- Ver Detalles -->
                     <Link
                       :href="route('eventos.show', ev.id)"
-                      class="p-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium inline-flex items-center gap-1 transition"
-                      title="Ver detalles, actas y censo del evento"
+                      class="p-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold inline-flex items-center gap-1 transition"
+                      title="Ver detalles, actas y resumen del evento"
                     >
                       <EyeIcon class="w-3.5 h-3.5" />
                       <span>Detalles</span>
+                    </Link>
+
+                    <!-- Ver Votantes Asignados -->
+                    <Link
+                      :href="route('eventos.show', ev.id)"
+                      class="p-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold inline-flex items-center gap-1 transition"
+                      title="Ver listado y tabla de usuarios asignados al evento"
+                    >
+                      <UserGroupIcon class="w-3.5 h-3.5 text-blue-600" />
+                      <span>Votantes</span>
                     </Link>
 
                     <!-- Editar -->
