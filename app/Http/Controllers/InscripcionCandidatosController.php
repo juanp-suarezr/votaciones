@@ -58,7 +58,7 @@ class InscripcionCandidatosController extends Controller
             ],
             'titulo_encabezado' => 'SECRETARÍA DE GESTIÓN ADMINISTRATIVA',
             'subtitulo_encabezado' => 'DIRECCIÓN ADMINISTRATIVA DE TALENTO HUMANO',
-            'nombre_formulario' => 'FORMULARIO DE INSCRIPCIÓN – COMISIÓN DE PERSONAL 2025-2026',
+            'nombre_formulario' => 'FORMULARIO DE INSCRIPCIÓN CANDIDATOS – COMISIÓN DE PERSONAL',
         ]);
     }
 
@@ -70,10 +70,12 @@ class InscripcionCandidatosController extends Controller
     {
         $request->validate([
             'identificacion' => 'required|string|max:30',
+            'tipo_documento' => 'nullable|string|max:20',
             'id_evento' => 'nullable|integer',
         ]);
 
         $identificacion = trim($request->identificacion);
+        $tipoDocSeleccionado = $request->input('tipo_documento', 'CC');
 
         // 1. Buscar en Informacion_votantes (tabla votantes)
         $votante = Informacion_votantes::where('identificacion', $identificacion)->first();
@@ -86,7 +88,7 @@ class InscripcionCandidatosController extends Controller
 
         $esFuncionario = false;
         $nombre = null;
-        $tipoDoc = 'CC';
+        $tipoDoc = $tipoDocSeleccionado ?: ($votante && $votante->tipo_documento ? $votante->tipo_documento : 'CC');
         $email = null;
         $celular = null;
         $dependencia = null;
@@ -96,7 +98,9 @@ class InscripcionCandidatosController extends Controller
 
         if ($votante) {
             $nombre = $votante->nombre;
-            $tipoDoc = $votante->tipo_documento ?: 'CC';
+            if (empty($tipoDocSeleccionado) && !empty($votante->tipo_documento)) {
+                $tipoDoc = $votante->tipo_documento;
+            }
             $email = $votante->email;
             $celular = $votante->celular;
             $dependencia = $votante->dependencia;
@@ -127,14 +131,36 @@ class InscripcionCandidatosController extends Controller
         } elseif ($funcionarioPlaneacion) {
             $esFuncionario = true;
             $nombre = $funcionarioPlaneacion->nombre;
+            $dependencia = $funcionarioPlaneacion->area ?? null;
         }
 
         if (!$esFuncionario) {
             return response()->json([
                 'success' => false,
                 'encontrado' => false,
-                'mensaje' => 'El número de identificación no corresponde a un funcionario habilitado para esta postulación (is_funcionario = 1) o no se encuentra registrado en el censo oficial. Por favor contacte a la Dirección de Talento Humano.',
+                'mensaje' => 'El número de identificación no corresponde a un funcionario público activo habilitado para esta postulación o no se encuentra registrado en el censo oficial de empleados. Si considera que se trata de un error, por favor contacte a la Dirección Administrativa de Talento Humano.',
             ], 422);
+        }
+
+        // Si no tenía email o celular en local, consultar en Central Data para auto-completar y no perder datos
+        if (empty($email) || empty($celular)) {
+            try {
+                $tipoDocCode = $this->centralDataService->getTipoDocumentoDataCenter($tipoDoc) ?? 'CC';
+                $findCentral = $this->centralDataService->findPerson($tipoDocCode, $identificacion, 'votaciones');
+                if (!empty($findCentral['ok']) && !empty($findCentral['data'])) {
+                    $pData = isset($findCentral['data']['data']) && is_array($findCentral['data']['data'])
+                        ? $findCentral['data']['data']
+                        : (is_array($findCentral['data']) ? $findCentral['data'] : []);
+                    if (empty($email) && !empty($pData['correo'])) {
+                        $email = $pData['correo'];
+                    }
+                    if (empty($celular) && !empty($pData['telefono'])) {
+                        $celular = $pData['telefono'];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Silencioso
+            }
         }
 
         // Verificar si ya tiene una postulación en este evento o en estado Pendiente/Aprobado
@@ -280,15 +306,43 @@ class InscripcionCandidatosController extends Controller
                 $votante->is_funcionario = 1;
                 $votante->save();
             } else {
+                // Si no existía en votantes, consultar si ya existe en Central Data para heredar comuna, barrio, dirección, etc.
+                $datosCentrales = null;
+                try {
+                    $tipoDocCode = $this->centralDataService->getTipoDocumentoDataCenter($request->tipo_documento ?: 'CC') ?? 'CC';
+                    $findRes = $this->centralDataService->findPerson($tipoDocCode, $identificacion, 'votaciones');
+                    if (!empty($findRes['ok']) && !empty($findRes['data'])) {
+                        $datosCentrales = isset($findRes['data']['data']) && is_array($findRes['data']['data'])
+                            ? $findRes['data']['data']
+                            : (is_array($findRes['data']) ? $findRes['data'] : null);
+                    }
+                } catch (\Throwable $eFind) {
+                    Log::warning('CentralData: no se pudo consultar persona previa al crear votante', ['error' => $eFind->getMessage()]);
+                }
+
+                $dirCentral = '';
+                if ($datosCentrales && isset($datosCentrales['direccion'])) {
+                    $dirCentral = is_array($datosCentrales['direccion'])
+                        ? ($datosCentrales['direccion']['via principal'] ?? '')
+                        : (string)$datosCentrales['direccion'];
+                }
+
                 $votante = Informacion_votantes::create([
                     'nombre' => $request->nombre,
                     'identificacion' => $identificacion,
-                    'tipo_documento' => $request->tipo_documento ?: 'CC',
-                    'email' => $request->email ? trim($request->email) : null,
-                    'celular' => $request->celular ? trim($request->celular) : null,
+                    'tipo_documento' => $request->tipo_documento ?: ($datosCentrales['tipo_documento'] ?? 'CC'),
+                    'email' => $request->email ? trim($request->email) : ($datosCentrales['correo'] ?? null),
+                    'celular' => $request->celular ? trim($request->celular) : ($datosCentrales['telefono'] ?? null),
                     'planta' => $request->tipo_planta,
                     'dependencia' => $request->dependencia,
                     'provision' => $request->provision,
+                    'comuna' => $datosCentrales['comuna'] ?? null,
+                    'barrio' => $datosCentrales['barrio'] ?? null,
+                    'direccion' => $dirCentral ?: null,
+                    'nacimiento' => $datosCentrales['fecha_nacimiento'] ?? null,
+                    'genero' => $datosCentrales['genero'] ?? null,
+                    'etnia' => $datosCentrales['etnia'] ?? null,
+                    'condicion' => $datosCentrales['condicion'] ?? null,
                     'is_funcionario' => 1,
                     'imagen' => $fotoFileName ?: 'user.png',
                 ]);

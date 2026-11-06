@@ -286,11 +286,112 @@ class CentralDataService
     }
 
     /**
-     * Sincroniza un votante local con Central Data de forma tolerante a fallos.
+     * Sincroniza un votante local con Central Data de forma no destructiva y tolerante a fallos.
+     * Preserva la información previa existente en Central Data y en local (comuna, barrio, dirección, etc.)
+     * evitando que campos preexistentes se sobrescriban con nulo o vacío.
      */
     public function syncVotante($votante, ?string $email = null, ?string $celular = null): array
     {
+        $tipoDoc = $this->getTipoDocumentoDataCenter($votante->tipo_documento ?? 'CC') ?? ($votante->tipo_documento ?? 'CC');
+        $numDoc = (string) $votante->identificacion;
+
+        // 1. Consultar si la persona ya existe en Central Data para no pisar datos con null o vacío
+        $existingPerson = null;
+        try {
+            $findRes = $this->findPerson($tipoDoc, $numDoc, $this->sourceProject);
+            if (!empty($findRes['ok']) && !empty($findRes['data'])) {
+                $existingPerson = isset($findRes['data']['data']) && is_array($findRes['data']['data'])
+                    ? $findRes['data']['data']
+                    : (is_array($findRes['data']) ? $findRes['data'] : null);
+            }
+        } catch (\Throwable $eFind) {
+            Log::warning('CentralData: no fue posible consultar persona antes de sincronizar', [
+                'doc' => $numDoc,
+                'error' => $eFind->getMessage(),
+            ]);
+        }
+
+        // 2. Construir payload inicial desde el modelo local
         $payload = $this->buildPayloadFromVotante($votante, $email, $celular);
+
+        // 3. Fusión no destructiva: si Central Data ya tenía información previa y el payload local viene nulo/vacío/'NA', preservar Central Data
+        if ($existingPerson && is_array($existingPerson)) {
+            $camposPreservables = [
+                'comuna',
+                'barrio',
+                'genero',
+                'etnia',
+                'condicion',
+                'nivel_estudio',
+                'fecha_nacimiento',
+                'edad',
+                'correo',
+                'telefono',
+                'dignatario',
+                'relacion',
+            ];
+
+            foreach ($camposPreservables as $campo) {
+                $valorLocal = $payload[$campo] ?? null;
+                $valorCentral = $existingPerson[$campo] ?? null;
+
+                $esVacioLocal = empty($valorLocal) || in_array($valorLocal, ['NA', 'No aplica', 'Sin condición', 'null']);
+                $tieneValorCentral = !empty($valorCentral) && !in_array($valorCentral, ['NA', 'No aplica', 'Sin condición', 'null']);
+
+                // Si en local está vacío o sin dato, pero Central Data ya lo tenía, PRESERVAR lo de Central Data
+                if ($esVacioLocal && $tieneValorCentral) {
+                    $payload[$campo] = $valorCentral;
+                }
+            }
+
+            // Preservar estructura de Dirección
+            $dirExistente = $existingPerson['direccion'] ?? null;
+            if ($dirExistente) {
+                if (is_array($dirExistente)) {
+                    if (empty($payload['direccion']['via principal']) && !empty($dirExistente['via principal'])) {
+                        $payload['direccion']['via principal'] = $dirExistente['via principal'];
+                    }
+                    if (empty($payload['direccion']['municipio']) && !empty($dirExistente['municipio'])) {
+                        $payload['direccion']['municipio'] = $dirExistente['municipio'];
+                    }
+                    if (empty($payload['direccion']['departamento']) && !empty($dirExistente['departamento'])) {
+                        $payload['direccion']['departamento'] = $dirExistente['departamento'];
+                    }
+                } elseif (is_string($dirExistente) && !empty($dirExistente) && empty($payload['direccion']['via principal'])) {
+                    $payload['direccion']['via principal'] = $dirExistente;
+                }
+            }
+
+            // 4. Beneficio de doble vía: Si en el votante local faltaban comuna/barrio/dirección, enriquecer el votante local sin tocar lo demás
+            $modificadoLocal = false;
+            if (empty($votante->comuna) && !empty($payload['comuna'])) {
+                $votante->comuna = $payload['comuna'];
+                $modificadoLocal = true;
+            }
+            if (empty($votante->barrio) && !empty($payload['barrio'])) {
+                $votante->barrio = $payload['barrio'];
+                $modificadoLocal = true;
+            }
+            if (empty($votante->direccion) && !empty($payload['direccion']['via principal'])) {
+                $votante->direccion = $payload['direccion']['via principal'];
+                $modificadoLocal = true;
+            }
+            if (empty($votante->nacimiento) && !empty($payload['fecha_nacimiento'])) {
+                $votante->nacimiento = $payload['fecha_nacimiento'];
+                $modificadoLocal = true;
+            }
+            if (empty($votante->genero) && !empty($payload['genero'])) {
+                $votante->genero = $payload['genero'];
+                $modificadoLocal = true;
+            }
+            if ($modificadoLocal) {
+                try {
+                    $votante->save();
+                } catch (\Throwable $eSave) {
+                    Log::warning('CentralData: no se pudo actualizar datos enriquecidos en votante local', ['error' => $eSave->getMessage()]);
+                }
+            }
+        }
 
         try {
             $result = $this->syncPerson($payload);

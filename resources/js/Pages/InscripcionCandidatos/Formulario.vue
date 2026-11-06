@@ -16,7 +16,7 @@
             <span>Volver al portal principal</span>
           </Link>
           <span class="text-[11px] font-mono font-bold px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-full border border-indigo-200">
-            Proceso Oficial 2025 - 2026
+            Proceso Oficial
           </span>
         </div>
 
@@ -161,7 +161,7 @@
                 Paso 2: Validación de Funcionario Habilitado
               </h3>
               <p class="text-[11px] text-indigo-700">
-                Ingrese su número de documento. El sistema validará su calidad de funcionario (is_funcionario = 1) y traerá sus datos de dependencia, provisión y planta.
+                Seleccione su tipo de documento e ingrese el número. El sistema validará su vinculación activa como empleado público y auto-completará sus datos oficiales de dependencia, provisión y planta.
               </p>
             </div>
           </div>
@@ -171,11 +171,13 @@
               <select
                 v-model="tipoDocConsulta"
                 :disabled="funcionarioValidado"
-                class="w-full text-xs border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100"
+                class="w-full text-xs font-semibold border-2 border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 py-2 px-3"
               >
                 <option value="CC">Cédula de Ciudadanía (CC)</option>
                 <option value="CE">Cédula de Extranjería (CE)</option>
                 <option value="TI">Tarjeta de Identidad (TI)</option>
+                <option value="PEP">Permiso Especial (PEP)</option>
+                <option value="PPT">Protección Temporal (PPT)</option>
               </select>
             </div>
 
@@ -311,12 +313,18 @@
               <label class="block text-xs font-black uppercase tracking-wider text-slate-900">
                 Tipo y Número de Identificación:
               </label>
-              <input
-                type="text"
-                :value="form.tipo_documento + ' - ' + form.identificacion"
-                readonly
-                class="w-full text-xs font-mono font-bold bg-slate-50 border-2 border-slate-400 rounded-md px-3 py-2 text-slate-900 focus:outline-none"
-              />
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-3.5 py-2 rounded-md font-black text-xs bg-indigo-100 text-indigo-900 border-2 border-indigo-300 uppercase shrink-0">
+                  {{ form.tipo_documento || tipoDocConsulta }}
+                </span>
+                <input
+                  type="text"
+                  :value="form.identificacion"
+                  readonly
+                  class="w-full text-xs font-mono font-bold bg-slate-50 border-2 border-slate-400 rounded-md px-3 py-2 text-slate-900 focus:outline-none"
+                  placeholder="Número de documento de identidad"
+                />
+              </div>
             </div>
 
             <!-- FILA 3: DATOS LABORALES AUTOCOMPLETADOS (DEPENDENCIA, PROVISIÓN, PLANTA) -->
@@ -626,7 +634,7 @@ const props = defineProps({
   },
   nombre_formulario: {
     type: String,
-    default: 'FORMULARIO DE INSCRIPCIÓN – COMISIÓN DE PERSONAL 2025-2026',
+    default: 'FORMULARIO DE INSCRIPCIÓN CANDIDATOS – COMISIÓN DE PERSONAL',
   },
 });
 
@@ -693,6 +701,7 @@ const consultarFuncionario = async () => {
   try {
     const response = await axios.post(route('candidatos.inscripcion.consultar'), {
       identificacion: identificacionConsulta.value,
+      tipo_documento: tipoDocConsulta.value,
       id_evento: form.id_evento,
     });
 

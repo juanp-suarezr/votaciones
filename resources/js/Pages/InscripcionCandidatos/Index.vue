@@ -267,7 +267,7 @@
                     <!-- Certificado Procuraduría -->
                     <button
                       type="button"
-                      @click="abrirVisorDocumento('Certificado de Procuraduría', '/storage/uploads/documentos_candidatos/' + postulacion.archivo_procuraduria)"
+                      @click="abrirVisorDocumento('procuraduria', postulacion)"
                       class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md border border-indigo-200 transition"
                       title="Ver Certificado de Procuraduría"
                     >
@@ -277,7 +277,7 @@
                     <!-- Fotocopia Cédula -->
                     <button
                       type="button"
-                      @click="abrirVisorDocumento('Fotocopia de Cédula', '/storage/uploads/documentos_candidatos/' + postulacion.archivo_cedula)"
+                      @click="abrirVisorDocumento('cedula', postulacion)"
                       class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md border border-slate-300 transition"
                       title="Ver Fotocopia de Cédula"
                     >
@@ -288,7 +288,7 @@
                     <button
                       v-if="postulacion.foto"
                       type="button"
-                      @click="abrirVisorDocumento('Fotografía del Candidato', '/storage/uploads/candidatos/' + postulacion.foto)"
+                      @click="abrirVisorDocumento('foto', postulacion)"
                       class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200 transition"
                       title="Ver Fotografía"
                     >
@@ -382,60 +382,307 @@
       </div>
     </div>
 
-    <!-- MODAL 1: VISOR DE DOCUMENTO (SOPORTE) -->
-    <Modal :show="modalVisorAbierto" @close="modalVisorAbierto = false" maxWidth="4xl">
-      <div class="p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-          <div class="flex items-center gap-2">
-            <DocumentMagnifyingGlassIcon class="w-5 h-5 text-indigo-700" />
-            <h3 class="text-sm font-extrabold text-slate-900 uppercase">
-              Visor de Soporte: {{ visorTitulo }}
-            </h3>
-          </div>
+    <!-- MODAL 1: VISOR DOCKABLE / SPLIT-SCREEN / MULTI-MODO DE DOCUMENTOS (z-[101]) -->
+    <Teleport to="body">
+      <!-- MODO MINIMIZADO (PILL FLOTANTE EN ESQUINA INFERIOR) -->
+      <div
+        v-if="modalVisorAbierto && visorMinimizado"
+        class="fixed bottom-5 right-5 z-[101] bg-slate-900/95 backdrop-blur-md text-white rounded-2xl shadow-2xl p-3 border border-slate-700 flex items-center gap-3 transition-all"
+      >
+        <div class="p-2 bg-indigo-600 rounded-xl text-white shadow-md">
+          <DocumentMagnifyingGlassIcon class="w-5 h-5" />
+        </div>
+        <div class="text-xs">
+          <p class="font-extrabold text-white uppercase">{{ visorTitulo }}</p>
+          <p class="text-[11px] text-slate-300 font-mono">{{ postulacionActivaVisor?.nombre }}</p>
+        </div>
+        <div class="flex items-center gap-1 pl-2 border-l border-slate-700">
           <button
-            @click="modalVisorAbierto = false"
-            class="text-slate-400 hover:text-slate-600 p-1 rounded-md"
+            type="button"
+            @click="visorMinimizado = false"
+            class="p-1.5 hover:bg-slate-800 text-indigo-400 hover:text-white rounded-lg transition"
+            title="Restaurar Visor"
           >
-            <XMarkIcon class="w-5 h-5" />
+            <ArrowsPointingOutIcon class="w-4 h-4" />
           </button>
-        </div>
-
-        <!-- Contenedor del documento -->
-        <div class="bg-slate-100 rounded-xl overflow-hidden border border-slate-300 min-h-[500px] flex items-center justify-center">
-          <iframe
-            v-if="esPdf(visorUrl)"
-            :src="visorUrl"
-            class="w-full h-[600px] border-none"
-          ></iframe>
-          <img
-            v-else
-            :src="visorUrl"
-            :alt="visorTitulo"
-            class="max-h-[600px] max-w-full object-contain mx-auto p-2"
-          />
-        </div>
-
-        <div class="flex items-center justify-between pt-2">
-          <a
-            :href="visorUrl"
-            target="_blank"
-            download
-            class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-          >
-            <ArrowDownTrayIcon class="w-4 h-4" />
-            <span>Descargar Documento Original</span>
-          </a>
-
           <button
             type="button"
             @click="modalVisorAbierto = false"
-            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-bold"
+            class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition"
+            title="Cerrar Visor"
           >
-            Cerrar Visor
+            <XMarkIcon class="w-4 h-4" />
           </button>
         </div>
       </div>
-    </Modal>
+
+      <!-- VISOR ACTIVO SEGÚN EL MODO: SPLIT (50% DERECHA), FULLSCREEN O CENTRADO -->
+      <div v-else-if="modalVisorAbierto">
+        <!-- Backdrop únicamente cuando está en modo modal 'center' -->
+        <div
+          v-if="visorModo === 'center'"
+          class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs transition-opacity z-[101]"
+          @click="modalVisorAbierto = false"
+        ></div>
+
+        <!-- Contenedor maestro del Visor -->
+        <div
+          :class="{
+            // Modo Dividido (Split Screen 50% Lateral Derecho)
+            'fixed top-0 right-0 bottom-0 w-full lg:w-1/2 xl:w-1/2 z-[102] bg-white shadow-2xl border-l-2 border-indigo-200 flex flex-col': visorModo === 'split',
+            // Modo Pantalla Completa
+            'fixed inset-0 z-[102] bg-white flex flex-col': visorModo === 'full',
+            // Modo Modal Centrado
+            'fixed inset-0 z-[102] flex items-center justify-center p-3 sm:p-6 pointer-events-none': visorModo === 'center'
+          }"
+        >
+          <div
+            :class="{
+              'w-full h-full flex flex-col': visorModo === 'split' || visorModo === 'full',
+              'w-full max-w-4xl h-[92vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col pointer-events-auto overflow-hidden': visorModo === 'center'
+            }"
+          >
+            <!-- CABECERA DEL VISOR -->
+            <div class="px-4 py-3 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 shrink-0 border-b border-slate-800">
+              <!-- Información de Documento y Candidato -->
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600 text-white rounded-xl shadow-xs">
+                  <DocumentMagnifyingGlassIcon class="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 class="text-xs font-black uppercase tracking-wider text-white">
+                    {{ visorTitulo }}
+                  </h3>
+                  <p class="text-[11px] text-slate-300 font-medium truncate max-w-xs sm:max-w-md">
+                    {{ postulacionActivaVisor?.nombre }} •
+                    <span class="font-mono text-indigo-300">{{ postulacionActivaVisor?.tipo_documento || 'CC' }}: {{ postulacionActivaVisor?.identificacion }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- PESTAÑAS DE CAMBIO RÁPIDO ENTRE SOPORTES -->
+              <div class="flex items-center gap-1 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
+                <button
+                  type="button"
+                  @click="cambiarDocVisor('procuraduria')"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5"
+                  :class="docActivoTipo === 'procuraduria' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-700'"
+                >
+                  <DocumentTextIcon class="w-3.5 h-3.5" />
+                  <span>Procuraduría</span>
+                </button>
+
+                <button
+                  type="button"
+                  @click="cambiarDocVisor('cedula')"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5"
+                  :class="docActivoTipo === 'cedula' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-700'"
+                >
+                  <IdentificationIcon class="w-3.5 h-3.5" />
+                  <span>Cédula</span>
+                </button>
+
+                <button
+                  v-if="postulacionActivaVisor?.foto"
+                  type="button"
+                  @click="cambiarDocVisor('foto')"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5"
+                  :class="docActivoTipo === 'foto' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-700'"
+                >
+                  <PhotoIcon class="w-3.5 h-3.5" />
+                  <span>Foto</span>
+                </button>
+              </div>
+
+              <!-- CONTROLES DE PANTALLA Y CIERRE -->
+              <div class="flex items-center gap-1 text-slate-300">
+                <!-- Modo Dividido 50% Lateral -->
+                <button
+                  type="button"
+                  @click="visorModo = 'split'"
+                  class="p-2 rounded-lg hover:bg-slate-800 transition"
+                  :class="visorModo === 'split' ? 'text-indigo-400 bg-slate-800' : 'text-slate-400 hover:text-white'"
+                  title="Dividir Pantalla (50% Lateral)"
+                >
+                  <ViewColumnsIcon class="w-4 h-4" />
+                </button>
+
+                <!-- Modo Centrado Modal -->
+                <button
+                  type="button"
+                  @click="visorModo = 'center'"
+                  class="p-2 rounded-lg hover:bg-slate-800 transition"
+                  :class="visorModo === 'center' ? 'text-indigo-400 bg-slate-800' : 'text-slate-400 hover:text-white'"
+                  title="Modal Centrado"
+                >
+                  <WindowIcon class="w-4 h-4" />
+                </button>
+
+                <!-- Modo Pantalla Completa -->
+                <button
+                  type="button"
+                  @click="visorModo = visorModo === 'full' ? 'split' : 'full'"
+                  class="p-2 rounded-lg hover:bg-slate-800 transition"
+                  :class="visorModo === 'full' ? 'text-indigo-400 bg-slate-800' : 'text-slate-400 hover:text-white'"
+                  title="Pantalla Completa"
+                >
+                  <ArrowsPointingOutIcon v-if="visorModo !== 'full'" class="w-4 h-4" />
+                  <ArrowsPointingInIcon v-else class="w-4 h-4" />
+                </button>
+
+                <!-- Minimizar -->
+                <button
+                  type="button"
+                  @click="visorMinimizado = true"
+                  class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition"
+                  title="Minimizar Visor"
+                >
+                  <MinusIcon class="w-4 h-4" />
+                </button>
+
+                <!-- Cerrar -->
+                <button
+                  type="button"
+                  @click="modalVisorAbierto = false"
+                  class="p-2 rounded-lg hover:bg-red-900/60 text-slate-400 hover:text-red-400 transition"
+                  title="Cerrar Visor"
+                >
+                  <XMarkIcon class="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- CONTROLES ADICIONALES PARA IMÁGENES (ZOOM Y ROTACIÓN) -->
+            <div v-if="!esPdf(visorUrl)" class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex items-center justify-between text-xs">
+              <span class="text-slate-600 font-semibold text-[11px]">Herramientas de inspección visual:</span>
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  @click="zoomIn"
+                  class="p-1 px-2.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 font-bold text-slate-700 shadow-2xs"
+                  title="Aumentar Zoom (+)"
+                >
+                  <PlusIcon class="w-3.5 h-3.5 inline mr-0.5" />
+                  <span>Zoom</span>
+                </button>
+                <span class="text-[11px] font-mono font-bold text-indigo-700 px-1">{{ Math.round(zoomNivel * 100) }}%</span>
+                <button
+                  type="button"
+                  @click="zoomOut"
+                  class="p-1 px-2.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 font-bold text-slate-700 shadow-2xs"
+                  title="Reducir Zoom (-)"
+                >
+                  <MinusIcon class="w-3.5 h-3.5 inline mr-0.5" />
+                  <span>Alejar</span>
+                </button>
+                <button
+                  type="button"
+                  @click="rotar"
+                  class="p-1 px-2.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 font-bold text-slate-700 shadow-2xs ml-1"
+                  title="Girar 90 grados"
+                >
+                  <ArrowPathRoundedSquareIcon class="w-3.5 h-3.5 inline mr-0.5" />
+                  <span>Girar</span>
+                </button>
+                <button
+                  type="button"
+                  @click="resetZoom"
+                  class="px-2.5 py-1 bg-white border border-slate-300 rounded-md text-[11px] font-bold text-slate-600 hover:bg-slate-50 shadow-2xs"
+                >
+                  Restablecer
+                </button>
+              </div>
+            </div>
+
+            <!-- ÁREA DE VISUALIZACIÓN DEL DOCUMENTO -->
+            <div class="flex-1 bg-slate-200/90 overflow-auto p-3 flex items-center justify-center relative min-h-[350px]">
+              <!-- Caso 1: Archivo PDF -->
+              <iframe
+                v-if="esPdf(visorUrl)"
+                :key="visorUrl"
+                :src="visorUrl + '#toolbar=1&navpanes=0'"
+                class="w-full h-full min-h-[500px] border-none bg-white rounded-xl shadow-md"
+                title="Visor de PDF"
+              ></iframe>
+
+              <!-- Caso 2: Imagen (con zoom y rotación interactiva) -->
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center overflow-auto p-4"
+              >
+                <img
+                  :key="visorUrl"
+                  :src="visorUrl"
+                  :alt="visorTitulo"
+                  :style="{
+                    transform: `scale(${zoomNivel}) rotate(${rotacion}deg)`,
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.2s ease',
+                  }"
+                  class="max-h-[85vh] max-w-full object-contain rounded-xl shadow-lg bg-white"
+                />
+              </div>
+            </div>
+
+            <!-- BARRA INFERIOR DE ACCIONES -->
+            <div class="px-4 py-3 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <div class="flex items-center gap-3">
+                <a
+                  :href="visorUrl"
+                  target="_blank"
+                  class="text-xs font-bold text-indigo-700 hover:text-indigo-900 flex items-center gap-1.5 py-1.5 px-3 rounded-lg hover:bg-indigo-50 border border-indigo-200 transition"
+                >
+                  <ArrowTopRightOnSquareIcon class="w-4 h-4" />
+                  <span>Abrir en nueva pestaña</span>
+                </a>
+
+                <a
+                  :href="visorUrl"
+                  download
+                  class="text-xs font-bold text-slate-600 hover:text-slate-800 flex items-center gap-1.5 py-1.5 px-3 rounded-lg hover:bg-slate-100 border border-slate-200 transition"
+                >
+                  <ArrowDownTrayIcon class="w-4 h-4" />
+                  <span>Descargar original</span>
+                </a>
+              </div>
+
+              <!-- ACCIONES RÁPIDAS DE VALIDACIÓN DIRECTAS EN EL VISOR -->
+              <div class="flex items-center gap-2">
+                <template v-if="postulacionActivaVisor?.estado === 'Pendiente'">
+                  <button
+                    v-if="$page.props.user.permissions.includes('validador-candidatos-aprobar') || $page.props.user.roles.includes('Administrador')"
+                    type="button"
+                    @click="abrirModalAprobar(postulacionActivaVisor)"
+                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 shadow-xs"
+                  >
+                    <CheckIcon class="w-4 h-4" />
+                    <span>Aprobar Candidato</span>
+                  </button>
+
+                  <button
+                    v-if="$page.props.user.permissions.includes('validador-candidatos-rechazar') || $page.props.user.roles.includes('Administrador')"
+                    type="button"
+                    @click="abrirModalRechazar(postulacionActivaVisor)"
+                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 shadow-xs"
+                  >
+                    <XMarkIcon class="w-4 h-4" />
+                    <span>Rechazar</span>
+                  </button>
+                </template>
+
+                <button
+                  type="button"
+                  @click="modalVisorAbierto = false"
+                  class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-bold transition"
+                >
+                  Cerrar Visor
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- MODAL 2: APROBACIÓN DE CANDIDATURA -->
     <Modal :show="modalAprobarAbierto" @close="modalAprobarAbierto = false" maxWidth="lg">
@@ -669,38 +916,38 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               type="button"
-              @click="abrirVisorDocumento('Certificado Procuraduría', '/storage/uploads/documentos_candidatos/' + seleccionada.archivo_procuraduria)"
-              class="p-2.5 bg-white border border-slate-300 hover:border-indigo-500 rounded-lg text-left transition flex items-center gap-2"
+              @click="abrirVisorDocumento('procuraduria', seleccionada)"
+              class="p-2.5 bg-white border border-slate-300 hover:border-indigo-500 rounded-lg text-left transition flex items-center gap-2 group"
             >
-              <DocumentTextIcon class="w-5 h-5 text-indigo-600 shrink-0" />
+              <DocumentTextIcon class="w-5 h-5 text-indigo-600 group-hover:scale-110 transition shrink-0" />
               <div class="truncate">
                 <span class="block text-xs font-bold text-slate-800">Procuraduría</span>
-                <span class="text-[10px] text-slate-400">Clic para ver</span>
+                <span class="text-[10px] text-indigo-600 font-semibold">Clic para inspeccionar</span>
               </div>
             </button>
 
             <button
               type="button"
-              @click="abrirVisorDocumento('Fotocopia Cédula', '/storage/uploads/documentos_candidatos/' + seleccionada.archivo_cedula)"
-              class="p-2.5 bg-white border border-slate-300 hover:border-indigo-500 rounded-lg text-left transition flex items-center gap-2"
+              @click="abrirVisorDocumento('cedula', seleccionada)"
+              class="p-2.5 bg-white border border-slate-300 hover:border-indigo-500 rounded-lg text-left transition flex items-center gap-2 group"
             >
-              <IdentificationIcon class="w-5 h-5 text-slate-700 shrink-0" />
+              <IdentificationIcon class="w-5 h-5 text-slate-700 group-hover:scale-110 transition shrink-0" />
               <div class="truncate">
                 <span class="block text-xs font-bold text-slate-800">Cédula</span>
-                <span class="text-[10px] text-slate-400">Clic para ver</span>
+                <span class="text-[10px] text-indigo-600 font-semibold">Clic para inspeccionar</span>
               </div>
             </button>
 
             <button
               v-if="seleccionada.foto"
               type="button"
-              @click="abrirVisorDocumento('Fotografía Candidato', '/storage/uploads/candidatos/' + seleccionada.foto)"
-              class="p-2.5 bg-white border border-slate-300 hover:border-indigo-500 rounded-lg text-left transition flex items-center gap-2"
+              @click="abrirVisorDocumento('foto', seleccionada)"
+              class="p-2.5 bg-white border border-slate-300 hover:border-indigo-500 rounded-lg text-left transition flex items-center gap-2 group"
             >
-              <PhotoIcon class="w-5 h-5 text-emerald-600 shrink-0" />
+              <PhotoIcon class="w-5 h-5 text-emerald-600 group-hover:scale-110 transition shrink-0" />
               <div class="truncate">
                 <span class="block text-xs font-bold text-slate-800">Foto Tarjetón</span>
-                <span class="text-[10px] text-slate-400">Clic para ver</span>
+                <span class="text-[10px] text-indigo-600 font-semibold">Clic para inspeccionar</span>
               </div>
             </button>
           </div>
@@ -746,6 +993,13 @@ import {
   ClipboardDocumentCheckIcon,
   InformationCircleIcon,
   ArrowPathIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
+  ViewColumnsIcon,
+  WindowIcon,
+  MinusIcon,
+  PlusIcon,
+  ArrowPathRoundedSquareIcon,
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
@@ -840,19 +1094,71 @@ const parsearMotivos = (motivos) => {
 const seleccionada = ref(null);
 const procesandoAccion = ref(false);
 
-// Modal Visor Documento
+// Visor de Documentos Adaptable (Split 50%, Fullscreen, Centrado, Zoom)
 const modalVisorAbierto = ref(false);
-const visorTitulo = ref('');
-const visorUrl = ref('');
+const visorModo = ref('split'); // 'split' | 'full' | 'center'
+const visorMinimizado = ref(false);
+const postulacionActivaVisor = ref(null);
+const docActivoTipo = ref('procuraduria'); // 'procuraduria' | 'cedula' | 'foto'
 
-const abrirVisorDocumento = (titulo, url) => {
-  visorTitulo.value = titulo;
-  visorUrl.value = url;
-  modalVisorAbierto.value = true;
+// Zoom y Rotación de Imágenes
+const zoomNivel = ref(1);
+const rotacion = ref(0);
+
+const zoomIn = () => {
+  zoomNivel.value = Math.min(Number((zoomNivel.value + 0.25).toFixed(2)), 3);
 };
 
+const zoomOut = () => {
+  zoomNivel.value = Math.max(Number((zoomNivel.value - 0.25).toFixed(2)), 0.5);
+};
+
+const resetZoom = () => {
+  zoomNivel.value = 1;
+  rotacion.value = 0;
+};
+
+const rotar = () => {
+  rotacion.value = (rotacion.value + 90) % 360;
+};
+
+const abrirVisorDocumento = (tipoDoc, postulacion) => {
+  postulacionActivaVisor.value = postulacion;
+  docActivoTipo.value = tipoDoc;
+  modalVisorAbierto.value = true;
+  visorMinimizado.value = false;
+  resetZoom();
+};
+
+const cambiarDocVisor = (tipoDoc) => {
+  docActivoTipo.value = tipoDoc;
+  resetZoom();
+};
+
+const visorUrl = computed(() => {
+  if (!postulacionActivaVisor.value) return '';
+  if (docActivoTipo.value === 'procuraduria') {
+    return '/storage/uploads/documentos_candidatos/' + postulacionActivaVisor.value.archivo_procuraduria;
+  }
+  if (docActivoTipo.value === 'cedula') {
+    return '/storage/uploads/documentos_candidatos/' + postulacionActivaVisor.value.archivo_cedula;
+  }
+  if (docActivoTipo.value === 'foto' && postulacionActivaVisor.value.foto) {
+    return '/storage/uploads/candidatos/' + postulacionActivaVisor.value.foto;
+  }
+  return '';
+});
+
+const visorTitulo = computed(() => {
+  if (docActivoTipo.value === 'procuraduria') return 'Certificado de Procuraduría';
+  if (docActivoTipo.value === 'cedula') return 'Fotocopia de Documento de Identidad';
+  if (docActivoTipo.value === 'foto') return 'Fotografía para Tarjetón Electoral';
+  return 'Soporte Documental';
+});
+
 const esPdf = (url) => {
-  return url && url.toLowerCase().endsWith('.pdf');
+  if (!url) return false;
+  return url.toLowerCase().split('?')[0].endsWith('.pdf');
 };
 
 // Modal Detalle
