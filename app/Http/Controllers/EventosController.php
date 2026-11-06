@@ -300,6 +300,8 @@ class EventosController extends Controller
         $origenId = (int) $id;
         $destinoId = $request->query('destino_id') ? (int) $request->query('destino_id') : null;
 
+        $eventoOrigen = Eventos::find($origenId);
+
         $total = Hash_votantes::where('id_evento', $origenId)->count();
         $soloVotantes = Hash_votantes::where('id_evento', $origenId)->where('candidato', 0)->count();
         $candidatos = Hash_votantes::where('id_evento', $origenId)->where('candidato', 1)->count();
@@ -307,10 +309,53 @@ class EventosController extends Controller
         $pendientes = Hash_votantes::where('id_evento', $origenId)->where('estado', 'Pendiente')->count();
         $rechazados = Hash_votantes::where('id_evento', $origenId)->where('estado', 'Rechazado')->count();
 
+        // Tipos presentes en el evento origen
+        $tiposOrigen = [];
+        if ($eventoOrigen && !empty($eventoOrigen->tipos) && $eventoOrigen->tipos !== 'NA') {
+            $tiposOrigen = array_filter(array_map('trim', explode('|', $eventoOrigen->tipos)));
+        }
+        $tiposEnHashOrigen = Hash_votantes::where('id_evento', $origenId)
+            ->whereNotNull('tipo')
+            ->where('tipo', '!=', '')
+            ->distinct()
+            ->pluck('tipo')
+            ->flatMap(function ($t) {
+                return explode('|', $t);
+            })
+            ->map(fn($t) => trim($t))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $tiposOrigen = array_values(array_unique(array_merge($tiposOrigen, $tiposEnHashOrigen)));
+
+        // Determinar si el evento origen realmente maneja comunas
+        $tieneComunas = Hash_votantes::where('id_evento', $origenId)
+            ->whereNotNull('subtipo')
+            ->where('subtipo', '!=', 0)
+            ->where('subtipo', '!=', '0')
+            ->where('subtipo', '!=', '')
+            ->exists();
+
+        $tiposDestino = [];
+        $tiposCoincidentes = [];
         $yaEnDestino = null;
         $nuevos = null;
 
         if ($destinoId && $destinoId !== $origenId) {
+            $eventoDestino = Eventos::find($destinoId);
+            if ($eventoDestino && !empty($eventoDestino->tipos) && $eventoDestino->tipos !== 'NA') {
+                $tiposDestino = array_filter(array_map('trim', explode('|', $eventoDestino->tipos)));
+            }
+
+            // Detectar coincidencias entre origen y destino
+            $tiposDestinoLower = array_map('mb_strtolower', $tiposDestino);
+            foreach ($tiposOrigen as $tOrig) {
+                if (in_array(mb_strtolower($tOrig), $tiposDestinoLower)) {
+                    $tiposCoincidentes[] = $tOrig;
+                }
+            }
+
             $idsOrigen = Hash_votantes::where('id_evento', $origenId)->pluck('id_votante');
             $yaEnDestino = Hash_votantes::where('id_evento', $destinoId)
                 ->whereIn('id_votante', $idsOrigen)
@@ -325,6 +370,10 @@ class EventosController extends Controller
             'activos' => $activos,
             'pendientes' => $pendientes,
             'rechazados' => $rechazados,
+            'tiene_comunas' => $tieneComunas,
+            'tipos_origen' => $tiposOrigen,
+            'tipos_destino' => $tiposDestino,
+            'tipos_coincidentes' => $tiposCoincidentes,
             'ya_en_destino' => $yaEnDestino,
             'nuevos' => $nuevos,
         ]);
@@ -340,6 +389,7 @@ class EventosController extends Controller
             'evento_destino_id' => 'required|integer|exists:eventos,id|different:evento_origen_id',
             'modo' => 'required|string|in:copiar,mover',
             'filtro_estado' => 'required|string|in:todos,Activo,Pendiente,Rechazado',
+            'filtro_tipo' => 'nullable|string',
             'incluir_candidatos' => 'required|boolean',
             'filtro_comuna' => 'nullable',
             'estado_destino' => 'required|string|in:mantener,Activo,Pendiente',
@@ -351,6 +401,7 @@ class EventosController extends Controller
         $destinoId = (int) $request->evento_destino_id;
         $modo = $request->modo;
         $filtroEstado = $request->filtro_estado;
+        $filtroTipo = $request->filtro_tipo;
         $incluirCandidatos = (bool) $request->incluir_candidatos;
         $filtroComuna = $request->filtro_comuna;
         $estadoDestino = $request->estado_destino;
@@ -360,12 +411,26 @@ class EventosController extends Controller
         $eventoOrigen = Eventos::find($origenId);
         $eventoDestino = Eventos::find($destinoId);
 
+        // Validación de coincidencia de tipo con evento destino si se especifica un tipo concreto
+        if (!empty($filtroTipo) && $filtroTipo !== 'todos') {
+            if ($eventoDestino && !empty($eventoDestino->tipos) && $eventoDestino->tipos !== 'NA') {
+                $destTipos = array_map('trim', array_map('mb_strtolower', explode('|', $eventoDestino->tipos)));
+                if (!in_array(mb_strtolower(trim($filtroTipo)), $destTipos)) {
+                    return redirect()->back()->with('error', "El tipo de votante '{$filtroTipo}' no forma parte de los tipos permitidos en el evento de destino '{$eventoDestino->nombre}' ({$eventoDestino->tipos}).");
+                }
+            }
+        }
+
         DB::beginTransaction();
         try {
             $query = Hash_votantes::where('id_evento', $origenId);
 
             if ($filtroEstado !== 'todos') {
                 $query->where('estado', $filtroEstado);
+            }
+
+            if (!empty($filtroTipo) && $filtroTipo !== 'todos') {
+                $query->where('tipo', 'like', '%' . $filtroTipo . '%');
             }
 
             if (!$incluirCandidatos) {
@@ -380,7 +445,7 @@ class EventosController extends Controller
 
             if ($totalEncontrados === 0) {
                 DB::rollBack();
-                return redirect()->back()->with('error', 'No se encontraron usuarios en el evento de origen con los filtros seleccionados.');
+                return redirect()->back()->with('error', 'No se encontraron usuarios en el evento de origen con la combinación de filtros seleccionada.');
             }
 
             $insertados = 0;
