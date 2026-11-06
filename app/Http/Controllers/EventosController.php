@@ -151,8 +151,8 @@ class EventosController extends Controller
         $nombresComunas = ParametrosDetalle::whereIn('id', $comunaIds)->pluck('detalle', 'id')->toArray();
 
         // Eventos específicos donde cada votante es candidato
-        $candidaturas = Hash_votantes::whereIn('id_votante', $votanteIds)
-            ->where('candidato', 1)
+        $candidaturas = Hash_votantes::whereIn('hash_votantes.id_votante', $votanteIds)
+            ->where('hash_votantes.candidato', 1)
             ->join('eventos', 'hash_votantes.id_evento', '=', 'eventos.id')
             ->select('hash_votantes.id_votante', 'hash_votantes.id_evento', 'eventos.id as evento_id', 'eventos.nombre as evento_nombre')
             ->get()
@@ -170,9 +170,9 @@ class EventosController extends Controller
             $candidaturasUser = $candidaturas->get($item->id_votante, collect());
             $eventosCandidato = $candidaturasUser->pluck('evento_nombre')->unique()->values()->toArray();
 
-            // Si está marcado como candidato en este registro pero no tenía evento asociado en el join
-            if ($item->candidato == 1 && empty($eventosCandidato) && $nombreEventoActual) {
-                $eventosCandidato = [$nombreEventoActual];
+            // Si está marcado como candidato en este registro, asegurar que el evento actual esté en la lista
+            if ($item->candidato == 1 && $nombreEventoActual && !in_array($nombreEventoActual, $eventosCandidato)) {
+                array_unshift($eventosCandidato, $nombreEventoActual);
             }
 
             $item->eventos_candidato = $eventosCandidato;
@@ -569,6 +569,7 @@ class EventosController extends Controller
             'filtro_estado' => 'required|string|in:todos,Activo,Pendiente,Rechazado',
             'filtro_tipo' => 'nullable|string',
             'incluir_candidatos' => 'required|boolean',
+            'candidatos_como_votantes' => 'nullable|boolean',
             'filtro_comuna' => 'nullable',
             'estado_destino' => 'required|string|in:mantener,Activo,Pendiente',
             'accion_duplicados' => 'required|string|in:omitir,actualizar',
@@ -581,6 +582,7 @@ class EventosController extends Controller
         $filtroEstado = $request->filtro_estado;
         $filtroTipo = $request->filtro_tipo;
         $incluirCandidatos = (bool) $request->incluir_candidatos;
+        $candidatosComoVotantes = (bool) $request->input('candidatos_como_votantes', true);
         $filtroComuna = $request->filtro_comuna;
         $estadoDestino = $request->estado_destino;
         $accionDuplicados = $request->accion_duplicados;
@@ -639,6 +641,7 @@ class EventosController extends Controller
                 $estadoDestino,
                 $accionDuplicados,
                 $resetearIntentos,
+                $candidatosComoVotantes,
                 &$insertados,
                 &$actualizados,
                 &$omitidos,
@@ -667,6 +670,9 @@ class EventosController extends Controller
                     $nuevoEstado = ($estadoDestino === 'mantener') ? $item->estado : $estadoDestino;
                     $nuevosIntentos = $resetearIntentos ? 0 : $item->intentos;
 
+                    // Si era candidato y se seleccionó la opción de migrarlo como un votante más, pasa a ser 0
+                    $nuevoCandidato = ($item->candidato == 1 && $candidatosComoVotantes) ? 0 : $item->candidato;
+
                     if ($modo === 'mover') {
                         // Preservar integridad electoral si el usuario ya votó en el origen
                         if (isset($votantesConVoto[$votanteId])) {
@@ -675,7 +681,7 @@ class EventosController extends Controller
                                 Hash_votantes::create([
                                     'id_evento' => $destinoId,
                                     'id_votante' => $votanteId,
-                                    'candidato' => $item->candidato,
+                                    'candidato' => $nuevoCandidato,
                                     'tipo' => $item->tipo,
                                     'subtipo' => $item->subtipo,
                                     'motivo' => $item->motivo,
@@ -695,6 +701,7 @@ class EventosController extends Controller
                             if ($accionDuplicados === 'actualizar') {
                                 $existente = $existentesEnDestino->get($votanteId);
                                 $existente->update([
+                                    'candidato' => $nuevoCandidato,
                                     'tipo' => $item->tipo,
                                     'subtipo' => $item->subtipo,
                                     'estado' => $nuevoEstado,
@@ -708,6 +715,7 @@ class EventosController extends Controller
                         } else {
                             $item->update([
                                 'id_evento' => $destinoId,
+                                'candidato' => $nuevoCandidato,
                                 'estado' => $nuevoEstado,
                                 'intentos' => $nuevosIntentos,
                             ]);
@@ -719,6 +727,7 @@ class EventosController extends Controller
                             if ($accionDuplicados === 'actualizar') {
                                 $existente = $existentesEnDestino->get($votanteId);
                                 $existente->update([
+                                    'candidato' => $nuevoCandidato,
                                     'tipo' => $item->tipo,
                                     'subtipo' => $item->subtipo,
                                     'estado' => $nuevoEstado,
@@ -732,7 +741,7 @@ class EventosController extends Controller
                             Hash_votantes::create([
                                 'id_evento' => $destinoId,
                                 'id_votante' => $votanteId,
-                                'candidato' => $item->candidato,
+                                'candidato' => $nuevoCandidato,
                                 'tipo' => $item->tipo,
                                 'subtipo' => $item->subtipo,
                                 'motivo' => $item->motivo,

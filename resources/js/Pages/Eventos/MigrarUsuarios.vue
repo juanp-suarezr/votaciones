@@ -347,28 +347,70 @@
               </div>
             </div>
 
-            <!-- 5. INCLUIR CANDIDATOS -->
+            <!-- 5. INCLUIR CANDIDATOS Y SU CONDICIÓN -->
             <div class="space-y-3 bg-gray-50/70 p-4 rounded-xl border border-gray-200">
               <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide">
                 5. Usuarios Candidatos
               </label>
               <p class="text-xs text-gray-500 leading-snug">
-                <b>¿Por qué existe?</b> Los candidatos también tienen usuario en el sistema. Puedes elegir si se vinculan al nuevo evento como electores o si solo se migra la ciudadanía regular.
+                <b>¿Por qué existe?</b> Puedes elegir si los usuarios que postularon candidatura en el evento origen se transfieren, y si deben vincularse como <b>un votante más</b> o continuar como candidatos.
               </p>
 
-              <div class="pt-2">
-                <label class="flex items-center gap-2.5 p-3 bg-white border border-gray-300 rounded-lg cursor-pointer">
+              <div class="pt-2 space-y-3">
+                <label class="flex items-center gap-2.5 p-3 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-slate-50 transition">
                   <input
                     type="checkbox"
                     v-model="form.incluir_candidatos"
                     class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                   />
-                  <span class="text-xs text-gray-800 font-semibold">Incluir candidatos en la asignación [Por defecto: Sí]</span>
+                  <span class="text-xs text-gray-800 font-semibold">Incluir usuarios candidatos en la migración [Por defecto: Sí]</span>
                 </label>
+
+                <!-- Sub-opción para definir el rol del candidato en el nuevo evento -->
+                <div v-if="form.incluir_candidatos" class="p-3.5 bg-white border-2 border-indigo-100 rounded-xl space-y-2.5">
+                  <span class="block text-xs font-bold text-indigo-900">
+                    ¿Cómo registrar a los candidatos en el evento destino?
+                  </span>
+
+                  <div class="space-y-2 text-xs">
+                    <label class="flex items-start gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-indigo-50/50 transition border" :class="form.candidatos_como_votantes ? 'border-indigo-300 bg-indigo-50/30' : 'border-gray-200'">
+                      <input
+                        type="radio"
+                        v-model="form.candidatos_como_votantes"
+                        :value="true"
+                        class="mt-0.5 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <div>
+                        <span class="font-bold text-gray-900">Migrar al candidato como un votante más (No como candidato) [Recomendado]</span>
+                        <p class="text-[11px] text-gray-500 mt-0.5">
+                          El usuario se asigna al nuevo evento habilitado para sufragar normalmente, pero con rol de votante regular (candidato = 0). No figurará en la lista de candidatos del nuevo evento.
+                        </p>
+                      </div>
+                    </label>
+
+                    <label class="flex items-start gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-indigo-50/50 transition border" :class="!form.candidatos_como_votantes ? 'border-indigo-300 bg-indigo-50/30' : 'border-gray-200'">
+                      <input
+                        type="radio"
+                        v-model="form.candidatos_como_votantes"
+                        :value="false"
+                        class="mt-0.5 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <div>
+                        <span class="font-semibold text-gray-800">Mantener también su rol de candidato en el nuevo evento</span>
+                        <p class="text-[11px] text-gray-500 mt-0.5">
+                          El usuario se registrará con su rol de candidato activo (candidato = 1) en las listas electorales del evento destino.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div class="p-2 bg-slate-100 border border-slate-200 rounded text-[11px] text-slate-700">
-                <b>Efecto:</b> Al estar marcado, ningún usuario se quedará por fuera independientemente de si postuló candidatura en el evento anterior.
+                <b>Efecto:</b>
+                <span v-if="!form.incluir_candidatos"> Solo se migran los ciudadanos regulares; los candidatos quedan excluidos.</span>
+                <span v-else-if="form.candidatos_como_votantes"> Los candidatos se transfieren como votantes comunes para que puedan ejercer el voto en el nuevo evento.</span>
+                <span v-else> Los candidatos conservan su condición de candidatos en el nuevo evento de destino.</span>
               </div>
             </div>
 
@@ -529,6 +571,7 @@ const form = useForm({
   filtro_tipo: 'todos',            // <-- Por defecto TODOS
   filtro_comuna: '',               // <-- Por defecto TODAS
   incluir_candidatos: true,        // <-- Por defecto TODOS (votantes y candidatos)
+  candidatos_como_votantes: true,  // <-- Por defecto Migrar al candidato como un votante más
   estado_destino: 'mantener',      // <-- Por defecto Mantener estado original
   accion_duplicados: 'omitir',     // <-- Por defecto Omitir duplicados
   resetear_intentos: true,         // <-- Por defecto Reiniciar intentos
@@ -675,7 +718,7 @@ const confirmarEnvio = () => {
           <li>Filtro estado: <b>${form.filtro_estado}</b></li>
           <li>Filtro tipo: <b>${form.filtro_tipo}</b></li>
           <li>Filtro comuna: <b>${form.filtro_comuna || 'Todas las comunas (sin filtro)'}</b></li>
-          <li>Candidatos: <b>${form.incluir_candidatos ? 'Incluidos' : 'Solo votantes'}</b></li>
+          <li>Candidatos: <b>${form.incluir_candidatos ? (form.candidatos_como_votantes ? 'Incluidos como votantes más (sin candidatura)' : 'Incluidos conservando candidatura') : 'Omitidos (solo votantes)'}</b></li>
           <li>Estado en destino: <b>${form.estado_destino}</b></li>
           <li>Duplicados: <b>${form.accion_duplicados === 'omitir' ? 'Omitir' : 'Actualizar'}</b></li>
           <li>Reiniciar intentos: <b>${form.resetear_intentos ? 'Sí (a 0)' : 'No'}</b></li>

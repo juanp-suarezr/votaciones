@@ -53,8 +53,10 @@ class CandidatosController extends Controller
                     ->whereHas('hashVotantes', function ($query) {
                         $query->where('candidato', 1); // Filtrar por el campo candidato en hash_votantes
                     })
-                    ->with('hashVotantes') // Traer la relación hashVotantes
-                    ->paginate(5) // Aplica el paginado directamente aquí
+                    ->with(['hashVotantes' => function ($query) {
+                        $query->where('candidato', 1)->with('evento:id,nombre');
+                    }])
+                    ->paginate(10) // Aplica el paginado directamente aquí
                     ->withQueryString() // Mantener los parámetros en la URL
                     ->through(function ($user) {
                         // Concatenamos los tipos de hashVotantes en una cadena separada por comas
@@ -64,6 +66,17 @@ class CandidatosController extends Controller
                             })
                             ->unique() // Elimina valores duplicados
                             ->implode('|');
+
+                        // Nombres de eventos específicos donde es candidato
+                        $user->eventos = $user->hashVotantes
+                            ->map(function ($h) {
+                                return $h->evento ? $h->evento->nombre : null;
+                            })
+                            ->filter()
+                            ->unique()
+                            ->values()
+                            ->toArray();
+
                         return $user;
                     }),
                 'filters' => RequestFacade::only(['search', 'id_evento', 'tipo', 'candidato']),

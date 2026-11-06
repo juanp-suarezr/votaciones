@@ -84,6 +84,10 @@
                                         class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Tipo usuario
                                     </th>
+                                    <th
+                                        class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        Evento de Candidatura
+                                    </th>
 
                                     <th
                                         class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
@@ -114,6 +118,18 @@
                                     </td>
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                                         <p class="text-gray-900 whitespace-no-wrap">{{ user.tipos }}</p>
+                                    </td>
+                                    <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+                                        <div v-if="user.eventos && user.eventos.length > 0" class="flex flex-wrap gap-1">
+                                            <span
+                                                v-for="(evNom, evIdx) in user.eventos"
+                                                :key="evIdx"
+                                                class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs"
+                                            >
+                                                {{ evNom }}
+                                            </span>
+                                        </div>
+                                        <span v-else class="text-xs text-gray-400 italic">Sin evento asignado</span>
                                     </td>
 
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
