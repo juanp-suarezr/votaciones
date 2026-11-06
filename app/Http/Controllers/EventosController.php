@@ -28,7 +28,7 @@ class EventosController extends Controller
 
     function __construct()
     {
-        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'show', 'store', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
+        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'show', 'store', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios', 'listarVotantesEvento']]);
         $this->middleware('permission:eventos-crear', ['only' => ['create', 'store']]);
         $this->middleware('permission:eventos-editar', ['only' => ['edit', 'update', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
         $this->middleware('permission:eventos-eliminar', ['only' => ['destroy']]);
@@ -120,6 +120,54 @@ class EventosController extends Controller
             'actas_escrutinio' => $actasEscrutinio,
             'eventos_hijos' => $eventosHijos,
         ]);
+    }
+
+    /**
+     * Retorna el listado paginado y con búsqueda de usuarios asignados a un evento.
+     */
+    public function listarVotantesEvento(Request $request, $id)
+    {
+        $search = $request->query('search');
+        $estado = $request->query('estado');
+        $perPage = (int) ($request->query('per_page') ?: 10);
+        $perPage = min(max($perPage, 5), 50);
+
+        $query = Hash_votantes::where('id_evento', $id)
+            ->with(['votante:id,nombre,email,identificacion,tipo_documento,comuna,celular'])
+            ->when($search, function ($q, $search) {
+                $q->whereHas('votante', function ($sub) use ($search) {
+                    $sub->where('nombre', 'like', '%' . $search . '%')
+                        ->orWhere('identificacion', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                });
+            })
+            ->when($estado && $estado !== 'todos', function ($q) use ($estado) {
+                $q->where('estado', $estado);
+            })
+            ->orderBy('id', 'desc');
+
+        $paginador = $query->paginate($perPage);
+
+        // Votantes que ya votaron en este evento
+        $votanteIds = $paginador->getCollection()->pluck('id_votante')->toArray();
+        $votaron = Votos::where('id_eventos', $id)
+            ->whereIn('id_votante', $votanteIds)
+            ->pluck('id_votante')
+            ->flip()
+            ->toArray();
+
+        // Nombres de comunas
+        $comunaIds = $paginador->getCollection()->pluck('votante.comuna')->filter()->unique()->toArray();
+        $nombresComunas = ParametrosDetalle::whereIn('id', $comunaIds)->pluck('detalle', 'id')->toArray();
+
+        $paginador->getCollection()->transform(function ($item) use ($votaron, $nombresComunas) {
+            $item->ya_voto = isset($votaron[$item->id_votante]);
+            $comunaId = $item->votante ? $item->votante->comuna : null;
+            $item->comuna_nombre = $comunaId && isset($nombresComunas[$comunaId]) ? $nombresComunas[$comunaId] : ($comunaId ? "Comuna $comunaId" : 'N/A');
+            return $item;
+        });
+
+        return response()->json($paginador);
     }
 
     public function create()

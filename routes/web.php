@@ -401,6 +401,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Rutas para migrar / asignar usuarios entre eventos de votación
     Route::get('/eventos/migrar-usuarios', [EventosController::class, 'migrarUsuariosView'])->name('eventos.migrar.view');
     Route::get('/eventos/estadisticas-votantes/{id}', [EventosController::class, 'estadisticasVotantesEvento'])->name('eventos.estadisticas.votantes');
+    Route::get('/eventos/{id}/votantes-listado', [EventosController::class, 'listarVotantesEvento'])->name('eventos.votantes.listado');
     Route::post('/eventos/ejecutar-migracion', [EventosController::class, 'ejecutarMigracionUsuarios'])->name('eventos.migrar.ejecutar');
 
     Route::resource('eventos', EventosController::class);
