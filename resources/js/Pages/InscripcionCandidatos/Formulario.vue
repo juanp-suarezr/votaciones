@@ -46,6 +46,65 @@
         </p>
       </div>
 
+      <!-- BARRA DE ACCESIBILIDAD Y APOYO AUDITIVO (INCLUSIÓN DISCAPACIDAD VISUAL) -->
+      <aside aria-label="Asistencia por voz y accesibilidad" class="bg-indigo-900 text-white px-4 sm:px-6 py-3 border-b-2 border-indigo-950 flex flex-wrap items-center justify-between gap-3 shadow-inner print:hidden">
+        <div class="flex items-center gap-2.5">
+          <span class="p-2 bg-indigo-700/80 rounded-xl text-white shadow-xs" aria-hidden="true">
+            <SpeakerWaveIcon class="w-5 h-5" />
+          </span>
+          <div>
+            <span class="text-xs font-black uppercase tracking-wider block">Asistencia por Voz / Inclusión Visual</span>
+            <span class="text-[11px] text-indigo-200">Escuche las instrucciones completas y cada sección del formulario</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            @click="leerInstruccionesGenerales"
+            class="px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-sm active:scale-95"
+            :class="speaking ? 'bg-amber-400 text-slate-950 ring-2 ring-white animate-pulse' : 'bg-emerald-600 hover:bg-emerald-700 text-white'"
+            :aria-label="speaking ? 'Reproduciendo instrucciones en voz alta' : 'Escuchar instrucciones generales del formulario'"
+          >
+            <SpeakerWaveIcon class="w-4 h-4" />
+            <span>{{ speaking ? 'Reproduciendo...' : 'Leer Instrucciones' }}</span>
+          </button>
+
+          <button
+            v-if="speaking"
+            type="button"
+            @click="pausarLectura"
+            class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+            aria-label="Pausar lectura"
+          >
+            <PauseIcon class="w-3.5 h-3.5" />
+            <span class="hidden sm:inline">Pausar</span>
+          </button>
+
+          <button
+            v-else-if="paused"
+            type="button"
+            @click="toggleReproducir"
+            class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+            aria-label="Reanudar lectura"
+          >
+            <PlayIcon class="w-3.5 h-3.5" />
+            <span class="hidden sm:inline">Reanudar</span>
+          </button>
+
+          <button
+            v-if="speaking || paused"
+            type="button"
+            @click="detenerLectura"
+            class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+            aria-label="Detener lectura de audio"
+          >
+            <StopIcon class="w-3.5 h-3.5" />
+            <span class="hidden sm:inline">Detener</span>
+          </button>
+        </div>
+      </aside>
+
       <!-- VISTA DE ÉXITO CON RADICADO (SI YA SE POSTULÓ EXITOSAMENTE) -->
       <div v-if="postulacionExitosa" class="p-8 sm:p-12 text-center space-y-6">
         <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
@@ -70,7 +129,7 @@
           </div>
           <div class="flex justify-between items-center">
             <span class="text-slate-500 font-semibold">Identificación:</span>
-            <span class="font-mono font-bold text-slate-800">{{ postulacionExitosa.identificacion }}</span>
+            <span class="font-mono font-bold text-slate-800">{{ postulacionExitosa.tipo_documento ? postulacionExitosa.tipo_documento + ' ' : '' }}{{ postulacionExitosa.identificacion }}</span>
           </div>
           <div class="flex justify-between items-center" v-if="postulacionExitosa.evento">
             <span class="text-slate-500 font-semibold">Evento:</span>
@@ -91,6 +150,16 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-center gap-3 pt-4 print:hidden">
+          <button
+            type="button"
+            @click="leerExito"
+            class="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg text-xs font-bold transition inline-flex items-center gap-2 shadow-sm"
+            aria-label="Escuchar constancia de radicación en voz alta"
+          >
+            <SpeakerWaveIcon class="w-4 h-4" />
+            <span>Escuchar Constancia</span>
+          </button>
+
           <button
             type="button"
             @click="imprimirConstancia"
@@ -115,18 +184,29 @@
 
         <!-- PASO 1: SELECCIÓN DE EVENTO PENDIENTE -->
         <div class="bg-slate-50 border-2 border-slate-300 rounded-xl p-5 space-y-3">
-          <div class="flex items-center gap-2.5">
-            <div class="p-2 bg-indigo-700 text-white rounded-lg shadow-sm">
-              <CalendarDaysIcon class="w-5 h-5" />
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 bg-indigo-700 text-white rounded-lg shadow-sm">
+                <CalendarDaysIcon class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+                  Paso 1: Seleccione el Evento de Votación (En Estado Pendiente)
+                </h3>
+                <p class="text-[11px] text-slate-500">
+                  Solo se habilitan inscripciones de candidatos para eventos que se encuentran en preparación previa (estado Pendiente).
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Paso 1: Seleccione el Evento de Votación (En Estado Pendiente)
-              </h3>
-              <p class="text-[11px] text-slate-500">
-                Solo se habilitan inscripciones de candidatos para eventos que se encuentran en preparación previa (estado Pendiente).
-              </p>
-            </div>
+            <button
+              type="button"
+              @click="leerPaso1"
+              class="p-2 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 rounded-lg transition shrink-0 print:hidden"
+              title="Escuchar instrucciones del Paso 1"
+              aria-label="Escuchar instrucciones del Paso 1"
+            >
+              <SpeakerWaveIcon class="w-5 h-5" />
+            </button>
           </div>
 
           <div v-if="eventos_pendientes && eventos_pendientes.length > 0" class="pt-2">
@@ -161,18 +241,29 @@
 
         <!-- PASO 2: BÚSQUEDA Y VALIDACIÓN DE FUNCIONARIO -->
         <div class="bg-indigo-50/60 border-2 border-indigo-200 rounded-xl p-5 space-y-4" :class="{ 'opacity-60 pointer-events-none': !form.id_evento }">
-          <div class="flex items-center gap-2.5">
-            <div class="p-2 bg-indigo-600 text-white rounded-lg shadow-sm">
-              <IdentificationIcon class="w-5 h-5" />
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 bg-indigo-600 text-white rounded-lg shadow-sm">
+                <IdentificationIcon class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-xs sm:text-sm font-extrabold text-indigo-950 uppercase tracking-wider">
+                  Paso 2: Validación de Funcionario Habilitado
+                </h3>
+                <p class="text-[11px] text-indigo-700">
+                  Seleccione su tipo de documento e ingrese el número. El sistema validará su vinculación activa como empleado público y auto-completará sus datos oficiales de dependencia, provisión y planta.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-xs font-bold text-indigo-950 uppercase tracking-wider">
-                Paso 2: Validación de Funcionario Habilitado
-              </h3>
-              <p class="text-[11px] text-indigo-700">
-                Seleccione su tipo de documento e ingrese el número. El sistema validará su vinculación activa como empleado público y auto-completará sus datos oficiales de dependencia, provisión y planta.
-              </p>
-            </div>
+            <button
+              type="button"
+              @click="leerPaso2"
+              class="p-2 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 rounded-lg transition shrink-0 print:hidden"
+              title="Escuchar instrucciones del Paso 2"
+              aria-label="Escuchar instrucciones del Paso 2"
+            >
+              <SpeakerWaveIcon class="w-5 h-5" />
+            </button>
           </div>
 
           <div class="flex flex-col sm:flex-row items-center gap-3 pt-1">
@@ -276,6 +367,24 @@
           
           <div class="border-2 border-slate-800 rounded-xl p-5 sm:p-6 bg-white space-y-5 shadow-sm">
             
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <ClipboardDocumentCheckIcon class="w-5 h-5 text-indigo-700" />
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+                  Paso 3: Verificación de Datos Oficiales y Declaración
+                </h3>
+              </div>
+              <button
+                type="button"
+                @click="leerPaso3"
+                class="p-2 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 rounded-lg transition shrink-0 print:hidden"
+                title="Escuchar requisitos y declaración jurada"
+                aria-label="Escuchar requisitos y declaración jurada"
+              >
+                <SpeakerWaveIcon class="w-5 h-5" />
+              </button>
+            </div>
+
             <!-- FILA 1: NOMBRES Y APELLIDOS + SELECCIÓN PLANTA CENTRAL / SGP -->
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
               <div class="w-full md:w-3/5 space-y-1">
@@ -291,28 +400,34 @@
                 />
               </div>
 
-              <!-- CASILLAS PLANTA CENTRAL / SGP (IDÉNTICO A LA IMAGEN) -->
-              <div class="w-full md:w-2/5 flex items-center justify-end gap-6 pt-1">
-                <label class="flex items-center gap-2 cursor-pointer select-none group">
-                  <span class="text-xs font-black uppercase tracking-wide text-slate-900">Planta Central</span>
+              <!-- CASILLAS PLANTA CENTRAL / SGP (ACCESIBLES Y RESPONSIVAS) -->
+              <div class="w-full md:w-auto flex flex-wrap items-center gap-3 pt-1" role="radiogroup" aria-label="Selección de Estamento o Planta">
+                <label
+                  class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 cursor-pointer select-none transition-all shadow-xs min-h-[44px]"
+                  :class="form.tipo_planta === 'PLANTA CENTRAL' ? 'bg-indigo-50 border-indigo-600 text-indigo-950 font-black ring-2 ring-indigo-200' : 'bg-slate-50 border-slate-300 text-slate-700 hover:border-slate-400 font-bold'"
+                >
                   <input
                     type="radio"
                     name="tipo_planta"
                     value="PLANTA CENTRAL"
                     v-model="form.tipo_planta"
-                    class="w-5 h-5 text-indigo-600 border-2 border-slate-600 rounded focus:ring-indigo-500 cursor-pointer"
+                    class="w-4 h-4 text-indigo-600 border-2 border-slate-400 focus:ring-indigo-500 cursor-pointer"
                   />
+                  <span class="text-xs uppercase tracking-wide">Planta Central</span>
                 </label>
 
-                <label class="flex items-center gap-2 cursor-pointer select-none group">
-                  <span class="text-xs font-black uppercase tracking-wide text-slate-900">SGP</span>
+                <label
+                  class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 cursor-pointer select-none transition-all shadow-xs min-h-[44px]"
+                  :class="form.tipo_planta === 'SGP' ? 'bg-indigo-50 border-indigo-600 text-indigo-950 font-black ring-2 ring-indigo-200' : 'bg-slate-50 border-slate-300 text-slate-700 hover:border-slate-400 font-bold'"
+                >
                   <input
                     type="radio"
                     name="tipo_planta"
                     value="SGP"
                     v-model="form.tipo_planta"
-                    class="w-5 h-5 text-indigo-600 border-2 border-slate-600 rounded focus:ring-indigo-500 cursor-pointer"
+                    class="w-4 h-4 text-indigo-600 border-2 border-slate-400 focus:ring-indigo-500 cursor-pointer"
                   />
+                  <span class="text-xs uppercase tracking-wide">SGP</span>
                 </label>
               </div>
             </div>
@@ -478,28 +593,50 @@
 
           <!-- PASO 4: CARGA OBLIGATORIA DE DOCUMENTOS -->
           <div class="border-2 border-indigo-200 rounded-xl p-5 sm:p-6 bg-slate-50/70 space-y-5 shadow-sm">
-            <div class="flex items-center gap-2 pb-3 border-b border-slate-200">
-              <DocumentArrowUpIcon class="w-5 h-5 text-indigo-700" />
-              <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Paso 4: Carga de Documentación Obligatoria
-              </h3>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <DocumentArrowUpIcon class="w-5 h-5 text-indigo-700" />
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+                  Paso 4: Carga de Documentación Obligatoria
+                </h3>
+              </div>
+              <button
+                type="button"
+                @click="leerPaso4"
+                class="p-2 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 rounded-lg transition shrink-0 print:hidden"
+                title="Escuchar requisitos de documentos"
+                aria-label="Escuchar requisitos de documentos"
+              >
+                <SpeakerWaveIcon class="w-5 h-5" />
+              </button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
               
               <!-- 1. CERTIFICADO DE PROCURADURÍA -->
-              <div class="p-4 bg-white border border-slate-300 rounded-xl space-y-3">
+              <div class="p-4 bg-white border-2 border-slate-200 hover:border-indigo-300 rounded-xl space-y-3 transition">
                 <div class="flex items-center justify-between">
                   <label class="text-xs font-black text-slate-900 uppercase">
                     1. Certificado de Procuraduría *
                   </label>
-                  <span class="text-[10px] text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                    Máx 3 meses
-                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      @click="leerProcuraduria"
+                      class="text-indigo-600 hover:text-indigo-800 p-1 rounded print:hidden"
+                      title="Escuchar requisito de Procuraduría"
+                      aria-label="Escuchar requisito de Procuraduría"
+                    >
+                      <SpeakerWaveIcon class="w-4 h-4" />
+                    </button>
+                    <span class="text-[10px] text-indigo-700 font-black bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 uppercase">
+                      Máx 3 meses
+                    </span>
+                  </div>
                 </div>
 
                 <p class="text-[11px] text-slate-500">
-                  Certificado vigente no mayor a tres meses expedido por la Procuraduría General de la Nación. Formato PDF o imagen.
+                  Certificado vigente no mayor a tres meses expedido por la Procuraduría General de la Nación. Formato PDF o imagen (PNG/JPG).
                 </p>
 
                 <div class="space-y-2">
@@ -509,24 +646,35 @@
                     @change="handleFileProcuraduria"
                     accept=".pdf,.png,.jpg,.jpeg"
                     required
-                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-100 file:text-indigo-800 hover:file:bg-indigo-200 cursor-pointer min-h-[44px]"
                   />
-                  <div v-if="archivoProcNombre" class="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1">
-                    <CheckCircleIcon class="w-3.5 h-3.5" />
-                    <span>{{ archivoProcNombre }}</span>
+                  <div v-if="archivoProcNombre" class="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1.5 p-2 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <CheckCircleIcon class="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span class="truncate">{{ archivoProcNombre }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- 2. FOTOCOPIA DE CÉDULA LEGIBLE -->
-              <div class="p-4 bg-white border border-slate-300 rounded-xl space-y-3">
+              <div class="p-4 bg-white border-2 border-slate-200 hover:border-indigo-300 rounded-xl space-y-3 transition">
                 <div class="flex items-center justify-between">
                   <label class="text-xs font-black text-slate-900 uppercase">
-                    2. Fotocopia de Cédula de Ciudadanía *
+                    2. Fotocopia de Documento de Identidad *
                   </label>
-                  <span class="text-[10px] text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                    Legible
-                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      @click="leerCedula"
+                      class="text-indigo-600 hover:text-indigo-800 p-1 rounded print:hidden"
+                      title="Escuchar requisito de documento"
+                      aria-label="Escuchar requisito de documento"
+                    >
+                      <SpeakerWaveIcon class="w-4 h-4" />
+                    </button>
+                    <span class="text-[10px] text-indigo-700 font-black bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 uppercase">
+                      Legible
+                    </span>
+                  </div>
                 </div>
 
                 <p class="text-[11px] text-slate-500">
@@ -540,38 +688,52 @@
                     @change="handleFileCedula"
                     accept=".pdf,.png,.jpg,.jpeg"
                     required
-                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-100 file:text-indigo-800 hover:file:bg-indigo-200 cursor-pointer min-h-[44px]"
                   />
-                  <div v-if="archivoCedulaNombre" class="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1">
-                    <CheckCircleIcon class="w-3.5 h-3.5" />
-                    <span>{{ archivoCedulaNombre }}</span>
+                  <div v-if="archivoCedulaNombre" class="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1.5 p-2 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <CheckCircleIcon class="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span class="truncate">{{ archivoCedulaNombre }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- 3. FOTOGRAFÍA OPCIONAL PARA EL TARJETÓN -->
-              <div class="p-4 bg-white border border-slate-300 rounded-xl space-y-3 md:col-span-2">
+              <div class="p-4 bg-white border-2 border-slate-200 hover:border-indigo-300 rounded-xl space-y-3 md:col-span-2 transition">
                 <div class="flex items-center justify-between">
                   <label class="text-xs font-bold text-slate-800 uppercase">
                     3. Fotografía Reciente del Candidato (Para el Tarjetón Electoral)
                   </label>
-                  <span class="text-[10px] text-slate-500 font-medium">Recomendado</span>
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      @click="leerFoto"
+                      class="text-indigo-600 hover:text-indigo-800 p-1 rounded print:hidden"
+                      title="Escuchar recomendación de fotografía"
+                      aria-label="Escuchar recomendación de fotografía"
+                    >
+                      <SpeakerWaveIcon class="w-4 h-4" />
+                    </button>
+                    <span class="text-[10px] text-slate-600 font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 uppercase">
+                      Recomendado
+                    </span>
+                  </div>
                 </div>
 
                 <p class="text-[11px] text-slate-500">
-                  Fotografía reciente tipo documento (fondo blanco) que será visible para los electores en la tarjeta electoral.
+                  Fotografía reciente tipo documento (fondo blanco) que será visible para los electores en la tarjeta electoral. Formato PNG o JPG.
                 </p>
 
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                   <input
                     type="file"
                     ref="inputFoto"
                     @change="handleFileFoto"
                     accept=".png,.jpg,.jpeg"
-                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer min-h-[44px]"
                   />
-                  <div v-if="archivoFotoNombre" class="text-[11px] font-mono text-emerald-700 font-bold whitespace-nowrap">
-                    {{ archivoFotoNombre }}
+                  <div v-if="archivoFotoNombre" class="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1.5 p-2 bg-emerald-50 rounded-lg border border-emerald-200 whitespace-nowrap">
+                    <CheckCircleIcon class="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span class="truncate max-w-xs">{{ archivoFotoNombre }}</span>
                   </div>
                 </div>
               </div>
@@ -611,6 +773,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import logoAlcaldia from '/public/assets/img/logo.png';
+import { useAudioHelp } from '@/composables/useAudioHelp';
 import {
   ArrowLeftIcon,
   MagnifyingGlassIcon,
@@ -623,6 +786,11 @@ import {
   IdentificationIcon,
   CalendarDaysIcon,
   PrinterIcon,
+  SpeakerWaveIcon,
+  PlayIcon,
+  PauseIcon,
+  StopIcon,
+  ClipboardDocumentCheckIcon,
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
@@ -689,6 +857,60 @@ const eventoSeleccionado = computed(() => {
 
 const enviando = ref(false);
 const postulacionExitosa = computed(() => page.props.flash?.success_postulacion || null);
+
+// Composable de Asistencia por Voz para Personas con Discapacidad Visual
+const {
+  speaking,
+  paused,
+  leerTexto,
+  toggleReproducir,
+  pausarLectura,
+  detenerLectura,
+} = useAudioHelp();
+
+const leerInstruccionesGenerales = () => {
+  const texto = `Formulario Oficial de Inscripción de Candidatos de la Alcaldía de Pereira para la Comisión de Personal.
+Para postularse, siga los cuatro pasos:
+Paso uno: Seleccione el evento electoral en estado pendiente.
+Paso dos: Seleccione su tipo de documento e ingrese su número de identificación para validar su condición de empleado público activo. El sistema auto-completará sus datos oficiales.
+Paso tres: Verifique sus nombres, seleccione su planta, ya sea Planta Central o SGP, y marque la aceptación obligatoria de la declaración juramentada de cumplimiento de requisitos normativos.
+Paso cuatro: Cargue en formato PDF o imagen el certificado vigente de la Procuraduría General de la Nación no mayor a tres meses y la fotocopia legible de su documento de identidad. Puede subir opcionalmente una fotografía tipo documento con fondo blanco para la tarjeta electoral.
+Al finalizar, presione el botón Radicar Formulario de Inscripción.`;
+  leerTexto(texto);
+};
+
+const leerPaso1 = () => {
+  leerTexto("Paso 1: Seleccione el Evento de Votación. Elija la convocatoria en estado pendiente a la que desea postularse.");
+};
+
+const leerPaso2 = () => {
+  leerTexto("Paso 2: Validación de Funcionario Habilitado. Seleccione su tipo de documento e ingrese el número. Al presionar Consultar, el sistema validará su vinculación activa y autocompletará sus datos de dependencia, provisión y planta.");
+};
+
+const leerPaso3 = () => {
+  leerTexto("Paso 3: Verificación de datos y declaración jurada. Confirme sus nombres, elija si pertenece a Planta Central o SGP, e ingrese su correo y celular. Marque la casilla obligatoria que certifica bajo juramento no tener sanciones disciplinarias vigentes en el último año y ser empleado de carrera administrativa.");
+};
+
+const leerPaso4 = () => {
+  leerTexto("Paso 4: Carga de Documentación Obligatoria. Se requiere adjuntar el certificado de la Procuraduría vigente no mayor a tres meses y la fotocopia legible de su cédula. De forma opcional, puede adjuntar una foto reciente para el tarjetón electoral.");
+};
+
+const leerProcuraduria = () => {
+  leerTexto("Requisito 1: Certificado vigente no mayor a tres meses expedido por la Procuraduría General de la Nación, en formato PDF o imagen.");
+};
+
+const leerCedula = () => {
+  leerTexto("Requisito 2: Fotocopia legible de la cédula de ciudadanía o documento de identidad por ambas caras o al 150 por ciento, en formato PDF o imagen.");
+};
+
+const leerFoto = () => {
+  leerTexto("Requisito 3 opcional: Fotografía reciente tipo documento con fondo blanco que se mostrará en la tarjeta electoral.");
+};
+
+const leerExito = () => {
+  if (!postulacionExitosa.value) return;
+  leerTexto(`¡Inscripción radicada exitosamente! Candidato: ${postulacionExitosa.value.nombre}. Número de radicado: ${postulacionExitosa.value.radicado}. Evento: ${postulacionExitosa.value.evento}. Estamento: ${postulacionExitosa.value.tipo_planta}. Su postulación se encuentra en estado pendiente de verificación por la Dirección de Talento Humano.`);
+};
 
 // Consultar si es funcionario y traer datos automáticamente
 const consultarFuncionario = async () => {
