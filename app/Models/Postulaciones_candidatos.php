@@ -19,6 +19,9 @@ class Postulaciones_candidatos extends Model
         'nombre',
         'email',
         'celular',
+        'dependencia',
+        'provision',
+        'planta',
         'tipo_planta',
         'fecha_postulacion',
         'cumple_requisitos',
@@ -26,8 +29,17 @@ class Postulaciones_candidatos extends Model
         'archivo_cedula',
         'foto',
         'estado',
+        'motivos_rechazo',
         'observaciones',
+        'validador_id',
+        'fecha_validacion',
         'radicado',
+    ];
+
+    protected $casts = [
+        'motivos_rechazo' => 'array',
+        'cumple_requisitos' => 'boolean',
+        'fecha_validacion' => 'datetime',
     ];
 
     public function votante()
@@ -39,5 +51,14 @@ class Postulaciones_candidatos extends Model
     {
         return $this->belongsTo(Eventos::class, 'id_evento', 'id');
     }
-}
 
+    public function validador()
+    {
+        return $this->belongsTo(User::class, 'validador_id', 'id');
+    }
+
+    public function auditorias()
+    {
+        return $this->hasMany(AuditoriaPostulacionCandidato::class, 'postulacion_id', 'id');
+    }
+}

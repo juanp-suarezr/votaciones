@@ -427,6 +427,14 @@ Route::group(['middleware' => ['auth']], function () {
 
     //funcionarios planeacion
     Route::resource('funcionarios', FuncionariosController::class);
+
+    // Validación de postulaciones de candidatos y auditoría (exclusivo para rol validador-candidatos y Administrador)
+    Route::middleware('role_or_permission:validador-candidatos|validador-candidatos-listar|Administrador')->group(function () {
+        Route::get('/postulaciones-candidatos', [InscripcionCandidatosController::class, 'index'])->name('postulaciones-candidatos.index');
+        Route::post('/postulaciones-candidatos/{id}/aprobar', [InscripcionCandidatosController::class, 'aprobar'])->name('postulaciones-candidatos.aprobar');
+        Route::post('/postulaciones-candidatos/{id}/rechazar', [InscripcionCandidatosController::class, 'rechazar'])->name('postulaciones-candidatos.rechazar');
+        Route::get('/postulaciones-candidatos/historial', [InscripcionCandidatosController::class, 'historial'])->name('postulaciones-candidatos.historial');
+    });
     
 });
 

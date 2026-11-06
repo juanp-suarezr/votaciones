@@ -33,7 +33,7 @@
         </div>
 
         <p class="text-xs text-slate-500 mt-2 max-w-xl mx-auto">
-          Formulario de postulación para empleados de carrera administrativa. Ingrese su número de documento para validar su registro y cargar la documentación exigida.
+          Formulario oficial de postulación para empleados públicos con condición de carrera administrativa. Seleccione el evento pendiente, ingrese su documento para validar su registro y adjunte los soportes obligatorios.
         </p>
       </div>
 
@@ -49,7 +49,7 @@
           </span>
           <h2 class="text-2xl font-black text-slate-900">{{ postulacionExitosa.nombre }}</h2>
           <p class="text-xs text-slate-500">
-            Su postulación a la Comisión de Personal ha sido registrada y enviada a revisión formal.
+            Su postulación ha sido radicada formalmente y entrará a la etapa de revisión y auditoría documental por la Dirección de Talento Humano.
           </p>
         </div>
 
@@ -62,6 +62,10 @@
           <div class="flex justify-between items-center">
             <span class="text-slate-500 font-semibold">Identificación:</span>
             <span class="font-mono font-bold text-slate-800">{{ postulacionExitosa.identificacion }}</span>
+          </div>
+          <div class="flex justify-between items-center" v-if="postulacionExitosa.evento">
+            <span class="text-slate-500 font-semibold">Evento:</span>
+            <span class="font-bold text-indigo-900">{{ postulacionExitosa.evento }}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-slate-500 font-semibold">Estamento / Planta:</span>
@@ -100,18 +104,64 @@
       <!-- FORMULARIO DE POSTULACIÓN -->
       <div v-else class="p-6 sm:p-8 space-y-8">
 
-        <!-- PASO 1: BÚSQUEDA Y VALIDACIÓN DE FUNCIONARIO -->
-        <div class="bg-indigo-50/60 border-2 border-indigo-200 rounded-xl p-5 space-y-4">
+        <!-- PASO 1: SELECCIÓN DE EVENTO PENDIENTE -->
+        <div class="bg-slate-50 border-2 border-slate-300 rounded-xl p-5 space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 bg-indigo-700 text-white rounded-lg shadow-sm">
+              <CalendarDaysIcon class="w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                Paso 1: Seleccione el Evento de Votación (En Estado Pendiente)
+              </h3>
+              <p class="text-[11px] text-slate-500">
+                Solo se habilitan inscripciones de candidatos para eventos que se encuentran en preparación previa (estado Pendiente).
+              </p>
+            </div>
+          </div>
+
+          <div v-if="eventos_pendientes && eventos_pendientes.length > 0" class="pt-2">
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Evento de Elección *
+            </label>
+            <select
+              v-model="form.id_evento"
+              :disabled="funcionarioValidado"
+              class="w-full text-xs font-semibold border-2 border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-2.5 px-3 bg-white disabled:bg-slate-100"
+            >
+              <option :value="null" disabled>-- Seleccione el evento al que desea postularse --</option>
+              <option v-for="ev in eventos_pendientes" :key="ev.id" :value="ev.id">
+                {{ ev.nombre }} (Estado: Pendiente)
+              </option>
+            </select>
+            <p v-if="eventoSeleccionado" class="text-[11px] text-indigo-700 mt-1 font-medium">
+              {{ eventoSeleccionado.descripcion || 'Sin descripción adicional' }}
+            </p>
+          </div>
+
+          <div v-else class="p-3 bg-amber-50 border border-amber-300 rounded-lg text-xs text-amber-900 flex items-start gap-2">
+            <InformationCircleIcon class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p class="font-bold">No hay eventos pendientes disponibles</p>
+              <p class="text-[11px] text-amber-800 mt-0.5">
+                Actualmente no existen convocatorias o eventos de votación en estado "Pendiente" para recepción de candidaturas. Consulte con el área de Talento Humano.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 2: BÚSQUEDA Y VALIDACIÓN DE FUNCIONARIO -->
+        <div class="bg-indigo-50/60 border-2 border-indigo-200 rounded-xl p-5 space-y-4" :class="{ 'opacity-60 pointer-events-none': !form.id_evento }">
           <div class="flex items-center gap-2.5">
             <div class="p-2 bg-indigo-600 text-white rounded-lg shadow-sm">
               <IdentificationIcon class="w-5 h-5" />
             </div>
             <div>
               <h3 class="text-xs font-bold text-indigo-950 uppercase tracking-wider">
-                Paso 1: Validación de Documento de Funcionario
+                Paso 2: Validación de Funcionario Habilitado
               </h3>
               <p class="text-[11px] text-indigo-700">
-                Ingrese su número de documento. El sistema verificará que se encuentre registrado como funcionario activo (is_funcionario = 1).
+                Ingrese su número de documento. El sistema validará su calidad de funcionario (is_funcionario = 1) y traerá sus datos de dependencia, provisión y planta.
               </p>
             </div>
           </div>
@@ -134,7 +184,7 @@
                 type="text"
                 v-model="identificacionConsulta"
                 @keyup.enter="consultarFuncionario"
-                :disabled="funcionarioValidado"
+                :disabled="funcionarioValidado || !form.id_evento"
                 placeholder="Ingrese número de identificación..."
                 class="w-full text-xs font-mono font-bold border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-2.5 pr-28 disabled:bg-slate-100"
               />
@@ -143,7 +193,7 @@
                 v-if="!funcionarioValidado"
                 type="button"
                 @click="consultarFuncionario"
-                :disabled="cargandoConsulta || !identificacionConsulta"
+                :disabled="cargandoConsulta || !identificacionConsulta || !form.id_evento"
                 class="absolute right-1.5 top-1.5 bottom-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-md text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
               >
                 <ArrowPathIcon v-if="cargandoConsulta" class="w-3.5 h-3.5 animate-spin" />
@@ -180,20 +230,37 @@
             </div>
           </div>
 
-          <!-- Confirmación de Funcionario Validado -->
-          <div v-if="funcionarioValidado" class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <CheckCircleIcon class="w-5 h-5 text-emerald-600" />
+          <!-- Confirmación de Funcionario Validado y Datos Laborales -->
+          <div v-if="funcionarioValidado" class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <CheckCircleIcon class="w-5 h-5 text-emerald-600" />
+                <span class="font-bold text-xs text-emerald-900">Funcionario Activo Habilitado</span>
+              </div>
+              <span class="px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-bold text-[10px] uppercase">
+                Verificado
+              </span>
+            </div>
+
+            <!-- Ficha resumida de los datos traídos -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 text-[11px] border-t border-emerald-200/80">
               <div>
-                <span class="font-bold">Funcionario Activo Verificado: </span>
-                <span class="uppercase font-extrabold text-slate-800">{{ form.nombre }}</span>
+                <span class="text-slate-500 font-semibold block">Dependencia:</span>
+                <span class="font-bold text-slate-800 uppercase">{{ form.dependencia || 'No registrada' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 font-semibold block">Tipo de Provisión:</span>
+                <span class="font-bold text-slate-800 uppercase">{{ form.provision || 'No registrada' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 font-semibold block">Planta Asignada:</span>
+                <span class="font-bold text-indigo-900 uppercase">{{ form.planta || form.tipo_planta }}</span>
               </div>
             </div>
-            <span class="px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-bold text-[10px]">Habilitado</span>
           </div>
         </div>
 
-        <!-- PASO 2: FORMULARIO OFICIAL (ESTRUCTURA IDÉNTICA A LA IMAGEN) -->
+        <!-- PASO 3: FORMULARIO OFICIAL (ESTRUCTURA IDÉNTICA A LA IMAGEN INSTITUCIONAL) -->
         <form @submit.prevent="enviarInscripcion" class="space-y-6" :class="{ 'opacity-50 pointer-events-none': !funcionarioValidado }">
           
           <div class="border-2 border-slate-800 rounded-xl p-5 sm:p-6 bg-white space-y-5 shadow-sm">
@@ -213,8 +280,8 @@
                 />
               </div>
 
-              <!-- CHECKBOXES PLANTA CENTRAL / SGP (SEGÚN LA IMAGEN) -->
-              <div class="w-full md:w-2/5 flex items-center justify-end gap-5 pt-1">
+              <!-- CASILLAS PLANTA CENTRAL / SGP (IDÉNTICO A LA IMAGEN) -->
+              <div class="w-full md:w-2/5 flex items-center justify-end gap-6 pt-1">
                 <label class="flex items-center gap-2 cursor-pointer select-none group">
                   <span class="text-xs font-black uppercase tracking-wide text-slate-900">Planta Central</span>
                   <input
@@ -252,7 +319,46 @@
               />
             </div>
 
-            <!-- FILA 3: DATOS DE CONTACTO ADICIONALES (EMAIL Y CELULAR) -->
+            <!-- FILA 3: DATOS LABORALES AUTOCOMPLETADOS (DEPENDENCIA, PROVISIÓN, PLANTA) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3 bg-slate-50 border border-slate-300 rounded-lg">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                  Dependencia:
+                </label>
+                <input
+                  type="text"
+                  v-model="form.dependencia"
+                  readonly
+                  class="w-full text-xs font-bold uppercase bg-white border border-slate-300 rounded px-2.5 py-1.5 text-slate-800"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                  Provisión:
+                </label>
+                <input
+                  type="text"
+                  v-model="form.provision"
+                  readonly
+                  class="w-full text-xs font-bold uppercase bg-white border border-slate-300 rounded px-2.5 py-1.5 text-slate-800"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                  Planta:
+                </label>
+                <input
+                  type="text"
+                  v-model="form.planta"
+                  readonly
+                  class="w-full text-xs font-bold uppercase bg-white border border-slate-300 rounded px-2.5 py-1.5 text-indigo-900"
+                />
+              </div>
+            </div>
+
+            <!-- FILA 4: DATOS DE CONTACTO (EMAIL Y CELULAR) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div class="space-y-1">
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
@@ -306,7 +412,7 @@
               </div>
             </div>
 
-            <!-- FILA 4: FECHA POSTULACIÓN (SEGÚN LA IMAGEN EN TRES CASILLAS) -->
+            <!-- FILA 5: FECHA POSTULACIÓN (SEGÚN LA IMAGEN EN TRES CASILLAS) -->
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
               <label class="text-xs font-black uppercase tracking-wider text-slate-900">
                 Fecha Postulación:
@@ -353,12 +459,12 @@
             </div>
           </div>
 
-          <!-- PASO 3: CARGA OBLIGATORIA DE DOCUMENTOS -->
+          <!-- PASO 4: CARGA OBLIGATORIA DE DOCUMENTOS -->
           <div class="border-2 border-indigo-200 rounded-xl p-5 sm:p-6 bg-slate-50/70 space-y-5 shadow-sm">
             <div class="flex items-center gap-2 pb-3 border-b border-slate-200">
               <DocumentArrowUpIcon class="w-5 h-5 text-indigo-700" />
               <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Paso 3: Carga de Documentación Obligatoria
+                Paso 4: Carga de Documentación Obligatoria
               </h3>
             </div>
 
@@ -430,13 +536,13 @@
               <div class="p-4 bg-white border border-slate-300 rounded-xl space-y-3 md:col-span-2">
                 <div class="flex items-center justify-between">
                   <label class="text-xs font-bold text-slate-800 uppercase">
-                    3. Fotografía Reciente del Candidato (Opcional para el Tarjetón)
+                    3. Fotografía Reciente del Candidato (Para el Tarjetón Electoral)
                   </label>
                   <span class="text-[10px] text-slate-500 font-medium">Recomendado</span>
                 </div>
 
                 <p class="text-[11px] text-slate-500">
-                  Fotografía reciente tipo documento (fondo blanco) que será visible en la plataforma de votación durante el sufragio.
+                  Fotografía reciente tipo documento (fondo blanco) que será visible para los electores en la tarjeta electoral.
                 </p>
 
                 <div class="flex items-center gap-4">
@@ -463,7 +569,7 @@
 
             <button
               type="submit"
-              :disabled="enviando || !funcionarioValidado"
+              :disabled="enviando || !funcionarioValidado || !form.id_evento"
               class="w-full sm:w-auto px-8 py-3.5 bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 text-white font-extrabold rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2"
             >
               <ArrowPathIcon v-if="enviando" class="w-4 h-4 animate-spin" />
@@ -497,13 +603,14 @@ import {
   DocumentArrowUpIcon,
   PaperAirplaneIcon,
   IdentificationIcon,
+  CalendarDaysIcon,
   PrinterIcon,
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
-  evento: {
-    type: Object,
-    default: null,
+  eventos_pendientes: {
+    type: Array,
+    default: () => [],
   },
   fecha_actual: {
     type: Object,
@@ -544,6 +651,9 @@ const form = useForm({
   tipo_documento: 'CC',
   nombre: '',
   tipo_planta: 'PLANTA CENTRAL',
+  dependencia: '',
+  provision: '',
+  planta: '',
   email: '',
   celular: '',
   fecha_postulacion: props.fecha_actual.completa,
@@ -551,7 +661,12 @@ const form = useForm({
   archivo_procuraduria: null,
   archivo_cedula: null,
   foto: null,
-  evento_id: props.evento ? props.evento.id : null,
+  id_evento: props.eventos_pendientes && props.eventos_pendientes.length === 1 ? props.eventos_pendientes[0].id : null,
+});
+
+const eventoSeleccionado = computed(() => {
+  if (!form.id_evento || !props.eventos_pendientes) return null;
+  return props.eventos_pendientes.find(ev => ev.id === form.id_evento);
 });
 
 const enviando = ref(false);
@@ -561,6 +676,15 @@ const postulacionExitosa = computed(() => page.props.flash?.success_postulacion 
 const consultarFuncionario = async () => {
   if (!identificacionConsulta.value) return;
 
+  if (!form.id_evento) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Seleccione un evento',
+      text: 'Por favor seleccione primero el evento de votación en estado Pendiente al que desea postularse.',
+    });
+    return;
+  }
+
   cargandoConsulta.value = true;
   errorConsulta.value = '';
   avisoYaPostulado.value = '';
@@ -569,6 +693,7 @@ const consultarFuncionario = async () => {
   try {
     const response = await axios.post(route('candidatos.inscripcion.consultar'), {
       identificacion: identificacionConsulta.value,
+      id_evento: form.id_evento,
     });
 
     if (response.data.success) {
@@ -583,6 +708,9 @@ const consultarFuncionario = async () => {
       form.nombre = response.data.nombre;
       form.email = response.data.email || '';
       form.celular = response.data.celular || '';
+      form.dependencia = response.data.dependencia || '';
+      form.provision = response.data.provision || '';
+      form.planta = response.data.planta || '';
       form.tipo_planta = response.data.tipo_planta || 'PLANTA CENTRAL';
       form.fecha_postulacion = props.fecha_actual.completa;
 
@@ -604,7 +732,9 @@ const cambiarFuncionario = () => {
   identificacionConsulta.value = '';
   errorConsulta.value = '';
   avisoYaPostulado.value = '';
+  const currentEvento = form.id_evento;
   form.reset();
+  form.id_evento = currentEvento;
   archivoProcNombre.value = '';
   archivoCedulaNombre.value = '';
   archivoFotoNombre.value = '';
@@ -637,6 +767,15 @@ const handleFileFoto = (e) => {
 
 // Envío del formulario
 const enviarInscripcion = () => {
+  if (!form.id_evento) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Evento requerido',
+      text: 'Debe seleccionar el evento de votación en estado Pendiente para la postulación.',
+    });
+    return;
+  }
+
   if (!form.declaracion) {
     Swal.fire({
       icon: 'warning',
@@ -666,7 +805,7 @@ const enviarInscripcion = () => {
 
   Swal.fire({
     title: '¿Confirmar radicación de candidatura?',
-    text: `Se registrará la postulación de ${form.nombre} (${form.identificacion}) para ${form.tipo_planta}.`,
+    text: `Se registrará la postulación de ${form.nombre} (${form.identificacion}) para ${form.tipo_planta} en ${eventoSeleccionado.value ? eventoSeleccionado.value.nombre : 'el evento seleccionado'}.`,
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: 'Sí, radicar inscripción',
@@ -701,4 +840,3 @@ const reiniciarFormulario = () => {
   window.location.href = route('candidatos.inscripcion.publica');
 };
 </script>
-

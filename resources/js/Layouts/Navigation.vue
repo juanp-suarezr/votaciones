@@ -71,6 +71,18 @@
                 <span class="mx-3">Migrar Votantes</span>
             </nav-link>
 
+            <SeparadorMenu v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.permissions.includes('validador-candidatos-listar') || $page.props.user.roles.includes('Administrador')">Validación Candidatos</SeparadorMenu>
+            <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.permissions.includes('validador-candidatos-listar') || $page.props.user.roles.includes('Administrador')" :href="route('postulaciones-candidatos.index')"
+                :active="route().current() && route().current().includes('postulaciones-candidatos.index')">
+                <CheckIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Validar Candidaturas</span>
+            </nav-link>
+            <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.permissions.includes('validador-candidatos-historial') || $page.props.user.roles.includes('Administrador')" :href="route('postulaciones-candidatos.historial')"
+                :active="route().current() && route().current().includes('postulaciones-candidatos.historial')">
+                <MagnifyingGlassIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Auditoría Candidatos</span>
+            </nav-link>
+
             <SeparadorMenu v-if="$page.props.user.permissions.includes('usuarios-listar')">Configuración</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('usuarios-listar')" :href="route('gestion_registros.index')" :active="route().current() && route().current().includes('gestion_registros')">
                 <CheckIcon class="h-6 w-6 text-white" />
