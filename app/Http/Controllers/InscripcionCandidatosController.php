@@ -272,7 +272,10 @@ class InscripcionCandidatosController extends Controller
             if ($request->hasFile('foto')) {
                 $fotoExt = $request->file('foto')->getClientOriginalExtension();
                 $fotoFileName = "foto_{$safeId}_{$timestamp}.{$fotoExt}";
+                // Guardar en uploads/candidatos (expediente de postulación)
                 $request->file('foto')->storeAs('uploads/candidatos', $fotoFileName, 'public');
+                // Guardar también en uploads/usuarios para compatibilidad total con vistas y tarjetones
+                $request->file('foto')->storeAs('uploads/usuarios', $fotoFileName, 'public');
             }
 
             // Generar número de radicado único
@@ -300,7 +303,7 @@ class InscripcionCandidatosController extends Controller
                 if ($request->filled('provision')) {
                     $votante->provision = $request->provision;
                 }
-                if ($fotoFileName && ($votante->imagen == 'user.png' || empty($votante->imagen))) {
+                if ($fotoFileName) {
                     $votante->imagen = $fotoFileName;
                 }
                 $votante->is_funcionario = 1;
@@ -532,12 +535,27 @@ class InscripcionCandidatosController extends Controller
                 }
                 $hash->save();
 
-                // Actualizar votante a candidato si la columna existe
+                // Actualizar votante a candidato y sincronizar foto oficial si fue suministrada
                 $votante = Informacion_votantes::find($postulacion->id_votante);
                 if ($votante) {
                     if (isset($votante->candidato)) {
                         $votante->candidato = 1;
                     }
+
+                    // Si la postulación cuenta con foto, asignarla como imagen oficial del candidato
+                    if ($postulacion->foto) {
+                        try {
+                            if (Storage::disk('public')->exists('uploads/candidatos/' . $postulacion->foto)) {
+                                if (!Storage::disk('public')->exists('uploads/usuarios/' . $postulacion->foto)) {
+                                    Storage::disk('public')->copy('uploads/candidatos/' . $postulacion->foto, 'uploads/usuarios/' . $postulacion->foto);
+                                }
+                            }
+                        } catch (\Throwable $eFoto) {
+                            Log::warning('Error sincronizando foto de candidato a uploads/usuarios: ' . $eFoto->getMessage());
+                        }
+                        $votante->imagen = $postulacion->foto;
+                    }
+
                     $votante->save();
                 }
             }

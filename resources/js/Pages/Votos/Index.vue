@@ -63,7 +63,7 @@
                                 {{ getInitials(candi.votante.nombre) }}
                             </span>
                         </div>
-                        <div v-else-if="candi.votante.imagen == 'user.png'"
+                        <div v-else-if="candi.votante.imagen == 'user.png' || !candi.votante.imagen"
                             class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-200 via-indigo-300 to-violet-200 text-indigo-900">
                             <span class="text-[3.2rem] sm:text-[4.5rem] font-black tracking-[0.08em] select-none drop-shadow">
                                 {{ getInitials(candi.votante.nombre) }}
@@ -71,6 +71,7 @@
                         </div>
                         <img v-else
                             :src="getImageUrl(candi.votante.imagen)"
+                            @error="handleImageError($event, candi.votante.imagen)"
                             :alt="`Foto de ${candi.votante.nombre}`"
                             class="w-full h-full object-cover" />
 
@@ -303,8 +304,22 @@ const GetEnBlanco = function (nombre) {
 //MOSTRAR IMAGEN EN TABLA
 //IMAGEN
 const getImageUrl = (imageName) => {
-    // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
+    if (!imageName || imageName === 'user.png') return '';
+    // Si la foto proviene de postulación oficial
+    if (imageName.startsWith('foto_')) {
+        return `/storage/uploads/candidatos/${imageName}`;
+    }
+    // Si fue cargada desde panel de candidatos
     return `/storage/uploads/usuarios/${imageName}`;
+};
+
+const handleImageError = (e, imageName) => {
+    if (!imageName) return;
+    if (e.target.src.includes('/storage/uploads/candidatos/')) {
+        e.target.src = `/storage/uploads/usuarios/${imageName}`;
+    } else if (e.target.src.includes('/storage/uploads/usuarios/')) {
+        e.target.src = `/storage/uploads/candidatos/${imageName}`;
+    }
 };
 
 const votar = candidato => {

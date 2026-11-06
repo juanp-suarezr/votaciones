@@ -98,11 +98,17 @@
                             <tbody>
                                 <tr v-for="user in users.data" :key="user.id" class="text-gray-700">
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                                        <Avatar v-if="user.imagen == 'user.png'" :label="getInitials(user.nombre)"
-                                            class="bg-indigo-200 text-indigo-800 text-xl" size="xlarge"
+                                        <Avatar v-if="user.imagen == 'user.png' || !user.imagen" :label="getInitials(user.nombre)"
+                                            class="bg-indigo-200 text-indigo-800 text-xl font-bold" size="xlarge"
                                             shape="circle" />
-                                        <Avatar v-else :image="getImageUrl(user.imagen)"
-                                            class="bg-indigo-200 text-indigo-800" size="xlarge" shape="circle" />
+                                        <div v-else class="w-14 h-14 rounded-full overflow-hidden bg-indigo-100 border-2 border-indigo-200 flex items-center justify-center shrink-0 shadow-xs">
+                                            <img
+                                                :src="getImageUrl(user.imagen)"
+                                                @error="handleAvatarError($event, user.imagen)"
+                                                :alt="user.nombre"
+                                                class="w-full h-full object-cover"
+                                            />
+                                        </div>
                                     </td>
                                     <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                                         <p class="text-gray-900 whitespace-no-wrap">{{ user.nombre }}</p>
@@ -324,7 +330,7 @@ const Actualizar = (user) => {
     form.imagen = user.imagen;
 
     visible.value = true;
-    imageUrl.value = '/storage/uploads/usuarios/' + form.imagen;
+    imageUrl.value = getImageUrl(form.imagen);
 
 };
 
@@ -355,8 +361,23 @@ const onAdvancedUpload = (ev) => {
 //MOSTRAR IMAGEN EN TABLA
 //IMAGEN
 const getImageUrl = (imageName) => {
-    // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
+    if (!imageName || imageName === 'user.png') return '';
+    // Si la foto proviene de postulación oficial
+    if (imageName.startsWith('foto_')) {
+        return `/storage/uploads/candidatos/${imageName}`;
+    }
+    // Si fue cargada desde panel de candidatos
     return `/storage/uploads/usuarios/${imageName}`;
+};
+
+const handleAvatarError = (e, imageName) => {
+    if (!imageName) return;
+    // Si falló en /candidatos/ intentar en /usuarios/ y viceversa
+    if (e.target.src.includes('/storage/uploads/candidatos/')) {
+        e.target.src = `/storage/uploads/usuarios/${imageName}`;
+    } else if (e.target.src.includes('/storage/uploads/usuarios/')) {
+        e.target.src = `/storage/uploads/candidatos/${imageName}`;
+    }
 };
 
 const submit = () => {

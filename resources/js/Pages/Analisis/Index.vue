@@ -318,8 +318,20 @@ watch(itemsPerPage, () => {
 //MOSTRAR IMAGEN EN TABLA
 //IMAGEN
 const getImageUrl = (imageName) => {
-  // Si las imágenes están almacenadas en la carpeta public/images, la ruta sería algo como esto:
+  if (!imageName || imageName === 'user.png') return '';
+  if (imageName.startsWith('foto_')) {
+    return `/storage/uploads/candidatos/${imageName}`;
+  }
   return `/storage/uploads/usuarios/${imageName}`;
+};
+
+const handleImageError = (e, imageName) => {
+  if (!imageName) return;
+  if (e.target.src.includes('/storage/uploads/candidatos/')) {
+    e.target.src = `/storage/uploads/usuarios/${imageName}`;
+  } else if (e.target.src.includes('/storage/uploads/usuarios/')) {
+    e.target.src = `/storage/uploads/candidatos/${imageName}`;
+  }
 };
 
 //avatar letters
