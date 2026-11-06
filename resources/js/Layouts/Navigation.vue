@@ -70,6 +70,11 @@
                 <ArrowPathIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Migrar Votantes</span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')" :href="route('actas-comision.index')"
+                :active="route().current('actas-comision.index') && (!$page.url.includes('id_evento=25') && $page.props.evento?.id != 25)">
+                <DocumentTextIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Actas Generales de Votación</span>
+            </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('validador-candidatos-listar') || $page.props.user.roles.includes('Administrador')">Comisión de Personal</SeparadorMenu>
             <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('validador-candidatos-listar') || $page.props.user.roles.includes('Administrador')" :href="route('postulaciones-candidatos.index')"
@@ -82,10 +87,10 @@
                 <MagnifyingGlassIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Auditoría Candidatos</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('actas-comision-listar') || $page.props.user.roles.includes('Administrador')" :href="route('actas-comision.index')"
-                :active="route().current() && route().current().includes('actas-comision')">
+            <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('actas-comision-listar') || $page.props.user.roles.includes('Administrador')" :href="route('actas-comision.index', { id_evento: 25 })"
+                :active="route().current() && route().current().includes('actas-comision') && ($page.url.includes('id_evento=25') || $page.props.evento?.id == 25)">
                 <DocumentTextIcon class="h-6 w-6 text-white" />
-                <span class="mx-3">Actas Oficiales</span>
+                <span class="mx-3">Actas Comisión de Personal</span>
             </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.permissions.includes('usuarios-listar')">Configuración</SeparadorMenu>

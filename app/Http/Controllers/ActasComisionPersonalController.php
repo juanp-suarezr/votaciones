@@ -42,7 +42,7 @@ class ActasComisionPersonalController extends Controller
             return true;
         }
 
-        if ($user->can('validador-candidatos-listar') || $user->can('actas-comision-listar')) {
+        if ($user->can('validador-candidatos-listar') || $user->can('actas-comision-listar') || $user->can('eventos-editar')) {
             return true;
         }
 
@@ -85,6 +85,49 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
+     * Formatea fechas de manera segura sin desfases de zona horaria (UTC vs Local)
+     */
+    private function formatearFechaEspanol($fechaStr, $conHora = true)
+    {
+        if (!$fechaStr) {
+            return 'N/A';
+        }
+
+        $clean = trim((string)$fechaStr);
+        $clean = str_replace('T', ' ', $clean);
+        $parts = explode(' ', $clean);
+        $datePart = $parts[0];
+        $timePart = $parts[1] ?? null;
+
+        $datePieces = explode('-', $datePart);
+        if (count($datePieces) === 3) {
+            $meses = [
+                1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+                5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+                9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+            ];
+            $dia = str_pad((int)$datePieces[2], 2, '0', STR_PAD_LEFT);
+            $mesNum = (int)$datePieces[1];
+            $mes = $meses[$mesNum] ?? $datePieces[1];
+            $anio = $datePieces[0];
+
+            if ($conHora && $timePart) {
+                $timePieces = explode(':', $timePart);
+                $h = (int)($timePieces[0] ?? 0);
+                $m = str_pad($timePieces[1] ?? '00', 2, '0', STR_PAD_LEFT);
+                $ampm = $h >= 12 ? 'PM' : 'AM';
+                $h12 = $h % 12 ?: 12;
+                $h12Str = str_pad($h12, 2, '0', STR_PAD_LEFT);
+                return "{$dia} de {$mes} de {$anio} - {$h12Str}:{$m} {$ampm}";
+            }
+
+            return "{$dia} de {$mes} de {$anio}";
+        }
+
+        return (string)$fechaStr;
+    }
+
+    /**
      * Resuelve las fechas automáticas:
      * - Fechas de inscripción: tomadas del bloqueo de rutas (RutasVotaciones)
      * - Fechas de votación: tomadas del evento oficial
@@ -120,10 +163,14 @@ class ActasComisionPersonalController extends Controller
 
         return [
             'inscripcion_inicio' => $fechaInicioInscripcion,
+            'inscripcion_inicio_texto' => $this->formatearFechaEspanol($fechaInicioInscripcion, false),
             'inscripcion_fin' => $fechaFinInscripcion,
+            'inscripcion_fin_texto' => $this->formatearFechaEspanol($fechaFinInscripcion, false),
             'inscripcion_ruta' => $rutaPath ?? 'inscripcion-candidatos',
             'votacion_inicio' => $fechaInicioVotacion,
+            'votacion_inicio_texto' => $this->formatearFechaEspanol($fechaInicioVotacion, true),
             'votacion_fin' => $fechaFinVotacion,
+            'votacion_fin_texto' => $this->formatearFechaEspanol($fechaFinVotacion, true),
         ];
     }
 
@@ -324,7 +371,7 @@ class ActasComisionPersonalController extends Controller
                 'tipo' => 'apertura',
                 'descripcion' => 'Constancia legal y técnica de apertura oficial del proceso de recepción de postulaciones.',
                 'fecha_oficial' => $fechas['inscripcion_inicio'],
-                'fecha_texto' => Carbon::parse($fechas['inscripcion_inicio'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
+                'fecha_texto' => $fechas['inscripcion_inicio_texto'],
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'estado' => $now->gte($fechaInscripcionInicio) ? 'Disponible' : 'Programada',
                 'disponible' => true,
@@ -338,7 +385,7 @@ class ActasComisionPersonalController extends Controller
                 'tipo' => 'cierre',
                 'descripcion' => 'Consolidado formal de postulaciones radicadas, aspirantes validados y candidatos habilitados.',
                 'fecha_oficial' => $fechas['inscripcion_fin'],
-                'fecha_texto' => Carbon::parse($fechas['inscripcion_fin'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
+                'fecha_texto' => $fechas['inscripcion_fin_texto'],
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'estado' => $now->gte($fechaInscripcionFin) ? 'Disponible' : ($now->gte($fechaInscripcionInicio) ? 'En Curso' : 'Programada'),
                 'disponible' => true,
@@ -354,7 +401,7 @@ class ActasComisionPersonalController extends Controller
             'tipo' => 'apertura',
             'descripcion' => 'Certificación de puesta a cero de la urna electrónica y apertura formal de la votación virtual.',
             'fecha_oficial' => $fechas['votacion_inicio'],
-            'fecha_texto' => Carbon::parse($fechas['votacion_inicio'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
+            'fecha_texto' => $fechas['votacion_inicio_texto'],
             'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
             'estado' => $now->gte($fechaVotacionInicio) ? 'Disponible' : 'Programada',
             'disponible' => true,
@@ -368,7 +415,7 @@ class ActasComisionPersonalController extends Controller
             'tipo' => 'cierre',
             'descripcion' => 'Cierre de la jornada electoral, consolidación de sufragios y escrutinio final de resultados.',
             'fecha_oficial' => $fechas['votacion_fin'],
-            'fecha_texto' => Carbon::parse($fechas['votacion_fin'])->translatedFormat('d \d\e F \d\e Y - h:i A'),
+            'fecha_texto' => $fechas['votacion_fin_texto'],
             'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
             'estado' => $now->gte($fechaVotacionFin) ? 'Disponible' : ($now->gte($fechaVotacionInicio) ? 'En Curso' : 'Programada'),
             'disponible' => true,
@@ -449,7 +496,9 @@ class ActasComisionPersonalController extends Controller
                 'titulo' => 'ACTA DE APERTURA DEL PROCESO DE INSCRIPCIÓN Y POSTULACIÓN DE CANDIDATOS',
                 'subtitulo' => 'PROCESO DE POSTULACIÓN - ' . strtoupper($evento->nombre ?? 'COMISIÓN DE PERSONAL'),
                 'fecha_acta' => $fechas['inscripcion_inicio'],
+                'fecha_acta_texto' => $fechas['inscripcion_inicio_texto'],
                 'fecha_cierre_prevista' => $fechas['inscripcion_fin'],
+                'fecha_cierre_prevista_texto' => $fechas['inscripcion_fin_texto'],
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'objeto' => 'Dejar constancia formal y técnica de la apertura del proceso oficial de recepción de postulaciones e inscripciones para ' . ($evento->nombre ?? 'el evento electoral') . ' de la Alcaldía de Pereira, a través de la plataforma virtual VOTA YA.',
             ],
@@ -458,7 +507,9 @@ class ActasComisionPersonalController extends Controller
                 'titulo' => 'ACTA DE CIERRE DEL PROCESO DE INSCRIPCIÓN Y POSTULACIÓN DE CANDIDATOS',
                 'subtitulo' => 'PROCESO DE POSTULACIÓN - ' . strtoupper($evento->nombre ?? 'COMISIÓN DE PERSONAL'),
                 'fecha_acta' => $fechas['inscripcion_fin'],
+                'fecha_acta_texto' => $fechas['inscripcion_fin_texto'],
                 'fecha_apertura' => $fechas['inscripcion_inicio'],
+                'fecha_apertura_texto' => $fechas['inscripcion_inicio_texto'],
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'objeto' => 'Certificar la culminación y cierre del período de recepción de postulaciones, consolidando el número de aspirantes radicados, resultados de validación documental y la lista definitiva de candidatos habilitados.',
             ],
@@ -467,7 +518,9 @@ class ActasComisionPersonalController extends Controller
                 'titulo' => 'ACTA DE APERTURA DE LA JORNADA ELECTORAL Y PUESTA A CERO',
                 'subtitulo' => 'JORNADA OFICIAL DE VOTACIÓN - ' . strtoupper($evento->nombre ?? 'ELECCIONES INSTITUCIONALES'),
                 'fecha_acta' => $fechas['votacion_inicio'],
+                'fecha_acta_texto' => $fechas['votacion_inicio_texto'],
                 'fecha_cierre_prevista' => $fechas['votacion_fin'],
+                'fecha_cierre_prevista_texto' => $fechas['votacion_fin_texto'],
                 'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
                 'objeto' => 'Dejar constancia formal de la apertura de los canales electrónicos de sufragio en la plataforma VOTA YA para el evento "' . ($evento->nombre ?? 'Votación Institucional') . '", verificando y certificando la puesta a cero (0 votos registrados) de la urna virtual y la habilitación del censo electoral oficial.',
             ],
@@ -476,7 +529,9 @@ class ActasComisionPersonalController extends Controller
                 'titulo' => 'ACTA DE CIERRE DE LA JORNADA ELECTORAL Y ESCRUTINIO FINAL',
                 'subtitulo' => 'JORNADA OFICIAL DE VOTACIÓN - ' . strtoupper($evento->nombre ?? 'ELECCIONES INSTITUCIONALES'),
                 'fecha_acta' => $fechas['votacion_fin'],
+                'fecha_acta_texto' => $fechas['votacion_fin_texto'],
                 'fecha_apertura' => $fechas['votacion_inicio'],
+                'fecha_apertura_texto' => $fechas['votacion_inicio_texto'],
                 'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
                 'objeto' => 'Certificar el cierre formal de la votación virtual para "' . ($evento->nombre ?? 'Votación Institucional') . '", la inviolabilidad del sistema de sufragio electrónico, la consolidación del total de votos emitidos y los resultados del escrutinio final.',
             ],
@@ -512,7 +567,7 @@ class ActasComisionPersonalController extends Controller
                 'porcentaje_participacion' => $censoVotantes > 0 ? round(($totalVotos / $censoVotantes) * 100, 2) : 0,
             ],
             'resultados_candidatos' => $opcionesElectorales,
-            'fecha_generacion' => Carbon::now()->translatedFormat('d \d\e F \d\e Y - h:i A'),
+            'fecha_generacion' => $this->formatearFechaEspanol(now()->format('Y-m-d H:i:s'), true),
         ];
     }
 

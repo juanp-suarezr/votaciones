@@ -347,7 +347,7 @@
         <tr>
             <td class="meta-label">Fecha y Hora Oficial:</td>
             <td class="meta-value">
-                <strong>{{ \Carbon\Carbon::parse($config['fecha_acta'])->translatedFormat('d \d\e F \d\e Y \a \l\a\s h:i A') }}</strong>
+                <strong>{{ $config['fecha_acta_completa'] ?? $config['fecha_acta_texto'] ?? $config['fecha_acta'] }}</strong>
             </td>
         </tr>
         <tr>
@@ -380,11 +380,11 @@
         <table class="meta-table">
             <tr>
                 <td class="meta-label">Inicio Inscripciones:</td>
-                <td class="meta-value"><strong>{{ \Carbon\Carbon::parse($fechas['inscripcion_inicio'])->translatedFormat('d \d\e F \d\e Y - h:i A') }}</strong></td>
+                <td class="meta-value"><strong>{{ $fechas['inscripcion_inicio_texto'] ?? $fechas['inscripcion_inicio'] }}</strong></td>
             </tr>
             <tr>
                 <td class="meta-label">Cierre Previsto:</td>
-                <td class="meta-value"><strong>{{ \Carbon\Carbon::parse($fechas['inscripcion_fin'])->translatedFormat('d \d\e F \d\e Y - h:i A') }}</strong></td>
+                <td class="meta-value"><strong>{{ $fechas['inscripcion_fin_texto'] ?? $fechas['inscripcion_fin'] }}</strong></td>
             </tr>
             <tr>
                 <td class="meta-label">Ruta Digital:</td>
@@ -625,7 +625,7 @@
 
     <!-- Constancia Final de Cierre -->
     <p style="margin-top: 14px;">
-        En constancia de lo actuado, se firma la presente acta en la ciudad de Pereira, a los <strong>{{ \Carbon\Carbon::parse($config['fecha_acta'])->translatedFormat('d \d\í\a\s \d\e\l \m\e\s \d\e F \d\e Y') }}</strong>, por el Secretario de las TIC y los secretarios o delegados oficiales del evento.
+        En constancia de lo actuado, se firma la presente acta en la ciudad de Pereira, el día <strong>{{ $config['fecha_acta_texto'] ?? $config['fecha_acta'] }}</strong>, por el Secretario de las TIC y los secretarios o delegados oficiales del evento.
     </p>
 
     <!-- Bloque de Firmas -->

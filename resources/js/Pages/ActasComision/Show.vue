@@ -467,25 +467,58 @@ const breadcrumbLinks = [
 
 const formatearFecha = (fechaStr) => {
   if (!fechaStr) return '';
-  const d = new Date(fechaStr);
-  return d.toLocaleString('es-CO', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  const clean = String(fechaStr).trim().replace('T', ' ');
+  if (clean.includes(' de ')) return clean;
+
+  const parts = clean.split(' ');
+  const datePart = parts[0];
+  const timePart = parts[1] || null;
+
+  const datePieces = datePart.split('-');
+  if (datePieces.length === 3) {
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    const dia = String(parseInt(datePieces[2], 10)).padStart(2, '0');
+    const mesNum = parseInt(datePieces[1], 10) - 1;
+    const mes = meses[mesNum] || datePieces[1];
+    const anio = datePieces[0];
+
+    if (timePart) {
+      const timePieces = timePart.split(':');
+      const h = parseInt(timePieces[0], 10) || 0;
+      const m = String(timePieces[1] || '00').padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${dia} de ${mes} de ${anio} - ${String(h12).padStart(2, '0')}:${m} ${ampm}`;
+    }
+
+    return `${dia} de ${mes} de ${anio}`;
+  }
+
+  return fechaStr;
 };
 
 const formatearFechaTexto = (fechaStr) => {
   if (!fechaStr) return '';
-  const d = new Date(fechaStr);
-  return d.toLocaleDateString('es-CO', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  const clean = String(fechaStr).trim().replace('T', ' ').split(' ')[0];
+  if (clean.includes(' de ')) return clean;
+
+  const datePieces = clean.split('-');
+  if (datePieces.length === 3) {
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    const dia = parseInt(datePieces[2], 10);
+    const mesNum = parseInt(datePieces[1], 10) - 1;
+    const mes = meses[mesNum] || datePieces[1];
+    const anio = datePieces[0];
+    return `${dia} de ${mes} de ${anio}`;
+  }
+
+  return fechaStr;
 };
 
 const getFirmaUrl = (filename) => {

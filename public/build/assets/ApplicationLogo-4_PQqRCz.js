@@ -1,1 +1,0 @@
-import{l as o}from"./logo-lvyEa4m5.js";import{c,o as s,u as a}from"./app-BFNVWz6h.js";const r=["src"],p={__name:"ApplicationLogo",setup(t){return(e,l)=>(s(),c("img",{src:a(o),class:"w-1/2",alt:""},null,8,r))}};export{p as _};

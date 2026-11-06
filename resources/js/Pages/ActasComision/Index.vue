@@ -81,10 +81,10 @@
             </p>
             <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-sky-200">
               <span class="bg-white/10 px-2.5 py-1 rounded-md">
-                <strong>Inicio Votación:</strong> {{ fechas.votacion_inicio }}
+                <strong>Inicio Votación:</strong> {{ fechas.votacion_inicio_texto || fechas.votacion_inicio }}
               </span>
               <span class="bg-white/10 px-2.5 py-1 rounded-md">
-                <strong>Cierre Votación:</strong> {{ fechas.votacion_fin }}
+                <strong>Cierre Votación:</strong> {{ fechas.votacion_fin_texto || fechas.votacion_fin }}
               </span>
               <span v-if="es_comision" class="bg-amber-400/20 text-amber-200 border border-amber-300/30 px-2.5 py-1 rounded-md font-semibold">
                 Incluye Actas de Inscripción de Candidatos
