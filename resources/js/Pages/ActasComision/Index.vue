@@ -1,5 +1,5 @@
 <template>
-  <Head title="Actas Oficiales - Eventos Electorales" />
+  <Head :title="titulo_seccion || 'Actas Oficiales'" />
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header>
@@ -7,21 +7,23 @@
         <div>
           <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <DocumentTextIcon class="h-7 w-7 text-sky-700" />
-            Actas Oficiales de Votación
+            {{ titulo_seccion || 'Actas Oficiales de Votación' }}
           </h1>
           <p class="text-xs text-gray-500 mt-1">
-            Generación y certificación oficial de actas de apertura, cierre y escrutinio para los eventos de la Alcaldía de Pereira.
+            {{ modo === 'comision'
+                ? 'Actas oficiales de inscripción de candidatos y votaciones para la Comisión de Personal.'
+                : 'Generación y certificación oficial de actas de votación para elecciones institucionales de la Alcaldía de Pereira.' }}
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
           <!-- SELECTOR DE EVENTO INTERACTIVO -->
-          <div class="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-3 py-1.5 shadow-sm text-xs font-semibold">
+          <div v-if="eventos_disponibles.length > 1 || modo === 'general'" class="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-3 py-1.5 shadow-sm text-xs font-semibold">
             <span class="text-gray-500 font-bold whitespace-nowrap">Evento:</span>
             <select
               v-model="selectedEventoId"
               @change="cambiarEvento"
-              class="border-none bg-transparent font-bold text-sky-900 focus:ring-0 text-xs py-1 pr-8 cursor-pointer"
+              class="border-none bg-transparent font-bold text-sky-900 focus:ring-0 text-xs py-1 pr-8 cursor-pointer max-w-[260px] truncate"
             >
               <option v-for="ev in eventos_disponibles" :key="ev.id" :value="ev.id">
                 [ID {{ ev.id }}] {{ ev.nombre }}
@@ -570,6 +572,14 @@ import {
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
+  modo: {
+    type: String,
+    default: 'comision'
+  },
+  titulo_seccion: {
+    type: String,
+    default: 'Actas Oficiales'
+  },
   evento: Object,
   es_comision: Boolean,
   fechas: Object,
@@ -580,17 +590,25 @@ const props = defineProps({
   eventos_disponibles: Array
 });
 
-const breadcrumbLinks = [
-  { url: '/dashboard', text: 'Inicio' },
-  { url: '', text: 'Actas Oficiales de Votación' },
-];
+const breadcrumbLinks = props.modo === 'comision'
+  ? [
+      { url: '/dashboard', text: 'Inicio' },
+      { url: route('postulaciones-candidatos.index'), text: 'Comisión de Personal' },
+      { url: '', text: 'Actas Comisión de Personal' },
+    ]
+  : [
+      { url: '/dashboard', text: 'Inicio' },
+      { url: route('eventos.index'), text: 'Eventos' },
+      { url: '', text: 'Actas Generales de Votación' },
+    ];
 
 const activeTab = ref('actas');
 const selectedEventoId = ref(props.evento?.id || 25);
 
 const cambiarEvento = () => {
+  const rutaDestino = props.modo === 'comision' ? 'actas-comision.index' : 'actas-generales.index';
   router.get(
-    route('actas-comision.index'),
+    route(rutaDestino),
     { id_evento: selectedEventoId.value },
     { preserveState: false }
   );

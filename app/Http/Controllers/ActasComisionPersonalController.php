@@ -28,7 +28,7 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Valida que el usuario tenga rol de validador-candidatos, Supervisor o Administrador.
+     * Valida que el usuario tenga rol o permiso de validador-candidatos, Supervisor o Administrador.
      */
     private function checkAccess()
     {
@@ -50,9 +50,9 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Resuelve el evento solicitado o el predeterminado (ID 25).
+     * Resuelve el evento solicitado o el predeterminado.
      */
-    private function getEvento($eventoId = null)
+    private function getEvento($eventoId = null, $modo = 'comision')
     {
         if ($eventoId) {
             $ev = Eventos::find($eventoId);
@@ -61,9 +61,57 @@ class ActasComisionPersonalController extends Controller
             }
         }
 
-        return Eventos::find($this->eventoDefaultId)
-            ?? Eventos::where('nombre', 'like', '%Comisi%')->first()
-            ?? Eventos::orderBy('id', 'desc')->first();
+        if ($modo === 'comision') {
+            return Eventos::find($this->eventoDefaultId)
+                ?? Eventos::where('nombre', 'like', '%Comisi%')->first()
+                ?? Eventos::orderBy('id', 'desc')->first();
+        }
+
+        // Modo general: buscar el primer evento general disponible (excluyendo presupuesto participativo y comisión)
+        return $this->getEventosGeneralesQuery()->first()
+            ?? Eventos::where('nombre', 'not like', '%Presupuesto%')->first()
+            ?? Eventos::first();
+    }
+
+    /**
+     * Obtiene los eventos generales disponibles, excluyendo Presupuesto Participativo (padres e hijos)
+     * y excluyendo el evento de Comisión de Personal.
+     */
+    private function getEventosGeneralesQuery()
+    {
+        // 1. Obtener IDs de eventos relacionados con Presupuesto Participativo (padres)
+        $padresPresupuestoIds = Eventos::where(function ($q) {
+            $q->where('tipos', 'LIKE', '%Presupuesto%')
+              ->orWhere('nombre', 'LIKE', '%Presupuesto%')
+              ->orWhere('tipos', 'LIKE', '%Proyecto%')
+              ->orWhere('id', 16);
+        })->pluck('id')->toArray();
+
+        // 2. Obtener IDs de eventos hijos de Presupuesto Participativo
+        $hijosPresupuestoIds = [];
+        try {
+            $hijosPresupuestoIds = DB::table('hash_eventos_hijos')
+                ->whereIn('id_evento_padre', $padresPresupuestoIds)
+                ->pluck('id_evento_hijo')
+                ->toArray();
+        } catch (\Throwable $th) {
+            // Ignorar si la tabla no existe o falla
+        }
+
+        // Combinar todos los IDs a excluir (padres, hijos, evento 16 y evento 25 de comisión)
+        $excluirIds = array_unique(array_merge($padresPresupuestoIds, $hijosPresupuestoIds, [16, $this->eventoDefaultId]));
+
+        return Eventos::whereNotIn('id', $excluirIds)
+            ->where(function ($q) use ($excluirIds) {
+                $q->whereNull('evento_padre')
+                  ->orWhere('evento_padre', 0)
+                  ->orWhereNotIn('evento_padre', $excluirIds);
+            })
+            ->where('nombre', 'not like', '%Presupuesto%')
+            ->where('nombre', 'not like', '%Comisi%')
+            ->where('tipos', 'not like', '%Presupuesto%')
+            ->where('tipos', 'not like', '%Proyecto%')
+            ->orderBy('id', 'desc');
     }
 
     /**
@@ -302,7 +350,7 @@ class ActasComisionPersonalController extends Controller
             })->sortByDesc('votos')->values();
         }
 
-        // 3. Proyectos (Presupuesto Participativo u otros con proyectos)
+        // 3. Proyectos
         $proyectos = Hash_proyectos::where('id_evento', $eventoId)
             ->with('proyecto')
             ->get();
@@ -317,7 +365,7 @@ class ActasComisionPersonalController extends Controller
                     'id' => $hp->id,
                     'nombre' => $nombre,
                     'identificacion' => 'PROY-' . $hp->id_proyecto,
-                    'subtitulo' => $hp->comuna ?? 'Presupuesto Participativo',
+                    'subtitulo' => $hp->comuna ?? 'Proyecto',
                     'dependencia' => $hp->proyecto ? $hp->proyecto->descripcion : 'N/A',
                     'votos' => $votos,
                     'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
@@ -330,17 +378,15 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Dashboard principal de Actas Oficiales y Gestión de Firmantes para cualquier evento
+     * MÓDULO 1: Actas Oficiales de Comisión de Personal (Evento ID 25)
      */
-    public function index(Request $request)
+    public function comisionPersonal(Request $request)
     {
         $this->checkAccess();
 
-        $eventoId = $request->query('id_evento');
-        $evento = $this->getEvento($eventoId);
+        $evento = $this->getEvento($this->eventoDefaultId, 'comision');
         $eventoId = $evento?->id ?? $this->eventoDefaultId;
 
-        $esComision = $this->esEventoConInscripcion($evento);
         $fechas = $this->getFechasCronograma($evento);
         $firmantes = $this->getFirmantes($evento);
 
@@ -354,16 +400,12 @@ class ActasComisionPersonalController extends Controller
         $totalPostulaciones = Postulaciones_candidatos::where('id_evento', $eventoId)->count();
         $totalAprobados = Postulaciones_candidatos::where('id_evento', $eventoId)->where('estado', 'aprobado')->count();
         $totalRechazados = Postulaciones_candidatos::where('id_evento', $eventoId)->where('estado', 'rechazado')->count();
-
-        // Conteo de votaciones
         $totalCenso = Hash_votantes::where('id_evento', $eventoId)->count();
         $totalVotos = Votos::where('id_eventos', $eventoId)->count();
 
-        $actas = [];
-
-        // Si el evento tiene inscripciones de candidatos (como Comisión de Personal), incluir las 2 actas de inscripción
-        if ($esComision) {
-            $actas[] = [
+        // 4 Actas de Comisión de Personal
+        $actas = [
+            [
                 'id' => 'inscripcion_apertura',
                 'codigo' => 'ACT-CP-01',
                 'nombre' => 'Acta de Apertura de Inscripción de Candidatos',
@@ -375,9 +417,8 @@ class ActasComisionPersonalController extends Controller
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'estado' => $now->gte($fechaInscripcionInicio) ? 'Disponible' : 'Programada',
                 'disponible' => true,
-            ];
-
-            $actas[] = [
+            ],
+            [
                 'id' => 'inscripcion_cierre',
                 'codigo' => 'ACT-CP-02',
                 'nombre' => 'Acta de Cierre de Inscripción de Candidatos',
@@ -389,44 +430,35 @@ class ActasComisionPersonalController extends Controller
                 'origen_fecha' => 'Bloqueo de Rutas (' . $fechas['inscripcion_ruta'] . ')',
                 'estado' => $now->gte($fechaInscripcionFin) ? 'Disponible' : ($now->gte($fechaInscripcionInicio) ? 'En Curso' : 'Programada'),
                 'disponible' => true,
-            ];
-        }
-
-        // Para TODOS los eventos: Actas de inicio y cierre de votaciones
-        $actas[] = [
-            'id' => 'votacion_apertura',
-            'codigo' => $esComision ? 'ACT-CP-03' : 'ACT-EV-01',
-            'nombre' => 'Acta de Apertura de la Jornada de Votación',
-            'categoria' => 'Jornada Electoral',
-            'tipo' => 'apertura',
-            'descripcion' => 'Certificación de puesta a cero de la urna electrónica y apertura formal de la votación virtual.',
-            'fecha_oficial' => $fechas['votacion_inicio'],
-            'fecha_texto' => $fechas['votacion_inicio_texto'],
-            'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
-            'estado' => $now->gte($fechaVotacionInicio) ? 'Disponible' : 'Programada',
-            'disponible' => true,
+            ],
+            [
+                'id' => 'votacion_apertura',
+                'codigo' => 'ACT-CP-03',
+                'nombre' => 'Acta de Apertura de la Jornada de Votación',
+                'categoria' => 'Jornada Electoral',
+                'tipo' => 'apertura',
+                'descripcion' => 'Certificación de puesta a cero de la urna electrónica y apertura formal de la votación virtual.',
+                'fecha_oficial' => $fechas['votacion_inicio'],
+                'fecha_texto' => $fechas['votacion_inicio_texto'],
+                'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
+                'estado' => $now->gte($fechaVotacionInicio) ? 'Disponible' : 'Programada',
+                'disponible' => true,
+            ],
+            [
+                'id' => 'votacion_cierre',
+                'codigo' => 'ACT-CP-04',
+                'nombre' => 'Acta de Cierre de Votaciones y Escrutinio',
+                'categoria' => 'Jornada Electoral',
+                'tipo' => 'cierre',
+                'descripcion' => 'Cierre de la jornada electoral, consolidación de sufragios y escrutinio final de resultados.',
+                'fecha_oficial' => $fechas['votacion_fin'],
+                'fecha_texto' => $fechas['votacion_fin_texto'],
+                'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
+                'estado' => $now->gte($fechaVotacionFin) ? 'Disponible' : ($now->gte($fechaVotacionInicio) ? 'En Curso' : 'Programada'),
+                'disponible' => true,
+            ],
         ];
 
-        $actas[] = [
-            'id' => 'votacion_cierre',
-            'codigo' => $esComision ? 'ACT-CP-04' : 'ACT-EV-02',
-            'nombre' => 'Acta de Cierre de Votaciones y Escrutinio',
-            'categoria' => 'Jornada Electoral',
-            'tipo' => 'cierre',
-            'descripcion' => 'Cierre de la jornada electoral, consolidación de sufragios y escrutinio final de resultados.',
-            'fecha_oficial' => $fechas['votacion_fin'],
-            'fecha_texto' => $fechas['votacion_fin_texto'],
-            'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
-            'estado' => $now->gte($fechaVotacionFin) ? 'Disponible' : ($now->gte($fechaVotacionInicio) ? 'En Curso' : 'Programada'),
-            'disponible' => true,
-        ];
-
-        // Listado de todos los eventos para el selector dinámico
-        $todosEventos = Eventos::select('id', 'nombre', 'dependencias', 'fecha_inicio', 'fecha_fin', 'estado')
-            ->orderBy('id', 'desc')
-            ->get();
-
-        // Buscar secretario TIC específico para destacarlo en la vista
         $secretarioTic = Delegados::where(function ($q) {
             $q->where('cargo', 'like', '%Secretario de las TIC%')
               ->orWhere('cargo', 'like', '%Secretaría de las TIC%')
@@ -434,8 +466,10 @@ class ActasComisionPersonalController extends Controller
         })->where('estado', 1)->first();
 
         return Inertia::render('ActasComision/Index', [
+            'modo' => 'comision',
+            'titulo_seccion' => 'Actas Oficiales - Comisión de Personal',
             'evento' => $evento,
-            'es_comision' => $esComision,
+            'es_comision' => true,
             'fechas' => $fechas,
             'actas' => $actas,
             'firmantes' => $firmantes,
@@ -448,8 +482,106 @@ class ActasComisionPersonalController extends Controller
                 'total_votos' => $totalVotos,
                 'total_firmantes' => $firmantes->count(),
             ],
-            'eventos_disponibles' => $todosEventos,
+            'eventos_disponibles' => [$evento],
         ]);
+    }
+
+    /**
+     * MÓDULO 2: Actas Generales de Votación (excluyendo Presupuesto Participativo y Comisión)
+     */
+    public function actasGenerales(Request $request)
+    {
+        $this->checkAccess();
+
+        // 1. Consultar eventos generales excluyendo todo presupuesto participativo
+        $eventosGenerales = $this->getEventosGeneralesQuery()->get();
+
+        $eventoId = $request->query('id_evento');
+        $evento = null;
+        if ($eventoId) {
+            $evento = Eventos::find($eventoId);
+        }
+        if (!$evento) {
+            $evento = $eventosGenerales->first() ?? Eventos::where('nombre', 'not like', '%Presupuesto%')->first();
+        }
+
+        $eventoId = $evento?->id ?? 0;
+        $fechas = $this->getFechasCronograma($evento);
+        $firmantes = $this->getFirmantes($evento);
+
+        $now = Carbon::now();
+        $fechaVotacionInicio = Carbon::parse($fechas['votacion_inicio']);
+        $fechaVotacionFin = Carbon::parse($fechas['votacion_fin']);
+
+        $totalCenso = Hash_votantes::where('id_evento', $eventoId)->count();
+        $totalVotos = Votos::where('id_eventos', $eventoId)->count();
+
+        // Las 2 actas de votación oficiales
+        $actas = [
+            [
+                'id' => 'votacion_apertura',
+                'codigo' => 'ACT-EV-01',
+                'nombre' => 'Acta de Apertura de la Jornada de Votación',
+                'categoria' => 'Jornada Electoral',
+                'tipo' => 'apertura',
+                'descripcion' => 'Certificación de puesta a cero de la urna electrónica y apertura formal de la votación virtual.',
+                'fecha_oficial' => $fechas['votacion_inicio'],
+                'fecha_texto' => $fechas['votacion_inicio_texto'],
+                'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
+                'estado' => $now->gte($fechaVotacionInicio) ? 'Disponible' : 'Programada',
+                'disponible' => true,
+            ],
+            [
+                'id' => 'votacion_cierre',
+                'codigo' => 'ACT-EV-02',
+                'nombre' => 'Acta de Cierre de Votaciones y Escrutinio',
+                'categoria' => 'Jornada Electoral',
+                'tipo' => 'cierre',
+                'descripcion' => 'Cierre de la jornada electoral, consolidación de sufragios y escrutinio final de resultados.',
+                'fecha_oficial' => $fechas['votacion_fin'],
+                'fecha_texto' => $fechas['votacion_fin_texto'],
+                'origen_fecha' => 'Cronograma Oficial Evento ID ' . $eventoId,
+                'estado' => $now->gte($fechaVotacionFin) ? 'Disponible' : ($now->gte($fechaVotacionInicio) ? 'En Curso' : 'Programada'),
+                'disponible' => true,
+            ],
+        ];
+
+        $secretarioTic = Delegados::where(function ($q) {
+            $q->where('cargo', 'like', '%Secretario de las TIC%')
+              ->orWhere('cargo', 'like', '%Secretaría de las TIC%')
+              ->orWhere('cargo', 'like', '%TIC%');
+        })->where('estado', 1)->first();
+
+        return Inertia::render('ActasComision/Index', [
+            'modo' => 'general',
+            'titulo_seccion' => 'Actas Generales de Votación',
+            'evento' => $evento,
+            'es_comision' => false,
+            'fechas' => $fechas,
+            'actas' => $actas,
+            'firmantes' => $firmantes,
+            'secretario_tic' => $secretarioTic,
+            'estadisticas' => [
+                'total_postulaciones' => 0,
+                'total_aprobados' => 0,
+                'total_rechazados' => 0,
+                'total_censo' => $totalCenso,
+                'total_votos' => $totalVotos,
+                'total_firmantes' => $firmantes->count(),
+            ],
+            'eventos_disponibles' => $eventosGenerales,
+        ]);
+    }
+
+    /**
+     * Método fallback para redirigir según parámetro
+     */
+    public function index(Request $request)
+    {
+        if ($request->query('id_evento') == $this->eventoDefaultId || !$request->has('id_evento')) {
+            return $this->comisionPersonal($request);
+        }
+        return $this->actasGenerales($request);
     }
 
     /**
@@ -457,7 +589,7 @@ class ActasComisionPersonalController extends Controller
      */
     private function generarDatosActa($tipo, $eventoId = null)
     {
-        $evento = $this->getEvento($eventoId);
+        $evento = $this->getEvento($eventoId, 'comision');
         $eventoId = $evento?->id ?? $this->eventoDefaultId;
         $esComision = $this->esEventoConInscripcion($evento);
 

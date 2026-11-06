@@ -436,10 +436,16 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/postulaciones-candidatos/{id}/rechazar', [InscripcionCandidatosController::class, 'rechazar'])->name('postulaciones-candidatos.rechazar');
         Route::get('/postulaciones-candidatos/historial', [InscripcionCandidatosController::class, 'historial'])->name('postulaciones-candidatos.historial');
 
-        // Módulo de Actas de Comisión de Personal (Evento ID 25)
-        Route::get('/actas-comision', [ActasComisionPersonalController::class, 'index'])->name('actas-comision.index');
-        Route::get('/actas-comision/acta/{tipo}', [ActasComisionPersonalController::class, 'show'])->name('actas-comision.show');
-        Route::get('/actas-comision/acta/{tipo}/pdf', [ActasComisionPersonalController::class, 'pdf'])->name('actas-comision.pdf');
+        // Módulo 1: Actas Oficiales de Comisión de Personal (Evento ID 25)
+        Route::get('/actas-comision-personal', [ActasComisionPersonalController::class, 'comisionPersonal'])->name('actas-comision.index');
+        Route::get('/actas-comision', [ActasComisionPersonalController::class, 'comisionPersonal']);
+
+        // Módulo 2: Actas Generales de Votación (para otros eventos, excluyendo Presupuesto Participativo)
+        Route::get('/actas-generales', [ActasComisionPersonalController::class, 'actasGenerales'])->name('actas-generales.index');
+
+        // Visualización web y Descarga PDF oficial
+        Route::get('/actas-oficiales/acta/{tipo}', [ActasComisionPersonalController::class, 'show'])->name('actas-comision.show');
+        Route::get('/actas-oficiales/acta/{tipo}/pdf', [ActasComisionPersonalController::class, 'pdf'])->name('actas-comision.pdf');
 
         // Gestión de Secretarios Firmantes del Evento
         Route::get('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'firmantes'])->name('actas-comision.firmantes');

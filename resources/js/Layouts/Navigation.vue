@@ -70,8 +70,8 @@
                 <ArrowPathIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Migrar Votantes</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')" :href="route('actas-comision.index')"
-                :active="route().current('actas-comision.index') && (!$page.url.includes('id_evento=25') && $page.props.evento?.id != 25)">
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')" :href="route('actas-generales.index')"
+                :active="route().current('actas-generales.index')">
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Actas Generales de Votación</span>
             </nav-link>
@@ -87,8 +87,8 @@
                 <MagnifyingGlassIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Auditoría Candidatos</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('actas-comision-listar') || $page.props.user.roles.includes('Administrador')" :href="route('actas-comision.index', { id_evento: 25 })"
-                :active="route().current() && route().current().includes('actas-comision') && ($page.url.includes('id_evento=25') || $page.props.evento?.id == 25)">
+            <nav-link v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('actas-comision-listar') || $page.props.user.roles.includes('Administrador')" :href="route('actas-comision.index')"
+                :active="route().current('actas-comision.index')">
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Actas Comisión de Personal</span>
             </nav-link>
