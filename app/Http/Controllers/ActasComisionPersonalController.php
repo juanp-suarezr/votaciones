@@ -28,7 +28,7 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Valida que el usuario tenga rol o permiso de validador-candidatos, Supervisor o Administrador.
+     * Valida que el usuario tenga rol o permiso de validador-candidatos, Supervisor, Administrador o Firmante.
      */
     private function checkAccess()
     {
@@ -37,16 +37,16 @@ class ActasComisionPersonalController extends Controller
             abort(403, 'No autenticado');
         }
 
-        $rolesPermitidos = ['validador-candidatos', 'Supervisor', 'Administrador'];
+        $rolesPermitidos = ['validador-candidatos', 'Supervisor', 'Administrador', 'Firmante'];
         if ($user->hasAnyRole($rolesPermitidos)) {
             return true;
         }
 
-        if ($user->can('validador-candidatos-listar') || $user->can('actas-comision-listar') || $user->can('eventos-editar')) {
+        if ($user->can('validador-candidatos-listar') || $user->can('actas-comision-listar') || $user->can('eventos-editar') || $user->can('firmante-panel')) {
             return true;
         }
 
-        abort(403, 'Acceso restringido: Solo para validadores de candidatos, supervisores y administradores.');
+        abort(403, 'Acceso restringido: Solo para validadores de candidatos, supervisores, administradores y firmantes.');
     }
 
     /**
@@ -924,5 +924,173 @@ class ActasComisionPersonalController extends Controller
         $firmante->delete();
 
         return redirect()->back()->with('success', 'Secretario firmante eliminado correctamente.');
+    }
+
+    /**
+     * MÓDULO DE AUTOGESTIÓN: Panel de Firma Digital para el usuario con rol Firmante
+     */
+    public function miFirma(Request $request)
+    {
+        $this->checkAccess();
+
+        $user = Auth::user();
+
+        // Buscar registros previos de este usuario en la tabla delegados
+        $registros = Delegados::where('id_user', $user->id)
+            ->where('tipo', 'secretario')
+            ->get();
+
+        if ($registros->isEmpty() && !empty($user->identificacion)) {
+            $registros = Delegados::where('identificacion', $user->identificacion)
+                ->where('tipo', 'secretario')
+                ->get();
+        }
+
+        $firmaArchivo = $registros->whereNotNull('firma')->where('firma', '!=', 'NA')->first()?->firma;
+        $cargoActual = $registros->first()?->cargo ?? '';
+        $identificacionActual = $registros->first()?->identificacion ?? $user->identificacion ?? '';
+        $nombreActual = $registros->first()?->nombre ?? $user->name ?? '';
+
+        $eventosAsignadosIds = $registros->where('estado', 1)->pluck('id_evento')->toArray();
+
+        // Listar eventos disponibles para asignación (incluyendo comisión y elecciones generales, excluyendo hijos de presupuesto)
+        $eventos = Eventos::where(function ($q) {
+                $q->whereNull('evento_padre')
+                  ->orWhere('evento_padre', 0)
+                  ->orWhere('id', $this->eventoDefaultId);
+            })
+            ->where('nombre', 'not like', '%Presupuesto%')
+            ->orderBy('id', 'desc')
+            ->get(['id', 'nombre', 'dependencias', 'fecha_inicio', 'fecha_fin'])
+            ->map(function ($ev) use ($eventosAsignadosIds) {
+                return [
+                    'id' => $ev->id,
+                    'nombre' => $ev->nombre,
+                    'dependencias' => $ev->dependencias,
+                    'fecha_inicio' => $ev->fecha_inicio,
+                    'fecha_fin' => $ev->fecha_fin,
+                    'asignado' => in_array($ev->id, $eventosAsignadosIds),
+                ];
+            });
+
+        return Inertia::render('Firmante/MiFirma', [
+            'perfil' => [
+                'id' => $user->id,
+                'nombre' => $nombreActual,
+                'email' => $user->email,
+                'identificacion' => $identificacionActual,
+                'cargo' => $cargoActual,
+                'firma_archivo' => $firmaArchivo,
+                'firma_url' => $firmaArchivo ? asset('storage/uploads/delegado/' . $firmaArchivo) : null,
+            ],
+            'eventos_disponibles' => $eventos,
+            'eventos_asignados' => $eventosAsignadosIds,
+        ]);
+    }
+
+    /**
+     * Guarda o actualiza la firma del usuario y sincroniza su asignación a los eventos seleccionados
+     */
+    public function guardarMiFirma(Request $request)
+    {
+        $this->checkAccess();
+
+        $user = Auth::user();
+
+        $request->validate([
+            'nombre' => 'required|string|max:200',
+            'cargo' => 'required|string|max:150',
+            'identificacion' => 'required|string|max:50',
+            'eventos_seleccionados' => 'nullable|array',
+            'eventos_seleccionados.*' => 'integer',
+        ], [
+            'nombre.required' => 'El nombre completo es requerido.',
+            'cargo.required' => 'El cargo institucional es requerido.',
+            'identificacion.required' => 'El número de identificación es requerido.',
+        ]);
+
+        $folder = 'delegado';
+        $destinationPath = storage_path('app/public/uploads/' . $folder);
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
+        // Buscar firma existente si no se envía nueva
+        $registroExistente = Delegados::where(function ($q) use ($user, $request) {
+            $q->where('id_user', $user->id)
+              ->orWhere('identificacion', $request->identificacion);
+        })->where('tipo', 'secretario')->whereNotNull('firma')->where('firma', '!=', 'NA')->first();
+
+        $fileName = $registroExistente ? $registroExistente->firma : 'NA';
+
+        if ($request->hasFile('firma')) {
+            $file = $request->file('firma');
+            $extension = strtolower($file->getClientOriginalExtension());
+            $fileName = time() . '_firmante_' . preg_replace('/[^A-Za-z0-9]/', '', $request->identificacion) . '.' . $extension;
+            $file->move($destinationPath, $fileName);
+        } elseif (is_string($request->firma) && str_starts_with($request->firma, 'data:image')) {
+            $imageParts = explode(";base64,", $request->firma);
+            $imageBase64 = base64_decode($imageParts[1]);
+            $fileName = time() . '_firmante_' . preg_replace('/[^A-Za-z0-9]/', '', $request->identificacion) . '.png';
+            file_put_contents($destinationPath . '/' . $fileName, $imageBase64);
+        }
+
+        if ($fileName === 'NA') {
+            return redirect()->back()->withErrors([
+                'firma' => 'Debes trazar tu firma digital en el recuadro o subir una imagen de tu firma.',
+            ]);
+        }
+
+        $eventosSeleccionados = $request->eventos_seleccionados ?? [];
+
+        // 1. Sincronizar o crear en los eventos seleccionados
+        foreach ($eventosSeleccionados as $eventoId) {
+            $delegado = Delegados::where('id_evento', $eventoId)
+                ->where(function ($q) use ($user, $request) {
+                    $q->where('id_user', $user->id)
+                      ->orWhere('identificacion', $request->identificacion);
+                })
+                ->where('tipo', 'secretario')
+                ->first();
+
+            if ($delegado) {
+                $delegado->update([
+                    'id_user' => $user->id,
+                    'nombre' => $request->nombre,
+                    'cargo' => $request->cargo,
+                    'identificacion' => $request->identificacion,
+                    'firma' => $fileName,
+                    'estado' => 1,
+                ]);
+            } else {
+                Delegados::create([
+                    'id_evento' => $eventoId,
+                    'id_user' => $user->id,
+                    'nombre' => $request->nombre,
+                    'cargo' => $request->cargo,
+                    'identificacion' => $request->identificacion,
+                    'tipo' => 'secretario',
+                    'firma' => $fileName,
+                    'estado' => 1,
+                ]);
+            }
+        }
+
+        // 2. Desactivar o desvincular de los eventos NO seleccionados
+        Delegados::where(function ($q) use ($user, $request) {
+                $q->where('id_user', $user->id)
+                  ->orWhere('identificacion', $request->identificacion);
+            })
+            ->where('tipo', 'secretario')
+            ->whereNotIn('id_evento', $eventosSeleccionados)
+            ->delete();
+
+        // 3. También si el usuario no tenía identificación guardada en users, actualizarla
+        if (empty($user->identificacion)) {
+            $user->identificacion = $request->identificacion;
+            $user->save();
+        }
+
+        return redirect()->back()->with('success', 'Tu firma digital y asignación a eventos han sido guardadas exitosamente.');
     }
 }

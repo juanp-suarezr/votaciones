@@ -70,10 +70,17 @@
                 <ArrowPathIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Migrar Votantes</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor')" :href="route('actas-generales.index')"
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor') || $page.props.user.roles.includes('Firmante')" :href="route('actas-generales.index')"
                 :active="route().current('actas-generales.index')">
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Actas Generales de Votación</span>
+            </nav-link>
+
+            <SeparadorMenu v-if="$page.props.user.roles.includes('Firmante') || $page.props.user.permissions.includes('firmante-panel') || $page.props.user.roles.includes('Administrador')">Firma Digital</SeparadorMenu>
+            <nav-link v-if="$page.props.user.roles.includes('Firmante') || $page.props.user.permissions.includes('firmante-panel') || $page.props.user.roles.includes('Administrador')" :href="route('firmante.mi-firma')"
+                :active="route().current('firmante.mi-firma')">
+                <PencilSquareIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Mi Firma y Eventos</span>
             </nav-link>
 
             <SeparadorMenu v-if="$page.props.user.roles.includes('validador-candidatos') || $page.props.user.roles.includes('Supervisor') || $page.props.user.permissions.includes('validador-candidatos-listar') || $page.props.user.roles.includes('Administrador')">Comisión de Personal</SeparadorMenu>
@@ -155,7 +162,7 @@ import SeparadorMenu from "@/Components/SeparadorMenu.vue";
 import { Link } from '@inertiajs/vue3';
 import imglogo_w from '/public/assets/img/logo_white.png'
 import { ref } from 'vue'
-import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon, LinkIcon, ArrowPathIcon } from '@heroicons/vue/24/solid'
+import { HomeIcon, ChartBarIcon, ShareIcon, ClipboardDocumentIcon, FireIcon, UserGroupIcon, FingerPrintIcon, AdjustmentsHorizontalIcon, PaperClipIcon, CheckIcon, CircleStackIcon, ArchiveBoxArrowDownIcon, DocumentTextIcon, MagnifyingGlassIcon, LinkIcon, ArrowPathIcon, PencilSquareIcon } from '@heroicons/vue/24/solid'
 
 export default {
     components: {
@@ -177,7 +184,8 @@ export default {
         MagnifyingGlassIcon,
         LinkIcon,
         ArrowPathIcon,
-        SeparadorMenu
+        SeparadorMenu,
+        PencilSquareIcon
     },
 
     setup() {

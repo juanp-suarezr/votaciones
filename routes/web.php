@@ -429,8 +429,8 @@ Route::group(['middleware' => ['auth']], function () {
     //funcionarios planeacion
     Route::resource('funcionarios', FuncionariosController::class);
 
-    // Validación de postulaciones de candidatos, auditoría y actas oficiales (exclusivo para validador-candidatos, Supervisor y Administrador)
-    Route::middleware('role_or_permission:validador-candidatos|Supervisor|Administrador|validador-candidatos-listar|actas-comision-listar')->group(function () {
+    // Validación de postulaciones de candidatos, auditoría y actas oficiales (validador-candidatos, Supervisor, Administrador y Firmante)
+    Route::middleware('role_or_permission:validador-candidatos|Supervisor|Administrador|Firmante|validador-candidatos-listar|actas-comision-listar|firmante-panel')->group(function () {
         Route::get('/postulaciones-candidatos', [InscripcionCandidatosController::class, 'index'])->name('postulaciones-candidatos.index');
         Route::post('/postulaciones-candidatos/{id}/aprobar', [InscripcionCandidatosController::class, 'aprobar'])->name('postulaciones-candidatos.aprobar');
         Route::post('/postulaciones-candidatos/{id}/rechazar', [InscripcionCandidatosController::class, 'rechazar'])->name('postulaciones-candidatos.rechazar');
@@ -447,11 +447,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/actas-oficiales/acta/{tipo}', [ActasComisionPersonalController::class, 'show'])->name('actas-comision.show');
         Route::get('/actas-oficiales/acta/{tipo}/pdf', [ActasComisionPersonalController::class, 'pdf'])->name('actas-comision.pdf');
 
-        // Gestión de Secretarios Firmantes del Evento
+        // Gestión de Secretarios Firmantes del Evento (Administrador / Mesa)
         Route::get('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'firmantes'])->name('actas-comision.firmantes');
         Route::post('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'guardarFirmante'])->name('actas-comision.firmantes.store');
         Route::post('/actas-comision-firmantes/{id}/actualizar', [ActasComisionPersonalController::class, 'actualizarFirmante'])->name('actas-comision.firmantes.update');
         Route::delete('/actas-comision-firmantes/{id}', [ActasComisionPersonalController::class, 'eliminarFirmante'])->name('actas-comision.firmantes.destroy');
+
+        // Módulo de Autogestión de Firma Digital y Asignación de Eventos (Usuario con rol Firmante)
+        Route::get('/mi-firma-digital', [ActasComisionPersonalController::class, 'miFirma'])->name('firmante.mi-firma');
+        Route::post('/mi-firma-digital', [ActasComisionPersonalController::class, 'guardarMiFirma'])->name('firmante.mi-firma.guardar');
     });
     
 });
