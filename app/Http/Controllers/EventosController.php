@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Acta_escrutino;
 use App\Models\Acta_fin;
 use App\Models\Acta_inicio;
 use App\Models\Eventos;
@@ -27,22 +28,98 @@ class EventosController extends Controller
 
     function __construct()
     {
-        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'store', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
+        $this->middleware('permission:eventos-listar|eventos-crear|eventos-editar|eventos-eliminar', ['only' => ['index', 'show', 'store', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
         $this->middleware('permission:eventos-crear', ['only' => ['create', 'store']]);
         $this->middleware('permission:eventos-editar', ['only' => ['edit', 'update', 'migrarUsuariosView', 'estadisticasVotantesEvento', 'ejecutarMigracionUsuarios']]);
         $this->middleware('permission:eventos-eliminar', ['only' => ['destroy']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render(
+        $search = $request->input('search');
+        $estado = $request->input('estado');
 
-            'Eventos/Index',
+        $eventos = Eventos::whereNot('nombre', 'Admin')
+            ->when($search, function ($q, $search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('nombre', 'like', '%' . $search . '%')
+                        ->orWhere('dependencias', 'like', '%' . $search . '%')
+                        ->orWhere('descripcion', 'like', '%' . $search . '%');
+                });
+            })
+            ->when($estado, function ($q, $estado) {
+                $q->where('estado', $estado);
+            })
+            ->withCount(['votantes', 'votos', 'acta_escrutinio'])
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
-            [
-                'eventos' => Eventos::whereNot('nombre', 'Admin')->paginate(5),
-            ]
-        );
+        return Inertia::render('Eventos/Index', [
+            'eventos' => $eventos,
+            'filters' => [
+                'search' => $search,
+                'estado' => $estado,
+            ],
+        ]);
+    }
+
+    public function show($id)
+    {
+        $evento = Eventos::whereNot('nombre', 'Admin')
+            ->with(['padre'])
+            ->withCount(['votantes', 'votos', 'acta_escrutinio'])
+            ->findOrFail($id);
+
+        // Desglose de votantes asignados
+        $conteoVotantes = [
+            'total' => Hash_votantes::where('id_evento', $id)->count(),
+            'activos' => Hash_votantes::where('id_evento', $id)->where('estado', 'Activo')->count(),
+            'pendientes' => Hash_votantes::where('id_evento', $id)->where('estado', 'Pendiente')->count(),
+            'rechazados' => Hash_votantes::where('id_evento', $id)->where('estado', 'Rechazado')->count(),
+            'candidatos' => Hash_votantes::where('id_evento', $id)->where('candidato', 1)->count(),
+            'solo_votantes' => Hash_votantes::where('id_evento', $id)->where('candidato', 0)->count(),
+        ];
+
+        // Desglose de votos
+        $conteoVotos = [
+            'total' => Votos::where('id_eventos', $id)->count(),
+            'virtuales' => Votos::where('id_eventos', $id)->where('isVirtual', 1)->count(),
+            'presenciales' => Votos::where('id_eventos', $id)->where('isVirtual', 0)->count(),
+        ];
+
+        // Actas de inicio y fin
+        $actasInicio = Acta_inicio::where('id_evento', $id)
+            ->with('jurado')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $actasFin = Acta_fin::where('id_evento', $id)
+            ->with('jurado')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Actas de escrutinio
+        $actasEscrutinio = Acta_escrutino::where('id_evento', $id)
+            ->with(['jurado', 'cordinador'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Eventos hijos si este evento es padre
+        $eventosHijos = Hash_eventos_hijos::where('id_evento_padre', $id)
+            ->join('eventos', 'hash_eventos_hijos.id_evento_hijo', '=', 'eventos.id')
+            ->select('eventos.id', 'eventos.nombre', 'eventos.estado', 'eventos.fecha_inicio', 'eventos.fecha_fin')
+            ->get();
+
+        return Inertia::render('Eventos/Show', [
+            'evento' => $evento,
+            'conteo_votantes' => $conteoVotantes,
+            'conteo_votos' => $conteoVotos,
+            'actas_inicio' => $actasInicio,
+            'actas_fin' => $actasFin,
+            'actas_escrutinio' => $actasEscrutinio,
+            'eventos_hijos' => $eventosHijos,
+        ]);
     }
 
     public function create()
