@@ -94,6 +94,7 @@ class DelegadosController extends Controller
 
 
         $delegado = Delegados::create([
+            'id_evento' => $request->id_evento,
             'nombre' => $request->nombre,
             'identificacion' => $request->identificacion,
             'cargo' => $request->cargo,
@@ -156,6 +157,9 @@ class DelegadosController extends Controller
         $delegados->nombre = $request->nombre;
         $delegados->identificacion = $request->identificacion;
         $delegados->cargo = $request->cargo;
+        if ($request->has('id_evento')) {
+            $delegados->id_evento = $request->id_evento;
+        }
         $delegados->firma = $fileName != 'NA' ? $fileName : $delegados->firma;
         $delegados->save();
 

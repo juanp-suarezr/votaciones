@@ -2,6 +2,7 @@
 
 use App\Exports\FuncionariosExports;
 use App\Http\Controllers\ActaPresencialController;
+use App\Http\Controllers\ActasComisionPersonalController;
 use App\Http\Controllers\ActasVirtualesController;
 use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\AnalisisPresupuestoController;
@@ -428,12 +429,23 @@ Route::group(['middleware' => ['auth']], function () {
     //funcionarios planeacion
     Route::resource('funcionarios', FuncionariosController::class);
 
-    // Validación de postulaciones de candidatos y auditoría (exclusivo para rol validador-candidatos y Administrador)
-    Route::middleware('role_or_permission:validador-candidatos|validador-candidatos-listar|Administrador')->group(function () {
+    // Validación de postulaciones de candidatos, auditoría y actas oficiales (exclusivo para validador-candidatos, Supervisor y Administrador)
+    Route::middleware('role_or_permission:validador-candidatos|Supervisor|Administrador|validador-candidatos-listar|actas-comision-listar')->group(function () {
         Route::get('/postulaciones-candidatos', [InscripcionCandidatosController::class, 'index'])->name('postulaciones-candidatos.index');
         Route::post('/postulaciones-candidatos/{id}/aprobar', [InscripcionCandidatosController::class, 'aprobar'])->name('postulaciones-candidatos.aprobar');
         Route::post('/postulaciones-candidatos/{id}/rechazar', [InscripcionCandidatosController::class, 'rechazar'])->name('postulaciones-candidatos.rechazar');
         Route::get('/postulaciones-candidatos/historial', [InscripcionCandidatosController::class, 'historial'])->name('postulaciones-candidatos.historial');
+
+        // Módulo de Actas de Comisión de Personal (Evento ID 25)
+        Route::get('/actas-comision', [ActasComisionPersonalController::class, 'index'])->name('actas-comision.index');
+        Route::get('/actas-comision/acta/{tipo}', [ActasComisionPersonalController::class, 'show'])->name('actas-comision.show');
+        Route::get('/actas-comision/acta/{tipo}/pdf', [ActasComisionPersonalController::class, 'pdf'])->name('actas-comision.pdf');
+
+        // Gestión de Secretarios Firmantes del Evento
+        Route::get('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'firmantes'])->name('actas-comision.firmantes');
+        Route::post('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'guardarFirmante'])->name('actas-comision.firmantes.store');
+        Route::post('/actas-comision-firmantes/{id}/actualizar', [ActasComisionPersonalController::class, 'actualizarFirmante'])->name('actas-comision.firmantes.update');
+        Route::delete('/actas-comision-firmantes/{id}', [ActasComisionPersonalController::class, 'eliminarFirmante'])->name('actas-comision.firmantes.destroy');
     });
     
 });
