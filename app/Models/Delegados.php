@@ -28,6 +28,7 @@ class Delegados extends Model
         'puntos_votacion',
         'firma',
         'estado',
+        'orden',
         'created_at',
         'updated_at',
 

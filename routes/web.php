@@ -456,6 +456,8 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Gestión de Secretarios Firmantes del Evento (Administrador / Mesa)
         Route::get('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'firmantes'])->name('actas-comision.firmantes');
+        Route::get('/actas-comision-firmantes/buscar-cedula', [ActasComisionPersonalController::class, 'buscarFirmantePorCedula'])->name('actas-comision.firmantes.buscar-cedula');
+        Route::post('/actas-comision-firmantes/reordenar', [ActasComisionPersonalController::class, 'reordenarFirmantes'])->name('actas-comision.firmantes.reordenar');
         Route::post('/actas-comision-firmantes', [ActasComisionPersonalController::class, 'guardarFirmante'])->name('actas-comision.firmantes.store');
         Route::post('/actas-comision-firmantes/{id}/actualizar', [ActasComisionPersonalController::class, 'actualizarFirmante'])->name('actas-comision.firmantes.update');
         Route::delete('/actas-comision-firmantes/{id}', [ActasComisionPersonalController::class, 'eliminarFirmante'])->name('actas-comision.firmantes.destroy');

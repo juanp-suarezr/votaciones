@@ -265,6 +265,7 @@
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <th class="py-3.5 px-3 text-center w-24">Orden</th>
                   <th class="py-3.5 px-4">Firmante / Funcionario</th>
                   <th class="py-3.5 px-4">Identificación</th>
                   <th class="py-3.5 px-4">Cargo Institucional</th>
@@ -274,7 +275,36 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100 text-sm">
-                <tr v-for="f in firmantes" :key="f.id" class="hover:bg-sky-50/40 transition-colors">
+                <tr v-for="(f, idx) in listaFirmantes" :key="f.id || idx" class="hover:bg-sky-50/40 transition-colors">
+                  <!-- Columna Reordenar Posición -->
+                  <td class="py-3.5 px-3 text-center">
+                    <div class="inline-flex items-center gap-1">
+                      <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-black flex items-center justify-center border border-slate-200">
+                        {{ idx + 1 }}
+                      </span>
+                      <div v-if="f.id > 0 && !f.is_dependencia" class="flex flex-col gap-0.5 ml-1">
+                        <button
+                          type="button"
+                          @click="subirFirmante(idx)"
+                          :disabled="idx === 0"
+                          class="p-0.5 rounded text-slate-500 hover:text-sky-700 hover:bg-sky-100 disabled:opacity-20 disabled:hover:bg-transparent"
+                          title="Subir posición"
+                        >
+                          <ChevronUpIcon class="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          @click="bajarFirmante(idx)"
+                          :disabled="idx === listaFirmantes.length - 1"
+                          class="p-0.5 rounded text-slate-500 hover:text-sky-700 hover:bg-sky-100 disabled:opacity-20 disabled:hover:bg-transparent"
+                          title="Bajar posición"
+                        >
+                          <ChevronDownIcon class="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+
                   <td class="py-3.5 px-4 font-semibold text-gray-900">
                     <div class="flex items-center gap-2.5">
                       <div
@@ -401,27 +431,75 @@
 
         <!-- Formulario -->
         <form @submit.prevent="guardarFirmanteSubmit" class="p-6 space-y-4">
-          <!-- Nombre -->
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo (*)</label>
-            <input
-              type="text"
-              v-model="formFirmante.nombre"
-              required
-              placeholder="Ej: Dr. Carlos Alberto Gómez"
-              class="w-full text-sm rounded-xl border-gray-300 focus:border-sky-600 focus:ring-sky-600 shadow-sm"
-            />
-          </div>
-
-          <!-- Identificación y Cargo -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Identificación (C.C.) (*)</label>
+          <!-- Búsqueda por Identificación (C.C.) -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-bold text-slate-800 uppercase">
+                Identificación (C.C.) (*)
+              </label>
+              <span v-if="buscandoCedula" class="text-[11px] text-sky-700 font-semibold flex items-center gap-1">
+                <span class="animate-spin inline-block w-3 h-3 border-2 border-sky-600 border-t-transparent rounded-full"></span>
+                Buscando registros previos...
+              </span>
+            </div>
+            <div class="flex gap-2">
               <input
                 type="text"
                 v-model="formFirmante.identificacion"
+                @keydown.enter.prevent="buscarPorCedula"
                 required
                 placeholder="Ej: 1088234567"
+                class="flex-1 text-sm rounded-xl border-gray-300 focus:border-sky-600 focus:ring-sky-600 shadow-sm bg-white"
+              />
+              <button
+                type="button"
+                @click="buscarPorCedula"
+                :disabled="buscandoCedula || !formFirmante.identificacion"
+                class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 flex items-center gap-1.5"
+                title="Buscar si el funcionario ya existe en otro evento"
+              >
+                <MagnifyingGlassIcon class="h-4 w-4" />
+                <span>Buscar C.C.</span>
+              </button>
+            </div>
+
+            <!-- Alerta: Secretario Encontrado en Otro Evento -->
+            <div
+              v-if="secretarioEncontradoInfo"
+              class="mt-2.5 p-3 bg-emerald-50 border border-emerald-300 rounded-xl flex items-start gap-2.5 text-xs text-emerald-900"
+            >
+              <CheckCircleIcon class="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div class="space-y-1">
+                <div class="font-bold text-emerald-800">
+                  ¡Funcionario encontrado en el sistema!
+                </div>
+                <p class="leading-relaxed">
+                  Se autocompletaron sus datos y firma registrada previamente
+                  <span v-if="secretarioEncontradoInfo.evento_origen"> (en <em>"{{ secretarioEncontradoInfo.evento_origen }}"</em>)</span>.
+                  Al guardar, se le asignará a este nuevo evento <strong>sin desasignarlo ni afectar sus eventos anteriores</strong>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Alerta: Cédula no registrada previamente -->
+            <div
+              v-else-if="cedulaBuscadaSinResultado"
+              class="mt-2 p-2.5 bg-sky-50 border border-sky-200 rounded-xl text-xs text-sky-800 flex items-center gap-2"
+            >
+              <InformationCircleIcon class="h-4 w-4 text-sky-600 shrink-0" />
+              <span>No se encontró firma previa con esta cédula. Complete los datos y firme a continuación.</span>
+            </div>
+          </div>
+
+          <!-- Nombre Completo y Cargo -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo (*)</label>
+              <input
+                type="text"
+                v-model="formFirmante.nombre"
+                required
+                placeholder="Ej: Dr. Carlos Alberto Gómez"
                 class="w-full text-sm rounded-xl border-gray-300 focus:border-sky-600 focus:ring-sky-600 shadow-sm"
               />
             </div>
@@ -439,7 +517,7 @@
 
           <!-- Evento Asignado -->
           <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Evento Asignado (*)</label>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Evento al que se asignará (*)</label>
             <select
               v-model="formFirmante.id_evento"
               class="w-full text-sm rounded-xl border-gray-300 focus:border-sky-600 focus:ring-sky-600 shadow-sm"
@@ -568,8 +646,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {
   DocumentTextIcon,
@@ -582,7 +661,12 @@ import {
   PencilIcon,
   TrashIcon,
   CheckIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  CheckCircleIcon,
+  InformationCircleIcon
 } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
@@ -619,6 +703,52 @@ const breadcrumbLinks = props.modo === 'comision'
 const activeTab = ref('actas');
 const selectedEventoId = ref(props.evento?.id || 25);
 
+// Lista reactiva de firmantes para reordenamiento
+const listaFirmantes = ref([...(props.firmantes || [])]);
+
+watch(() => props.firmantes, (nuevos) => {
+  listaFirmantes.value = [...(nuevos || [])];
+});
+
+// Reordenamiento de firmantes
+const guardandoOrden = ref(false);
+
+const guardarNuevoOrden = () => {
+  const ordenes = listaFirmantes.value
+    .filter(item => item.id > 0)
+    .map((item, index) => ({
+      id: item.id,
+      orden: index + 1
+    }));
+
+  if (ordenes.length === 0) return;
+
+  guardandoOrden.value = true;
+  router.post(route('actas-comision.firmantes.reordenar'), { ordenes }, {
+    preserveScroll: true,
+    preserveState: true,
+    onFinish: () => {
+      guardandoOrden.value = false;
+    }
+  });
+};
+
+const subirFirmante = (idx) => {
+  if (idx <= 0) return;
+  const temp = listaFirmantes.value[idx];
+  listaFirmantes.value[idx] = listaFirmantes.value[idx - 1];
+  listaFirmantes.value[idx - 1] = temp;
+  guardarNuevoOrden();
+};
+
+const bajarFirmante = (idx) => {
+  if (idx >= listaFirmantes.value.length - 1) return;
+  const temp = listaFirmantes.value[idx];
+  listaFirmantes.value[idx] = listaFirmantes.value[idx + 1];
+  listaFirmantes.value[idx + 1] = temp;
+  guardarNuevoOrden();
+};
+
 const cambiarEvento = () => {
   const rutaDestino = props.modo === 'comision' ? 'actas-comision.index' : 'actas-generales.index';
   router.get(
@@ -637,6 +767,11 @@ const canvasRef = ref(null);
 const firmaPreview = ref(null);
 const procesando = ref(false);
 
+// Búsqueda de secretario por cédula
+const buscandoCedula = ref(false);
+const secretarioEncontradoInfo = ref(null);
+const cedulaBuscadaSinResultado = ref(false);
+
 const formFirmante = ref({
   nombre: '',
   identificacion: '',
@@ -644,6 +779,36 @@ const formFirmante = ref({
   id_evento: props.evento?.id || 25,
   firma: null
 });
+
+const buscarPorCedula = async () => {
+  const cedula = formFirmante.value.identificacion ? formFirmante.value.identificacion.trim() : '';
+  if (!cedula) return;
+
+  buscandoCedula.value = true;
+  secretarioEncontradoInfo.value = null;
+  cedulaBuscadaSinResultado.value = false;
+
+  try {
+    const response = await axios.get(route('actas-comision.firmantes.buscar-cedula'), {
+      params: { identificacion: cedula }
+    });
+
+    if (response.data && response.data.encontrado) {
+      const f = response.data.firmante;
+      formFirmante.value.nombre = f.nombre;
+      formFirmante.value.cargo = f.cargo;
+      formFirmante.value.firma = f.firma; // Reutiliza el archivo de firma física
+      firmaPreview.value = f.firma_url;
+      secretarioEncontradoInfo.value = f;
+    } else {
+      cedulaBuscadaSinResultado.value = true;
+    }
+  } catch (err) {
+    console.error('Error buscando firmante por cédula:', err);
+  } finally {
+    buscandoCedula.value = false;
+  }
+};
 
 // Canvas Drawing Logic
 let isDrawing = false;
@@ -731,6 +896,8 @@ const onFileFirmaChange = (e) => {
 const abrirModalNuevoFirmante = () => {
   modoEdicion.value = false;
   firmanteIdEditar.value = null;
+  secretarioEncontradoInfo.value = null;
+  cedulaBuscadaSinResultado.value = false;
   formFirmante.value = {
     nombre: '',
     identificacion: '',
@@ -746,6 +913,8 @@ const abrirModalNuevoFirmante = () => {
 const editarFirmante = (f) => {
   modoEdicion.value = true;
   firmanteIdEditar.value = f.id;
+  secretarioEncontradoInfo.value = null;
+  cedulaBuscadaSinResultado.value = false;
   formFirmante.value = {
     nombre: f.nombre,
     identificacion: f.identificacion,
@@ -760,6 +929,8 @@ const editarFirmante = (f) => {
 
 const cerrarModalFirmante = () => {
   modalFirmanteVisible.value = false;
+  secretarioEncontradoInfo.value = null;
+  cedulaBuscadaSinResultado.value = false;
   limpiarCanvas();
 };
 

@@ -245,13 +245,18 @@ class ActasComisionPersonalController extends Controller
         }
 
         // 2. Secretarios asignados específicamente a este evento
-        $secretariosEvento = Delegados::where('id_evento', $eventoId)
+        $querySecretarios = Delegados::where('id_evento', $eventoId)
             ->where('tipo', 'secretario')
             ->where('estado', 1)
             ->when($secretarioTic, function ($q) use ($secretarioTic) {
                 $q->where('id', '!=', $secretarioTic->id);
-            })
-            ->get();
+            });
+
+        try {
+            $secretariosEvento = $querySecretarios->orderBy('orden', 'asc')->orderBy('id', 'asc')->get();
+        } catch (\Throwable $th) {
+            $secretariosEvento = $querySecretarios->orderBy('id', 'asc')->get();
+        }
 
         $firmantes = collect();
 
@@ -266,6 +271,7 @@ class ActasComisionPersonalController extends Controller
                 'cargo' => 'Secretario de las TIC',
                 'identificacion' => 'Alcaldía de Pereira',
                 'firma' => null,
+                'orden' => 0,
                 'is_tic' => true,
             ]);
         }
@@ -287,11 +293,15 @@ class ActasComisionPersonalController extends Controller
                 'cargo' => $nombreDependencia,
                 'identificacion' => 'Alcaldía de Pereira',
                 'firma' => null,
+                'orden' => 999,
                 'is_dependencia' => true,
             ]);
         }
 
-        return $firmantes;
+        // Ordenar la colección final respetando el campo orden configurado
+        return $firmantes->sortBy(function ($f) {
+            return isset($f->orden) && $f->orden !== null ? (int)$f->orden : 999;
+        })->values();
     }
 
     /**
@@ -800,10 +810,18 @@ class ActasComisionPersonalController extends Controller
         $evento = $this->getEvento($eventoId);
         $eventoId = $evento?->id ?? $this->eventoDefaultId;
 
-        $firmantes = Delegados::where('id_evento', $eventoId)
-            ->where('tipo', 'secretario')
-            ->orderBy('id', 'desc')
-            ->get();
+        try {
+            $firmantes = Delegados::where('id_evento', $eventoId)
+                ->where('tipo', 'secretario')
+                ->orderBy('orden', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+        } catch (\Throwable $th) {
+            $firmantes = Delegados::where('id_evento', $eventoId)
+                ->where('tipo', 'secretario')
+                ->orderBy('id', 'asc')
+                ->get();
+        }
 
         return response()->json([
             'firmantes' => $firmantes,
@@ -812,7 +830,65 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Registra un nuevo secretario firmante para el evento
+     * Busca si un secretario ya tiene firma registrada para otro evento mediante su número de identificación.
+     */
+    public function buscarFirmantePorCedula(Request $request)
+    {
+        $this->checkAccess();
+
+        $identificacion = trim($request->query('identificacion', ''));
+        if (empty($identificacion)) {
+            return response()->json(['encontrado' => false]);
+        }
+
+        $firmante = Delegados::where('tipo', 'secretario')
+            ->where('identificacion', $identificacion)
+            ->whereNotNull('firma')
+            ->where('firma', '!=', 'NA')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if (!$firmante) {
+            return response()->json(['encontrado' => false]);
+        }
+
+        return response()->json([
+            'encontrado' => true,
+            'firmante' => [
+                'id' => $firmante->id,
+                'nombre' => $firmante->nombre,
+                'cargo' => $firmante->cargo,
+                'identificacion' => $firmante->identificacion,
+                'firma' => $firmante->firma,
+                'firma_url' => asset('storage/uploads/delegado/' . $firmante->firma),
+                'evento_origen' => $firmante->evento ? $firmante->evento->nombre : null,
+            ]
+        ]);
+    }
+
+    /**
+     * Reordena la posición de los firmantes del evento para visualización y actas oficiales.
+     */
+    public function reordenarFirmantes(Request $request)
+    {
+        $this->checkAccess();
+
+        $request->validate([
+            'ordenes' => 'required|array',
+            'ordenes.*.id' => 'required|integer',
+            'ordenes.*.orden' => 'required|integer',
+        ]);
+
+        foreach ($request->ordenes as $item) {
+            Delegados::where('id', $item['id'])->update(['orden' => $item['orden']]);
+        }
+
+        return redirect()->back()->with('success', 'Orden de firmas actualizado correctamente.');
+    }
+
+    /**
+     * Registra un nuevo secretario firmante para el evento.
+     * Si se reutiliza una firma existente, se asigna al nuevo evento sin desasignar del evento anterior.
      */
     public function guardarFirmante(Request $request)
     {
@@ -824,11 +900,12 @@ class ActasComisionPersonalController extends Controller
             'identificacion' => 'required|string|max:50',
             'firma' => 'required',
             'id_evento' => 'nullable|integer',
+            'orden' => 'nullable|integer',
         ], [
             'nombre.required' => 'El nombre del firmante es obligatorio.',
             'cargo.required' => 'El cargo institucional es obligatorio.',
             'identificacion.required' => 'El número de identificación es obligatorio.',
-            'firma.required' => 'La firma digital es obligatoria (dibujada o imagen).',
+            'firma.required' => 'La firma digital es obligatoria (dibujada, imagen o reutilizada).',
         ]);
 
         $eventoId = $request->id_evento ?? $this->eventoDefaultId;
@@ -851,7 +928,16 @@ class ActasComisionPersonalController extends Controller
             $imageBase64 = base64_decode($imageParts[1]);
             $fileName = time() . '_secretario_' . preg_replace('/[^A-Za-z0-9]/', '', $request->identificacion) . '.png';
             file_put_contents($destinationPath . '/' . $fileName, $imageBase64);
+        } elseif (is_string($request->firma) && !empty($request->firma) && $request->firma !== 'NA') {
+            // Reutilización de firma existente proveniente de otro evento
+            $fileName = $request->firma;
         }
+
+        $maxOrden = 0;
+        try {
+            $maxOrden = Delegados::where('id_evento', $eventoId)->where('tipo', 'secretario')->max('orden') ?? 0;
+        } catch (\Throwable $th) {}
+        $orden = $request->orden ?? ($maxOrden + 1);
 
         $delegado = Delegados::create([
             'id_evento' => $eventoId,
@@ -860,10 +946,11 @@ class ActasComisionPersonalController extends Controller
             'cargo' => $request->cargo,
             'tipo' => 'secretario',
             'firma' => $fileName,
+            'orden' => $orden,
             'estado' => 1,
         ]);
 
-        return redirect()->back()->with('success', 'Secretario firmante registrado exitosamente.');
+        return redirect()->back()->with('success', 'Secretario firmante asignado exitosamente.');
     }
 
     /**
@@ -897,6 +984,8 @@ class ActasComisionPersonalController extends Controller
             $fileName = time() . '_secretario_' . preg_replace('/[^A-Za-z0-9]/', '', $request->identificacion) . '.png';
             file_put_contents($destinationPath . '/' . $fileName, $imageBase64);
             $firmante->firma = $fileName;
+        } elseif (is_string($request->firma) && !empty($request->firma) && $request->firma !== 'NA') {
+            $firmante->firma = $request->firma;
         }
 
         $firmante->nombre = $request->nombre;
@@ -904,6 +993,9 @@ class ActasComisionPersonalController extends Controller
         $firmante->identificacion = $request->identificacion;
         if ($request->has('id_evento')) {
             $firmante->id_evento = $request->id_evento;
+        }
+        if ($request->has('orden')) {
+            $firmante->orden = $request->orden;
         }
         if ($request->has('estado')) {
             $firmante->estado = $request->estado;
