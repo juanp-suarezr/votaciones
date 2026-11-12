@@ -8,6 +8,7 @@ use App\Models\Funcionarios_planeacion;
 use App\Models\Hash_votantes;
 use App\Models\Informacion_votantes;
 use App\Models\Postulaciones_candidatos;
+use App\Models\RutasVotaciones;
 use App\Models\User;
 use App\Services\CentralDataService;
 use Carbon\Carbon;
@@ -39,7 +40,35 @@ class InscripcionCandidatosController extends Controller
      */
     public function formulario()
     {
-        // Buscar eventos en estado Pendiente
+        // 1. Verificar si la ruta de inscripción está bloqueada en RutasVotaciones
+        $rutaBloqueada = RutasVotaciones::where(function ($q) {
+            $q->whereIn('path', ['inscripcion-candidatos', '/inscripcion-candidatos', 'candidatos.inscripcion.publica']);
+        })->first();
+
+        if ($rutaBloqueada) {
+            $estadoStr = strtolower(trim((string)$rutaBloqueada->estado));
+            $isBloqueado = in_array($estadoStr, ['0', 'bloqueado', 'inactivo', 'cerrado', 'false'], true);
+            if (!$isBloqueado && ($rutaBloqueada->fecha_inicio || $rutaBloqueada->fecha_fin)) {
+                $ahora = Carbon::now();
+                if ($rutaBloqueada->fecha_inicio && $rutaBloqueada->fecha_fin) {
+                    $isBloqueado = !$ahora->between($rutaBloqueada->fecha_inicio, $rutaBloqueada->fecha_fin);
+                } elseif ($rutaBloqueada->fecha_inicio && $ahora->lessThan($rutaBloqueada->fecha_inicio)) {
+                    $isBloqueado = true;
+                } elseif ($rutaBloqueada->fecha_fin && $ahora->greaterThan($rutaBloqueada->fecha_fin)) {
+                    $isBloqueado = true;
+                }
+            }
+
+            if ($isBloqueado) {
+                return Inertia::render('Errors/RutaBloqueada', [
+                    'titulo' => 'Inscripción de Candidatos Deshabilitada',
+                    'mensaje' => 'El periodo de postulación de candidatos se encuentra actualmente cerrado o deshabilitado según el cronograma oficial.',
+                    'ruta' => $rutaBloqueada,
+                ])->toResponse(request())->setStatusCode(403);
+            }
+        }
+
+        // 2. Buscar eventos en estado Pendiente
         $eventosPendientes = Eventos::where('estado', 'Pendiente')
             ->where('nombre', 'not like', '%Admin%')
             ->orderBy('id', 'desc')

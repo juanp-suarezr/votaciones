@@ -23,7 +23,7 @@
             <select
               v-model="selectedEventoId"
               @change="cambiarEvento"
-              class="border-none bg-transparent font-bold text-sky-900 focus:ring-0 text-xs py-1 pr-8 cursor-pointer max-w-[260px] truncate"
+              class="border-none bg-transparent font-bold text-slate-800 focus:ring-0 text-xs py-1 pr-8 cursor-pointer max-w-[260px] truncate"
             >
               <option v-for="ev in eventos_disponibles" :key="ev.id" :value="ev.id">
                 [ID {{ ev.id }}] {{ ev.nombre }}
@@ -36,9 +36,9 @@
             <button
               @click="activeTab = 'actas'"
               :class="[
-                'px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5',
+                'px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer',
                 activeTab === 'actas'
-                  ? 'bg-sky-700 text-white shadow-sm'
+                  ? 'bg-[#C20E1A] text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               ]"
             >
@@ -48,9 +48,9 @@
             <button
               @click="activeTab = 'firmantes'"
               :class="[
-                'px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5',
+                'px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer',
                 activeTab === 'firmantes'
-                  ? 'bg-sky-700 text-white shadow-sm'
+                  ? 'bg-[#C20E1A] text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               ]"
             >
@@ -64,49 +64,58 @@
 
     <div class="py-6 max-w-7xl mx-auto space-y-6">
 
-      <!-- BANNER DE RESUMEN DEL EVENTO SELECCIONADO -->
-      <div class="bg-gradient-to-r from-sky-900 via-sky-800 to-indigo-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-        <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
-          <img src="/assets/img/logo.png" alt="" class="w-72 h-72 object-contain" />
-        </div>
-        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/30 backdrop-blur-sm rounded-full text-xs font-semibold text-sky-200 mb-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              Alcaldía de Pereira | Dependencia: {{ evento?.dependencias && evento?.dependencias !== 'NA' ? evento?.dependencias : 'Administración Central' }}
-            </div>
-            <h2 class="text-xl md:text-2xl font-bold tracking-tight">
-              [ID {{ evento?.id }}] {{ evento?.nombre }}
-            </h2>
-            <p class="text-sky-100 text-xs sm:text-sm mt-1 max-w-2xl">
-              {{ evento?.descripcion || 'Evento institucional habilitado para votación virtual en VOTA YA.' }}
-            </p>
-            <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-sky-200">
-              <span class="bg-white/10 px-2.5 py-1 rounded-md">
-                <strong>Inicio Votación:</strong> {{ fechas.votacion_inicio_texto || fechas.votacion_inicio }}
-              </span>
-              <span class="bg-white/10 px-2.5 py-1 rounded-md">
-                <strong>Cierre Votación:</strong> {{ fechas.votacion_fin_texto || fechas.votacion_fin }}
-              </span>
-              <span v-if="es_comision" class="bg-amber-400/20 text-amber-200 border border-amber-300/30 px-2.5 py-1 rounded-md font-semibold">
-                Incluye Actas de Inscripción de Candidatos
-              </span>
-            </div>
+      <!-- BANNER INSTITUCIONAL PEREIRA / VOTA YA -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-[#221718] rounded-2xl shadow-xl text-white relative overflow-hidden border border-slate-700/60">
+        <!-- Franja Bicolor Superior Oficial Pereira -->
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#C20E1A] from-50% to-[#FFB800] to-50%"></div>
+
+        <div class="p-6 sm:p-7 relative">
+          <!-- Marca de agua Escudo Pereira -->
+          <div class="absolute -right-6 -bottom-8 opacity-10 pointer-events-none">
+            <img src="/assets/img/escudo.webp" onerror="this.onerror=null; this.src='/assets/img/logo.png';" alt="Escudo de Pereira" class="w-64 h-64 object-contain" />
           </div>
 
-          <!-- Métricas Rápidas -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full md:w-auto">
-            <div v-if="es_comision" class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/15">
-              <div class="text-2xl font-black text-white">{{ estadisticas.total_postulaciones }}</div>
-              <div class="text-xs text-sky-200 uppercase font-medium">Postulados</div>
+          <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/15 backdrop-blur-sm rounded-full text-xs font-bold text-[#FFB800] mb-2.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>ALCALDÍA DE PEREIRA</span>
+                <span class="text-white/40">|</span>
+                <span class="text-slate-200">Dependencia: {{ evento?.dependencias && evento?.dependencias !== 'NA' ? evento?.dependencias : 'Administración Central' }}</span>
+              </div>
+              <h2 class="text-xl md:text-2xl font-black tracking-tight text-white">
+                [ID {{ evento?.id }}] {{ evento?.nombre }}
+              </h2>
+              <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                {{ evento?.descripcion || 'Evento institucional habilitado para votación virtual en VOTA YA.' }}
+              </p>
+              <div class="flex flex-wrap items-center gap-2.5 mt-3 text-xs">
+                <span class="bg-black/30 border border-white/10 px-2.5 py-1 rounded-lg text-slate-300">
+                  <strong class="text-[#FFB800]">Inicio Votación:</strong> {{ fechas.votacion_inicio_texto || fechas.votacion_inicio }}
+                </span>
+                <span class="bg-black/30 border border-white/10 px-2.5 py-1 rounded-lg text-slate-300">
+                  <strong class="text-[#FFB800]">Cierre Votación:</strong> {{ fechas.votacion_fin_texto || fechas.votacion_fin }}
+                </span>
+                <span v-if="es_comision" class="bg-[#C20E1A]/30 text-rose-200 border border-[#C20E1A]/40 px-2.5 py-1 rounded-lg font-bold">
+                  Comisión de Personal
+                </span>
+              </div>
             </div>
-            <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/15">
-              <div class="text-2xl font-black text-amber-300">{{ estadisticas.total_censo }}</div>
-              <div class="text-xs text-sky-200 uppercase font-medium">Censo</div>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/15">
-              <div class="text-2xl font-black text-emerald-300">{{ estadisticas.total_votos }}</div>
-              <div class="text-xs text-sky-200 uppercase font-medium">Votos</div>
+
+            <!-- Métricas Rápidas -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full md:w-auto">
+              <div v-if="es_comision" class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/15">
+                <div class="text-2xl font-black text-white">{{ estadisticas.total_postulaciones }}</div>
+                <div class="text-[11px] text-slate-300 uppercase font-bold tracking-wider">Postulados</div>
+              </div>
+              <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/15">
+                <div class="text-2xl font-black text-[#FFB800]">{{ estadisticas.total_censo }}</div>
+                <div class="text-[11px] text-slate-300 uppercase font-bold tracking-wider">Censo</div>
+              </div>
+              <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/15">
+                <div class="text-2xl font-black text-emerald-400">{{ estadisticas.total_votos }}</div>
+                <div class="text-[11px] text-slate-300 uppercase font-bold tracking-wider">Votos</div>
+              </div>
             </div>
           </div>
         </div>
@@ -369,17 +378,22 @@
       class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4"
     >
       <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-gray-100 overflow-hidden animate-fadeIn">
-        <!-- Header Modal -->
-        <div class="bg-gradient-to-r from-sky-800 to-sky-900 px-6 py-4 text-white flex items-center justify-between">
+        <!-- Header Modal con Identidad Institucional -->
+        <div class="bg-slate-900 border-b-2 border-[#C20E1A] px-6 py-4 text-white flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <PencilSquareIcon class="h-6 w-6 text-sky-300" />
-            <h3 class="text-lg font-bold">
-              {{ modoEdicion ? 'Editar Secretario Firmante' : 'Nuevo Secretario Firmante' }}
-            </h3>
+            <div class="p-1.5 rounded-lg bg-[#C20E1A]/20 text-[#FFB800] border border-[#C20E1A]/40">
+              <PencilSquareIcon class="h-5 w-5" />
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">
+                {{ modoEdicion ? 'Editar Secretario Firmante' : 'Nuevo Secretario Firmante' }}
+              </h3>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Alcaldía de Pereira · VOTA YA</span>
+            </div>
           </div>
           <button
             @click="cerrarModalFirmante"
-            class="text-white/80 hover:text-white text-2xl font-bold leading-none"
+            class="text-slate-400 hover:text-white text-2xl font-bold leading-none cursor-pointer"
           >
             &times;
           </button>

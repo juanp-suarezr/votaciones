@@ -83,10 +83,17 @@ Route::get('/home', function () {
 });
 
 // Formulario público de inscripción de candidatos - Comisión de Personal
-Route::get('/inscripcion-candidatos', [InscripcionCandidatosController::class, 'formulario'])->name('candidatos.inscripcion.publica');
-Route::get('/postulacion-candidato', [InscripcionCandidatosController::class, 'formulario'])->name('candidatos.postulacion.publica');
-Route::post('/inscripcion-candidatos/consultar', [InscripcionCandidatosController::class, 'consultarFuncionario'])->name('candidatos.inscripcion.consultar');
-Route::post('/inscripcion-candidatos/guardar', [InscripcionCandidatosController::class, 'store'])->name('candidatos.inscripcion.store');
+Route::get('/inscripcion-candidatos', [InscripcionCandidatosController::class, 'formulario'])
+    ->middleware('verificar.estado')
+    ->name('candidatos.inscripcion.publica');
+
+Route::post('/inscripcion-candidatos/consultar', [InscripcionCandidatosController::class, 'consultarFuncionario'])
+    ->middleware('verificar.estado')
+    ->name('candidatos.inscripcion.consultar');
+
+Route::post('/inscripcion-candidatos/guardar', [InscripcionCandidatosController::class, 'store'])
+    ->middleware('verificar.estado')
+    ->name('candidatos.inscripcion.store');
 
 //pagina consulta de certificados para descargar
 Route::get('/certificado', function () {

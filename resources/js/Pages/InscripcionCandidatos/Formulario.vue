@@ -47,14 +47,14 @@
       </div>
 
       <!-- BARRA DE ACCESIBILIDAD Y APOYO AUDITIVO (INCLUSIÓN DISCAPACIDAD VISUAL) -->
-      <aside aria-label="Asistencia por voz y accesibilidad" class="bg-indigo-900 text-white px-4 sm:px-6 py-3 border-b-2 border-indigo-950 flex flex-wrap items-center justify-between gap-3 shadow-inner print:hidden">
+      <aside aria-label="Asistencia por voz y accesibilidad" class="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b-2 border-[#C20E1A] flex flex-wrap items-center justify-between gap-3 shadow-inner print:hidden">
         <div class="flex items-center gap-2.5">
-          <span class="p-2 bg-indigo-700/80 rounded-xl text-white shadow-xs" aria-hidden="true">
+          <span class="p-2 bg-[#C20E1A]/20 border border-[#C20E1A]/40 rounded-xl text-[#FFB800] shadow-xs" aria-hidden="true">
             <SpeakerWaveIcon class="w-5 h-5" />
           </span>
           <div>
             <span class="text-xs font-black uppercase tracking-wider block">Asistencia por Voz / Inclusión Visual</span>
-            <span class="text-[11px] text-indigo-200">Escuche las instrucciones completas y cada sección del formulario</span>
+            <span class="text-[11px] text-slate-300">Escuche las instrucciones completas y cada sección del formulario</span>
           </div>
         </div>
 

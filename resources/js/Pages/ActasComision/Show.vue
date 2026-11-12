@@ -6,7 +6,7 @@
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <DocumentTextIcon class="h-6 w-6 text-sky-700" />
+            <DocumentTextIcon class="h-6 w-6 text-[#C20E1A]" />
             {{ config.titulo }}
           </h1>
           <p class="text-xs text-gray-500 mt-0.5">
@@ -56,7 +56,7 @@
         <div class="relative z-10 space-y-6">
 
           <!-- ENCABEZADO INSTITUCIONAL -->
-          <div class="border-b-2 border-sky-600 pb-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="border-b-2 border-[#C20E1A] pb-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <img src="/assets/img/logo.png" alt="Alcaldía de Pereira" class="h-16 w-auto object-contain" />
               <div>
@@ -66,14 +66,14 @@
                 <div class="text-xs text-gray-500 font-semibold uppercase">
                   {{ dependencia_evento || 'Secretaría / Dependencia Responsable' }}
                 </div>
-                <div class="text-[11px] text-sky-700 font-bold">
+                <div class="text-[11px] text-[#C20E1A] font-bold">
                   Plataforma Digital VOTA YA
                 </div>
               </div>
             </div>
 
             <div class="text-right">
-              <span class="inline-block px-3 py-1 bg-sky-700 text-white text-xs font-mono font-bold rounded-md shadow-sm">
+              <span class="inline-block px-3 py-1 bg-[#C20E1A] text-white text-xs font-mono font-bold rounded-md shadow-sm">
                 {{ config.codigo }}
               </span>
               <div class="text-[11px] text-gray-500 font-medium mt-1">
@@ -83,11 +83,11 @@
           </div>
 
           <!-- TÍTULO DEL DOCUMENTO -->
-          <div class="bg-gradient-to-r from-sky-50 to-indigo-50/50 border border-sky-100 border-l-4 border-l-sky-600 p-5 rounded-xl text-center">
+          <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-[#C20E1A] p-5 rounded-xl text-center">
             <h2 class="text-base sm:text-lg font-black text-gray-900 uppercase tracking-wide">
               {{ config.titulo }}
             </h2>
-            <div class="text-xs font-bold text-sky-800 uppercase mt-1 tracking-wider">
+            <div class="text-xs font-bold text-[#C20E1A] uppercase mt-1 tracking-wider">
               {{ config.subtitulo }}
             </div>
           </div>
@@ -153,7 +153,7 @@
           <!-- SECCIÓN 1: OBJETO Y FUNDAMENTO LEGAL -->
           <div class="space-y-2 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
-              <span class="text-sky-700">1.</span> OBJETO Y CONSIDERACIONES LEGALES
+              <span class="text-[#C20E1A]">1.</span> OBJETO Y CONSIDERACIONES LEGALES
             </h3>
             <p class="text-xs sm:text-sm text-gray-700 leading-relaxed text-justify">
               {{ config.objeto }}
@@ -170,7 +170,7 @@
           <!-- CASO 1: APERTURA DE INSCRIPCIÓN (COMISIÓN DE PERSONAL) -->
           <div v-if="tipo === 'inscripcion_apertura'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
-              <span class="text-sky-700">2.</span> CONDICIONES Y PARÁMETROS DE APERTURA
+              <span class="text-[#C20E1A]">2.</span> CONDICIONES Y PARÁMETROS DE APERTURA
             </h3>
 
             <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
@@ -188,9 +188,9 @@
               </div>
             </div>
 
-            <div class="p-4 bg-sky-50/60 rounded-xl border border-sky-200 text-xs text-sky-950 space-y-1.5">
-              <div class="font-bold uppercase tracking-wide text-sky-900">Requisitos Oficiales de Postulación:</div>
-              <ul class="list-disc list-inside space-y-0.5 text-sky-800">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-800 space-y-1.5">
+              <div class="font-bold uppercase tracking-wide text-[#C20E1A]">Requisitos Oficiales de Postulación:</div>
+              <ul class="list-disc list-inside space-y-0.5 text-slate-700">
                 <li>Ser empleado con derechos de carrera administrativa inscrito en el censo.</li>
                 <li>Presentar documento de identidad y certificado de antecedentes disciplinarios de la Procuraduría.</li>
                 <li>Foto digital formal para el tarjetón de votación.</li>
@@ -201,7 +201,7 @@
           <!-- CASO 2: CIERRE DE INSCRIPCIÓN -->
           <div v-else-if="tipo === 'inscripcion_cierre'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
-              <span class="text-sky-700">2.</span> CONSOLIDADO OFICIAL DE POSTULACIONES
+              <span class="text-[#C20E1A]">2.</span> CONSOLIDADO OFICIAL DE POSTULACIONES
             </h3>
 
             <!-- KPIs de Postulaciones -->
@@ -229,7 +229,7 @@
             </div>
 
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5 pt-2">
-              <span class="text-sky-700">3.</span> LISTADO DETALLADO DE ASPIRANTES Y CANDIDATOS HABILITADOS
+              <span class="text-[#C20E1A]">3.</span> LISTADO DETALLADO DE ASPIRANTES Y CANDIDATOS HABILITADOS
             </h3>
 
             <div class="overflow-x-auto border border-gray-200 rounded-xl">
@@ -246,7 +246,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr v-for="p in postulaciones" :key="p.id" class="hover:bg-gray-50">
-                    <td class="py-2 px-3 font-mono font-bold text-sky-800">
+                    <td class="py-2 px-3 font-mono font-bold text-slate-800">
                       {{ p.radicado || ('RAD-CP-' + String(p.id).padStart(4, '0')) }}
                     </td>
                     <td class="py-2 px-3 font-semibold text-gray-900">{{ p.nombre }}</td>
@@ -274,7 +274,7 @@
           <!-- CASO 3: APERTURA DE VOTACIONES (PARA TODOS LOS EVENTOS) -->
           <div v-else-if="tipo === 'votacion_apertura'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
-              <span class="text-sky-700">2.</span> PUESTA A CERO DE LA URNA ELECTRÓNICA VIRTUAL
+              <span class="text-[#C20E1A]">2.</span> PUESTA A CERO DE LA URNA ELECTRÓNICA VIRTUAL
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
@@ -283,15 +283,15 @@
                 <div class="text-xs font-bold text-emerald-900 uppercase mt-1">Urna Electrónica en Cero</div>
                 <p class="text-[11px] text-emerald-700 mt-1">Base de datos de sufragios inicializada y verificada con cero registros</p>
               </div>
-              <div class="p-4 bg-sky-50 rounded-xl border border-sky-200">
-                <div class="text-3xl font-black text-sky-800">{{ totales.censo_votantes }}</div>
-                <div class="text-xs font-bold text-sky-950 uppercase mt-1">Votantes en Censo Habilitado</div>
-                <p class="text-[11px] text-sky-700 mt-1">Censo oficial cargado y validado en el sistema</p>
+              <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-3xl font-black text-[#FFB800]">{{ totales.censo_votantes }}</div>
+                <div class="text-xs font-bold text-slate-800 uppercase mt-1">Votantes en Censo Habilitado</div>
+                <p class="text-[11px] text-slate-600 mt-1">Censo oficial cargado y validado en el sistema</p>
               </div>
             </div>
 
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5 pt-2">
-              <span class="text-sky-700">3.</span> OPCIONES Y CANDIDATOS HABILITADOS EN EL TARJETÓN VIRTUAL
+              <span class="text-[#C20E1A]">3.</span> OPCIONES Y CANDIDATOS HABILITADOS EN EL TARJETÓN VIRTUAL
             </h3>
 
             <div class="overflow-x-auto border border-gray-200 rounded-xl">
@@ -307,7 +307,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr v-for="(cand, idx) in resultados_candidatos" :key="cand.id" class="hover:bg-gray-50">
-                    <td class="py-2 px-3 font-bold text-center text-sky-700">{{ idx + 1 }}</td>
+                    <td class="py-2 px-3 font-bold text-center text-[#C20E1A]">{{ idx + 1 }}</td>
                     <td class="py-2 px-3 font-bold text-gray-900">{{ cand.nombre }}</td>
                     <td class="py-2 px-3 text-gray-600 font-mono text-[11px]">{{ cand.identificacion }}</td>
                     <td class="py-2 px-3">{{ cand.subtitulo || 'N/A' }}</td>
@@ -326,7 +326,7 @@
           <!-- CASO 4: CIERRE DE VOTACIONES Y ESCRUTINIO (PARA TODOS LOS EVENTOS) -->
           <div v-else-if="tipo === 'votacion_cierre'" class="space-y-4 pt-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5">
-              <span class="text-sky-700">2.</span> PARTICIPACIÓN ELECTORAL
+              <span class="text-[#C20E1A]">2.</span> PARTICIPACIÓN ELECTORAL
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
@@ -334,9 +334,9 @@
                 <div class="text-2xl font-black text-gray-800">{{ totales.censo_votantes }}</div>
                 <div class="text-[11px] text-gray-500 uppercase font-semibold">Censo Habilitado</div>
               </div>
-              <div class="p-3 bg-sky-50 rounded-xl border border-sky-200">
-                <div class="text-2xl font-black text-sky-800">{{ totales.total_votos }}</div>
-                <div class="text-[11px] text-sky-900 uppercase font-semibold">Votos Depositados</div>
+              <div class="p-3 bg-rose-50/50 rounded-xl border border-rose-200">
+                <div class="text-2xl font-black text-[#C20E1A]">{{ totales.total_votos }}</div>
+                <div class="text-[11px] text-[#C20E1A] uppercase font-semibold">Votos Depositados</div>
               </div>
               <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
                 <div class="text-2xl font-black text-emerald-700">{{ totales.porcentaje_participacion }}%</div>
@@ -345,7 +345,7 @@
             </div>
 
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1 flex items-center gap-1.5 pt-2">
-              <span class="text-sky-700">3.</span> ESCRUTINIO FINAL Y RESULTADOS OFICIALES
+              <span class="text-[#C20E1A]">3.</span> ESCRUTINIO FINAL Y RESULTADOS OFICIALES
             </h3>
 
             <div class="overflow-x-auto border border-gray-200 rounded-xl">
@@ -362,11 +362,11 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr v-for="(r, idx) in resultados_candidatos" :key="r.id" class="hover:bg-gray-50">
-                    <td class="py-2 px-3 font-bold text-center text-sky-800">#{{ idx + 1 }}</td>
+                    <td class="py-2 px-3 font-bold text-center text-[#C20E1A]">#{{ idx + 1 }}</td>
                     <td class="py-2 px-3 font-bold text-gray-900">{{ r.nombre }}</td>
                     <td class="py-2 px-3 text-gray-600">{{ r.subtitulo || 'N/A' }}</td>
                     <td class="py-2 px-3 text-gray-600">{{ r.dependencia || 'N/A' }}</td>
-                    <td class="py-2 px-3 text-right font-black text-sky-800">{{ r.votos }}</td>
+                    <td class="py-2 px-3 text-right font-black text-slate-900">{{ r.votos }}</td>
                     <td class="py-2 px-3 text-right font-bold text-emerald-700">{{ r.porcentaje }}%</td>
                   </tr>
                   <tr v-if="resultados_candidatos.length === 0">
@@ -416,7 +416,7 @@
 
                 <div class="w-3/4 border-t-2 border-gray-800 mb-2"></div>
                 <div class="font-bold text-sm text-gray-900">{{ firmante.nombre }}</div>
-                <div class="text-xs text-sky-700 font-semibold uppercase">{{ firmante.cargo }}</div>
+                <div class="text-xs text-[#C20E1A] font-semibold uppercase">{{ firmante.cargo }}</div>
                 <div class="text-xs text-gray-500">{{ firmante.identificacion }}</div>
               </div>
             </div>
