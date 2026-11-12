@@ -408,8 +408,14 @@ class ActasComisionPersonalController extends Controller
 
         // Conteo de postulaciones
         $totalPostulaciones = Postulaciones_candidatos::where('id_evento', $eventoId)->count();
-        $totalAprobados = Postulaciones_candidatos::where('id_evento', $eventoId)->where('estado', 'aprobado')->count();
-        $totalRechazados = Postulaciones_candidatos::where('id_evento', $eventoId)->where('estado', 'rechazado')->count();
+        $totalAprobados = Postulaciones_candidatos::where('id_evento', $eventoId)
+            ->where(function ($q) {
+                $q->whereRaw("LOWER(TRIM(estado)) IN ('aprobado', 'aprobada', 'habilitado', '1')");
+            })->count();
+        $totalRechazados = Postulaciones_candidatos::where('id_evento', $eventoId)
+            ->where(function ($q) {
+                $q->whereRaw("LOWER(TRIM(estado)) IN ('rechazado', 'rechazada', '2')");
+            })->count();
         $totalCenso = Hash_votantes::where('id_evento', $eventoId)->count();
         $totalVotos = Votos::where('id_eventos', $eventoId)->count();
 
@@ -611,13 +617,31 @@ class ActasComisionPersonalController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        $candidatosAprobados = $postulaciones->where('estado', 'aprobado')->values();
-        $postulacionesRechazadas = $postulaciones->where('estado', 'rechazado')->values();
-        $postulacionesPendientes = $postulaciones->where('estado', 'pendiente')->values();
+        $candidatosAprobados = $postulaciones->filter(function ($p) {
+            $est = strtolower(trim((string)$p->estado));
+            return in_array($est, ['aprobado', 'aprobada', 'habilitado', '1'], true);
+        })->values();
 
-        // Conteo por planta
-        $aprobadosPlantaCentral = $candidatosAprobados->where('tipo_planta', 'Planta Central')->count();
-        $aprobadosSgp = $candidatosAprobados->where('tipo_planta', 'SGP')->count();
+        $postulacionesRechazadas = $postulaciones->filter(function ($p) {
+            $est = strtolower(trim((string)$p->estado));
+            return in_array($est, ['rechazado', 'rechazada', '2'], true);
+        })->values();
+
+        $postulacionesPendientes = $postulaciones->filter(function ($p) {
+            $est = strtolower(trim((string)$p->estado));
+            return empty($est) || in_array($est, ['pendiente', 'en validacion', 'en validación', '0'], true) || (!in_array($est, ['aprobado', 'aprobada', 'habilitado', '1', 'rechazado', 'rechazada', '2'], true));
+        })->values();
+
+        // Conteo por planta (Planta Central vs SGP) entre los aprobados
+        $aprobadosPlantaCentral = $candidatosAprobados->filter(function ($p) {
+            $planta = strtolower(trim((string)($p->tipo_planta ?? $p->planta ?? '')));
+            return str_contains($planta, 'central');
+        })->count();
+
+        $aprobadosSgp = $candidatosAprobados->filter(function ($p) {
+            $planta = strtolower(trim((string)($p->tipo_planta ?? $p->planta ?? '')));
+            return str_contains($planta, 'sgp');
+        })->count();
 
         // Estadísticas de votaciones
         $censoVotantes = Hash_votantes::where('id_evento', $eventoId)->count();

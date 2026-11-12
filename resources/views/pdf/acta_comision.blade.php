@@ -469,12 +469,15 @@
                             <td>{{ $p->tipo_planta ?? 'N/A' }}</td>
                             <td>{{ \Illuminate\Support\Str::limit($p->dependencia ?? 'N/A', 22) }}</td>
                             <td>
-                                @if($p->estado === 'aprobado')
-                                    <span class="badge-estado badge-aprobado">Habilitado</span>
-                                @elseif($p->estado === 'rechazado')
+                                @php
+                                    $estLower = strtolower(trim((string)($p->estado ?? '')));
+                                @endphp
+                                @if(in_array($estLower, ['aprobado', 'aprobada', 'habilitado', '1'], true))
+                                    <span class="badge-estado badge-aprobado">Aprobado</span>
+                                @elseif(in_array($estLower, ['rechazado', 'rechazada', '2'], true))
                                     <span class="badge-estado badge-rechazado">Rechazado</span>
                                 @else
-                                    <span class="badge-estado badge-pendiente">Pendiente</span>
+                                    <span class="badge-estado badge-pendiente">En Validación</span>
                                 @endif
                             </td>
                         </tr>

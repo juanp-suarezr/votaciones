@@ -257,12 +257,12 @@
                       <span
                         :class="[
                           'px-2 py-0.5 rounded text-[10px] font-bold uppercase',
-                          p.estado === 'aprobado' ? 'bg-emerald-100 text-emerald-800' :
-                          p.estado === 'rechazado' ? 'bg-rose-100 text-rose-800' :
+                          esEstadoAprobado(p.estado) ? 'bg-emerald-100 text-emerald-800' :
+                          esEstadoRechazado(p.estado) ? 'bg-rose-100 text-rose-800' :
                           'bg-amber-100 text-amber-800'
                         ]"
                       >
-                        {{ p.estado === 'aprobado' ? 'Habilitado' : p.estado }}
+                        {{ esEstadoAprobado(p.estado) ? 'Aprobado' : (esEstadoRechazado(p.estado) ? 'Rechazado' : 'En Validación') }}
                       </span>
                     </td>
                   </tr>
@@ -519,6 +519,16 @@ const formatearFechaTexto = (fechaStr) => {
   }
 
   return fechaStr;
+};
+
+const esEstadoAprobado = (estado) => {
+  const est = String(estado || '').trim().toLowerCase();
+  return est === 'aprobado' || est === 'aprobada' || est === 'habilitado' || est === '1';
+};
+
+const esEstadoRechazado = (estado) => {
+  const est = String(estado || '').trim().toLowerCase();
+  return est === 'rechazado' || est === 'rechazada' || est === '2';
 };
 
 const getFirmaUrl = (filename) => {
