@@ -9,7 +9,7 @@
       <!-- Encabezado con Identidad Institucional -->
       <div class="p-6 border-b border-slate-100 flex items-center justify-center gap-3">
         <img
-          src="/assets/img/logo.webp"
+          src="/assets/img/logo-tic.webp"
           @error="$event.target.src = '/assets/img/logo.png'"
           alt="Alcaldía de Pereira"
           class="h-10 max-w-[160px] object-contain"

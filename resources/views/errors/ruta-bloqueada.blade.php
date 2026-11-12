@@ -188,7 +188,7 @@
 
         <!-- Encabezado de Identidad Institucional -->
         <div class="card-header-brand">
-            <img src="{{ asset('assets/img/logo.webp') }}" 
+            <img src="{{ asset('assets/img/logo-tic.webp') }}" 
                  onerror="this.onerror=null; this.src='{{ asset('assets/img/logo.png') }}';" 
                  alt="Alcaldía de Pereira" 
                  class="brand-logo">
