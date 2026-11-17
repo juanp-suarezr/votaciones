@@ -49,9 +49,11 @@ class PpIntegracionController extends Controller
             ->orderBy('green_comuna_id', 'asc')
             ->get();
 
-        // 5. Eventos de presupuesto participativo disponibles
-        $eventosPadre = Eventos::whereNull('evento_padre')
-            ->where('nombre', 'like', '%Presupuesto%')
+        // 5. Eventos de la vigencia de Presupuesto Participativo disponibles
+        $eventosVigencia = Eventos::where('nombre', 'like', '%Presupuesto%')
+            ->where(function ($q) {
+                $q->whereNull('evento_padre')->orWhere('evento_padre', 0);
+            })
             ->orderBy('id', 'desc')
             ->get(['id', 'nombre', 'estado']);
 
@@ -62,7 +64,7 @@ class PpIntegracionController extends Controller
             'proyectos_sincronizados' => $proyectosSincronizados,
             'logs' => $logs,
             'homologaciones' => $homologaciones,
-            'eventos_padre' => $eventosPadre,
+            'eventos_padre' => $eventosVigencia,
             'config' => [
                 'base_url' => config('services.green_pp.base_url'),
                 'token_resumen' => substr(config('services.green_pp.token'), 0, 10) . '...',

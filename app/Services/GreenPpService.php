@@ -23,7 +23,14 @@ class GreenPpService
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('services.green_pp.base_url', 'http://localhost/api/v1/pp'), '/');
+        $rawUrl = rtrim(config('services.green_pp.base_url', 'http://localhost/api/v1/pp'), '/');
+
+        // Normalizar para asegurar que incluya el prefijo /api/v1/pp
+        if (!str_ends_with($rawUrl, '/api/v1/pp') && !str_contains($rawUrl, '/api/v1/pp')) {
+            $rawUrl .= '/api/v1/pp';
+        }
+
+        $this->baseUrl = $rawUrl;
         $this->token = config('services.green_pp.token', '1|hrpLFod7R2ppecAdGgN9d1LntnAn9PMDjRycMR2353377cdd');
         $this->timeout = (int)config('services.green_pp.timeout', 15);
     }
@@ -153,9 +160,14 @@ class GreenPpService
 
     /**
      * 3. Sincroniza e importa una convocatoria de GREEN a la base de datos local de VOTA YA.
-     * Homologa comunas, crea/asocia evento padre e hijos, y registra proyectos con id_postulacion_green.
+     * 
+     * Lógica institucional de VOTA YA:
+     * - Evento Padre: Evento general institucional "Presupuesto Participativo" (evento_padre = 1).
+     * - Evento Hijo: Evento de la VIGENCIA (ej. "Presupuesto Participativo 2026", en hash_eventos_hijos).
+     * - Proyectos: Cada proyecto guarda su id_postulacion_green y su comuna en `subtipo` (parametros_detalle com01).
+     * - Tabla puente hash_proyectos: Relaciona (id_evento = Evento Hijo Vigencia, id_proyecto = proyecto->id).
      */
-    public function sincronizarConvocatoria(int $idConvocatoria, ?int $idEventoPadre = null): array
+    public function sincronizarConvocatoria(int $idConvocatoria, ?int $idEventoVigencia = null): array
     {
         $res = $this->obtenerConvocatoria($idConvocatoria);
 
@@ -173,11 +185,11 @@ class GreenPpService
         // 1. Homologar las comunas de la convocatoria
         $comunasHomologadas = $this->homologarComunas($comunasGreen);
 
-        // 2. Resolver o crear el Evento Padre de Presupuesto Participativo
-        $eventoPadre = $this->resolverEventoPadre($data, $idEventoPadre);
+        // 2. Resolver el Evento Padre institucional ("Presupuesto Participativo")
+        $eventoPadre = $this->resolverEventoPadreInstitucional();
 
-        // 3. Resolver o crear los Eventos Hijos (uno por comuna/corregimiento)
-        $eventosHijosPorComuna = $this->resolverEventosHijos($eventoPadre, $comunasHomologadas);
+        // 3. Resolver o crear el Evento Hijo correspondiente a la VIGENCIA de la convocatoria
+        $eventoVigencia = $this->resolverEventoHijoVigencia($eventoPadre, $data, $idEventoVigencia);
 
         // 4. Importar o actualizar las postulaciones como proyectos locales
         $proyectosCreados = 0;
@@ -189,8 +201,8 @@ class GreenPpService
             ['nombre' => 'Presupuesto Participativo']
         );
 
-        // Determinar comuna principal o distribuir entre las comunas de la convocatoria
-        $comunaDefaultId = !empty($comunasHomologadas) ? reset($comunasHomologadas)['vota_id'] : null;
+        // Determinar comuna principal o primera homologada para asignar a subtipo
+        $comunaDefaultId = !empty($comunasHomologadas) ? reset($comunasHomologadas)['vota_id'] : 1;
 
         foreach ($postulaciones as $idx => $post) {
             $idPostulacionGreen = $post['id'] ?? null;
@@ -200,7 +212,7 @@ class GreenPpService
                 ? ($post['estado']['codigo'] ?? 'EN_REVISION')
                 : ($post['estado'] ?? 'EN_REVISION');
 
-            // Nombre y descripción: en la v1 de GREEN vienen en null
+            // En la v1 de GREEN nombre_proyecto y descripcion_proyecto vienen en null
             $nombreProyecto = !empty($post['nombre_proyecto'])
                 ? $post['nombre_proyecto']
                 : "Proyecto PP #{$idPostulacionGreen} - " . ($data['nombre'] ?? 'Presupuesto Participativo');
@@ -209,7 +221,7 @@ class GreenPpService
                 ? $post['descripcion_proyecto']
                 : "Postulación #{$idPostulacionGreen} recibida desde módulo de Presupuesto Participativo (GREEN). Estado: {$estadoGreen}.";
 
-            // Buscar si ya existía para idempotencia
+            // Buscar si ya existía para garantizar idempotencia
             $proyecto = Proyectos::where('id_postulacion_green', $idPostulacionGreen)->first();
             $esNuevo = !$proyecto;
 
@@ -223,19 +235,17 @@ class GreenPpService
             $proyecto->detalle = Str::limit($nombreProyecto, 490);
             $proyecto->descripcion = Str::limit($descripcionProyecto, 590);
             $proyecto->tipo = 'Proyecto';
-            $proyecto->subtipo = $comunaDefaultId ?? 1; // ID comuna en parametros_detalle
+            $proyecto->subtipo = $comunaDefaultId; // ID de comuna/corregimiento en parametros_detalle com01
             $proyecto->id_tipo = $tipoProyecto->id;
             $proyecto->estado = 1; // Activo en Vota Ya
             $proyecto->estado_green = $estadoGreen;
             $proyecto->save();
 
-            // Asociar a los eventos hijos de las comunas en hash_proyectos
-            foreach ($eventosHijosPorComuna as $comunaId => $eventoHijo) {
-                Hash_proyectos::firstOrCreate([
-                    'id_proyecto' => $proyecto->id,
-                    'id_evento' => $eventoHijo->id,
-                ]);
-            }
+            // Vincular en hash_proyectos con el Evento Hijo (la Vigencia de Presupuesto Participativo)
+            Hash_proyectos::firstOrCreate([
+                'id_proyecto' => $proyecto->id,
+                'id_evento' => $eventoVigencia->id,
+            ]);
 
             if ($esNuevo) {
                 $proyectosCreados++;
@@ -250,8 +260,9 @@ class GreenPpService
             'convocatoria_nombre' => $data['nombre'] ?? '',
             'evento_padre_id' => $eventoPadre->id,
             'evento_padre_nombre' => $eventoPadre->nombre,
+            'evento_vigencia_id' => $eventoVigencia->id,
+            'evento_vigencia_nombre' => $eventoVigencia->nombre,
             'comunas_homologadas' => count($comunasHomologadas),
-            'eventos_hijos_asociados' => count($eventosHijosPorComuna),
             'total_postulaciones' => count($postulaciones),
             'proyectos_creados' => $proyectosCreados,
             'proyectos_actualizados' => $proyectosActualizados,
@@ -260,7 +271,7 @@ class GreenPpService
         $this->registrarLog([
             'tipo' => 'INBOUND_SYNC',
             'id_convocatoria_green' => $idConvocatoria,
-            'id_evento_vota' => $eventoPadre->id,
+            'id_evento_vota' => $eventoVigencia->id,
             'endpoint' => "{$this->baseUrl}/convocatorias/{$idConvocatoria}",
             'metodo' => 'GET',
             'respuesta_recibida' => json_encode($resumen),
@@ -415,79 +426,90 @@ class GreenPpService
     }
 
     /**
-     * Resuelve o crea el evento padre de la convocatoria
+     * Resuelve o crea el Evento Padre institucional ("Presupuesto Participativo") con evento_padre = 1
      */
-    protected function resolverEventoPadre(array $convocatoriaData, ?int $idEventoPadre = null): Eventos
+    protected function resolverEventoPadreInstitucional(): Eventos
     {
-        if ($idEventoPadre) {
-            $evento = Eventos::find($idEventoPadre);
+        $padre = Eventos::where('evento_padre', 1)
+            ->where('nombre', 'like', '%Presupuesto%')
+            ->first();
+
+        if (!$padre) {
+            $padre = Eventos::where('nombre', 'Presupuesto Participativo')
+                ->first();
+        }
+
+        if (!$padre) {
+            $padre = Eventos::create([
+                'nombre' => 'Presupuesto Participativo',
+                'descripcion' => 'Evento Padre Institucional de Presupuesto Participativo de la Alcaldía de Pereira.',
+                'dependencias' => 'Secretaría de Planeación - Presupuesto Participativo',
+                'tipos' => 'Proyecto',
+                'evento_padre' => 1,
+                'fecha_inicio' => Carbon::now()->startOfYear()->format('Y-m-d H:i:s'),
+                'fecha_fin' => Carbon::now()->endOfYear()->format('Y-m-d H:i:s'),
+                'estado' => 'Activo',
+            ]);
+        } else {
+            // Asegurar que quede marcado como evento_padre = 1
+            if ($padre->evento_padre != 1) {
+                $padre->evento_padre = 1;
+                $padre->save();
+            }
+        }
+
+        return $padre;
+    }
+
+    /**
+     * Resuelve o crea el Evento Hijo correspondiente a la VIGENCIA (ej: "Presupuesto Participativo 2026")
+     * y lo vincula al Evento Padre en hash_eventos_hijos.
+     */
+    protected function resolverEventoHijoVigencia(Eventos $eventoPadre, array $convocatoriaData, ?int $idEventoVigencia = null): Eventos
+    {
+        if ($idEventoVigencia) {
+            $evento = Eventos::find($idEventoVigencia);
             if ($evento) return $evento;
         }
 
-        $nombreConvocatoria = $convocatoriaData['nombre'] ?? 'Presupuesto Participativo ' . date('Y');
+        // Determinar año de la vigencia a partir del nombre de la convocatoria o fecha
+        $nombreConvocatoria = $convocatoriaData['nombre'] ?? '';
+        $anio = date('Y');
+        if (preg_match('/20\d{2}/', $nombreConvocatoria, $matches)) {
+            $anio = $matches[0];
+        }
 
-        $evento = Eventos::where('nombre', $nombreConvocatoria)
-            ->whereNull('evento_padre')
+        $nombreVigencia = "Presupuesto Participativo {$anio}";
+
+        $eventoHijo = Eventos::where('nombre', $nombreVigencia)
+            ->where(function ($q) {
+                $q->whereNull('evento_padre')->orWhere('evento_padre', 0);
+            })
             ->first();
 
-        if (!$evento) {
+        if (!$eventoHijo) {
             $fechaInicio = $convocatoriaData['fecha_apertura'] ?? Carbon::now()->format('Y-m-d H:i:s');
             $fechaFin = $convocatoriaData['fecha_cierre'] ?? Carbon::now()->addDays(30)->format('Y-m-d H:i:s');
 
-            $evento = Eventos::create([
-                'nombre' => $nombreConvocatoria,
-                'descripcion' => $convocatoriaData['descripcion'] ?? 'Evento principal de Presupuesto Participativo sincronizado desde GREEN.',
-                'dependencias' => 'Secretaría de Planeación - Presupuesto Participativo',
+            $eventoHijo = Eventos::create([
+                'nombre' => $nombreVigencia,
+                'descripcion' => $convocatoriaData['descripcion'] ?? "Votaciones de proyectos de Presupuesto Participativo - Vigencia {$anio}.",
+                'dependencias' => $eventoPadre->dependencias,
                 'tipos' => 'Proyecto',
-                'evento_padre' => null,
+                'evento_padre' => 0,
                 'fecha_inicio' => $fechaInicio,
                 'fecha_fin' => $fechaFin,
                 'estado' => 'Activo',
             ]);
         }
 
-        return $evento;
-    }
+        // Vincular en hash_eventos_hijos (id_evento_padre, id_evento_hijo)
+        Hash_eventos_hijos::firstOrCreate([
+            'id_evento_padre' => $eventoPadre->id,
+            'id_evento_hijo' => $eventoHijo->id,
+        ]);
 
-    /**
-     * Resuelve o crea los eventos hijos asociados a cada comuna de la convocatoria
-     */
-    protected function resolverEventosHijos(Eventos $eventoPadre, array $comunasHomologadas): array
-    {
-        $hijos = [];
-
-        foreach ($comunasHomologadas as $comuna) {
-            $comunaId = $comuna['vota_id'];
-            $comunaNombre = $comuna['vota_nombre'] ?? $comuna['green_nombre'];
-
-            // Buscar si ya existe un evento hijo para esta comuna y evento padre
-            $eventoHijo = Eventos::where('evento_padre', $eventoPadre->id)
-                ->where('nombre', 'like', "%{$comunaNombre}%")
-                ->first();
-
-            if (!$eventoHijo) {
-                $eventoHijo = Eventos::create([
-                    'nombre' => "{$eventoPadre->nombre} - {$comunaNombre}",
-                    'descripcion' => "Votación de proyectos para {$comunaNombre}.",
-                    'dependencias' => $eventoPadre->dependencias,
-                    'tipos' => 'Proyecto',
-                    'evento_padre' => $eventoPadre->id,
-                    'fecha_inicio' => $eventoPadre->fecha_inicio,
-                    'fecha_fin' => $eventoPadre->fecha_fin,
-                    'estado' => 'Activo',
-                ]);
-            }
-
-            // Asegurar registro en hash_eventos_hijos
-            Hash_eventos_hijos::firstOrCreate([
-                'id_evento_padre' => $eventoPadre->id,
-                'id_evento_hijo' => $eventoHijo->id,
-            ]);
-
-            $hijos[$comunaId] = $eventoHijo;
-        }
-
-        return $hijos;
+        return $eventoHijo;
     }
 
     /**

@@ -428,14 +428,16 @@
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 uppercase mb-1">Vincular a Evento Padre de PP (Opcional)</label>
+            <label class="block font-bold text-gray-700 uppercase mb-1">Vincular a Evento Hijo (Vigencia de PP)</label>
             <select v-model="formSincronizar.id_evento_padre" class="w-full text-xs rounded-xl border-gray-300">
-              <option :value="null">-- Crear Automáticamente según la Convocatoria --</option>
+              <option :value="null">-- Crear/Ubicar Automáticamente la Vigencia en hash_eventos_hijos --</option>
               <option v-for="ev in eventos_padre" :key="ev.id" :value="ev.id">
                 [ID {{ ev.id }}] {{ ev.nombre }} ({{ ev.estado }})
               </option>
             </select>
-            <p class="text-[11px] text-gray-500 mt-1">Si no selecciona uno, el sistema creará el Evento Padre y los Eventos Hijos por comuna automáticamente.</p>
+            <p class="text-[11px] text-gray-500 mt-1">
+              Los proyectos se vincularán a este Evento Hijo de la Vigencia a través de la tabla puente <code>hash_proyectos</code>, y la comuna se asignará en el campo <code>subtipo</code> de cada proyecto.
+            </p>
           </div>
 
           <div class="pt-3 border-t flex justify-end gap-2">
