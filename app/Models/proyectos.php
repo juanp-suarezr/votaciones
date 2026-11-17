@@ -17,6 +17,8 @@ class Proyectos extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'id_postulacion_green',
+        'id_convocatoria_green',
         'detalle',
         'descripcion',
         'tipo',
@@ -26,7 +28,7 @@ class Proyectos extends Model
         'created_at',
         'updated_at',
         'estado',
-
+        'estado_green',
     ];
 
     public function parametroDetalle()

@@ -46,3 +46,6 @@ Route::prefix('central-data')->group(function () {
     Route::post('/persons/find', [CentralDataController::class, 'find']);
     Route::post('/persons/sync', [CentralDataController::class, 'sync']);
 });
+
+// Integración Presupuesto Participativo (GREEN) - Webhook
+Route::post('/integracion/green-pp/webhook', [\App\Http\Controllers\PpIntegracionController::class, 'webhook']);

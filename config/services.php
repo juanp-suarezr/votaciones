@@ -38,4 +38,11 @@ return [
         'project' => env('CENTRAL_DATA_PROJECT', 'votaciones'),
     ],
 
+    'green_pp' => [
+        'base_url' => env('GREEN_PP_BASE_URL', 'http://localhost/api/v1/pp'),
+        'token' => env('GREEN_PP_TOKEN', '1|hrpLFod7R2ppecAdGgN9d1LntnAn9PMDjRycMR2353377cdd'),
+        'webhook_secret' => env('GREEN_PP_WEBHOOK_SECRET', 'secret_pp_2026'),
+        'timeout' => env('GREEN_PP_TIMEOUT', 15),
+    ],
+
 ];

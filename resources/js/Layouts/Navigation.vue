@@ -124,6 +124,11 @@
                 <PaperClipIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Proyectos </span>
             </nav-link>
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('pp-integracion.index')"
+                :active="route().current() && route().current().includes('pp-integracion')">
+                <ArrowPathIcon class="h-6 w-6 text-white" />
+                <span class="mx-3">Integración PP (GREEN)</span>
+            </nav-link>
             <nav-link v-if="$page.props.user.permissions.includes('tipos-listar')" :href="route('tipos.index')"
                 :active="route().current() && route().current().includes('tipos')">
                 <FireIcon class="h-6 w-6 text-white" />

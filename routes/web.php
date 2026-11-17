@@ -465,6 +465,12 @@ Route::group(['middleware' => ['auth']], function () {
         // Módulo de Autogestión de Firma Digital y Asignación de Eventos (Usuario con rol Firmante)
         Route::get('/mi-firma-digital', [ActasComisionPersonalController::class, 'miFirma'])->name('firmante.mi-firma');
         Route::post('/mi-firma-digital', [ActasComisionPersonalController::class, 'guardarMiFirma'])->name('firmante.mi-firma.guardar');
+
+        // Módulo de Integración con Presupuesto Participativo (GREEN / Gobtech)
+        Route::get('/pp-integracion', [\App\Http\Controllers\PpIntegracionController::class, 'index'])->name('pp-integracion.index');
+        Route::post('/pp-integracion/sincronizar', [\App\Http\Controllers\PpIntegracionController::class, 'sincronizar'])->name('pp-integracion.sincronizar');
+        Route::post('/pp-integracion/enviar-ganadores', [\App\Http\Controllers\PpIntegracionController::class, 'enviarResultados'])->name('pp-integracion.enviar-ganadores');
+        Route::post('/pp-integracion/reintentar/{id}', [\App\Http\Controllers\PpIntegracionController::class, 'reintentar'])->name('pp-integracion.reintentar');
     });
     
 });
