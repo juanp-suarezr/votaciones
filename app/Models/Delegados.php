@@ -27,11 +27,16 @@ class Delegados extends Model
         'comuna',
         'puntos_votacion',
         'firma',
+        'actas_asignadas',
         'estado',
         'orden',
         'created_at',
         'updated_at',
 
+    ];
+
+    protected $casts = [
+        'actas_asignadas' => 'array',
     ];
 
     public function user()

@@ -31,44 +31,61 @@ class AnalisisController extends Controller
     }
     function index()
     {
+        $user = Auth::user();
+        $isSupervisor = $user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'));
+        $eventoAsignadoId = $isSupervisor ? $user->getEventoAsignadoId() : null;
 
-        $eventos = Eventos::where('estado', '!=', 'Pendiente')
+        $eventosQuery = Eventos::where('estado', '!=', 'Pendiente')
             ->whereNot('nombre', 'Admin')
-            ->with('votos')
-            ->get()
+            ->with('votos');
+
+        if ($isSupervisor && $eventoAsignadoId) {
+            $eventosQuery->where('id', $eventoAsignadoId);
+        }
+
+        $eventos = $eventosQuery->get()
             ->filter(function ($evento) {
                 // Filtra eventos cuyo tipo contiene "proyectos" (mayúsculas o minúsculas)
                 return stripos($evento->tipos, 'Presupuesto Participativo') === false;
             })
             ->values();
 
+        $candidatosQuery = Hash_votantes::where('candidato', 1)->with('votante');
+        $votantesQuery = Hash_votantes::whereNot('tipo', 'Admin')
+            ->whereHas('votante.user.roles', function ($query) {
+                $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
+            })
+            ->with(['votante.user.roles']);
+
+        if ($isSupervisor && $eventoAsignadoId) {
+            $candidatosQuery->where('id_evento', $eventoAsignadoId);
+            $votantesQuery->where('id_evento', $eventoAsignadoId);
+        }
+
         return Inertia::render(
             'Analisis/Index',
             [
 
                 'eventos' => $eventos,
-                'candidatos' => Hash_votantes::where('candidato', 1)->with('votante')
-                    ->get(),
-                'votantes' => Hash_votantes::whereNot('tipo', 'Admin')
-                    ->whereHas('votante.user.roles', function ($query) {
-                        $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
-                    })
-                    ->with(['votante.user.roles']) // Carga las relaciones necesarias
-                    ->get(),
+                'candidatos' => $candidatosQuery->get(),
+                'votantes' => $votantesQuery->get(),
             ]
         );
     }
 
     function analisisPresupuesto()
     {
+        $user = Auth::user();
+        $isSupervisor = $user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'));
+        $eventoAsignadoId = $isSupervisor ? $user->getEventoAsignadoId() : null;
 
         //variables
-        $id_evento = 15;
+        $id_evento = ($isSupervisor && $eventoAsignadoId) ? $eventoAsignadoId : 15;
         $subtipo = 1;
         $votos_virtuales = [];
         $votos_fisicos = [];
 
-        if (RequestFacade::input('id_evento')) {
+        if (!$isSupervisor && RequestFacade::input('id_evento')) {
             # code...
             $id_evento = RequestFacade::input('id_evento');
         }

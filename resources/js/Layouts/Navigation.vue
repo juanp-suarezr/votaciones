@@ -54,23 +54,23 @@
                 <span class="mx-3">Auditoria/historial validaciones</span>
             </nav-link>
 
-            <SeparadorMenu v-if="$page.props.user.permissions.includes('eventos-editar')">Eventos</SeparadorMenu>
+            <SeparadorMenu v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.permissions.includes('eventos-listar') || $page.props.user.permissions.includes('analisis-listar')">Eventos</SeparadorMenu>
             <nav-link v-if="$page.props.user.permissions.includes('analisis-listar')" :href="route('analisis.index')"
                 :active="route().current() && route().current().includes('analisis')">
                 <ChartBarIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Análisis de resultados </span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.index')"
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.permissions.includes('eventos-listar')" :href="route('eventos.index')"
                 :active="route().current() && route().current().includes('eventos') && !route().current().includes('eventos.migrar')">
                 <ShareIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Eventos </span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.migrar.view')"
+            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') && !$page.props.user.roles.includes('Supervisor de Evento') && !$page.props.user.roles.includes('Jurado de Evento')" :href="route('eventos.migrar.view')"
                 :active="route().current() && route().current().includes('eventos.migrar')">
                 <ArrowPathIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Migrar Votantes</span>
             </nav-link>
-            <nav-link v-if="$page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor') || $page.props.user.roles.includes('Firmante')" :href="route('actas-generales.index')"
+            <nav-link v-if="$page.props.user.permissions.includes('actas-comision-listar') || $page.props.user.permissions.includes('eventos-editar') || $page.props.user.roles.includes('Administrador') || $page.props.user.roles.includes('Supervisor') || $page.props.user.roles.includes('Firmante') || $page.props.user.roles.includes('Supervisor de Evento') || $page.props.user.roles.includes('Jurado de Evento')" :href="route('actas-generales.index')"
                 :active="route().current('actas-generales.index')">
                 <DocumentTextIcon class="h-6 w-6 text-white" />
                 <span class="mx-3">Actas Generales de Votación</span>

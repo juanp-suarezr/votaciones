@@ -10,6 +10,7 @@ use App\Models\AuditoriaVotos;
 use App\Models\Eventos;
 use App\Models\ParametrosDetalle;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -34,10 +35,15 @@ class auditoriasController extends Controller
 
     public function index()
     {
-        $id_evento = 15;
-        if(RequestFacade::input('id_evento')){
-            $id_evento = RequestFacade::input('id_evento');
+        $user = Auth::user();
+        $isSupervisor = $user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'));
+        $eventoAsignadoId = $isSupervisor ? $user->getEventoAsignadoId() : null;
 
+        $id_evento = 15;
+        if ($isSupervisor && $eventoAsignadoId) {
+            $id_evento = $eventoAsignadoId;
+        } elseif (RequestFacade::input('id_evento')) {
+            $id_evento = RequestFacade::input('id_evento');
         }
 
 
@@ -69,7 +75,9 @@ class auditoriasController extends Controller
             'Auditoria/Index',
             [
                 'voto_auditoria' => $voto_auditoria,
-                'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
+                'eventos' => $isSupervisor && $eventoAsignadoId
+                    ? Eventos::select('id', 'nombre')->where('id', $eventoAsignadoId)->get()
+                    : Eventos::select('id', 'nombre')->whereHas('votos')->get(),
                 'filters' => RequestFacade::only(['id_evento', 'comuna']),
                 'comunas' => $comunas,
             ]
@@ -80,8 +88,14 @@ class auditoriasController extends Controller
 
     public function auditoriaValidaciones()
     {
+        $user = Auth::user();
+        $isSupervisor = $user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'));
+        $eventoAsignadoId = $isSupervisor ? $user->getEventoAsignadoId() : null;
+
         $id_evento = 15;
-        if(RequestFacade::input('id_evento')){
+        if ($isSupervisor && $eventoAsignadoId) {
+            $id_evento = $eventoAsignadoId;
+        } elseif (RequestFacade::input('id_evento')) {
             $id_evento = RequestFacade::input('id_evento');
         }
         $id_user = RequestFacade::input('id_user');
@@ -122,7 +136,9 @@ class auditoriasController extends Controller
         return Inertia::render('Auditoria/AuditoriaValidaciones',
             [
                 'auditoria_registro' => $auditoria_registro,
-                'eventos' => Eventos::select('id', 'nombre')->whereHas('votos')->get(),
+                'eventos' => $isSupervisor && $eventoAsignadoId
+                    ? Eventos::select('id', 'nombre')->where('id', $eventoAsignadoId)->get()
+                    : Eventos::select('id', 'nombre')->whereHas('votos')->get(),
                 'usuarios' => $usuarios,
                 'filters' => RequestFacade::only(['id_evento', 'comuna', 'id_user', 'anio']),
                 'comunas' => $comunas,

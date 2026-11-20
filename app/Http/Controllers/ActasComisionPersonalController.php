@@ -28,7 +28,7 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Valida que el usuario tenga rol o permiso de validador-candidatos, Supervisor, Administrador o Firmante.
+     * Valida que el usuario tenga rol o permiso de validador-candidatos, Supervisor, Administrador, Firmante, o Supervisor/Jurado de Evento.
      */
     private function checkAccess()
     {
@@ -37,7 +37,7 @@ class ActasComisionPersonalController extends Controller
             abort(403, 'No autenticado');
         }
 
-        $rolesPermitidos = ['validador-candidatos', 'Supervisor', 'Administrador', 'Firmante'];
+        $rolesPermitidos = ['validador-candidatos', 'Supervisor', 'Administrador', 'Firmante', 'Supervisor de Evento', 'Jurado de Evento'];
         if ($user->hasAnyRole($rolesPermitidos)) {
             return true;
         }
@@ -46,7 +46,7 @@ class ActasComisionPersonalController extends Controller
             return true;
         }
 
-        abort(403, 'Acceso restringido: Solo para validadores de candidatos, supervisores, administradores y firmantes.');
+        abort(403, 'Acceso restringido: Solo para validadores de candidatos, supervisores, administradores, jurados y firmantes.');
     }
 
     /**
@@ -227,8 +227,9 @@ class ActasComisionPersonalController extends Controller
      * 1. Obligatorio en TODAS las actas: Secretario de las TIC (tabla delegados cargo = 'Secretario de las TIC').
      * 2. Si el evento tiene secretarios específicos, se incluyen con sus firmas.
      * 3. Si NO tiene secretarios específicos, se deja el espacio oficial con el nombre de la dependencia del evento.
+     * 4. Si se especifica $tipoActa, se filtran aquellos cuya lista actas_asignadas contenga dicho tipo (o esté vacía = todas).
      */
-    private function getFirmantes($evento)
+    private function getFirmantes($evento, $tipoActa = null)
     {
         $eventoId = $evento?->id ?? $this->eventoDefaultId;
 
@@ -258,11 +259,40 @@ class ActasComisionPersonalController extends Controller
             $secretariosEvento = $querySecretarios->orderBy('id', 'asc')->get();
         }
 
+        // Filtrar por tipo de acta si aplica
+        if ($tipoActa !== null && $secretariosEvento->isNotEmpty()) {
+            $secretariosEvento = $secretariosEvento->filter(function ($sec) use ($tipoActa) {
+                $asignadas = $sec->actas_asignadas;
+                if (empty($asignadas)) {
+                    return true;
+                }
+                if (is_string($asignadas)) {
+                    $asignadas = json_decode($asignadas, true) ?: [$asignadas];
+                }
+                if (!is_array($asignadas) || empty($asignadas) || in_array('todas', $asignadas)) {
+                    return true;
+                }
+                return in_array($tipoActa, $asignadas);
+            });
+        }
+
         $firmantes = collect();
 
-        // Agregar obligatoriamente al Secretario de las TIC
+        // Agregar al Secretario de las TIC (con verificación de actas si tiene asignadas)
         if ($secretarioTic) {
-            $firmantes->push($secretarioTic);
+            $incluirTic = true;
+            if ($tipoActa !== null && !empty($secretarioTic->actas_asignadas)) {
+                $ticAsignadas = $secretarioTic->actas_asignadas;
+                if (is_string($ticAsignadas)) {
+                    $ticAsignadas = json_decode($ticAsignadas, true) ?: [$ticAsignadas];
+                }
+                if (is_array($ticAsignadas) && !empty($ticAsignadas) && !in_array('todas', $ticAsignadas)) {
+                    $incluirTic = in_array($tipoActa, $ticAsignadas);
+                }
+            }
+            if ($incluirTic) {
+                $firmantes->push($secretarioTic);
+            }
         } else {
             // Representación institucional en caso de no estar registrado aún en BD
             $firmantes->push((object) [
@@ -394,6 +424,14 @@ class ActasComisionPersonalController extends Controller
     {
         $this->checkAccess();
 
+        $user = Auth::user();
+        if ($user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'))) {
+            $eventoAsignado = $user->getEventoAsignadoId();
+            if ($eventoAsignado && (int)$eventoAsignado !== (int)$this->eventoDefaultId) {
+                return redirect()->route('actas-generales.index', ['id_evento' => $eventoAsignado]);
+            }
+        }
+
         $evento = $this->getEvento($this->eventoDefaultId, 'comision');
         $eventoId = $evento?->id ?? $this->eventoDefaultId;
 
@@ -509,16 +547,24 @@ class ActasComisionPersonalController extends Controller
     {
         $this->checkAccess();
 
-        // 1. Consultar eventos generales excluyendo todo presupuesto participativo
-        $eventosGenerales = $this->getEventosGeneralesQuery()->get();
+        $user = Auth::user();
+        $isSupervisor = $user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'));
+        $eventoAsignadoId = $isSupervisor ? $user->getEventoAsignadoId() : null;
 
-        $eventoId = $request->query('id_evento');
-        $evento = null;
-        if ($eventoId) {
-            $evento = Eventos::find($eventoId);
-        }
-        if (!$evento) {
-            $evento = $eventosGenerales->first() ?? Eventos::where('nombre', 'not like', '%Presupuesto%')->first();
+        // 1. Consultar eventos generales excluyendo todo presupuesto participativo
+        if ($isSupervisor && $eventoAsignadoId) {
+            $eventosGenerales = Eventos::where('id', $eventoAsignadoId)->get();
+            $evento = $eventosGenerales->first();
+        } else {
+            $eventosGenerales = $this->getEventosGeneralesQuery()->get();
+            $eventoId = $request->query('id_evento');
+            $evento = null;
+            if ($eventoId) {
+                $evento = Eventos::find($eventoId);
+            }
+            if (!$evento) {
+                $evento = $eventosGenerales->first() ?? Eventos::where('nombre', 'not like', '%Presupuesto%')->first();
+            }
         }
 
         $eventoId = $evento?->id ?? 0;
@@ -610,7 +656,7 @@ class ActasComisionPersonalController extends Controller
         $esComision = $this->esEventoConInscripcion($evento);
 
         $fechas = $this->getFechasCronograma($evento);
-        $firmantes = $this->getFirmantes($evento);
+        $firmantes = $this->getFirmantes($evento, $tipo);
 
         // Postulaciones (si aplica)
         $postulaciones = Postulaciones_candidatos::where('id_evento', $eventoId)
@@ -744,6 +790,18 @@ class ActasComisionPersonalController extends Controller
     {
         $this->checkAccess();
 
+        $user = Auth::user();
+        if ($user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'))) {
+            $eventoAsignadoId = $user->getEventoAsignadoId();
+            $reqEventoId = $request->query('id_evento');
+            if ($eventoAsignadoId && $reqEventoId && (int)$reqEventoId !== (int)$eventoAsignadoId) {
+                abort(403, 'Acceso denegado: Solo tiene autorización para consultar actas de su evento asignado.');
+            }
+            if ($eventoAsignadoId && !$reqEventoId) {
+                $request->merge(['id_evento' => $eventoAsignadoId]);
+            }
+        }
+
         $eventoId = $request->query('id_evento');
         $data = $this->generarDatosActa($tipo, $eventoId);
 
@@ -756,6 +814,18 @@ class ActasComisionPersonalController extends Controller
     public function pdf(Request $request, $tipo)
     {
         $this->checkAccess();
+
+        $user = Auth::user();
+        if ($user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'))) {
+            $eventoAsignadoId = $user->getEventoAsignadoId();
+            $reqEventoId = $request->query('id_evento');
+            if ($eventoAsignadoId && $reqEventoId && (int)$reqEventoId !== (int)$eventoAsignadoId) {
+                abort(403, 'Acceso denegado: Solo tiene autorización para descargar actas de su evento asignado.');
+            }
+            if ($eventoAsignadoId && !$reqEventoId) {
+                $request->merge(['id_evento' => $eventoAsignadoId]);
+            }
+        }
 
         $eventoId = $request->query('id_evento');
         $data = $this->generarDatosActa($tipo, $eventoId);
@@ -885,6 +955,7 @@ class ActasComisionPersonalController extends Controller
                 'identificacion' => $firmante->identificacion,
                 'firma' => $firmante->firma,
                 'firma_url' => asset('storage/uploads/delegado/' . $firmante->firma),
+                'actas_asignadas' => $firmante->actas_asignadas,
                 'evento_origen' => $firmante->evento ? $firmante->evento->nombre : null,
             ]
         ]);
@@ -971,6 +1042,7 @@ class ActasComisionPersonalController extends Controller
             'tipo' => 'secretario',
             'firma' => $fileName,
             'orden' => $orden,
+            'actas_asignadas' => $request->actas_asignadas ?? null,
             'estado' => 1,
         ]);
 
@@ -989,6 +1061,7 @@ class ActasComisionPersonalController extends Controller
             'cargo' => 'required|string|max:150',
             'identificacion' => 'required|string|max:50',
             'id_evento' => 'nullable|integer',
+            'actas_asignadas' => 'nullable',
         ]);
 
         $firmante = Delegados::findOrFail($id);
@@ -1020,6 +1093,9 @@ class ActasComisionPersonalController extends Controller
         }
         if ($request->has('orden')) {
             $firmante->orden = $request->orden;
+        }
+        if ($request->has('actas_asignadas')) {
+            $firmante->actas_asignadas = $request->actas_asignadas;
         }
         if ($request->has('estado')) {
             $firmante->estado = $request->estado;

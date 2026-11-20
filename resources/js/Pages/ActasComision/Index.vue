@@ -271,6 +271,7 @@
                   <th class="py-3.5 px-4">Cargo Institucional</th>
                   <th class="py-3.5 px-4">Firma Digital</th>
                   <th class="py-3.5 px-4 text-center">Tipo de Firmante</th>
+                  <th class="py-3.5 px-4 text-center">Actas Asignadas</th>
                   <th class="py-3.5 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -368,6 +369,25 @@
                     >
                       Secretario Asignado
                     </span>
+                  </td>
+                  <!-- Columna: Actas en las que firma -->
+                  <td class="py-3.5 px-4 text-center">
+                    <span
+                      v-if="!f.actas_asignadas || f.actas_asignadas.length === 0 || (Array.isArray(f.actas_asignadas) && f.actas_asignadas.includes('todas'))"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      title="Firma en todas las actas del evento"
+                    >
+                      Todas las actas
+                    </span>
+                    <div v-else class="inline-flex flex-wrap justify-center gap-1">
+                      <span
+                        v-for="actaId in (Array.isArray(f.actas_asignadas) ? f.actas_asignadas : JSON.parse(f.actas_asignadas || '[]'))"
+                        :key="actaId"
+                        class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-sky-800 border border-sky-200"
+                      >
+                        {{ formatActaBadge(actaId) }}
+                      </span>
+                    </div>
                   </td>
                   <td class="py-3.5 px-4 text-right">
                     <div v-if="!f.is_dependencia && f.id > 0" class="inline-flex items-center gap-1.5">
@@ -526,6 +546,52 @@
                 [ID {{ ev.id }}] {{ ev.nombre }}
               </option>
             </select>
+          </div>
+
+          <!-- ASIGNACIÓN DE ACTAS ESPECÍFICAS -->
+          <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="block text-xs font-bold text-amber-950 uppercase">
+                  Actas en las que firma
+                </label>
+                <span class="text-[11px] text-amber-900/80 block">
+                  Defina si el funcionario firma en todas las actas o solo en actas específicas.
+                </span>
+              </div>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-amber-950 bg-amber-100/90 hover:bg-amber-200/80 px-2.5 py-1 rounded-lg border border-amber-300 transition-colors">
+                <input
+                  type="checkbox"
+                  v-model="firmarEnTodas"
+                  @change="toggleFirmarEnTodas"
+                  class="rounded text-amber-700 focus:ring-amber-600 h-4 w-4"
+                />
+                <span>Todas las actas</span>
+              </label>
+            </div>
+
+            <!-- Lista de checkboxes por acta si no firma en todas -->
+            <div v-if="!firmarEnTodas" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-amber-200/60">
+              <label
+                v-for="acta in props.actas"
+                :key="acta.id"
+                class="flex items-center gap-2 p-2 rounded-lg bg-white border border-amber-200 cursor-pointer hover:bg-amber-50/80 text-xs font-medium text-gray-800 transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  :value="acta.id"
+                  v-model="formFirmante.actas_asignadas"
+                  class="rounded text-sky-600 focus:ring-sky-600 h-4 w-4"
+                />
+                <span class="truncate" :title="acta.nombre">
+                  <strong>{{ acta.codigo }}:</strong> {{ acta.nombre }}
+                </span>
+              </label>
+            </div>
+            <div v-else class="text-[11px] text-emerald-800 font-semibold flex items-center gap-1.5">
+              <CheckCircleIcon class="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>Estampará su firma en todas las actas emitidas para este evento.</span>
+            </div>
           </div>
 
           <!-- SELECCIÓN Y CREACIÓN DE FIRMA -->
@@ -766,6 +832,25 @@ const modoFirma = ref('canvas');
 const canvasRef = ref(null);
 const firmaPreview = ref(null);
 const procesando = ref(false);
+const firmarEnTodas = ref(true);
+
+const toggleFirmarEnTodas = () => {
+  if (firmarEnTodas.value) {
+    formFirmante.value.actas_asignadas = [];
+  } else {
+    formFirmante.value.actas_asignadas = (props.actas || []).map(a => a.id);
+  }
+};
+
+const formatActaBadge = (actaId) => {
+  const map = {
+    'inscripcion_apertura': 'Ap. Inscripción',
+    'inscripcion_cierre': 'Cierre Inscripción',
+    'votacion_apertura': 'Ap. Votación',
+    'votacion_cierre': 'Cierre / Escrutinio'
+  };
+  return map[actaId] || actaId;
+};
 
 // Búsqueda de secretario por cédula
 const buscandoCedula = ref(false);
@@ -777,6 +862,7 @@ const formFirmante = ref({
   identificacion: '',
   cargo: '',
   id_evento: props.evento?.id || 25,
+  actas_asignadas: [],
   firma: null
 });
 
@@ -799,6 +885,16 @@ const buscarPorCedula = async () => {
       formFirmante.value.cargo = f.cargo;
       formFirmante.value.firma = f.firma; // Reutiliza el archivo de firma física
       firmaPreview.value = f.firma_url;
+      if (f.actas_asignadas) {
+        let asig = f.actas_asignadas;
+        if (typeof asig === 'string') {
+          try { asig = JSON.parse(asig); } catch (e) { asig = []; }
+        }
+        if (Array.isArray(asig) && asig.length > 0) {
+          formFirmante.value.actas_asignadas = asig;
+          firmarEnTodas.value = asig.includes('todas');
+        }
+      }
       secretarioEncontradoInfo.value = f;
     } else {
       cedulaBuscadaSinResultado.value = true;
@@ -898,11 +994,13 @@ const abrirModalNuevoFirmante = () => {
   firmanteIdEditar.value = null;
   secretarioEncontradoInfo.value = null;
   cedulaBuscadaSinResultado.value = false;
+  firmarEnTodas.value = true;
   formFirmante.value = {
     nombre: '',
     identificacion: '',
     cargo: '',
     id_evento: props.evento?.id || 25,
+    actas_asignadas: [],
     firma: null
   };
   firmaPreview.value = null;
@@ -915,11 +1013,22 @@ const editarFirmante = (f) => {
   firmanteIdEditar.value = f.id;
   secretarioEncontradoInfo.value = null;
   cedulaBuscadaSinResultado.value = false;
+
+  let asignadas = f.actas_asignadas;
+  if (typeof asignadas === 'string') {
+    try { asignadas = JSON.parse(asignadas); } catch (e) { asignadas = []; }
+  }
+  if (!Array.isArray(asignadas)) {
+    asignadas = [];
+  }
+  firmarEnTodas.value = asignadas.length === 0 || asignadas.includes('todas');
+
   formFirmante.value = {
     nombre: f.nombre,
     identificacion: f.identificacion,
     cargo: f.cargo,
     id_evento: f.id_evento || props.evento?.id || 25,
+    actas_asignadas: asignadas,
     firma: null
   };
   firmaPreview.value = f.firma ? getFirmaUrl(f.firma) : null;
@@ -942,6 +1051,10 @@ const guardarFirmanteSubmit = () => {
   if (!modoEdicion.value && !formFirmante.value.firma) {
     alert('Por favor dibuje o cargue la firma digital del secretario.');
     return;
+  }
+
+  if (firmarEnTodas.value) {
+    formFirmante.value.actas_asignadas = [];
   }
 
   procesando.value = true;

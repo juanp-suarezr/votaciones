@@ -36,10 +36,17 @@ class EventosController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $isSupervisor = $user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'));
+        $eventoAsignadoId = $isSupervisor ? $user->getEventoAsignadoId() : null;
+
         $search = $request->input('search');
         $estado = $request->input('estado');
 
         $eventos = Eventos::whereNot('nombre', 'Admin')
+            ->when($isSupervisor && $eventoAsignadoId, function ($q) use ($eventoAsignadoId) {
+                $q->where('id', $eventoAsignadoId);
+            })
             ->when($search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('nombre', 'like', '%' . $search . '%')
@@ -66,6 +73,14 @@ class EventosController extends Controller
 
     public function show($id)
     {
+        $user = Auth::user();
+        if ($user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'))) {
+            $eventoAsignadoId = $user->getEventoAsignadoId();
+            if ($eventoAsignadoId && (int)$id !== (int)$eventoAsignadoId) {
+                abort(403, 'Acceso restringido: Solo puede consultar la información de su evento asignado.');
+            }
+        }
+
         $evento = Eventos::whereNot('nombre', 'Admin')
             ->with(['padre'])
             ->withCount(['votantes', 'votos', 'acta_escrutinio'])
