@@ -11,6 +11,7 @@ use App\Models\Informacion_votantes;
 use App\Models\Tipos;
 use App\Models\Votos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;

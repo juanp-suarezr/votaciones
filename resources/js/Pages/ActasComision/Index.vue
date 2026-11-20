@@ -242,6 +242,7 @@
           </div>
 
           <button
+            v-if="puede_gestionar_firmantes"
             @click="abrirModalNuevoFirmante"
             class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-sm transition-all whitespace-nowrap flex items-center gap-1.5"
           >
@@ -283,7 +284,7 @@
                       <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-black flex items-center justify-center border border-slate-200">
                         {{ idx + 1 }}
                       </span>
-                      <div v-if="f.id > 0 && !f.is_dependencia" class="flex flex-col gap-0.5 ml-1">
+                      <div v-if="puede_gestionar_firmantes && f.id > 0 && !f.is_dependencia" class="flex flex-col gap-0.5 ml-1">
                         <button
                           type="button"
                           @click="subirFirmante(idx)"
@@ -390,7 +391,7 @@
                     </div>
                   </td>
                   <td class="py-3.5 px-4 text-right">
-                    <div v-if="!f.is_dependencia && f.id > 0" class="inline-flex items-center gap-1.5">
+                    <div v-if="puede_gestionar_firmantes && !f.is_dependencia && f.id > 0" class="inline-flex items-center gap-1.5">
                       <button
                         @click="editarFirmante(f)"
                         class="p-1.5 text-sky-700 hover:bg-sky-100 rounded-lg transition-colors"
@@ -407,7 +408,7 @@
                       </button>
                     </div>
                     <span v-else class="text-xs text-gray-400 italic">
-                      Automático
+                      {{ f.is_dependencia ? 'Dependencia' : (f.is_tic ? 'Institucional' : 'Solo lectura') }}
                     </span>
                   </td>
                 </tr>
@@ -751,7 +752,11 @@ const props = defineProps({
   firmantes: Array,
   secretario_tic: Object,
   estadisticas: Object,
-  eventos_disponibles: Array
+  eventos_disponibles: Array,
+  puede_gestionar_firmantes: {
+    type: Boolean,
+    default: true
+  }
 });
 
 const breadcrumbLinks = props.modo === 'comision'

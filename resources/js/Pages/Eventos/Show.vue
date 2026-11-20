@@ -60,12 +60,12 @@
             <span>Modal Flotante</span>
           </button>
 
-          <SecondaryLink :href="route('eventos.migrar.view', { destino: evento.id })" class="inline-flex items-center gap-1.5 shadow-xs">
+          <SecondaryLink v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.migrar.view', { destino: evento.id })" class="inline-flex items-center gap-1.5 shadow-xs">
             <ArrowPathIcon class="w-4 h-4 text-indigo-600" />
             <span>Asignar Votantes</span>
           </SecondaryLink>
 
-          <SecondaryLink :href="route('eventos.edit', evento.id)" class="inline-flex items-center gap-1.5 shadow-xs">
+          <SecondaryLink v-if="$page.props.user.permissions.includes('eventos-editar')" :href="route('eventos.edit', evento.id)" class="inline-flex items-center gap-1.5 shadow-xs">
             <PencilIcon class="w-4 h-4 text-gray-600" />
             <span>Editar</span>
           </SecondaryLink>

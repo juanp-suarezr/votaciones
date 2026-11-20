@@ -16,7 +16,7 @@
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div v-if="$page.props.user.permissions.includes('eventos-editar')" class="flex flex-wrap items-center gap-2.5">
           <SecondaryLink :href="route('eventos.migrar.view')" class="inline-flex items-center gap-1.5 shadow-xs">
             <ArrowPathIcon class="w-4 h-4 text-indigo-600" />
             <span>Migrar / Asignar Votantes</span>
@@ -213,6 +213,7 @@
 
                     <!-- Editar -->
                     <Link
+                      v-if="$page.props.user.permissions.includes('eventos-editar')"
                       :href="route('eventos.edit', ev.id)"
                       class="p-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-medium inline-flex items-center gap-1 transition"
                       title="Editar evento"
@@ -223,6 +224,7 @@
 
                     <!-- Migrar Votantes -->
                     <Link
+                      v-if="$page.props.user.permissions.includes('eventos-editar')"
                       :href="route('eventos.migrar.view', { origen: ev.id })"
                       class="p-1.5 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-medium inline-flex items-center gap-1 transition"
                       title="Migrar o transferir votantes de este evento"

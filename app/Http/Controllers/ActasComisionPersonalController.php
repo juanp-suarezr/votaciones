@@ -50,6 +50,18 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
+     * Valida que el usuario tenga permisos administrativos para gestionar o alterar firmantes (no supervisores ni jurados).
+     */
+    private function checkFirmantesAdminAccess()
+    {
+        $this->checkAccess();
+        $user = Auth::user();
+        if ($user && ($user->hasRole('Supervisor de Evento') || $user->hasRole('Jurado de Evento'))) {
+            abort(403, 'Acceso denegado: El rol de Supervisor/Jurado solo tiene permisos de visualización y descarga de actas, no de administración de firmantes.');
+        }
+    }
+
+    /**
      * Resuelve el evento solicitado o el predeterminado.
      */
     private function getEvento($eventoId = null, $modo = 'comision')
@@ -537,6 +549,7 @@ class ActasComisionPersonalController extends Controller
                 'total_firmantes' => $firmantes->count(),
             ],
             'eventos_disponibles' => [$evento],
+            'puede_gestionar_firmantes' => $user && !$user->hasAnyRole(['Supervisor de Evento', 'Jurado de Evento']) && ($user->hasAnyRole(['Administrador', 'Supervisor', 'validador-candidatos']) || $user->can('eventos-editar')),
         ]);
     }
 
@@ -632,6 +645,7 @@ class ActasComisionPersonalController extends Controller
                 'total_firmantes' => $firmantes->count(),
             ],
             'eventos_disponibles' => $eventosGenerales,
+            'puede_gestionar_firmantes' => $user && !$user->hasAnyRole(['Supervisor de Evento', 'Jurado de Evento']) && ($user->hasAnyRole(['Administrador', 'Supervisor', 'validador-candidatos']) || $user->can('eventos-editar')),
         ]);
     }
 
@@ -966,7 +980,7 @@ class ActasComisionPersonalController extends Controller
      */
     public function reordenarFirmantes(Request $request)
     {
-        $this->checkAccess();
+        $this->checkFirmantesAdminAccess();
 
         $request->validate([
             'ordenes' => 'required|array',
@@ -987,7 +1001,7 @@ class ActasComisionPersonalController extends Controller
      */
     public function guardarFirmante(Request $request)
     {
-        $this->checkAccess();
+        $this->checkFirmantesAdminAccess();
 
         $request->validate([
             'nombre' => 'required|string|max:200',
@@ -1054,7 +1068,7 @@ class ActasComisionPersonalController extends Controller
      */
     public function actualizarFirmante(Request $request, $id)
     {
-        $this->checkAccess();
+        $this->checkFirmantesAdminAccess();
 
         $request->validate([
             'nombre' => 'required|string|max:200',
@@ -1110,7 +1124,7 @@ class ActasComisionPersonalController extends Controller
      */
     public function eliminarFirmante($id)
     {
-        $this->checkAccess();
+        $this->checkFirmantesAdminAccess();
 
         $firmante = Delegados::findOrFail($id);
         $firmante->delete();
