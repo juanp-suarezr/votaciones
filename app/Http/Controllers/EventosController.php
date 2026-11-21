@@ -258,7 +258,7 @@ class EventosController extends Controller
         $this->validate($request, [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string|max:300',
-            'dependencias' => 'required|string|max:60',
+            'dependencias' => 'required|string|max:300',
             'fecha_inicio' => 'required',
             'fecha_fin' => 'required',
             'tipos' => 'required'
@@ -311,7 +311,7 @@ class EventosController extends Controller
         $this->validate($request, [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string|max:300',
-            'dependencias' => 'required|string|max:60',
+            'dependencias' => 'required|string|max:300',
             'fecha_inicio' => 'required',
             'fecha_fin' => 'required',
             'tipos' => 'required',
