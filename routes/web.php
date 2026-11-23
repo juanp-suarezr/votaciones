@@ -285,14 +285,44 @@ Route::get('/dashboard', function () {
 
 
 
-    // Obtén todos los tipos de los objetos en $info_votante
-    $tipos = collect($info_votante)->pluck('tipo')->unique()->toArray();
+    // Obtén todos los tipos individuales de los objetos en $info_votante descomponiendo por '|'
+    $tipos = collect($info_votante)
+        ->pluck('tipo')
+        ->flatMap(function ($tipo) {
+            return explode('|', (string) $tipo);
+        })
+        ->map(fn($t) => trim($t))
+        ->filter(fn($t) => $t !== '')
+        ->unique()
+        ->values()
+        ->all();
+
+    $candidatosVotadosIds = collect($votos)->pluck('id_candidato')->filter()->unique()->all();
+
+    $candidatos = Hash_votantes::where('candidato', 1)
+        ->where(function ($query) use ($tipos, $candidatosVotadosIds) {
+            if (!empty($candidatosVotadosIds)) {
+                $query->whereIn('id_votante', $candidatosVotadosIds);
+            }
+            if (!empty($tipos)) {
+                $query->orWhere(function ($sub) use ($tipos) {
+                    foreach ($tipos as $tipo) {
+                        $sub->orWhere('tipo', $tipo)
+                            ->orWhere('tipo', 'like', $tipo . '|%')
+                            ->orWhere('tipo', 'like', '%|' . $tipo)
+                            ->orWhere('tipo', 'like', '%|' . $tipo . '|%');
+                    }
+                });
+            }
+        })
+        ->with('votante')
+        ->get();
 
     return Inertia::render('Dashboard', [
         'eventos' => $eventos,
         'votos' => $votos,
         'proyectos' => Hash_proyectos::with('proyecto')->get(),
-        'candidatos' => Hash_votantes::where('candidato', 1)->whereIn('tipo', $tipos)->with('votante')->get(),
+        'candidatos' => $candidatos,
         'eventos_admin' => $eventos_admin,
         'votantes' => $votantes,
         'info_votante' => $info_votante ? $info_votante->where('subtipo', '!=', 0)->values() : 0,

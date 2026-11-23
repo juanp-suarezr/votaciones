@@ -107,21 +107,69 @@ class VotosController extends Controller
             );
         };
 
+        $eventoId = RequestFacade::input('evento');
+        $eventoModel = $eventoId ? Eventos::find($eventoId) : null;
+
+        // 1. Primer filtro: tipos configurados en el Evento
+        $tiposEvento = [];
+        if ($eventoModel && !empty($eventoModel->tipos)) {
+            $tiposEvento = array_values(array_filter(
+                array_map('trim', explode('|', (string) $eventoModel->tipos)),
+                fn($t) => !in_array($t, ['withBanner', 'Proyecto', 'Delegados']) && $t !== ''
+            ));
+        }
+
+        // 2. Tipos del Votante
+        $tipoUserParam = RequestFacade::input('tipo_user');
+        if (empty($tipoUserParam) && !empty($infoVotante) && isset($infoVotante[0])) {
+            $tipoUserParam = Hash_votantes::where('id_evento', $eventoId)
+                ->where('id_votante', $infoVotante[0]->id)
+                ->value('tipo');
+        }
+
+        $tiposVotante = [];
+        if (!empty($tipoUserParam)) {
+            $tiposVotante = array_values(array_filter(
+                array_map('trim', explode('|', (string) $tipoUserParam)),
+                fn($t) => $t !== ''
+            ));
+        }
+
+        // 3. Relación / Intersección de tipos:
+        // - Si el evento tiene tipos específicos y el usuario tiene tipos, se obtiene la intersección.
+        // - Si hay coincidencia, solo se habilitan los tipos que el evento permite y que el usuario posee.
+        // - Si no hay intersección o el evento no tiene tipos restrictivos, se usan los tipos del votante.
+        if (!empty($tiposEvento) && !empty($tiposVotante)) {
+            $interseccion = array_values(array_intersect($tiposEvento, $tiposVotante));
+            $tiposValidos = !empty($interseccion) ? $interseccion : $tiposVotante;
+        } elseif (!empty($tiposEvento)) {
+            $tiposValidos = $tiposEvento;
+        } else {
+            $tiposValidos = $tiposVotante;
+        }
+
+        // 4. Consulta de candidatos del evento que correspondan a los tipos válidos
+        $candidatos = Hash_votantes::query()
+            ->where('id_evento', $eventoId)
+            ->where('candidato', 1)
+            ->when(!empty($tiposValidos), function ($query) use ($tiposValidos) {
+                $query->where(function ($sub) use ($tiposValidos) {
+                    foreach ($tiposValidos as $tipo) {
+                        $sub->orWhere('tipo', $tipo)
+                            ->orWhere('tipo', 'like', $tipo . '|%')
+                            ->orWhere('tipo', 'like', '%|' . $tipo)
+                            ->orWhere('tipo', 'like', '%|' . $tipo . '|%');
+                    }
+                });
+            })
+            ->with('votante')
+            ->get();
+
         return Inertia::render(
-
             'Votos/Index',
-
             [
-                'candidatos' => Hash_votantes::query()
-                    ->when(RequestFacade::input('evento') || RequestFacade::input('tipo_user'), function ($query) {
-                        $evento = RequestFacade::input('evento');
-                        $tipo_user = RequestFacade::input('tipo_user');
-                        $query->where('id_evento', 'like', '%' . $evento . '%')
-                            ->Where('tipo', 'like', '%' . $tipo_user . '%');
-                    })->where('candidato', 1)->with('votante')->get(),
-
+                'candidatos' => $candidatos,
                 'votante' => $infoVotante,
-
             ]
         );
     }
