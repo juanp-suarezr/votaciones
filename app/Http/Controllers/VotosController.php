@@ -165,10 +165,19 @@ class VotosController extends Controller
             ->with('votante')
             ->get();
 
+        // 5. Presentación al azar de los candidatos (solo votación general / interna)
+        // Se preserva el "Voto en Blanco" al final si está presente
+        [$votoBlanco, $candidatosRegulares] = $candidatos->partition(function ($c) {
+            $nombre = trim($c->votante->nombre ?? '');
+            return stripos($nombre, 'blanco') !== false;
+        });
+
+        $candidatosPresentacion = $candidatosRegulares->shuffle()->concat($votoBlanco)->values();
+
         return Inertia::render(
             'Votos/Index',
             [
-                'candidatos' => $candidatos,
+                'candidatos' => $candidatosPresentacion,
                 'votante' => $infoVotante,
             ]
         );
