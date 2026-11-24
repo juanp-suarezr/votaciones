@@ -21,6 +21,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\SimpleType\JcTable;
+use App\Services\ReporteGraficosService;
 
 class AnalisisController extends Controller
 {
@@ -266,7 +267,17 @@ class AnalisisController extends Controller
         foreach ($data['distribucion_tipos'] as $dist) {
             $section->addListItem("{$dist['tipo']}: " . number_format($dist['votos'], 0, ',', '.') . " votos.", 0, ['name' => 'Arial', 'size' => 9.5]);
         }
-        $section->addText('', [], ['spaceAfter' => 140]);
+        $section->addText('', [], ['spaceAfter' => 80]);
+
+        // Insertar imagen del gráfico del Dashboard General
+        if (!empty($data['grafico_dashboard']['path']) && file_exists($data['grafico_dashboard']['path'])) {
+            $section->addImage($data['grafico_dashboard']['path'], [
+                'width' => 450,
+                'height' => 180,
+                'alignment' => Jc::CENTER,
+            ]);
+            $section->addText('', [], ['spaceAfter' => 120]);
+        }
 
         // 4. Resultados por Categorías
         $section->addText('4. Resultados por Categorías', ['name' => 'Arial', 'size' => 10.5, 'bold' => true, 'color' => '0F172A'], ['spaceAfter' => 50]);
@@ -290,7 +301,17 @@ class AnalisisController extends Controller
                     $section->addListItem("{$cand['nombre']}: {$cand['votos']} votos ({$cand['porcentaje']}%)", 0, ['name' => 'Arial', 'size' => 9.5]);
                 }
             }
-            $section->addText('', [], ['spaceAfter' => 50]);
+            $section->addText('', [], ['spaceAfter' => 60]);
+
+            // Insertar imagen del gráfico de la categoría (Barras + Dona)
+            if (!empty($cat['grafico']['path']) && file_exists($cat['grafico']['path'])) {
+                $section->addImage($cat['grafico']['path'], [
+                    'width' => 450,
+                    'height' => 180,
+                    'alignment' => Jc::CENTER,
+                ]);
+                $section->addText('', [], ['spaceAfter' => 80]);
+            }
 
             // Tabla de candidatos
             $table = $section->addTable([
@@ -407,6 +428,7 @@ class AnalisisController extends Controller
 
         $distribucionTipos = [];
         $categoriasDetalladas = [];
+        $graficosService = new ReporteGraficosService();
 
         foreach ($tiposEvento as $tipo) {
             // Censo en este tipo
@@ -489,6 +511,9 @@ class AnalisisController extends Controller
 
             $candidatosFinal = array_merge($regulares, $blancos);
 
+            // Generar gráfico de la categoría (Barras de candidatos + Dona de participación)
+            $graficoCat = $graficosService->generarGraficoCategoria($tipo, $votosTipo, $abstencionTipo, $candidatosFinal);
+
             $categoriasDetalladas[] = [
                 'tipo' => $tipo,
                 'censo' => $censoTipo,
@@ -496,8 +521,12 @@ class AnalisisController extends Controller
                 'abstencion' => $abstencionTipo,
                 'porcentaje' => $porcentajeTipo,
                 'candidatos' => $candidatosFinal,
+                'grafico' => $graficoCat,
             ];
         }
+
+        // Generar gráfico general de Dashboard
+        $graficoDashboard = $graficosService->generarGraficoDashboard($totalHabilitados, $totalVotos, $distribucionTipos);
 
         $logoPath = public_path('assets/img/logo.png');
         $logoBase64 = null;
@@ -517,6 +546,7 @@ class AnalisisController extends Controller
             'porcentaje_participacion' => $porcentajeParticipacion,
             'distribucion_tipos' => $distribucionTipos,
             'categorias' => $categoriasDetalladas,
+            'grafico_dashboard' => $graficoDashboard,
             'logo_base64' => $logoBase64,
             'logo_path' => $logoPath,
         ];

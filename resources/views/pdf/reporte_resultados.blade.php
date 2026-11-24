@@ -193,6 +193,13 @@
         @endforeach
     </ul>
 
+    <!-- Gráfica Dashboard General -->
+    @if(!empty($grafico_dashboard['base64']))
+        <div style="text-align: center; margin: 10px 0 16px 0;">
+            <img src="{{ $grafico_dashboard['base64'] }}" style="width: 100%; max-width: 530px; border-radius: 6px;" alt="Dashboard General">
+        </div>
+    @endif
+
     <!-- 4. Resultados por Categorías -->
     <div class="section-title" style="margin-top: 18px;">4. Resultados por Categorías</div>
     <div class="intro-text">
@@ -219,6 +226,13 @@
                     </li>
                 @endforeach
             </ul>
+
+            <!-- Gráfica de la Categoría (Barras + Dona) -->
+            @if(!empty($cat['grafico']['base64']))
+                <div style="text-align: center; margin: 8px 0 12px 0;">
+                    <img src="{{ $cat['grafico']['base64'] }}" style="width: 100%; max-width: 530px; border-radius: 6px;" alt="Gráfico {{ $cat['tipo'] }}">
+                </div>
+            @endif
 
             <!-- Tabla de Resultados de la Categoría -->
             <table class="data-table">
