@@ -452,6 +452,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('eventos', EventosController::class);
     Route::resource('votos', VotosController::class);
     Route::resource('candidatos', CandidatosController::class);
+    Route::get('analisis/reporte-pdf/{idEvento}', [AnalisisController::class, 'exportarPdf'])->name('analisis.reporte.pdf');
+    Route::get('analisis/reporte-word/{idEvento}', [AnalisisController::class, 'exportarWord'])->name('analisis.reporte.word');
     Route::resource('analisis', AnalisisController::class);
 
     Route::resource('gestion_registros', ValidacionesController::class);

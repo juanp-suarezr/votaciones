@@ -3,13 +3,40 @@
 
   <AuthenticatedLayout :breadCrumbLinks="breadcrumbLinks">
     <template #header>
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold leading-tight text-gray-800">
-          Análisis de Resultados Electorales
-        </h2>
-        <span v-if="eventoActual" class="text-xs sm:text-sm px-3 py-1 bg-blue-50 text-blue-700 font-semibold rounded-full border border-blue-200">
-          {{ eventoActual.nombre }}
-        </span>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold leading-tight text-gray-800">
+            Análisis de Resultados Electorales
+          </h2>
+          <span v-if="eventoActual" class="text-xs text-gray-500 font-medium">
+            Evento: <strong class="text-gray-700">{{ eventoActual.nombre }}</strong>
+          </span>
+        </div>
+
+        <!-- Botones de Exportación de Reporte Oficial (PDF y Word) -->
+        <div v-if="evento_selected" class="flex items-center gap-2">
+          <a
+            :href="route('analisis.reporte.pdf', evento_selected)"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold shadow-sm hover:shadow transition"
+            title="Descargar informe oficial de resultados en PDF"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Reporte PDF</span>
+          </a>
+
+          <a
+            :href="route('analisis.reporte.word', evento_selected)"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold shadow-sm hover:shadow transition"
+            title="Descargar informe oficial de resultados en formato Word (.docx)"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Reporte Word</span>
+          </a>
+        </div>
       </div>
     </template>
 
