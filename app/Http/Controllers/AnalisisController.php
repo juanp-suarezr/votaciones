@@ -61,15 +61,13 @@ class AnalisisController extends Controller
             ->values();
 
         $candidatosQuery = Hash_votantes::where('candidato', 1)->with('votante');
-        $votantesQuery = Hash_votantes::whereNot('tipo', 'Admin')
-            ->whereHas('votante.user.roles', function ($query) {
-                $query->where('name', '!=', 'votoBlanco'); // Excluye roles con 'votoBlanco'
-            })
-            ->with(['votante.user.roles']);
+        $votantesQuery = Hash_votantes::select('id', 'id_evento', 'tipo');
 
         if ($isSupervisor && $eventoAsignadoId) {
             $candidatosQuery->where('id_evento', $eventoAsignadoId);
             $votantesQuery->where('id_evento', $eventoAsignadoId);
+        } else {
+            $votantesQuery->whereIn('id_evento', $eventos->pluck('id'));
         }
 
         return Inertia::render(
@@ -397,11 +395,8 @@ class AnalisisController extends Controller
             ? Carbon::parse($evento->fecha_fin)->locale('es')->isoFormat('D [de] MMMM [de] YYYY (HH:mm:ss)') 
             : ($evento->votos->isNotEmpty() ? Carbon::parse($evento->votos->max('created_at'))->locale('es')->isoFormat('D [de] MMMM [de] YYYY (HH:mm:ss)') : 'N/A');
 
-        // Censo de votantes habilitados
-        $totalHabilitados = Hash_votantes::where('id_evento', $evento->id)
-            ->where('candidato', 0)
-            ->whereNot('tipo', 'Admin')
-            ->count();
+        // Censo de votantes habilitados (Total de asignados en el censo del evento)
+        $totalHabilitados = Hash_votantes::where('id_evento', $evento->id)->count();
 
         $totalVotos = $evento->votos->count();
         $totalAbstencion = max(0, $totalHabilitados - $totalVotos);
@@ -416,7 +411,6 @@ class AnalisisController extends Controller
 
         if (empty($tiposEvento)) {
             $tiposEvento = Hash_votantes::where('id_evento', $evento->id)
-                ->whereNot('tipo', 'Admin')
                 ->pluck('tipo')
                 ->flatMap(fn($t) => explode('|', (string)$t))
                 ->map(fn($t) => trim($t))
@@ -431,9 +425,8 @@ class AnalisisController extends Controller
         $graficosService = new ReporteGraficosService();
 
         foreach ($tiposEvento as $tipo) {
-            // Censo en este tipo
+            // Censo habilitado en este tipo
             $censoTipo = Hash_votantes::where('id_evento', $evento->id)
-                ->where('candidato', 0)
                 ->where(function ($q) use ($tipo) {
                     $q->orWhere('tipo', $tipo)
                       ->orWhere('tipo', 'like', $tipo . '|%')
