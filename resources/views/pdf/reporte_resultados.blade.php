@@ -143,7 +143,7 @@
         <tr>
             <td style="vertical-align: middle;">
                 <span style="font-size: 8.5pt; color: #64748b; font-weight: bold; text-transform: uppercase;">
-                    República de Colombia — Alcaldía de Pereira
+                    Alcaldía de Pereira
                 </span>
             </td>
             <td class="logo-cell">

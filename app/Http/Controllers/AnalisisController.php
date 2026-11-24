@@ -195,7 +195,7 @@ class AnalisisController extends Controller
         $headerTable->addRow();
         $cellLeft = $headerTable->addCell(6000);
         $cellLeft->addText(
-            'REPÚBLICA DE COLOMBIA — ALCALDÍA DE PEREIRA',
+            'ALCALDÍA DE PEREIRA',
             ['name' => 'Arial', 'size' => 8.5, 'color' => '64748B', 'bold' => true]
         );
 
