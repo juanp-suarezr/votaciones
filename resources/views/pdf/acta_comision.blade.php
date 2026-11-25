@@ -536,9 +536,14 @@
                 </thead>
                 <tbody>
                     @foreach($resultados_candidatos as $idx => $cand)
-                        <tr>
+                        <tr style="{{ !empty($cand['es_blanco']) ? 'background-color: #f8fafc; font-style: italic;' : '' }}">
                             <td>{{ $idx + 1 }}</td>
-                            <td><strong>{{ $cand['nombre'] }}</strong></td>
+                            <td>
+                                <strong>{{ $cand['nombre'] }}</strong>
+                                @if(!empty($cand['es_blanco']))
+                                    <span style="font-size: 8pt; color: #64748b; font-weight: normal; margin-left: 4px;">(Voto en Blanco)</span>
+                                @endif
+                            </td>
                             <td>{{ $cand['identificacion'] }}</td>
                             <td>{{ $cand['subtitulo'] ?? 'N/A' }}</td>
                             <td>{{ \Illuminate\Support\Str::limit($cand['dependencia'] ?? 'N/A', 25) }}</td>
@@ -605,13 +610,18 @@
                 </thead>
                 <tbody>
                     @foreach($resultados_candidatos as $idx => $r)
-                        <tr>
+                        <tr style="{{ !empty($r['es_blanco']) ? 'background-color: #f8fafc; font-style: italic;' : '' }}">
                             <td><strong>#{{ $idx + 1 }}</strong></td>
-                            <td><strong>{{ $r['nombre'] }}</strong></td>
+                            <td>
+                                <strong>{{ $r['nombre'] }}</strong>
+                                @if(!empty($r['es_blanco']))
+                                    <span style="font-size: 8pt; color: #64748b; font-weight: normal; margin-left: 4px;">(Opción Oficial)</span>
+                                @endif
+                            </td>
                             <td>{{ $r['subtitulo'] ?? 'N/A' }}</td>
                             <td>{{ \Illuminate\Support\Str::limit($r['dependencia'] ?? 'N/A', 25) }}</td>
-                            <td style="text-align: right; font-weight: bold; color: #0284c7;">{{ $r['votos'] }}</td>
-                            <td style="text-align: right; font-weight: bold;">{{ $r['porcentaje'] }}%</td>
+                            <td style="text-align: right; font-weight: bold; color: {{ !empty($r['es_blanco']) ? '#475569' : '#0284c7' }};">{{ $r['votos'] }}</td>
+                            <td style="text-align: right; font-weight: bold; color: {{ !empty($r['es_blanco']) ? '#475569' : '#0f172a' }};">{{ $r['porcentaje'] }}%</td>
                         </tr>
                     @endforeach
                 </tbody>

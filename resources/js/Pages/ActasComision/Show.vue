@@ -306,9 +306,12 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  <tr v-for="(cand, idx) in resultados_candidatos" :key="cand.id" class="hover:bg-gray-50">
-                    <td class="py-2 px-3 font-bold text-center text-[#C20E1A]">{{ idx + 1 }}</td>
-                    <td class="py-2 px-3 font-bold text-gray-900">{{ cand.nombre }}</td>
+                  <tr v-for="(cand, idx) in resultados_candidatos" :key="cand.id" :class="cand.es_blanco ? 'bg-slate-50 italic text-slate-600' : 'hover:bg-gray-50'">
+                    <td class="py-2 px-3 font-bold text-center" :class="cand.es_blanco ? 'text-slate-400' : 'text-[#C20E1A]'">{{ idx + 1 }}</td>
+                    <td class="py-2 px-3 font-bold" :class="cand.es_blanco ? 'text-slate-700' : 'text-gray-900'">
+                      {{ cand.nombre }}
+                      <span v-if="cand.es_blanco" class="ml-1.5 text-[10px] font-normal text-slate-500">(Opción Oficial)</span>
+                    </td>
                     <td class="py-2 px-3 text-gray-600 font-mono text-[11px]">{{ cand.identificacion }}</td>
                     <td class="py-2 px-3">{{ cand.subtitulo || 'N/A' }}</td>
                     <td class="py-2 px-3 text-gray-600">{{ cand.dependencia || 'N/A' }}</td>
@@ -361,13 +364,16 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  <tr v-for="(r, idx) in resultados_candidatos" :key="r.id" class="hover:bg-gray-50">
-                    <td class="py-2 px-3 font-bold text-center text-[#C20E1A]">#{{ idx + 1 }}</td>
-                    <td class="py-2 px-3 font-bold text-gray-900">{{ r.nombre }}</td>
+                  <tr v-for="(r, idx) in resultados_candidatos" :key="r.id" :class="r.es_blanco ? 'bg-slate-50 italic text-slate-600' : 'hover:bg-gray-50'">
+                    <td class="py-2 px-3 font-bold text-center" :class="r.es_blanco ? 'text-slate-400' : 'text-[#C20E1A]'">#{{ idx + 1 }}</td>
+                    <td class="py-2 px-3 font-bold" :class="r.es_blanco ? 'text-slate-700' : 'text-gray-900'">
+                      {{ r.nombre }}
+                      <span v-if="r.es_blanco" class="ml-1.5 text-[10px] font-normal text-slate-500">(Opción Oficial)</span>
+                    </td>
                     <td class="py-2 px-3 text-gray-600">{{ r.subtitulo || 'N/A' }}</td>
                     <td class="py-2 px-3 text-gray-600">{{ r.dependencia || 'N/A' }}</td>
-                    <td class="py-2 px-3 text-right font-black text-slate-900">{{ r.votos }}</td>
-                    <td class="py-2 px-3 text-right font-bold text-emerald-700">{{ r.porcentaje }}%</td>
+                    <td class="py-2 px-3 text-right font-black" :class="r.es_blanco ? 'text-slate-500' : 'text-slate-900'">{{ r.votos }}</td>
+                    <td class="py-2 px-3 text-right font-bold" :class="r.es_blanco ? 'text-slate-500' : 'text-emerald-700'">{{ r.porcentaje }}%</td>
                   </tr>
                   <tr v-if="resultados_candidatos.length === 0">
                     <td colspan="6" class="py-4 text-center text-gray-400 italic">
