@@ -610,18 +610,20 @@
                 </thead>
                 <tbody>
                     @foreach($resultados_candidatos as $idx => $r)
-                        <tr style="{{ !empty($r['es_blanco']) ? 'background-color: #f8fafc; font-style: italic;' : '' }}">
+                        <tr style="{{ !empty($r['es_blanco']) ? 'background-color: #f8fafc; font-style: italic;' : (!empty($r['es_ganador']) ? 'background-color: #f0fdf4;' : '') }}">
                             <td><strong>#{{ $idx + 1 }}</strong></td>
                             <td>
                                 <strong>{{ $r['nombre'] }}</strong>
-                                @if(!empty($r['es_blanco']))
+                                @if(!empty($r['es_ganador']))
+                                    <span style="font-size: 8pt; color: #15803d; font-weight: bold; margin-left: 4px;">(Ganador/a)</span>
+                                @elseif(!empty($r['es_blanco']))
                                     <span style="font-size: 8pt; color: #64748b; font-weight: normal; margin-left: 4px;">(Opción Oficial)</span>
                                 @endif
                             </td>
                             <td>{{ $r['subtitulo'] ?? 'N/A' }}</td>
                             <td>{{ \Illuminate\Support\Str::limit($r['dependencia'] ?? 'N/A', 25) }}</td>
-                            <td style="text-align: right; font-weight: bold; color: {{ !empty($r['es_blanco']) ? '#475569' : '#0284c7' }};">{{ $r['votos'] }}</td>
-                            <td style="text-align: right; font-weight: bold; color: {{ !empty($r['es_blanco']) ? '#475569' : '#0f172a' }};">{{ $r['porcentaje'] }}%</td>
+                            <td style="text-align: right; font-weight: bold; color: {{ !empty($r['es_blanco']) ? '#475569' : (!empty($r['es_ganador']) ? '#15803d' : '#0284c7') }};">{{ $r['votos'] }}</td>
+                            <td style="text-align: right; font-weight: bold; color: {{ !empty($r['es_blanco']) ? '#475569' : (!empty($r['es_ganador']) ? '#15803d' : '#0f172a') }};">{{ $r['porcentaje'] }}%</td>
                         </tr>
                     @endforeach
                 </tbody>

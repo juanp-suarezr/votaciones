@@ -347,28 +347,33 @@ class ActasComisionPersonalController extends Controller
     }
 
     /**
-     * Obtiene las opciones de votación (candidatos o proyectos) y sus votos,
-     * incluyendo el voto en blanco si el evento lo tiene contemplado o registra votos en blanco.
+     * Obtiene las opciones de votación (candidatos o proyectos) y sus resultados de escrutinio,
+     * siguiendo exactamente la misma lógica de consulta y ordenamiento de AnalisisController:
+     * - Candidatos desde Hash_votantes con candidato = 1
+     * - Voto en blanco identificado por nombre ('blanco')
+     * - Orden de mayor a menor por votación y voto en blanco siempre de último
+     * - Cálculo porcentual por categoría/tipo según corresponda
      */
     private function getOpcionesElectorales($eventoId)
     {
-        $totalVotos = Votos::where('id_eventos', $eventoId)->count();
-        $evento = Eventos::find($eventoId);
+        $evento = Eventos::with('votos')->find($eventoId);
+        if (!$evento) {
+            return collect();
+        }
 
-        // 1. Proyectos (Presupuesto Participativo u otros con proyectos)
+        $totalVotos = $evento->votos ? $evento->votos->count() : 0;
+
+        // 1. Proyectos (Presupuesto Participativo)
         $proyectos = Hash_proyectos::where('id_evento', $eventoId)
             ->with('proyecto')
             ->get();
 
         if ($proyectos->isNotEmpty()) {
-            $proyectosData = $proyectos->map(function ($hp) use ($eventoId, $totalVotos) {
+            $proyectosData = $proyectos->map(function ($hp) use ($evento, $totalVotos) {
                 $nombre = $hp->proyecto ? $hp->proyecto->nombre : ('Proyecto #' . $hp->id_proyecto);
-                $votos = Votos::where('id_eventos', $eventoId)
-                    ->where('id_proyecto', $hp->id_proyecto)
-                    ->count();
+                $votos = $evento->votos ? $evento->votos->where('id_proyecto', $hp->id_proyecto)->count() : 0;
                 return [
                     'id' => $hp->id,
-                    'id_opcion' => $hp->id_proyecto,
                     'nombre' => $nombre,
                     'identificacion' => 'PROY-' . $hp->id_proyecto,
                     'subtitulo' => $hp->comuna ?? 'Proyecto',
@@ -377,21 +382,15 @@ class ActasComisionPersonalController extends Controller
                     'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
                     'tipo_opcion' => 'proyecto',
                     'es_blanco' => false,
+                    'es_ganador' => false,
                 ];
             })->sortByDesc('votos')->values()->all();
 
-            // Voto en blanco en proyectos (id_proyecto = 0 o id_candidato = 0)
-            $votosBlancoProy = Votos::where('id_eventos', $eventoId)
-                ->where(function ($q) {
-                    $q->where('id_proyecto', 0)
-                      ->orWhereNull('id_proyecto');
-                })
-                ->count();
-
+            // Voto en blanco en proyectos (id_proyecto = 0)
+            $votosBlancoProy = $evento->votos ? $evento->votos->where('id_proyecto', 0)->count() : 0;
             if ($votosBlancoProy > 0) {
                 $proyectosData[] = [
                     'id' => 0,
-                    'id_opcion' => 0,
                     'nombre' => 'Voto en Blanco',
                     'identificacion' => 'BLANCO',
                     'subtitulo' => 'Opción Oficial',
@@ -400,190 +399,173 @@ class ActasComisionPersonalController extends Controller
                     'porcentaje' => $totalVotos > 0 ? round(($votosBlancoProy / $totalVotos) * 100, 2) : 0,
                     'tipo_opcion' => 'blanco',
                     'es_blanco' => true,
+                    'es_ganador' => false,
                 ];
             }
 
             return collect($proyectosData);
         }
 
-        // 2. Candidatos regulares (Postulaciones aprobadas o Hash_votantes)
-        $postulacionesAprobadas = Postulaciones_candidatos::where('id_evento', $eventoId)
-            ->where('estado', 'aprobado')
-            ->get();
+        // 2. Eventos con Categorías / Tipos (Igual que en AnalisisController)
+        $ignoredFlags = ['withBanner', 'Proyecto', 'Delegados'];
+        $tiposEvento = array_values(array_filter(
+            array_map('trim', explode('|', (string) $evento->tipos)),
+            fn($t) => !in_array($t, $ignoredFlags) && $t !== ''
+        ));
 
-        $candidatosRegulares = [];
-        $idsVotantesCandidatos = [];
+        if (empty($tiposEvento)) {
+            $tiposEvento = Hash_votantes::where('id_evento', $evento->id)
+                ->pluck('tipo')
+                ->flatMap(fn($t) => explode('|', (string)$t))
+                ->map(fn($t) => trim($t))
+                ->filter(fn($t) => !in_array($t, $ignoredFlags) && $t !== '')
+                ->unique()
+                ->values()
+                ->all();
+        }
 
-        if ($postulacionesAprobadas->isNotEmpty()) {
-            foreach ($postulacionesAprobadas as $c) {
-                $idsVotantesCandidatos[] = $c->id_votante;
-                $votos = Votos::where('id_eventos', $eventoId)
-                    ->where('id_candidato', $c->id_votante)
-                    ->count();
-                $candidatosRegulares[] = [
-                    'id' => $c->id,
-                    'id_votante' => $c->id_votante,
-                    'nombre' => $c->nombre,
-                    'identificacion' => $c->identificacion,
-                    'subtitulo' => $c->tipo_planta ?? 'Candidato',
-                    'dependencia' => $c->dependencia ?? 'N/A',
-                    'votos' => $votos,
-                    'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
-                    'tipo_opcion' => 'candidato',
-                    'es_blanco' => false,
-                ];
+        $resultadosFinales = [];
+
+        if (!empty($tiposEvento)) {
+            foreach ($tiposEvento as $tipo) {
+                // Votos de este tipo/categoría
+                $votosTipo = $evento->votos ? $evento->votos->filter(function ($v) use ($tipo) {
+                    $tokens = explode('|', (string)$v->tipo);
+                    return in_array($tipo, $tokens);
+                })->count() : 0;
+
+                // Candidatos en Hash_votantes para este tipo (candidato = 1)
+                $candidatosHash = Hash_votantes::where('id_evento', $evento->id)
+                    ->where('candidato', 1)
+                    ->where(function ($q) use ($tipo) {
+                        $q->orWhere('tipo', $tipo)
+                          ->orWhere('tipo', 'like', $tipo . '|%')
+                          ->orWhere('tipo', 'like', '%|' . $tipo)
+                          ->orWhere('tipo', 'like', '%|' . $tipo . '|%');
+                    })
+                    ->with('votante')
+                    ->get();
+
+                $candidatosData = [];
+                foreach ($candidatosHash as $cand) {
+                    $nombre = $cand->votante ? ($cand->votante->nombre . ' ' . ($cand->votante->apellido ?? '')) : 'Candidato #' . $cand->id;
+                    $identificacion = $cand->votante ? $cand->votante->identificacion : 'N/A';
+                    $votosCand = $evento->votos ? $evento->votos->where('id_candidato', $cand->id_votante)->count() : 0;
+                    $esBlanco = stripos($nombre, 'blanco') !== false;
+
+                    $candidatosData[] = [
+                        'id' => $cand->id,
+                        'id_votante' => $cand->id_votante,
+                        'nombre' => trim($nombre),
+                        'identificacion' => $identificacion,
+                        'subtitulo' => $tipo,
+                        'dependencia' => $cand->votante ? ($cand->votante->dependencia ?? 'N/A') : 'N/A',
+                        'votos' => $votosCand,
+                        'es_blanco' => $esBlanco,
+                        'porcentaje' => $votosTipo > 0 ? round(($votosCand / $votosTipo) * 100, 2) : 0,
+                        'tipo_opcion' => $esBlanco ? 'blanco' : 'candidato',
+                        'es_ganador' => false,
+                    ];
+                }
+
+                // Separar candidatos regulares y voto en blanco
+                $regulares = array_values(array_filter($candidatosData, fn($c) => !$c['es_blanco']));
+                $blancos = array_values(array_filter($candidatosData, fn($c) => $c['es_blanco']));
+
+                // Ordenar regulares de mayor a menor por votos
+                usort($regulares, function ($a, $b) {
+                    if ($b['votos'] !== $a['votos']) {
+                        return $b['votos'] <=> $a['votos'];
+                    }
+                    return strcmp($a['nombre'], $b['nombre']);
+                });
+
+                // Ordenar blancos de mayor a menor
+                usort($blancos, fn($a, $b) => $b['votos'] <=> $a['votos']);
+
+                // Marcar ganador de la categoría
+                if (!empty($regulares) && $regulares[0]['votos'] > 0) {
+                    $regulares[0]['es_ganador'] = true;
+                }
+
+                $candidatosCategoria = array_merge($regulares, $blancos);
+                $resultadosFinales = array_merge($resultadosFinales, $candidatosCategoria);
             }
-        } else {
-            $candidatosHash = Hash_votantes::where('id_evento', $eventoId)
+        }
+
+        // 3. Si no tiene tipos o no se encontraron candidatos por tipo, consulta global en Hash_votantes
+        if (empty($resultadosFinales)) {
+            $candidatosHash = Hash_votantes::where('id_evento', $evento->id)
                 ->where('candidato', 1)
                 ->with('votante')
                 ->get();
 
-            foreach ($candidatosHash as $h) {
-                $nombre = $h->votante ? ($h->votante->nombre . ' ' . ($h->votante->apellido ?? '')) : ('Candidato #' . $h->id);
+            $candidatosData = [];
+            foreach ($candidatosHash as $cand) {
+                $nombre = $cand->votante ? ($cand->votante->nombre . ' ' . ($cand->votante->apellido ?? '')) : 'Candidato #' . $cand->id;
+                $identificacion = $cand->votante ? $cand->votante->identificacion : 'N/A';
+                $votosCand = $evento->votos ? $evento->votos->where('id_candidato', $cand->id_votante)->count() : 0;
                 $esBlanco = stripos($nombre, 'blanco') !== false;
 
-                // Si es blanco, no lo añadimos a regulares; se gestiona en la sección de blancos
-                if ($esBlanco) {
-                    continue;
-                }
-
-                $idsVotantesCandidatos[] = $h->id_votante;
-                $votos = Votos::where('id_eventos', $eventoId)
-                    ->where('id_candidato', $h->id_votante)
-                    ->count();
-                $candidatosRegulares[] = [
-                    'id' => $h->id,
-                    'id_votante' => $h->id_votante,
+                $candidatosData[] = [
+                    'id' => $cand->id,
+                    'id_votante' => $cand->id_votante,
                     'nombre' => trim($nombre),
-                    'identificacion' => $h->votante ? $h->votante->identificacion : 'N/A',
-                    'subtitulo' => $h->tipo ?? 'Candidato',
-                    'dependencia' => 'Candidato Habilitado',
-                    'votos' => $votos,
-                    'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
-                    'tipo_opcion' => 'candidato',
-                    'es_blanco' => false,
+                    'identificacion' => $identificacion,
+                    'subtitulo' => $cand->tipo ?? 'Candidato',
+                    'dependencia' => $cand->votante ? ($cand->votante->dependencia ?? 'N/A') : 'N/A',
+                    'votos' => $votosCand,
+                    'es_blanco' => $esBlanco,
+                    'porcentaje' => $totalVotos > 0 ? round(($votosCand / $totalVotos) * 100, 2) : 0,
+                    'tipo_opcion' => $esBlanco ? 'blanco' : 'candidato',
+                    'es_ganador' => false,
                 ];
             }
-        }
 
-        // Ordenar candidatos regulares de mayor a menor votación
-        usort($candidatosRegulares, function ($a, $b) {
-            if ($b['votos'] !== $a['votos']) {
-                return $b['votos'] <=> $a['votos'];
+            $regulares = array_values(array_filter($candidatosData, fn($c) => !$c['es_blanco']));
+            $blancos = array_values(array_filter($candidatosData, fn($c) => $c['es_blanco']));
+
+            usort($regulares, function ($a, $b) {
+                if ($b['votos'] !== $a['votos']) {
+                    return $b['votos'] <=> $a['votos'];
+                }
+                return strcmp($a['nombre'], $b['nombre']);
+            });
+
+            usort($blancos, fn($a, $b) => $b['votos'] <=> $a['votos']);
+
+            if (!empty($regulares) && $regulares[0]['votos'] > 0) {
+                $regulares[0]['es_ganador'] = true;
             }
-            return strcmp($a['nombre'], $b['nombre']);
-        });
 
-        // 3. DETECCIÓN Y CONSOLIDACIÓN DEL VOTO EN BLANCO
-        // A) Buscar registros de Voto en Blanco en Hash_votantes para este evento
-        $blancosHash = Hash_votantes::where('id_evento', $eventoId)
-            ->where(function ($q) {
-                $q->whereHas('votante', function ($sub) {
-                    $sub->where('nombre', 'like', '%blanco%')
-                        ->orWhere('apellido', 'like', '%blanco%');
-                })
-                ->orWhereHas('votante.user.roles', function ($sub) {
-                    $sub->where('name', 'votoBlanco');
-                })
-                ->orWhere('tipo', 'like', '%blanco%');
-            })
-            ->with('votante')
-            ->get();
-
-        $opcionesBlancas = [];
-        $idsBlancosRegistrados = [];
-
-        foreach ($blancosHash as $hb) {
-            $idsBlancosRegistrados[] = $hb->id_votante;
-            $nombreB = $hb->votante ? ($hb->votante->nombre . ' ' . ($hb->votante->apellido ?? '')) : 'Voto en Blanco';
-            $votosB = Votos::where('id_eventos', $eventoId)
-                ->where('id_candidato', $hb->id_votante)
-                ->count();
-
-            $opcionesBlancas[] = [
-                'id' => $hb->id,
-                'id_votante' => $hb->id_votante,
-                'nombre' => trim($nombreB) ?: 'Voto en Blanco',
-                'identificacion' => $hb->votante ? $hb->votante->identificacion : 'N/A',
-                'subtitulo' => $hb->tipo ?? 'Voto en Blanco',
-                'dependencia' => 'Opción Oficial Institucional',
-                'votos' => $votosB,
-                'porcentaje' => $totalVotos > 0 ? round(($votosB / $totalVotos) * 100, 2) : 0,
-                'tipo_opcion' => 'blanco',
-                'es_blanco' => true,
-            ];
+            $resultadosFinales = array_merge($regulares, $blancos);
         }
 
-        // B) Votos dirigidos a id_candidato = 0 o nulo
-        $votosAnonimosBlanco = Votos::where('id_eventos', $eventoId)
-            ->where(function ($q) {
-                $q->where('id_candidato', 0)
-                  ->orWhereNull('id_candidato');
-            })
-            ->count();
+        // 4. Fallback si estuviera en postulaciones aprobadas (fase de postulaciones previas)
+        if (empty($resultadosFinales)) {
+            $postulacionesAprobadas = Postulaciones_candidatos::where('id_evento', $eventoId)
+                ->where('estado', 'aprobado')
+                ->get();
 
-        // Otros votos hacia candidatos cuyo nombre contenga "blanco" en la BD
-        $otrosVotosBlanco = Votos::where('id_eventos', $eventoId)
-            ->whereNotIn('id_candidato', array_merge($idsVotantesCandidatos, $idsBlancosRegistrados, [0]))
-            ->whereHas('candidato', function ($q) {
-                $q->where('nombre', 'like', '%blanco%')
-                  ->orWhere('apellido', 'like', '%blanco%');
-            })
-            ->count();
-
-        $votosExtrasBlanco = $votosAnonimosBlanco + $otrosVotosBlanco;
-
-        if ($votosExtrasBlanco > 0) {
-            if (!empty($opcionesBlancas)) {
-                $opcionesBlancas[0]['votos'] += $votosExtrasBlanco;
-                $opcionesBlancas[0]['porcentaje'] = $totalVotos > 0 ? round(($opcionesBlancas[0]['votos'] / $totalVotos) * 100, 2) : 0;
-            } else {
-                $opcionesBlancas[] = [
-                    'id' => 0,
-                    'id_votante' => 0,
-                    'nombre' => 'Voto en Blanco',
-                    'identificacion' => 'N/A',
-                    'subtitulo' => 'Voto en Blanco',
-                    'dependencia' => 'Opción Oficial Institucional',
-                    'votos' => $votosExtrasBlanco,
-                    'porcentaje' => $totalVotos > 0 ? round(($votosExtrasBlanco / $totalVotos) * 100, 2) : 0,
-                    'tipo_opcion' => 'blanco',
-                    'es_blanco' => true,
-                ];
+            if ($postulacionesAprobadas->isNotEmpty()) {
+                $resultadosFinales = $postulacionesAprobadas->map(function ($c) use ($evento, $totalVotos) {
+                    $votos = $evento->votos ? $evento->votos->where('id_candidato', $c->id_votante)->count() : 0;
+                    return [
+                        'id' => $c->id,
+                        'id_votante' => $c->id_votante,
+                        'nombre' => $c->nombre,
+                        'identificacion' => $c->identificacion,
+                        'subtitulo' => $c->tipo_planta ?? 'Candidato',
+                        'dependencia' => $c->dependencia ?? 'N/A',
+                        'votos' => $votos,
+                        'porcentaje' => $totalVotos > 0 ? round(($votos / $totalVotos) * 100, 2) : 0,
+                        'tipo_opcion' => 'candidato',
+                        'es_blanco' => false,
+                        'es_ganador' => false,
+                    ];
+                })->sortByDesc('votos')->values()->all();
             }
         }
-
-        // C) Si aún no hay opciones blancas, verificar si el evento lo contempla
-        if (empty($opcionesBlancas)) {
-            $sumaVotosRegulares = array_sum(array_column($candidatosRegulares, 'votos'));
-            $votosDiferencia = max(0, $totalVotos - $sumaVotosRegulares);
-
-            $eventoTieneBlanco = ($votosDiferencia > 0)
-                || !empty($candidatosRegulares)
-                || ($evento && !str_contains(strtolower($evento->tipos ?? ''), 'sin_blanco'));
-
-            if ($eventoTieneBlanco) {
-                $opcionesBlancas[] = [
-                    'id' => 0,
-                    'id_votante' => 0,
-                    'nombre' => 'Voto en Blanco',
-                    'identificacion' => 'N/A',
-                    'subtitulo' => 'Opción Oficial',
-                    'dependencia' => 'Voto en Blanco',
-                    'votos' => $votosDiferencia,
-                    'porcentaje' => $totalVotos > 0 ? round(($votosDiferencia / $totalVotos) * 100, 2) : 0,
-                    'tipo_opcion' => 'blanco',
-                    'es_blanco' => true,
-                ];
-            }
-        }
-
-        // Ordenar opciones blancas por votos de mayor a menor si hubiese más de una
-        usort($opcionesBlancas, fn($a, $b) => $b['votos'] <=> $a['votos']);
-
-        // Unir candidatos regulares primero y Voto en Blanco SIEMPRE AL FINAL
-        $resultadosFinales = array_merge($candidatosRegulares, $opcionesBlancas);
 
         return collect($resultadosFinales);
     }
